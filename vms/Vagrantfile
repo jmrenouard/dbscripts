@@ -1,0 +1,160 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+	config.vm.define "ghaproxy" do |ghaproxy|
+		ghaproxy.vm.box = "generic/centos7"
+		ghaproxy.vm.network "private_network", ip: "192.168.33.160", virtualbox__intnet: false
+		ghaproxy.vm.network "public_network"
+
+		ghaproxy.hostmanager.enabled = true
+		ghaproxy.hostmanager.manage_host = false
+		ghaproxy.hostmanager.manage_guest = true
+		ghaproxy.hostmanager.ignore_private_ip = false
+		ghaproxy.hostmanager.include_offline = true
+
+		ghaproxy.vm.hostname = 'ghaproxy'
+		ghaproxy.hostmanager.aliases = %w(ghaproxy.localdomain ghaproxy.local c7chap.local)
+
+		ghaproxy.vm.provider "virtualbox" do |vb|
+			vb.name="ghaproxy"
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+		end
+		ghaproxy.vm.provision "shell", path: "provision_generic.sh"
+		ghaproxy.vm.provision "shell", path: "provision_ansible.sh"
+		ghaproxy.vm.provision "shell", path: "provision_docker.sh"
+		ghaproxy.vm.provision :hostmanager
+	end
+
+	config.vm.define "galera1" do |galera1|
+		galera1.vm.box = "generic/centos7"
+		galera1.vm.network "private_network", ip: "192.168.33.161", virtualbox__intnet: false
+		galera1.vm.network "public_network"
+
+
+		galera1.hostmanager.enabled = true
+		galera1.hostmanager.manage_host = false
+		galera1.hostmanager.manage_guest = true
+		galera1.hostmanager.ignore_private_ip = false
+		galera1.hostmanager.include_offline = true
+
+		galera1.vm.hostname = 'galera1'
+		galera1.hostmanager.aliases = %w(galera1.localdomain galera1.local c7db1.local)
+
+		galera1.vm.provider "virtualbox" do |vb|
+			vb.name="galera1"
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+		end
+		galera1.persistent_storage.enabled = true
+		galera1.persistent_storage.location = "galera1_data.vdi"
+		galera1.persistent_storage.size = 1000
+		galera1.persistent_storage.mountname = 'data'
+		galera1.persistent_storage.filesystem = 'ext4'
+		galera1.persistent_storage.mountpoint = '/data'
+		galera1.persistent_storage.volgroupname = 'datavol'
+
+		galera1.vm.provision "shell", path: "provision_generic.sh"
+		galera1.vm.provision :hostmanager
+	end
+
+	config.vm.define "galera2" do |galera2|
+		galera2.vm.box = "generic/centos7"
+		galera2.vm.network "private_network", ip: "192.168.33.162", virtualbox__intnet: false
+		galera2.vm.network "public_network"
+
+		galera2.hostmanager.enabled = true
+		galera2.hostmanager.manage_host = false
+		galera2.hostmanager.manage_guest = true
+		galera2.hostmanager.ignore_private_ip = false
+		galera2.hostmanager.include_offline = true
+
+		galera2.vm.hostname = 'galera2'
+		galera2.hostmanager.aliases = %w(galera2.localdomain galera2.local c7db2.local)
+
+		galera2.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="galera2"
+		end
+		galera2.persistent_storage.enabled = true
+		galera2.persistent_storage.location = "galera2_data.vdi"
+		galera2.persistent_storage.size = 1000
+		galera2.persistent_storage.mountname = 'data'
+		galera2.persistent_storage.filesystem = 'ext4'
+		galera2.persistent_storage.mountpoint = '/data'
+		galera2.persistent_storage.volgroupname = 'datavol'
+
+ 		galera2.vm.provision "shell", path: "provision_generic.sh"
+		galera2.vm.provision :hostmanager
+	end
+
+	config.vm.define "galera3" do |galera3|
+		galera3.vm.box = "generic/centos7"
+		galera3.vm.network "private_network", ip: "192.168.33.163", virtualbox__intnet: false
+		galera3.vm.network "public_network"
+
+		galera3.hostmanager.enabled = true
+		galera3.hostmanager.manage_host = false
+		galera3.hostmanager.manage_guest = true
+		galera3.hostmanager.ignore_private_ip = false
+		galera3.hostmanager.include_offline = true
+
+		galera3.vm.hostname = 'galera3'
+		galera3.hostmanager.aliases = %w(galera3.localdomain galera3.local c7db3.local)
+
+		galera3.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="galera3"
+		end
+		galera3.persistent_storage.enabled = true
+		galera3.persistent_storage.location = "galera3_data.vdi"
+		galera3.persistent_storage.size = 1000
+		galera3.persistent_storage.mountname = 'data'
+		galera3.persistent_storage.filesystem = 'ext4'
+		galera3.persistent_storage.mountpoint = '/data'
+		galera3.persistent_storage.volgroupname = 'datavol'
+
+ 		galera3.vm.provision "shell", path: "provision_generic.sh"
+		galera3.vm.provision :hostmanager
+	end
+
+	config.vm.define "galera4" do |galera4|
+		galera4.vm.box = "generic/centos7"
+		galera4.vm.network "private_network", ip: "192.168.33.164", virtualbox__intnet: false
+		galera4.vm.network "public_network"
+
+		galera4.hostmanager.enabled = true
+		galera4.hostmanager.manage_host = false
+		galera4.hostmanager.manage_guest = true
+		galera4.hostmanager.ignore_private_ip = false
+		galera4.hostmanager.include_offline = true
+
+		galera4.vm.hostname = 'galera4'
+		galera4.hostmanager.aliases = %w(galera4.localdomain galera4.local c7db4.local)
+
+		galera4.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="galera4"
+
+		end
+		galera4.persistent_storage.enabled = true
+		galera4.persistent_storage.location = "galera4_data.vdi"
+		galera4.persistent_storage.size = 1000
+		galera4.persistent_storage.mountname = 'data'
+		galera4.persistent_storage.filesystem = 'ext4'
+		galera4.persistent_storage.mountpoint = '/data'
+		galera4.persistent_storage.volgroupname = 'datavol'
+
+		galera4.vm.provision "shell", path: "provision_generic.sh"
+		galera4.vm.provision :hostmanager
+	end
+end
