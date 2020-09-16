@@ -1,0 +1,8 @@
+[haproxy]
+ghaproxy.vm
+
+[mariadb]
+galera1
+galera2
+galera3
+galera4
