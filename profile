@@ -42,3 +42,14 @@ cpall()
 # execall "yum -y install socat MariaDB-backup rsync lsof percona-toolkit mysql-utilities"
 # execall "yum -y install ntpdate"
 # execall "ntpdate -vqd fr.pool.ntp.org"
+
+# 919  cpall changeIdserver.sh /tmp
+#  920  execall "cat /etc/my.cnf.d/60_server.cnf"
+#  921  execall "sh /tmp/changeIdserver.sh" 
+#  922  execall "cat /etc/my.cnf.d/60_server.cnf"
+#  923  execall "systemctl restart mariadb"
+
+# execall "setenforce  0"
+# execall "cat /tmp/security.sql | mysql"
+# cpall 61_galera.cnf  /etc/my.cnf.d/
+
