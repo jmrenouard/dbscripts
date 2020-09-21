@@ -1,1 +1,3 @@
 vms/*.repo
+*.vdi
+vms/.vagrant/
