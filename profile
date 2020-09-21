@@ -34,3 +34,7 @@ cpall()
 # execall "yum -y install MariaDB-server MariaDB-client"
 # execall "systemctl start mariadb"
 # execall "systemctl status mariadb"
+
+
+# execall "iptables --flush;iptables -L"
+# execall "setenforce 0;sestatus"
