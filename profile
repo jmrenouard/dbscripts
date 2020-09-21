@@ -38,3 +38,7 @@ cpall()
 
 # execall "iptables --flush;iptables -L"
 # execall "setenforce 0;sestatus"
+
+# execall "yum -y install socat MariaDB-backup rsync lsof percona-toolkit mysql-utilities"
+# execall "yum -y install ntpdate"
+# execall "ntpdate -vqd fr.pool.ntp.org"
