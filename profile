@@ -28,3 +28,9 @@ cpall()
 			echo "------------------"
 	done
 }
+
+##
+# cpall mariadb.repo  /etc/yum.repos.d
+# execall "yum -y install MariaDB-server MariaDB-client"
+# execall "systemctl start mariadb"
+# execall "systemctl status mariadb"

@@ -18,7 +18,7 @@ df
 growpart /dev/sda 1
 resize2fs /dev/sda1
 
-cd vms
+cd vms 
 sh init_vagrant.sh
 
 sh start.sh
