@@ -52,4 +52,6 @@ cpall()
 # execall "setenforce  0"
 # execall "cat /tmp/security.sql | mysql"
 # cpall 61_galera.cnf  /etc/my.cnf.d/
+# cpall changeWsrepConfig.sh /tmp
+# execall "sh /tmp/changeWsrepConfig.sh"
 
