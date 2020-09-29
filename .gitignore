@@ -1,3 +1,6 @@
 vms/*.repo
 *.vdi
 vms/.vagrant/
+generated_hosts
+inventory
+.ansible.cfg
