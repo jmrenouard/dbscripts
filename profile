@@ -568,3 +568,20 @@ lgenAlias()
 		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.ssh/id_rsa root@$lippub"
 	done
 }
+
+lgenSshKeys()
+{
+	rm -rf /tmp/lssh
+	mkdir -p /tmp/lssh
+	echo 'Host *
+    User root
+    Compression yes
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+   ' > /tmp/lssh/config
+	ssh-keygen -t rsa -N "" -C "vm keys" -f /tmp/lssh/id_rsa
+	acp all /tmp/lssh /tmp
+	acmd all "cp -p /tmp/lssh/id_rsa* /tmp/lssh/config /root/.ssh/"
+	acmd all "(echo; cat /root/.ssh/id_rsa.pub) >> /root/.ssh/authorized_keys"
+	acmd all "chmod 600 /root/.ssh/id_rsa /root/.ssh/config"
+}
