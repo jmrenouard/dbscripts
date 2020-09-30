@@ -1,2 +1,2 @@
-# galeracluster
+# Db Scripts
 Training support
