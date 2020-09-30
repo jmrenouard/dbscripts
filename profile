@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$0" != "/bin/bash" ]; then
+if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 	_DIR="$(dirname "$(readlink -f "$0")")"
 else
 	_DIR="$(readlink -f ".")"
