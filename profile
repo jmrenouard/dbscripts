@@ -450,21 +450,50 @@ synchronize_dir()
 
 #echo "synchronize_dir alipgflif01 /backups/export_07082019 alipgslir05 /backups/test_07082019"
 
+##############################################################################################################
+# ANSIBLE CODE
+##############################################################################################################
+genAnsibleCfg()
+{
+echo "[defaults]
+#scp_if_ssh = True
+#pipelining = False
+#system_warnings=False
+remote_user=root
+private_key_file=$HOME/.ssh/id_rsa
+inventory =${_DIR}/inventory
+[ssh_connection]
+scp_if_ssh=True" > $ANSIBLE_CONFIG
 
+echo "Fichier de config: $ANSIBLE_CONFIG"
+cat $ANSIBLE_CONFIG
+}
 
+genShraredSshKeys()
+{
+	if [ ! -d "$HOME/.conf"  -a ! -f "$HOME/.conf/id_rsa" ]; then
+		rm -rf $HOME/.conf
+		mkdir -p $HOME/.conf
+		echo 'Host *
+    User root
+    Compression yes
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+   ' > $HOME/.conf/config
+	ssh-keygen -t rsa -N "" -C "vm keys" -f $HOME/.conf/id_rsa
+	fi
+	acp all $HOME/.conf /tmp
+	acmd all "cp -p /tmp/.conf/id_rsa* /tmp/.conf/config /root/.ssh/"
+	acmd all "(echo; cat /root/.ssh/id_rsa.pub) >> /root/.ssh/authorized_keys"
+	acmd all "chmod 600 /root/.ssh/id_rsa /root/.ssh/config"
+}
+
+##############################################################################################################
+# LINODE CODE
+##############################################################################################################
 llist()
 {
 	linode-cli linodes list $*
-}
-
-ldelete()
-{
-	for lid in $(linode-cli linodes list --text | perl -ne  "/\s$1\s/ and print" | awk '{print $1}'); do
-		info "DELETING $lid LINODES"
-		llist --text | grep $lid
-		linode-cli linodes delete $lid
-	done
-	llist
 }
 
 lcreate()
@@ -487,8 +516,8 @@ lcreate()
 	echo "ROOT PASSWORD: $PASSWD"
 	echo "EXTRA PARAM  : $EXTRA_TAGS"
 
-	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.ssh/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS"
-	linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.ssh/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS
+	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.conf/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS"
+	linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.conf/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS
 	true
 	while [ $? -eq 0 ]; do
 		echo -n ".."
@@ -499,20 +528,14 @@ lcreate()
 	linode-cli linodes list
 }
 
-genAnsibleCfg()
+ldelete()
 {
-echo "[defaults]
-#scp_if_ssh = True
-#pipelining = False
-#system_warnings=False
-remote_user=root
-private_key_file=$HOME/.ssh/id_rsa
-inventory =${_DIR}/inventory
-[ssh_connection]
-scp_if_ssh=True" > $ANSIBLE_CONFIG
-
-echo "Fichier de config: $ANSIBLE_CONFIG"
-cat $ANSIBLE_CONFIG
+	for lid in $(linode-cli linodes list --text | perl -ne  "/\s$1\s/ and print" | awk '{print $1}'); do
+		info "DELETING $lid LINODES"
+		llist --text | grep $lid
+		linode-cli linodes delete $lid
+	done
+	llist
 }
 
 lgenInventory()
@@ -523,7 +546,7 @@ lgenInventory()
 		for srv in $(llist --text --tags $tag | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7}'); do
 			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 			lip=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-			echo "$lname ansible_host=$lip ansible_ssh_private_key_file=$HOME/.ssh/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
+			echo "$lname ansible_host=$lip ansible_ssh_private_key_file=$HOME/.conf/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
 		done
 		echo
 	done > $ANSIBLE_INVENTORY
@@ -565,23 +588,80 @@ lgenAlias()
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.ssh/id_rsa root@$lippub"
+		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.conf/id_rsa root@$lippub"
 	done
 }
 
-lgenSshKeys()
+
+##############################################################################################################
+# VAGRANT CODE
+##############################################################################################################
+vlist()
 {
-	rm -rf /tmp/lssh
-	mkdir -p /tmp/lssh
-	echo 'Host *
-    User root
-    Compression yes
-    StrictHostKeyChecking no
-    UserKnownHostsFile=/dev/null
-   ' > /tmp/lssh/config
-	ssh-keygen -t rsa -N "" -C "vm keys" -f /tmp/lssh/id_rsa
-	acp all /tmp/lssh /tmp
-	acmd all "cp -p /tmp/lssh/id_rsa* /tmp/lssh/config /root/.ssh/"
-	acmd all "(echo; cat /root/.ssh/id_rsa.pub) >> /root/.ssh/authorized_keys"
-	acmd all "chmod 600 /root/.ssh/id_rsa /root/.ssh/config"
+	linode-cli linodes list $*
+}
+
+vdelete()
+{
+	true
+}
+vcreate()
+{
+	true
+}
+
+
+vgenInventory()
+{
+return 0
+	for tag in $(linode-cli tags list --text |grep -v label); do
+		[ $(llist --text --tags $tag | wc -l) -eq 1 ] && continue
+		echo "[$tag]"
+		for srv in $(llist --text --tags $tag | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7}'); do
+			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
+			lip=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
+			echo "$lname ansible_host=$lip ansible_ssh_private_key_file=$HOME/.ssh/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
+		done
+		echo
+	done > $ANSIBLE_INVENTORY
+
+	cat $ANSIBLE_INVENTORY
+}
+
+vgenHosts()
+{
+	(
+	echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+### SPECIFIC CONFIG ###"
+for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
+			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
+			lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
+			lippriv=$(echo "$srv"| tr ';' ' ' |awk '{print $3}')
+			echo "$lippub	$lname	${lname}.public		${lname}.ext	${lname}.external"
+			echo "$lippriv 		${lname}.private	${lname}.int	${lname}.internal"
+		done
+
+echo "### END SPECIFIC CONFIG ###"
+) > ${_DIR}/generated_hosts
+cat ${_DIR}/generated_hosts
+}
+
+vsetupHosts()
+{
+	vgenInventory
+	vgenHosts
+	acp all ${_DIR}/generated_hosts /tmp
+	acmd all "cat /tmp/generated_hosts > /etc/hosts"
+	acmd all "cat /etc/hosts"
+}
+
+vgenAlias()
+{
+	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
+		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
+		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
+		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.ssh/id_rsa root@$lippub"
+	done
 }
