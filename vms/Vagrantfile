@@ -2,30 +2,30 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-	config.vm.define "haproxy" do |haproxy|
-		haproxy.vm.box = "generic/centos8"
-		haproxy.vm.network "private_network", ip: "192.168.33.160", virtualbox__intnet: false
-		haproxy.vm.network "public_network"
+	config.vm.define "haproxy1" do |haproxy1|
+		haproxy1.vm.box = "generic/centos8"
+		haproxy1.vm.network "private_network", ip: "192.168.33.160", virtualbox__intnet: false
+		haproxy1.vm.network "public_network"
 
-		haproxy.hostmanager.enabled = true
-		haproxy.hostmanager.manage_host = false
-		haproxy.hostmanager.manage_guest = true
-		haproxy.hostmanager.ignore_private_ip = false
-		haproxy.hostmanager.include_offline = true
+		haproxy1.hostmanager.enabled = true
+		haproxy1.hostmanager.manage_host = false
+		haproxy1.hostmanager.manage_guest = true
+		haproxy1.hostmanager.ignore_private_ip = false
+		haproxy1.hostmanager.include_offline = true
 
-		haproxy.vm.hostname = 'haproxy'
-		haproxy.hostmanager.aliases = %w(haproxy.localdomain haproxy.local c7chap.local)
+		haproxy1.vm.hostname = 'haproxy1'
+		haproxy1.hostmanager.aliases = %w(haproxy1.localdomain haproxy1.local c7chap.local)
 
-		haproxy.vm.provider "virtualbox" do |vb|
-			vb.name="haproxy"
+		haproxy1.vm.provider "virtualbox" do |vb|
+			vb.name="haproxy1"
 			vb.gui = false
 			vb.memory = "2048"
 			vb.cpus = 4
 		end
-		haproxy.vm.provision "shell", path: "provision_generic.sh"
-#		haproxy.vm.provision "shell", path: "provision_ansible.sh"
-#		haproxy.vm.provision "shell", path: "provision_docker.sh"
-		haproxy.vm.provision :hostmanager
+		haproxy1.vm.provision "shell", path: "provision_generic.sh"
+#		haproxy1.vm.provision "shell", path: "provision_ansible.sh"
+#		haproxy1.vm.provision "shell", path: "provision_docker.sh"
+		haproxy1.vm.provision :hostmanager
 	end
 
 	config.vm.define "mariadb1" do |mariadb1|
