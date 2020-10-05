@@ -465,6 +465,25 @@ echo "[defaults]
 remote_user=root
 private_key_file=$HOME/.ssh/id_rsa
 inventory =${_DIR}/inventory
+#remote_tmp = /tmp/tmp/.ansible-$(whoami)
+[ssh_connection]
+scp_if_ssh=True" > $ANSIBLE_CONFIG
+
+echo "Fichier de config: $ANSIBLE_CONFIG"
+cat $ANSIBLE_CONFIG
+}
+
+genAnsibleCfgU()
+{
+echo "[defaults]
+#scp_if_ssh = True
+#pipelining = False
+#system_warnings=False
+remote_user=root
+private_key_file=$VMS_DIR/id_rsa
+inventory =${_DIR}/inventory
+remote_tmp = /var/tmp2/.ansible-$(whoami)
+local_tmp = $HOME/.ansible/tmp
 [ssh_connection]
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
@@ -483,8 +502,9 @@ genShraredSshKeys()
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
    ' > $HOME/.conf/config
-	ssh-keygen -t rsa -N "" -C "vm keys" -f $HOME/.conf/id_rsa
+		ssh-keygen -t rsa -N "" -C "vm keys" -f $HOME/.conf/id_rsa
 	fi
+	
 	acp all $HOME/.conf /tmp
 	acmd all "cp -p /tmp/.conf/id_rsa* /tmp/.conf/config /root/.ssh/"
 	acmd all "(echo; cat /root/.ssh/id_rsa.pub) >> /root/.ssh/authorized_keys"
@@ -604,6 +624,11 @@ vlist()
 	(cd $VMS_DIR; sh status.sh $* )
 }
 
+vinfo()
+{
+	(cd $VMS_DIR; sh info.sh $*)
+}
+
 vdelete() 	
 {
 	(cd $VMS_DIR; sh destroy.sh $*)
@@ -619,20 +644,27 @@ vstop()
 	(cd $VMS_DIR; sh stop.sh $*)
 }
 
+vgetPrivateIp()
+{
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2	
+}
+
+vgetLogicalNames()
+{
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | cut -d. -f1 |xargs -n1
+}
+vgetLogicalGroups()
+{
+	vgetLogicalNames | perl -pe 's/\d*$//g' | sort | uniq
+}
 
 vgenInventory()
 {
-
-	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'
-
-return 0
-	for tag in $(linode-cli tags list --text |grep -v label); do
-		[ $(llist --text --tags $tag | wc -l) -eq 1 ] && continue
+	for tag in $(vgetLogicalGroups); do
 		echo "[$tag]"
-		for srv in $(llist --text --tags $tag | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7}'); do
-			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
-			lip=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-			echo "$lname ansible_host=$lip ansible_ssh_private_key_file=$HOME/.ssh/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
+		for srv in $(vgetLogicalNames| grep -E "^$tag"); do
+			lip=$(vgetPrivateIp $srv)
+			echo "$srv ansible_host=$lip ansible_ssh_private_key_file=$HOME/.conf/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
 		done
 		echo
 	done > $ANSIBLE_INVENTORY
@@ -640,40 +672,37 @@ return 0
 	cat $ANSIBLE_INVENTORY
 }
 
-vgenHosts()
+vgenInventoryU()
 {
-	(
-	echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-
-### SPECIFIC CONFIG ###"
-for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
-			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
-			lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-			lippriv=$(echo "$srv"| tr ';' ' ' |awk '{print $3}')
-			echo "$lippub	$lname	${lname}.public		${lname}.ext	${lname}.external"
-			echo "$lippriv 		${lname}.private	${lname}.int	${lname}.internal"
+	for tag in $(vgetLogicalGroups); do
+		echo "[$tag]"
+		for srv in $(vgetLogicalNames| grep -E "^$tag"); do
+			lip=$(vgetPrivateIp $srv)
+			echo "$srv ansible_host=$lip ansible_ssh_private_key_file=$VMS_DIR/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
 		done
+		echo
+	done > $ANSIBLE_INVENTORY
 
-echo "### END SPECIFIC CONFIG ###"
-) > ${_DIR}/generated_hosts
-cat ${_DIR}/generated_hosts
+	cat $ANSIBLE_INVENTORY
 }
 
 vsetupHosts()
 {
 	vgenInventory
-	vgenHosts
-	acp all ${_DIR}/generated_hosts /tmp
-	acmd all "cat /tmp/generated_hosts > /etc/hosts"
-	acmd all "cat /etc/hosts"
 }
 
 vgenAlias()
 {
-	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
-		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
-		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.ssh/id_rsa root@$lippub"
+	for srv in $(vgetLogicalNames); do
+		lip=$(vgetPrivateIp $srv)
+		alias ssh_$srv="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.conf/id_rsa root@$lip"
+	done
+}
+
+vgenAliasU()
+{
+	for srv in $(vgetLogicalNames); do
+		lip=$(vgetPrivateIp $srv)
+		alias ssh_$srv="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $VMS_DIR/id_rsa root@$lip"
 	done
 }

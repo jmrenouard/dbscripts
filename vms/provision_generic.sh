@@ -65,6 +65,8 @@ echo "4° Copy same credentials for root"
 echo '---------------------------------------------------'
 sudo cp -pr ~vagrant/.ssh /root
 sudo chown -R root.root  /root/.ssh
+sudo mkdir -p /var/tmp2
+sudo chmod -R 777 /var/tmp2
 
 echo '---------------------------------------------------'
 echo "5° Change SSHD behaviour password authentication  and root connexion allowed"
