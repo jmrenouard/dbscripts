@@ -6,6 +6,9 @@ else
 	_DIR="$(readlink -f ".")"
 fi
 
+export VMS_DIR="$(readlink -f ".")/vms"
+[ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
+
 is() {
     if [ "$1" == "--help" ]; then
         cat << EOF
@@ -598,21 +601,30 @@ lgenAlias()
 ##############################################################################################################
 vlist()
 {
-	linode-cli linodes list $*
+	(cd $VMS_DIR; sh status.sh $* )
 }
 
-vdelete()
+vdelete() 	
 {
-	true
+	(cd $VMS_DIR; sh destroy.sh $*)
 }
-vcreate()
+
+vstart()
 {
-	true
+	(cd $VMS_DIR; sh start.sh $*)
+}
+
+vstop()
+{
+	(cd $VMS_DIR; sh stop.sh $*)
 }
 
 
 vgenInventory()
 {
+
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'
+
 return 0
 	for tag in $(linode-cli tags list --text |grep -v label); do
 		[ $(llist --text --tags $tag | wc -l) -eq 1 ] && continue
