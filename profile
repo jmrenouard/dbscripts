@@ -325,19 +325,20 @@ rl()
 
 # ansible
 export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
-export ANSIBLE_STDOUT_CALLBACK=debug
+export ANSIBLE_STDOUT_CALLBACK="minimal"
+export ANSIBLE_EXTRA_OPTIONS=""
 export ANSIBLE_INVENTORY=${_DIR}/inventory
 export ANSIBLE_CONFIG=${_DIR}/.ansible.cfg
 
 alias an="time ansible -f $(nproc)"
 alias anh="time ansible --list-hosts"
-alias anv="ANSIBLE_STDOUT_CALLBACK=debug time ansible -f $(nproc) -v"
-alias and="ANSIBLE_STDOUT_CALLBACK=debug time ansible -f $(nproc) -v --step"
+alias anv="time ansible -f $(nproc) -v"
+alias and="time ansible -f $(nproc) -v --step"
 
 # Alias pour ansible-playbook
 alias ap="time ansible-playbook -f $(nproc)"
-alias apv="ANSIBLE_STDOUT_CALLBACK=debug time ansible-playbook -f $(nproc) --verbose"
-alias apd="ANSIBLE_STDOUT_CALLBACK=debug time ansible-playbook -f $(nproc) --verbose --step"
+alias apv="time ansible-playbook -f $(nproc) --verbose"
+alias apd="time ansible-playbook -f $(nproc) --verbose --step"
 
 # Alias pour le debugging des playbooks et roles
 alias apchk="time ansible-playbook --syntax-check"
@@ -345,7 +346,6 @@ alias aphst="time ansible-playbook --list-hosts"
 alias aptsk="time ansible-playbook --list-tasks"
 
 alias anl="time ansible-lint"
-
 
 ff()
 {
@@ -405,12 +405,14 @@ asetnormal()
 
 acp()
 {
-
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
     ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3"
 
     if [ -n "$4" ]; then
         acmd $1 "chown -R $4.$4 $3"
+    fi
+    if [ -n "$5" ]; then
+        acmd $1 "chmod -R $5 $3"
     fi
 }
 
@@ -433,21 +435,14 @@ auexec()
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
     ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=$user -a "$*"
 }
-apexec()
-{
-    local target=$1
-    shift
 
-    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=postgres -a "$*"
-}
 acmd()
 {
     local target=$1
     shift
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "$*"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh;$*"
 }
 
 aucmd()
@@ -459,7 +454,7 @@ aucmd()
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
     echo "stdout_calback: $ANSIBLE_STDOUT_CALLBACK"
-    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "$*"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh;$*"
 }
 
 
@@ -500,6 +495,7 @@ genAnsibleCfg()
 
 	echo "[defaults]
 system_warnings=False
+command_warnings=False
 remote_user=root
 private_key_file=$pkey
 inventory =${_DIR}/inventory
