@@ -454,7 +454,8 @@ synchronize_dir()
 ##############################################################################################################
 genAnsibleCfg()
 {
-echo "[defaults]
+	[ -f "$HOME/id_rsa" ] && rm -f $HOME/id_rsa
+	echo "[defaults]
 system_warnings=False
 remote_user=root
 private_key_file=$HOME/.conf/id_rsa
@@ -463,23 +464,27 @@ inventory =${_DIR}/inventory
 ssh_args = -o ControlMaster=no
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
-echo "Fichier de config: $ANSIBLE_CONFIG"
-cat $ANSIBLE_CONFIG
+	echo "Fichier de config: $ANSIBLE_CONFIG"
+	cat $ANSIBLE_CONFIG
 }
 
 genAnsibleCfgU()
 {
-echo "[defaults]
+	if [ ! -f "$HOME/id_rsa" ]; then
+		cp $VMS_DIR/id_rsa $HOME
+		chmod 600 $HOME/id_rsa
+	fi
+	echo "[defaults]
 system_warnings=False
 remote_user=root
-private_key_file=$VMS_DIR/id_rsa
+private_key_file=$HOME/id_rsa
 inventory =${_DIR}/inventory
 [ssh_connection]
 ssh_args = -o ControlMaster=no
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
-echo "Fichier de config: $ANSIBLE_CONFIG"
-cat $ANSIBLE_CONFIG
+	echo "Fichier de config: $ANSIBLE_CONFIG"
+	cat $ANSIBLE_CONFIG
 }
 
 genShraredSshKeys()
