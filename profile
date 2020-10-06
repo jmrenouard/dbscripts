@@ -309,6 +309,13 @@ alias ga="git add"
 alias gam="git status | grep modified: | cut -d: -f2 | xargs -n 1 git add"
 alias gad="git status | grep deleted:  | cut -d: -f2 | xargs -n1 git rm -f"
 
+greset()
+{
+	git fetch --all
+	git reset --hard origin/master
+	git pull
+}
+
 alias h=history
 rl()
 {
@@ -371,11 +378,36 @@ gcm()
         git commit -m "$@"
 }
 
+
+asetdebug()
+{
+	export ANSIBLE_STDOUT_CALLBACK="debug"
+	export ANSIBLE_EXTRA_OPTIONS="--verbose"
+}
+
+asetoneline()
+{
+	export ANSIBLE_STDOUT_CALLBACK="oneline"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+asetquiet()
+{
+	export ANSIBLE_STDOUT_CALLBACK="dense"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+asetnormal()
+{
+	export ANSIBLE_STDOUT_CALLBACK="minimal"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+
 acp()
 {
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) --verbose $1 -mcopy -a "src=$2 dest=$3"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3"
 
     if [ -n "$4" ]; then
         acmd $1 "chown -R $4.$4 $3"
@@ -388,7 +420,7 @@ aexec()
     shift
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) --verbose $target -mscript -a "$*"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -a "$*"
 }
 
 auexec()
@@ -399,23 +431,23 @@ auexec()
     shift
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) --verbose $target -mscript -b --become-user=$user -a "$*"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=$user -a "$*"
 }
 apexec()
 {
     local target=$1
     shift
 
-    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
-    ansible -f $(nproc) --verbose $target -mscript -b --become-user=postgres -a "$*"
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=postgres -a "$*"
 }
 acmd()
 {
     local target=$1
     shift
 
-    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
-    ansible -f $(nproc) --verbose $target -mshell -a "$*"
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "$*"
 }
 
 aucmd()
@@ -427,7 +459,7 @@ aucmd()
 
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
     echo "stdout_calback: $ANSIBLE_STDOUT_CALLBACK"
-    ansible -f $(nproc) --verbose $target -mshell -b --become-user=$user -a "$*"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "$*"
 }
 
 
@@ -454,14 +486,26 @@ synchronize_dir()
 ##############################################################################################################
 genAnsibleCfg()
 {
-	[ -f "$HOME/id_rsa" ] && rm -f $HOME/id_rsa
+	local pkey=${1:-"$HOME/.conf/id_rsa"}
+	local ctrlm=${2:-"auto"}
+
+	[ "$pkey" = "-" ] && pkey="$HOME/.conf/id_rsa"
+
+
+	[ -f "$HOME/id_rsa" -a "$pkey" != "$HOME/id_rsa" ] && rm -f $HOME/id_rsa
+	if [ ! -f "$HOME/id_rsa" -a "$pkey" = "$HOME/id_rsa" ]; then
+		cp $VMS_DIR/id_rsa $HOME
+		chmod 600 $HOME/id_rsa
+	fi
+
 	echo "[defaults]
 system_warnings=False
 remote_user=root
-private_key_file=$HOME/.conf/id_rsa
+private_key_file=$pkey
 inventory =${_DIR}/inventory
+bin_ansible_callbacks=True
 [ssh_connection]
-ssh_args = -o ControlMaster=no
+ssh_args = -o ControlMaster=$ctrlm -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
 	echo "Fichier de config: $ANSIBLE_CONFIG"
@@ -470,21 +514,7 @@ scp_if_ssh=True" > $ANSIBLE_CONFIG
 
 genAnsibleCfgU()
 {
-	if [ ! -f "$HOME/id_rsa" ]; then
-		cp $VMS_DIR/id_rsa $HOME
-		chmod 600 $HOME/id_rsa
-	fi
-	echo "[defaults]
-system_warnings=False
-remote_user=root
-private_key_file=$HOME/id_rsa
-inventory =${_DIR}/inventory
-[ssh_connection]
-ssh_args = -o ControlMaster=no
-scp_if_ssh=True" > $ANSIBLE_CONFIG
-
-	echo "Fichier de config: $ANSIBLE_CONFIG"
-	cat $ANSIBLE_CONFIG
+	genAnsibleCfg $HOME/id_rsa no
 }
 
 genShraredSshKeys()
@@ -500,7 +530,7 @@ genShraredSshKeys()
    ' > $HOME/.conf/config
 		ssh-keygen -t rsa -N "" -C "vm keys" -f $HOME/.conf/id_rsa
 	fi
-	
+
 	acp all $HOME/.conf /tmp
 	acmd all "cp -p /tmp/.conf/id_rsa* /tmp/.conf/config /root/.ssh/"
 	acmd all "(echo; cat /root/.ssh/id_rsa.pub) >> /root/.ssh/authorized_keys"
@@ -625,7 +655,7 @@ vinfo()
 	(cd $VMS_DIR; sh info.sh $*)
 }
 
-vdelete() 	
+vdelete()
 {
 	(cd $VMS_DIR; sh destroy.sh $*)
 }
@@ -642,7 +672,7 @@ vstop()
 
 vgetPrivateIp()
 {
-	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2	
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2
 }
 
 vgetLogicalNames()
@@ -686,7 +716,7 @@ vgenAliasU()
 
 vsetupTempAnsible()
 {
-	for srv in $(vlist |grep running |awk '{ print $1}' | xargs -n 20); do 
+	for srv in $(vlist |grep running |awk '{ print $1}' | xargs -n 20); do
 		echo $srv
 		ssh -i $VMS_DIR/id_rsa root@$(vgetPrivateIp $srv) "mkdir -p /var/tmp2;chmod -R 777 /var/tmp2"
 	done
