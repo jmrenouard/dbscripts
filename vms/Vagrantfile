@@ -19,8 +19,8 @@ Vagrant.configure("2") do |config|
 		haproxy1.vm.provider "virtualbox" do |vb|
 			vb.name="haproxy1"
 			vb.gui = false
-			vb.memory = "2048"
-			vb.cpus = 4
+			vb.memory = "1024"
+			vb.cpus = 2
 		end
 		haproxy1.vm.provision "shell", path: "provision_generic.sh"
 #		haproxy1.vm.provision "shell", path: "provision_ansible.sh"

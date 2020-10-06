@@ -310,6 +310,11 @@ alias gam="git status | grep modified: | cut -d: -f2 | xargs -n 1 git add"
 alias gad="git status | grep deleted:  | cut -d: -f2 | xargs -n1 git rm -f"
 
 alias h=history
+rl()
+{
+	cd ${_DIR}
+	source ${_DIR}/profile
+}
 
 # ansible
 export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
@@ -333,15 +338,6 @@ alias aphst="time ansible-playbook --list-hosts"
 alias aptsk="time ansible-playbook --list-tasks"
 
 alias anl="time ansible-lint"
-
-
-
-vmssh()
-{
-	local vm=$1
-	shift
- 	ssh -i ./id_rsa root@$vm $@
-}
 
 
 ff()
@@ -459,14 +455,12 @@ synchronize_dir()
 genAnsibleCfg()
 {
 echo "[defaults]
-#scp_if_ssh = True
-#pipelining = False
-#system_warnings=False
+system_warnings=False
 remote_user=root
-private_key_file=$HOME/.ssh/id_rsa
+private_key_file=$HOME/.conf/id_rsa
 inventory =${_DIR}/inventory
-#remote_tmp = /tmp/tmp/.ansible-$(whoami)
 [ssh_connection]
+ssh_args = -o ControlMaster=no
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
 echo "Fichier de config: $ANSIBLE_CONFIG"
@@ -476,15 +470,12 @@ cat $ANSIBLE_CONFIG
 genAnsibleCfgU()
 {
 echo "[defaults]
-#scp_if_ssh = True
-#pipelining = False
-#system_warnings=False
+system_warnings=False
 remote_user=root
 private_key_file=$VMS_DIR/id_rsa
 inventory =${_DIR}/inventory
-remote_tmp = /var/tmp2/.ansible-$(whoami)
-local_tmp = $HOME/.ansible/tmp
 [ssh_connection]
+ssh_args = -o ControlMaster=no
 scp_if_ssh=True" > $ANSIBLE_CONFIG
 
 echo "Fichier de config: $ANSIBLE_CONFIG"
@@ -569,7 +560,7 @@ lgenInventory()
 		for srv in $(llist --text --tags $tag | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7}'); do
 			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 			lip=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-			echo "$lname ansible_host=$lip ansible_ssh_private_key_file=$HOME/.conf/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
+			echo "$lname ansible_host=$lip"
 		done
 		echo
 	done > $ANSIBLE_INVENTORY
@@ -611,7 +602,7 @@ lgenAlias()
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.conf/id_rsa root@$lippub"
+		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no ForwardX11=no' -X -i $HOME/.conf/id_rsa root@$lippub"
 	done
 }
 
@@ -664,38 +655,19 @@ vgenInventory()
 		echo "[$tag]"
 		for srv in $(vgetLogicalNames| grep -E "^$tag"); do
 			lip=$(vgetPrivateIp $srv)
-			echo "$srv ansible_host=$lip ansible_ssh_private_key_file=$HOME/.conf/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
+			echo "$srv ansible_host=$lip"
 		done
 		echo
 	done > $ANSIBLE_INVENTORY
 
 	cat $ANSIBLE_INVENTORY
-}
-
-vgenInventoryU()
-{
-	for tag in $(vgetLogicalGroups); do
-		echo "[$tag]"
-		for srv in $(vgetLogicalNames| grep -E "^$tag"); do
-			lip=$(vgetPrivateIp $srv)
-			echo "$srv ansible_host=$lip ansible_ssh_private_key_file=$VMS_DIR/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'"
-		done
-		echo
-	done > $ANSIBLE_INVENTORY
-
-	cat $ANSIBLE_INVENTORY
-}
-
-vsetupHosts()
-{
-	vgenInventory
 }
 
 vgenAlias()
 {
 	for srv in $(vgetLogicalNames); do
 		lip=$(vgetPrivateIp $srv)
-		alias ssh_$srv="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $HOME/.conf/id_rsa root@$lip"
+		alias ssh_$srv="ssh -i $HOME/.conf/id_rsa root@$lip"
 	done
 }
 
@@ -703,6 +675,23 @@ vgenAliasU()
 {
 	for srv in $(vgetLogicalNames); do
 		lip=$(vgetPrivateIp $srv)
-		alias ssh_$srv="ssh -o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null -i $VMS_DIR/id_rsa root@$lip"
+		alias ssh_$srv="ssh -i $VMS_DIR/id_rsa root@$lip"
 	done
+}
+
+vsetupTempAnsible()
+{
+	for srv in $(vlist |grep running |awk '{ print $1}' | xargs -n 20); do 
+		echo $srv
+		ssh -i $VMS_DIR/id_rsa root@$(vgetPrivateIp $srv) "mkdir -p /var/tmp2;chmod -R 777 /var/tmp2"
+	done
+}
+
+vsetupVMs()
+{
+	vstart
+	genAnsibleCfgU
+	genShraredSshKeys
+	genAnsibleCfg
+	vgenAlias
 }

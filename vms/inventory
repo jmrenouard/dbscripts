@@ -1,8 +1,9 @@
 [haproxy]
-ghaproxy.vm
+haproxy ansible_host=192.168.33.160 ansible_ssh_private_key_file=/drives/C/Users/JMRENO~1/DOCUME~1/dbscripts/vms/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'
 
 [mariadb]
-galera1
-galera2
-galera3
-galera4
+mariadb1 ansible_host=192.168.33.161 ansible_ssh_private_key_file=/drives/C/Users/JMRENO~1/DOCUME~1/dbscripts/vms/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'
+mariadb2 ansible_host=192.168.33.162 ansible_ssh_private_key_file=/drives/C/Users/JMRENO~1/DOCUME~1/dbscripts/vms/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'
+mariadb3 ansible_host=192.168.33.163 ansible_ssh_private_key_file=/drives/C/Users/JMRENO~1/DOCUME~1/dbscripts/vms/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'
+mariadb4 ansible_host=192.168.33.164 ansible_ssh_private_key_file=/drives/C/Users/JMRENO~1/DOCUME~1/dbscripts/vms/id_rsa ansible_ssh_user=root ansible_ssh_common_args='-o StrictHostKeyChecking=no -o userknownhostsfile=/dev/null'
+
