@@ -39,13 +39,15 @@ lRC=$(($lRC + $?))
 cmd "yum -y install https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/m/mysqlreport-3.5-23.fc33.noarch.rpm"
 lRC=$(($lRC + $?))
 
-[ -d "/opt/local" ] && cmd "mkdir -p /opt/local"
+[ -d "/opt/local" ] || cmd "mkdir -p /opt/local"
 
 [ -d "/opt/local/MySQLTuner-perl" ] && cmd "rm -rf /opt/local/MySQLTuner-perl"
 
 cd /opt/local
 cmd "git clone https://github.com/major/MySQLTuner-perl.git"
 lRC=$(($lRC + $?))
+
+cmd "chmod 755 /opt/local/MySQLTuner-perl/mysqltuner.pl"
 
 echo 'export PATH=$PATH:/opt/local/MySQLTuner-perl' > /etc/profile.d/mysqltuner.sh
 chmod 755 /etc/profile.d/mysqltuner.sh
