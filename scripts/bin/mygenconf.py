@@ -72,7 +72,7 @@ def output_my_cnf(_metaconf):
     innodb-flush-method            = O_DIRECT
 
     # DePRECATED IN MARIADB 10.5
-    #innodb-log-files-in-group      = 2
+    # innodb-log-files-in-group      = 2
 
     innodb-log-file-size           = {innodb_log_file_size}
     innodb-flush-log-at-trx-commit = 1

@@ -42,7 +42,7 @@ cmd "ls -ls /var/lib/mysql"
 
 cmd "journalctl -xe -o cat -u mariadb"
 
-cmd "tail -n 30 /var/lib/mysql/mysqld.log"
+cmd "tail -n 15 /var/lib/mysql/mysqld.log"
 
 footer "END SCRIPT: $NAME"
 exit $lRC
