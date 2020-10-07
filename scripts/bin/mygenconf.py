@@ -53,7 +53,7 @@ def output_my_cnf(_metaconf):
 
     # SERVER ID #
     server-id                      = {server_id}
-
+    report-host                    = server-{server_id}
     # BINARY LOGGING #
     log-bin                        = {log_bin_name}
 

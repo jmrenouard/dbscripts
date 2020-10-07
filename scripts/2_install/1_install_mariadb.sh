@@ -27,7 +27,7 @@ lRC=$(($lRC + $?))
 cmd "yum -y remove mysql-server mariadb-server"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install python3 MariaDB-backup MariaDB-client MariaDB-compat socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL perl-DBI git"
+cmd "yum -y install python3 MariaDB-backup MariaDB-client MariaDB-compat socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL perl-DBI git pwgen"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://repo.percona.com/yum/release/8/RPMS/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm"
