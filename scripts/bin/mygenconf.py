@@ -8,26 +8,27 @@ from textwrap import dedent
 defaults = {
     'mysql_dir' : "/var/lib/mysql",
 
-    'log_error' : "mysqld.log", 
-    'slow_query_log_file' : "mysqld-slow.log", 
-    
-    'pid_file' : "/var/run/mysqld/mysqld.pid", 
+    'log_error' : "mysqld.log",
+    'log_bin_name' : "mysqld-bin",
+    'slow_query_log_file' : "mysqld-slow.log",
+
+    'pid_file' : "mysqld.pid",
 
 
-    'mysql_ram_gb' : 1, 
-    
-    'query_cache_type' : 0, 
-    'query_cache_size' : 0, 
+    'mysql_ram_gb' : 1,
 
-    'long_query_time' : 2, 
-    'max_connections' : 100, 
+    'query_cache_type' : 0,
+    'query_cache_size' : 0,
+
+    'long_query_time' : 2,
+    'max_connections' : 100,
 
     'server_id' : 1,
     'bind_address' : '0.0.0.0'
 }
 
 
-def output_my_cnf(_metaconf): 
+def output_my_cnf(_metaconf):
     print(dedent("""
     [mysqld]
     # GENERAL #
@@ -38,6 +39,7 @@ def output_my_cnf(_metaconf):
     # MyISAM #
     # key-buffer-size                = 32M
     # myisam-recover                 = FORCE,BACKUP
+
     # SAFETY #
     max-allowed-packet             = 16M
     max-connect-errors             = 1000000
@@ -45,13 +47,16 @@ def output_my_cnf(_metaconf):
     sql-mode                       = NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER
     sysdate-is-now                 = 1
     innodb-strict-mode             = 1
+
     # DATA STORAGE #
     datadir                        = {mysql_dir}
-    # SERVER ID # 
+
+    # SERVER ID #
     server-id                      = {server_id}
-    
+
     # BINARY LOGGING #
-    log-bin
+    log-bin                        = {log_bin_name}
+
     # CACHES AND LIMITS #
     max-connections                = {max_connections}
     tmp-table-size                 = 32M
@@ -59,12 +64,16 @@ def output_my_cnf(_metaconf):
     query-cache-type               = {query_cache_type}
     query-cache-size               = {query_cache_size}
     thread-cache-size              = 50
-    open-files-limit               = 16300
-    table-definition-cache         = 1024
-    table-open-cache               = 2048
+    open-files-limit               = 16000
+
+    table-definition-cache         = 400
+    table-open-cache               = 128
     # INNODB #
     innodb-flush-method            = O_DIRECT
-    innodb-log-files-in-group      = 2
+
+    # DePRECATED IN MARIADB 10.5
+    #innodb-log-files-in-group      = 2
+
     innodb-log-file-size           = {innodb_log_file_size}
     innodb-flush-log-at-trx-commit = 1
     innodb-file-per-table          = 1
@@ -73,21 +82,21 @@ def output_my_cnf(_metaconf):
     log-error                      = {log_error}
     slow-query-log                 = 1
     slow-query-log-file            = {slow_query_log_file}
-    log-queries-not-using-indexes  = OFF
+    log-queries-not-using-indexes  = ON
     long_query_time                = 30
     bind_address                   = {bind_address}
     """.format(**mycnf_make(_metaconf))))
-    
+
 #    [mysql]
     # CLIENT #
 #    port                           = 3306
 #    socket                         = {mysql_dir}/mysql.sock
-    
+
 #    [mysqldump]
 #    max-allowed-packet             = 16M
 #    """.format(**mycnf_make(_metaconf))))
 
-def mycnf_innodb_log_file_size_MB(innodb_buffer_pool_size_GB): 
+def mycnf_innodb_log_file_size_MB(innodb_buffer_pool_size_GB):
     if int(innodb_buffer_pool_size_GB) > 64:
         return '768M'
     if int(innodb_buffer_pool_size_GB) > 24:
@@ -100,7 +109,7 @@ def mycnf_innodb_log_file_size_MB(innodb_buffer_pool_size_GB):
     return '64M'
 
 
-def output_memory_gb(gb): 
+def output_memory_gb(gb):
 
     if math.fabs(math.ceil(gb) - gb) < 0.01:
         return str(int(gb))+'G'
@@ -108,24 +117,24 @@ def output_memory_gb(gb):
     return str(int(gb*1024))+'M'
 
 
-def mycnf_make(m): 
-    
-    m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75) 
+def mycnf_make(m):
+
+    m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75)
     m['innodb_log_file_size'] = mycnf_innodb_log_file_size_MB(m['mysql_ram_gb'])
     return m
 
 
-def main(argv): 
+def main(argv):
     actual_conf = defaults
-    for arg in argv: 
+    for arg in argv:
         kv = arg.split('=')
-        if len(kv) == 2: 
+        if len(kv) == 2:
             actual_conf[kv[0]] = kv[1]
-                
+
     output_my_cnf(actual_conf)
     return 0
 
 
-    
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

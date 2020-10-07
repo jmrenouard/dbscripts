@@ -10,7 +10,8 @@
     # vlist
 
 ## Adding utils.sh on all VM servers ##
-    # vssh_copy mariadb1,mariadb2,mariadb3,mariadb4,haproxy1 ./scripts/utils.sh /etc/profile.d/utils.sh root 755
+    # vssh_copy mariadb1,mariadb2,mariadb3,mariadb4,haproxy1 ./scripts/utils.sh /etc/profile.d/utils.sh
+    # vssh_copy mariadb1,mariadb2,mariadb3,mariadb4,haproxy1 ./scripts/bin /opt/local root 755
 
 ## Running abritary command ##
     # vssh_cmd mariadb1,mariadb2,mariadb3,mariadb4 "hostname -s" silent
@@ -49,17 +50,17 @@
 
 # Purpose #
  This tools is a simple Bash script that help you to
-**clone and manage several MySQL server instances** 
-on the same server. 
+**clone and manage several MySQL server instances**
+on the same server.
  It supports 6 main features:
 
 - clone
 - destroy
 - start
 - stop
-- restart    
+- restart
 - status
-      
+
 # Prerequirements #
 1. Use a standard Linux and Bash shell
     - [http://www.linux.com/directory/Distributions](http://www.linux.com/directory/Distributions "Linux Distibution")
@@ -121,19 +122,19 @@ For example, MySQL instance with id=x gets the following properties:
 ## Main functions ##
 
 - Clone a existing and running instance
-    
+
         mclone < ID DESTINATION > [ < ID SOURCE > ]
 
 - Start one or several MySQL instance
- 
+
         mstart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
 
 - Stop one or several MySQL instance
- 
+
         mstart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
 
 - Restart one or several MySQL instance
- 
+
         mrestart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
 
 - Get status of one, several or all MySQL instances
@@ -174,7 +175,7 @@ For example, MySQL instance with id=x gets the following properties:
 	PRI     /var/lib/mysql  3306    ON      2144
 	1       /var/lib/mysql1 3307    ON      3029
 	2       /var/lib/mysql2 3308    OFF
-	
+
 ## Starting MySQL instance 2 ##
 	# source mysql_functions.sh
     # mstart 2

@@ -12,16 +12,16 @@ title2 "CONFIGURATING SYSTEM LIMITS ..."
 cmd "rm -f $CONF_FILE"
 
 echo "# Nombre de fichiers
-${MysqlOsUser} soft nofile 40000
-${MysqlOsUser} hard nofile 60000
-root  soft nofile 40000
-root hard nofile 60000
+${MysqlOsUser} soft nofile 65535
+${MysqlOsUser} hard nofile 65535
+root soft nofile 65535
+root hard nofile 65535
 
 # Nombre de processus
-${MysqlOsUser} soft nproc 2047
-${MysqlOsUser} hard nproc 16384
-root soft nproc 2047
-root hard nproc 16384
+${MysqlOsUser} soft nproc 65535
+${MysqlOsUser} hard nproc 65535
+root soft nproc 65535
+root hard nproc 65535
 
 # Taille des core dump
 * soft core 0

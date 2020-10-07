@@ -716,7 +716,7 @@ vssh_exec()
         return 127
     fi
     INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
-    
+
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
@@ -734,7 +734,7 @@ vssh_cmd()
     local fcmd=$2
     local silent=$3
     local lRC=0
-    
+
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
@@ -756,7 +756,7 @@ vssh_copy()
     local own=$4
     local mode=$5
     local lRC=0
-    
+
     if [ ! -f "$fsource" -a ! -d "$fsource" ]; then
         error "$fsource Not exists"
         return 127
@@ -767,11 +767,11 @@ vssh_copy()
         rsync -avz  -e "ssh -i $DEFAULT_PRIVATE_KEY" $fsource root@$vip:$fdest
         lRC=$(($lRC + $?))
 
-        [ -z "$own" ] || vssh_cmd $srv "chown -R $own $fdest" silent
+        [ -z "$own" ] || vssh_cmd $srv "chown -R $own:$own $fdest" silent
         lRC=$(($lRC + $?))
         [ -z "$mode" ] || vssh_cmd $srv "chmod -R $mode $fdest" silent
         lRC=$(($lRC + $?))
-    
+
         [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
         lRC=$(($lRC + $?))
     done
@@ -801,3 +801,9 @@ vsetupVMs()
     $2
 }
 
+vupdateScript()
+{
+	local lsrv=${1:-"mariadb1,mariadb2,mariadb3,mariadb4,haproxy1"}
+	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
+	vssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
+}
