@@ -757,7 +757,7 @@ vssh_copy()
     local mode=$5
     local lRC=0
     
-    if [ ! -f "$fsource" ]; then
+    if [ ! -f "$fsource" -a ! -d "$fsource" ]; then
         error "$fsource Not exists"
         return 127
     fi

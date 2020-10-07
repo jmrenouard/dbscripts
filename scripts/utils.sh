@@ -292,3 +292,4 @@ pgSetVal()
 }
 
 
+export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.

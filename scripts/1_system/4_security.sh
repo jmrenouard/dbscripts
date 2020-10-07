@@ -12,8 +12,10 @@ title2 "CONFIGURATING SYSTEM LIMITS ..."
 cmd "rm -f $CONF_FILE"
 
 echo "# Nombre de fichiers
-${MysqlOsUser} soft nofile 2048
-${MysqlOsUser} hard nofile 65536
+${MysqlOsUser} soft nofile 40000
+${MysqlOsUser} hard nofile 60000
+root  soft nofile 40000
+root hard nofile 60000
 
 # Nombre de processus
 ${MysqlOsUser} soft nproc 2047
@@ -26,7 +28,6 @@ root hard nproc 16384
 * hard core 0">>$CONF_FILE
 
 cmd "cat $CONF_FILE"
-
 
 footer "END SCRIPT: $_NAME"
 exit $lRC
