@@ -9,11 +9,10 @@ cmd "iptables -L"
 
 cmd "firewall-cmd --list-all"
 
-cmd "timeout 5 systemctl stop firewalld"
+cmd "timeout 10 systemctl stop firewalld"
 lRC=$(($lRC + $?))
 
 cmd "timeout 10 systemctl status firewalld"
-
 
 cmd "timeout 10 systemctl disable firewalld"
 lRC=$(($lRC + $?))

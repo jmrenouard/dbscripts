@@ -9,6 +9,7 @@ fi
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
 
+export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
 is() {
     if [ "$1" == "--help" ]; then
         cat << EOF
@@ -249,9 +250,8 @@ footer()
 {
     local lRC=${lRC:-"$?"}
 
-    [ $lRC -eq 0 ] && info "$* ENDED SUCCESSFULLY"
-    [ $lRC -eq 0 ] || warn "$* ENDED WITH WARNING OR ERROR"
-    title1 "END: $*"
+    [ $lRC -eq 0 ] && title1 "END: $* ENDED SUCCESSFULLY"
+    [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR"
     return $lRC
 }
 
@@ -637,7 +637,6 @@ lgenAlias()
 	done
 }
 
-
 ##############################################################################################################
 # VAGRANT CODE
 ##############################################################################################################
@@ -675,10 +674,12 @@ vgetLogicalNames()
 {
 	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | cut -d. -f1 |xargs -n1
 }
+
 vgetLogicalGroups()
 {
 	vgetLogicalNames | perl -pe 's/\d*$//g' | sort | uniq
 }
+
 
 vgenInventory()
 {
@@ -696,18 +697,90 @@ vgenInventory()
 
 vgenAlias()
 {
-	for srv in $(vgetLogicalNames); do
+	local tkey=${1:-"$HOME/.conf/id_rsa"}
+    for srv in $(vgetLogicalNames); do
 		lip=$(vgetPrivateIp $srv)
-		alias ssh_$srv="ssh -i $HOME/.conf/id_rsa root@$lip"
+		alias ssh_$srv="ssh -i $tkey root@$lip"
 	done
+    export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
+}
+
+
+vssh_exec()
+{
+    local lsrv=$1
+    local fcmd=$2
+    local lRC=0
+    if [ ! -f "$fcmd" ]; then
+        error "$fcmd Not exists"
+        return 127
+    fi
+    INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
+    
+    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+        vip=$(vgetPrivateIp $srv)
+        [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+        title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+        (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$vip -i $DEFAULT_PRIVATE_KEY $INTERPRETER
+        footer "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+        lRC=$(($lRC + $?))
+    done
+    return $lRC
+}
+
+vssh_cmd()
+{
+    local lsrv=$1
+    local fcmd=$2
+    local silent=$3
+    local lRC=0
+    
+    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+        vip=$(vgetPrivateIp $srv)
+        [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+        [ -z "$silent" ] && title2 "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
+        [ -n "$silent" ] && echo -ne "$srv\t$fcmd\t"
+        ssh -T root@$vip -i $DEFAULT_PRIVATE_KEY "$fcmd"
+        [ -n "$silent" ] && echo
+        [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
+        lRC=$(($lRC + $?))
+    done
+    return $lRC
+}
+
+vssh_copy()
+{
+    local lsrv=$1
+    local fsource=$2
+    local fdest=$3
+    local own=$4
+    local mode=$5
+    local lRC=0
+    
+    if [ ! -f "$fsource" ]; then
+        error "$fsource Not exists"
+        return 127
+    fi
+    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+        vip=$(vgetPrivateIp $srv)
+        [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+        rsync -avz  -e "ssh -i $DEFAULT_PRIVATE_KEY" $fsource root@$vip:$fdest
+        lRC=$(($lRC + $?))
+
+        [ -z "$own" ] || vssh_cmd $srv "chown -R $own $fdest" silent
+        lRC=$(($lRC + $?))
+        [ -z "$mode" ] || vssh_cmd $srv "chmod -R $mode $fdest" silent
+        lRC=$(($lRC + $?))
+    
+        [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
+        lRC=$(($lRC + $?))
+    done
+    return $lRC
 }
 
 vgenAliasU()
 {
-	for srv in $(vgetLogicalNames); do
-		lip=$(vgetPrivateIp $srv)
-		alias ssh_$srv="ssh -i $VMS_DIR/id_rsa root@$lip"
-	done
+	vgenAlias $VMS_DIR/id_rsa
 }
 
 vsetupTempAnsible()
@@ -720,9 +793,11 @@ vsetupTempAnsible()
 
 vsetupVMs()
 {
-	vstart
+	$1
 	genAnsibleCfgU
 	genShraredSshKeys
 	genAnsibleCfg
 	vgenAlias
+    $2
 }
+

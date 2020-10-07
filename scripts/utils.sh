@@ -249,9 +249,8 @@ footer()
 {
     local lRC=${lRC:-"$?"}
 
-    [ $lRC -eq 0 ] && info "$* ENDED SUCCESSFULLY ($lRC)"
-    [ $lRC -eq 0 ] || warn "$* ENDED WITH WARNING OR ERROR - RC: ($lRC)"
-    title1 "END: $*"
+    [ $lRC -eq 0 ] && title1 "END: $* ENDED SUCCESSFULLY"
+    [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR"
     return $lRC
 }
 
