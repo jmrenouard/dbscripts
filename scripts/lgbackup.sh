@@ -4,7 +4,7 @@
 
 BCK_DIR=/data/backups/logical
 GZIP_CMD=gzip
-#GZIP_CMD=pigz 
+#GZIP_CMD=pigz
 
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M).sql.gz
 lRC=0
@@ -17,7 +17,7 @@ echo "--------------------------------------"
 }
 
 msg "Desynchronisation du noeud"
-# desync 
+# desync
 mysql -e 'set global wsrep_desync=on'
 
 msg  "etat Desynchronisation"
