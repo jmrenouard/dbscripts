@@ -1,10 +1,12 @@
 # DB scripts #
 
 ## Setup VM Vagrant ##
-    # sudo sh installSoft.sh
-    # source profile
-    # vsetupVMs vstart
-    .... Take a long time ....
+```
+# sudo sh installSoft.sh
+# source profile
+# vsetupVMs vstart
+.... Take a long time ....
+```
 
 ## Check Vagrant VMs ##
     # vlist
