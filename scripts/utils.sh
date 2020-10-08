@@ -278,6 +278,15 @@ cmd()
 	return $cRC
 }
 
+function ask_yes_or_no() {
+    read -p "$1 ([y]es or [N]o): "
+    case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
+        y|Y|yes) echo "yes";return 0 ;;
+        *)     echo "no"; return 1;;
+    esac
+    return 1
+}
+
 pgGetVal()
 {
 	local value=$1
