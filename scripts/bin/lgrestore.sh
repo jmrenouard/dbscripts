@@ -4,8 +4,9 @@
 
 banner "RESTORING DB"
 BCK_DIR=/data/backups/logical
-#GZIP_CMD=gzip
-GZIP_CMD=pigz
+#GZIP_CMD="cat"
+#GZIP_CMD="gzip -cd"
+GZIP_CMD="pigz -cd"
 
 if [ "$1" = "-l" -o "$1" = "--list" ]; then
 	ls -lsht $BCK_DIR
@@ -56,8 +57,8 @@ fi
 # now we can use the selected file
 info "$DUMP_FILE will be restored"
 
-info "CMD: $GZIP_CMD -cd $DUMP_FILE | time mysql -f -v"
-$GZIP_CMD -cd $DUMP_FILE | time mysql -f
+info "CMD: $GZIP_CMD $DUMP_FILE | time mysql -f -v"
+$GZIP_CMD $DUMP_FILE | time mysql -f
 lRC=$?
 [ $lRC -eq 0 ] && ok "RESTORE OK"
 
