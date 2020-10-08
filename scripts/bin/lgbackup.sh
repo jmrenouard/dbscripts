@@ -5,8 +5,10 @@
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 BCK_DIR=/data/backups/logical
-#GZIP_CMD=gzip
 GZIP_CMD=pigz
+#GZIP_CMD=gzip
+#GZIP_CMD=tee
+
 GALERA_SUPPORT=0
 KEEP_LAST_N_BACKUPS=5
 

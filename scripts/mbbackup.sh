@@ -4,9 +4,11 @@
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 BCK_DIR=/data/backups/mariabackup
-#GZIP_CMD=gzip
-GZIP_CMD=pigz
 KEEP_LAST_N_BACKUPS=5
+GZIP_CMD=pigz
+#GZIP_CMD=gzip
+#GZIP_CMD=tee
+
 BACK_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 BACK_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
