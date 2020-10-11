@@ -5,6 +5,7 @@
 banner "MARIABACKUP RESTORING DB"
 BCK_DIR=/data/backups/mariabackup
 TMP_DIR=/data/backups/tmp
+DATADIR=/var/lib/mysql
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
@@ -71,8 +72,8 @@ ls -lsh $TMP_DIR
 if [ $lRC -ne 0 ]; then
 	chown -R mysql.mysql $TMP_DIR/*
 	systemctl stop mariadb
-	rm -rf /var/lib/mysql/*
-	rsync -avz $TMP_DIR/* /var/lib/mysql/
+	rm -rf $DATADIR/*
+	rsync -avz $TMP_DIR/* $DATADIR/
 	systemctl start mariadb
 	[ $? -eq 0 ] && rm -rf $TMP_DIR
 fi

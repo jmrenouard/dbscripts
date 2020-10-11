@@ -7,19 +7,25 @@
 # Usage:
 # MYSQL_PASSWORD=YourPassword bash run-mariabackup.sh
 
-MYSQL_USER=backup
-MYSQL_PASSWORD=6acd1f1cd53f4fec69713457a99d5e71
+MYSQL_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+MYSQL_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+
+GZIP_CMD=pigz
+#GZIP_CMD=gzip
+#GZIP_CMD=tee
+
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
 BACKCMD=mariabackup # Galera Cluster uses mariabackup instead of xtrabackup.
-BACKDIR=/backups/mariabackup
+BACKDIR=/data/backups/pitr
+BASEBACKDIR=$BACKDIR/base
+INCRBACKDIR=$BACKDIR/incr
+
 FULLBACKUPCYCLE=43200 # Create a new full backup every X seconds / 12 heures
 KEEP=3 # Number of additional backups cycles a backup should kept for.
 
 USEROPTIONS="--user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --host=${MYSQL_HOST} --port=${MYSQL_PORT}"
 ARGS=""
-BASEBACKDIR=$BACKDIR/base
-INCRBACKDIR=$BACKDIR/incr
 START=`date +%s`
 
 echo "----------------------------"
@@ -28,10 +34,7 @@ echo "run-mariabackup.sh: MySQL backup script"
 echo "started: `date`"
 echo
 
-if test ! -d $BASEBACKDIR
-then
-  mkdir -p $BASEBACKDIR
-fi
+[ -d "$BASEBACKDIR" ]  || mkdir -p $BASEBACKDIR
 
 # Check base dir exists and is writable
 if test ! -d $BASEBACKDIR -o ! -w $BASEBACKDIR
@@ -41,10 +44,7 @@ then
   exit 1
 fi
 
-if test ! -d $INCRBACKDIR
-then
-  mkdir -p $INCRBACKDIR
-fi
+[ -d "$INCRBACKDIR" ] || mkdir -p "$INCRBACKDIR"
 
 # check incr dir exists and is writable
 if test ! -d $INCRBACKDIR -o ! -w $INCRBACKDIR
@@ -106,7 +106,7 @@ then
   mkdir -p $TARGETDIR
 
   # Create incremental Backup
-  $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --incremental-basedir=$INCRBASEDIR --stream=xbstream | pigz > $TARGETDIR/backup.stream.gz
+  $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --incremental-basedir=$INCRBASEDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz
 
   if [ $? -eq 0 ]; then
         touch /admin/flags/backup_incr.ok.flag
@@ -121,7 +121,7 @@ else
   mkdir -p $TARGETDIR
 
   # Create a new full backup
-  $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --stream=xbstream | pigz > $TARGETDIR/backup.stream.gz
+  $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz
 
   if [ $? -eq 0 ]; then
         touch /admin/flags/backup_full.ok.flag

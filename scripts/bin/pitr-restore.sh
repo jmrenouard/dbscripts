@@ -1,5 +1,14 @@
 #!/bin/bash
 
+TMP_DIR=/data/backups/tmp
+GZIP_CMD="pigz -cd"
+#GZIP_CMD="gzip -cd"
+#GZIP_CMD=tee
+DATADIR=/var/lib/mysql
+
+MYSQL_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+MYSQL_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+
 DATE_RESTORE=$(date +"%Y-%m-%d %H:%M:%S")
 [ -n "$1" -a -n "$2" ] && DATE_RESTORE=$(date -d "$1 $2" +"%Y-%m-%d %H:%M:%S")
 
@@ -26,8 +35,8 @@ mkdir -p $DIR_RESTORE/base
 
 # Décompression de la full
 echo "Decompression et preparation de la sauvegarde full dans $DIR_RESTORE/base"
-cat $LAST_BASE_BACK/backup.stream.gz | unpigz -c | mbstream -x -C $DIR_RESTORE/base
-mariabackup --prepare --target-dir $DIR_RESTORE/base --user backup --password "6acd1f1cd53f4fec69713457a99d5e71" --apply-log-only
+$GZIP_CMD $LAST_BASE_BACK/backup.stream.gz | mbstream -x -C $DIR_RESTORE/base
+mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --apply-log-only
 [ $? -eq 0 ] || exit 1
 echo "OK"
 
@@ -39,10 +48,10 @@ for incr in $LASTEST_INCR_BASK; do
         mkdir -p $DIR_INCR
 
         echo "Decompression de la sauvegarde incr $incr dans $DIR_INCR"
-        cat $incr/backup.stream.gz | unpigz -c | mbstream -x -C $DIR_INCR
+        $GZIP_CMD $incr/backup.stream.gz | mbstream -x -C $DIR_INCR
 
         echo "Application incrémentale des modifications"
-        mariabackup --prepare --target-dir $DIR_RESTORE/base --user backup --password "6acd1f1cd53f4fec69713457a99d5e71" --apply-log-only --incremental-dir $DIR_INCR
+        mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --apply-log-only --incremental-dir $DIR_INCR
         [ $? -eq 0 ] || exit 1
         echo "OK"
 
@@ -52,24 +61,24 @@ done
 tree $DIR_RESTORE
 
 echo "Arret du service"
-systemctl stop mysqld
+systemctl stop maraidb
 
 echo "Sauvegarde de la base"
 DIR_BACKUP_DATA=/backups/backup_data/
 rm -rf $DIR_BACKUP_DATA
 mkdir -p $DIR_BACKUP_DATA
-rsync -avz /data $DIR_BACKUP_DATA
+rsync -avz $DATADIR/* $DIR_BACKUP_DATA
 
-rm -rf /data/*
+rm -rf $DATADIR/*
 
 echo "Restauration des fichiers"
-mariabackup --copy-back --target-dir $DIR_RESTORE/base --user backup --password "6acd1f1cd53f4fec69713457a99d5e71" --datadir /data
+mariabackup --copy-back --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --datadir $DATADIR
 [ $? -eq 0 ] || exit 1
 
-chown mysql. /data -R
+chown mysql. $DATADIR -R
 
 echo "Démarrage du service"
-systemctl start mysqld
+systemctl start mariadb
 [ $? -eq 0 ] || exit 1
 
 # Suppression des dossiers de restauration
