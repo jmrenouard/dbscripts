@@ -45,4 +45,8 @@ footer "END SCRIPT: $NAME"
 info "ROOT PASSWORD: $PASSWD_ROOT"
 info "REPLICATION USER PASSWORD: $PASSWD_REPLI"
 info "GALERA USER PASSWORD: $PASSWD_GALERA"
+add_password_history root "$PASSWD_ROOT"
+add_password_history replication "${PASSWD_REPLI}"
+add_password_history galera "${PASSWD_GALERA}"
+
 exit $lRC

@@ -54,6 +54,7 @@ lRC=$?
 
 rm -f $TMP_FILE
 
+add_password_history $USER "${PASSWD}"
 [ "$lRC" = "0" -a -n "$PASSWD" ] && title2 "PASSWORD IS: $PASSWD"
 footer "CREATING USER $USER - DB: $DB - PROFILE: $TYPE"
 exit $lRC

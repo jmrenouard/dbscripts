@@ -15,6 +15,7 @@ BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
 LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
 lRC=0
 
+banner "MARIABACKUP BACKUP DB"
 [ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
 
 info "Backup mariabackup dans le fichier $(basename $BCK_FILE)"
@@ -30,6 +31,7 @@ if [ $lRC -eq 0 ]; then
 	echo "BACKUP OK ..........."
 else
 	die "PROBLEME BACKUP"
+	footer "MARIABACKUP BACKUP DB"
 fi
 
 info "Fin du fichier $(basename $LOG_FILE)"
@@ -46,12 +48,6 @@ fi
 info Liste fichier backup
 ls -lsh $BCK_DIR
 
-echo " Pour recuperer les fichiers: "
-echo "mkdir tmp"
-echo "cd tmp"
-echo "gunzip -c $BCK_FILE | mbstream -x"
-echo "
-# GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, PROCESS ON *.* to 'mariabackup'@'localhost' identified by 'mariabackup';"
-
 info "FINAL CODE RETOUR: $lRC"
+footer "MARIABACKUP BACKUP DB"
 exit $lRC

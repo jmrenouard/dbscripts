@@ -321,4 +321,11 @@ db_count()
     done | sort -nr -k2 | column -t
 }
 
+add_password_history()
+{
+	local history_file=$HOME/.pass_mariadb
+	chmod 600 $history_file
+
+	echo -e "$(date)\t$1\t$2" >> $history_file
+}
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
