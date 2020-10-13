@@ -44,5 +44,12 @@ cmd "journalctl -xe -o cat -u mariadb"
 
 cmd "tail -n 15 /var/lib/mysql/mysqld.log"
 
+
+cd /opt/local
+cmd "git clone https://github.com/FromDual/mariadb-sys.git"
+lRC=$(($lRC + $?))
+cd /opt/local/mariadb-sys
+mysql -f < sys_10.sql
+
 footer "END SCRIPT: $NAME"
 exit $lRC
