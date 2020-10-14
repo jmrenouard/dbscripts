@@ -85,6 +85,7 @@ def output_my_cnf(_metaconf):
     log-queries-not-using-indexes  = ON
     long_query_time                = 30
     bind_address                   = {bind_address}
+
     performance_schema=ON
     performance_schema_max_cond_classes     =80
     performance_schema_max_file_classes     =50
