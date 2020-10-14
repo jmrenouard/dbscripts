@@ -26,7 +26,15 @@ fi
 [ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
 
 info "Backup logique mysldump dans le fichier $(basename $BCK_FILE)"
-time mysqldump --all-databases --master-data=1 --flush-logs --add-drop-database --routines --opt --triggers --events --single-transaction | $GZIP_CMD > $BCK_FILE
+time mysqldump --all-databases \
+--master-data=1 \
+--flush-logs \
+--add-drop-database \
+--routines \
+--opt \
+--triggers \
+--events\
+ --single-transaction | $GZIP_CMD > $BCK_FILE
 lRC=$?
 
 if [ $lRC -eq 0 ]; then
