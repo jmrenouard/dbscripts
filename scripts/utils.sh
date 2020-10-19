@@ -340,6 +340,12 @@ mysql -e "show variables like 'wsrep_cluster%'"
 sort | column -t
 }
 
+provider_var()
+{
+    mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
+    perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
+}
+
 add_password_history()
 {
 	local history_file=$HOME/.pass_mariadb
