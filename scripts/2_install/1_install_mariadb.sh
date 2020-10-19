@@ -1,6 +1,7 @@
 #!/bin/sh
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+source /etc/os-release
 
 lRC=0
 VERSION=10.5
@@ -14,23 +15,20 @@ echo "# MariaDB $VERSION CentOS repository list - created $(date)
 # http://downloads.mariadb.org/mariadb/repositories/
 [mariadb]
 name = MariaDB_$VERSION
-baseurl = http://yum.mariadb.org/$VERSION/centos8-amd64
+baseurl = http://yum.mariadb.org/$VERSION/centos${VERSION_ID}-amd64
 module_hotfixes=1
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1" > /etc/yum.repos.d/mariadb_${VERSION}.repo
 
 cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
-cmd "yum -y update"
-lRC=$(($lRC + $?))
-
 cmd "yum -y remove mysql-server mariadb-server"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install python3 MariaDB-backup MariaDB-client MariaDB-compat socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL perl-DBI git pwgen"
+cmd "yum -y install python3 MariaDB-server MariaDB-backup MariaDB-client MariaDB-compat socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install https://repo.percona.com/yum/release/8/RPMS/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm"
+cmd "yum -y install https://repo.percona.com/yum/release/${VERSION_ID}/RPMS/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm"
 lRC=$(($lRC + $?))
 
 cmd "pip3 install mycli"
