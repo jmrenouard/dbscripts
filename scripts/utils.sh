@@ -340,4 +340,10 @@ rl()
 {
     [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
 }
+
+last_state_changes()
+{
+    tac /tmp/galera.notif.txt |head -n 15
+}
+
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.

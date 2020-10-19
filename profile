@@ -807,4 +807,5 @@ vupdateScript()
 	local lsrv=${1:-"mariadb1,mariadb2,mariadb3,mariadb4,haproxy1"}
 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
 	vssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
+    vssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }

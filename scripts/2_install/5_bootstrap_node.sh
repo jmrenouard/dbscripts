@@ -43,8 +43,10 @@ wsrep-cluster-address=gcomm://${node_addresses}
 wsrep-sst-method=mariabackup
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
+wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
 "
 ) | tee -a $CONF_FILE
+
 
 cmd "chmod 644 $CONF_FILE"
 
