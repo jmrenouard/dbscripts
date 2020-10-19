@@ -12,7 +12,7 @@ cmd "cat /etc/sysconfig/selinux" "CONTENT OF /etc/sysconfig/selinux"
 
 title1 "REMOVING PERMISSIVE mode FROM /etc/sysconfig/selinux"
 perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/sysconfig/selinux
-grep -q "SELINUX=PERMISSIVE" /etc/sysconfig/selinux
+grep -q "SELINUX=ENFORCING" /etc/sysconfig/selinux
 lRC=$(($lRC + $?))
 
 cmd "sestatus"
@@ -31,6 +31,9 @@ semanage port -l| grep mysql
 
 cmd 'semanage fcontext -a -t mysqld_db_t "/data(/.*)?"'
 semanage fcontext -l| grep mysql
+
+title2 "Trace SE Linux MariaDB"
+grep -i mysql /var/log/audit/audit.log
 
 footer "END SCRIPT: $_NAME"
 exit $lRC

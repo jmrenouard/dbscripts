@@ -326,8 +326,21 @@ galera_status()
     title1 "WSREP STATUS"
     mysql -e "select * from information_schema.wsrep_status\G"
     title1 "WSREP MEMBER"
-    mysql -e "select * from information_schema.wsrep_membership;"  
+    mysql -e "select * from information_schema.wsrep_membership;" 
+    title1 "WSREP GLOBAL STATUS"     
 }
+
+my_cluster_state() {
+(
+mysql -e "show status like '%wsrep%'"
+mysql -e "show variables like 'auto%'"
+mysql -e "show variables like 'wsrep_node%'"
+mysql -e "show variables like 'wsrep_cluster%'"
+) | grep -E
+'(wsrep_last_committed|wsrep_node|wsresp_cluster_a|cluster_status|connecte
+d|ready|state_comment|cluster_size|state_uuid|conf|auto_)'| column -t;
+}
+
 add_password_history()
 {
 	local history_file=$HOME/.pass_mariadb
