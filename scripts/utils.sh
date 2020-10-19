@@ -336,4 +336,8 @@ add_password_history()
 
 	echo -e "$(date)\t$1\t$2" >> $history_file
 }
+rl()
+{
+    [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+}
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.

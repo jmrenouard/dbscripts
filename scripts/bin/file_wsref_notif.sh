@@ -74,15 +74,6 @@ COM=status_update
 while [ $# -gt 0 ]
 do
    case $1 in
-      --init)
-         INDEX=0;
-         STATUS='synced'
-         CLUSTER_UUID="2345-33455"
-         PRIMARY=True     
-         configuration_change | mysql -v
-         shift
-         ;;
-
       --status)
          STATUS=$2
          shift
@@ -109,9 +100,5 @@ do
    done
 
 # Undefined means node is shutting down
-if [ "$STATUS" != "Undefined" ]
-then
-   $COM | mysql -B -u$USER -h$HOST -P$PORT
-fi
-
+echo -e "$INDEX\t$STATUS\t$CLUSTER_UUID\t$PRIMARY\t$MEMBERS" >> /tmp/galera.notif.txt
 exit 0
