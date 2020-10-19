@@ -41,14 +41,7 @@ wsrep-sst-auth=galera:ohGh7boh7eeg6shuph
 
 cmd "chmod 644 $CONF_FILE"
 
-
-cmd "systemctl stop mariadb"
-
-# 1er cas: bootstrap
-#cmd "/usr/bin/galera_new_cluster"
-
-# 2ème cas: rejoindre le cluster
-cmd "systemctl start mariadb"
+cmd "systemctl restart mariadb"
 
 echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql

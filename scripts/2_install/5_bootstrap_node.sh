@@ -41,6 +41,8 @@ wsrep-sst-auth=galera:ohGh7boh7eeg6shuph
 
 cmd "chmod 644 $CONF_FILE"
 
+cmd "systemctl stop mariadb"
+
 cmd "/usr/bin/galera_new_cluster"
 
 echo "install soname 'wsrep_info';"| mysql -v

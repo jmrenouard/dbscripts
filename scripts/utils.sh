@@ -176,9 +176,9 @@ EOF
     return 1
 }
 
-
 now() {
-    echo "$(date "+%F %T %Z")"
+    # echo "$(date "+%F %T %Z")"
+    echo "$(date "+%F %T %Z")($(hostname -s))"
 }
 
 error() {
