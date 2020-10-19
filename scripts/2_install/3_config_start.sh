@@ -5,6 +5,8 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/99_minimal_config.cnf"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
+#server_id=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1 | cut -d. -f4)
+
 mem_gb=$(free -g| grep Mem: | awk '{print $2}')
 [ $mem_gb -eq 0 ] && mem_gb=1
 

@@ -321,9 +321,17 @@ db_count()
     done | sort -nr -k2 | column -t
 }
 
+galera_status()
+{
+    title1 "WSREP STATUS"
+    mysql -e "select * from information_schema.wsrep_status\G"
+    title1 "WSREP MEMBER"
+    mysql -e "select * from information_schema.wsrep_membership;"  
+}
 add_password_history()
 {
 	local history_file=$HOME/.pass_mariadb
+    touch $history_file
 	chmod 600 $history_file
 
 	echo -e "$(date)\t$1\t$2" >> $history_file
