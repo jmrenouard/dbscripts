@@ -15,5 +15,7 @@ perl -i -pe 's/(SELINUX=).*/$1PERMISSIVE/g' /etc/sysconfig/selinux
 grep -q "SELINUX=PERMISSIVE" /etc/sysconfig/selinux
 lRC=$(($lRC + $?))
 
+cmd "sestatus"
+
 footer "END SCRIPT: $_NAME"
 exit $lRC

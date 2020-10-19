@@ -119,7 +119,7 @@ def output_my_cnf(_metaconf):
     performance_schema_setup_objects_size=100
 
     performance_schema_session_connect_attrs_size=512
-    performance_schema_digests_size              =1000
+    performance_schema_digests_size              =200
     """.format(**mycnf_make(_metaconf))))
 
 #    [mysql]

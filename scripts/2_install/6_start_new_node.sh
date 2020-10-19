@@ -10,6 +10,8 @@ server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
 node_addresses=192.168.33.161,192.168.33.162,192.168.33.163,192.168.33.164
+sst_user=galera
+sst_password=ohGh7boh7eeg6shuph
 
 banner "BEGIN SCRIPT: $_NAME"
 
@@ -36,6 +38,8 @@ wsrep-cluster-address=gcomm://${node_addresses}
 
 wsrep-sst-method=mariabackup
 wsrep-sst-auth=galera:ohGh7boh7eeg6shuph
+wsrep-sst-auth=${sst_user}:${sst_password}
+wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 "
 ) | tee -a $CONF_FILE
 
