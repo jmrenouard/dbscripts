@@ -13,6 +13,8 @@ node_addresses=192.168.33.161,192.168.33.162,192.168.33.163,192.168.33.164
 sst_user=galera
 sst_password=ohGh7boh7eeg6shuph
 
+[ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd "rm -f $CONF_FILE"

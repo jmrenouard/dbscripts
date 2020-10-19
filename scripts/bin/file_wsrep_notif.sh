@@ -1,75 +1,4 @@
 #!/bin/bash
-# This is a simple example of wsrep notification script (wsrep_notify_cmd).
-# It will create 'wsrep' schema and two tables in it: 'membership' and 'status'
-# and insert data into them on every membership or node status change.
-#
-# Edit parameters below to specify the address and login to server.
-
-USER=root
-#PSWD=
-HOST=localhost
-PORT=3306
-
-SCHEMA="wsrep"
-MEMB_TABLE="$SCHEMA.membership"
-STATUS_TABLE="$SCHEMA.status"
-
-BEGIN="
-   SET wsrep_on=0;
-   DROP SCHEMA IF EXISTS $SCHEMA; CREATE SCHEMA $SCHEMA;
-   CREATE TABLE $MEMB_TABLE (
-      idx  INT UNIQUE PRIMARY KEY,
-      uuid CHAR(40) UNIQUE, /* node UUID */
-      name VARCHAR(32),     /* node name */
-      addr VARCHAR(256)     /* node address */
-   ) ENGINE=MEMORY;
-   CREATE TABLE $STATUS_TABLE (
-      size   INT,      /* component size   */
-      idx    INT,      /* this node index  */
-      status CHAR(16), /* this node status */
-      uuid   CHAR(40), /* cluster UUID */
-      prim   BOOLEAN   /* if component is primary */
-   ) ENGINE=MEMORY;
-   BEGIN;
-   DELETE FROM $MEMB_TABLE;
-   DELETE FROM $STATUS_TABLE;
-"
-END="COMMIT;"
-
-configuration_change()
-{
-   echo "$BEGIN;"
-
-   local idx=0
-
-   for NODE in $(echo $MEMBERS | sed s/,/\ /g)
-   do
-      echo "INSERT INTO $MEMB_TABLE VALUES ( $idx, "
-      # Don't forget to properly quote string values
-      echo "'$NODE'" | sed  s/\\//\',\'/g
-      echo ");"
-      idx=$(( $idx + 1 ))
-   done
-
-   echo "
-      INSERT INTO $STATUS_TABLE
-      VALUES($idx, $INDEX,'$STATUS', '$CLUSTER_UUID', $PRIMARY);
-   "
-
-   echo "$END"
-}
-
-status_update()
-{
-   echo "
-      SET wsrep_on=0;
-      BEGIN;
-      UPDATE $STATUS_TABLE SET status='$STATUS';
-      COMMIT;
-   "
-}
-
-COM=status_update
 
 while [ $# -gt 0 ]
 do
@@ -104,6 +33,6 @@ touch /tmp/galera.notif.txt
 if [ "$(whoami)" = "root" ]; then
    chmod 700 /tmp/galera.notif.txt
    chown mysql. /tmp/galera.notif.txt
-fi
+
 echo -e "$(date)\t$(hostname -s)\t$INDEX\t$STATUS\t$CLUSTER_UUID\t$PRIMARY\t$MEMBERS" >> /tmp/galera.notif.txt
 exit 0
