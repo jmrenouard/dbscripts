@@ -14,7 +14,7 @@ lRC=$?
 if [ "$lRC" = "0" ]; then
 	create_user.sh ${DB} ${DB} owner ${PASSWD_OWNER}
 	lRC=$(($lRC + $?))
-	create_user.sh ${DB}_rw ${DB} rw ${PASSWD_RO}
+	create_user.sh ${DB}_rw ${DB} rw ${PASSWD_RW}
 	lRC=$(($lRC + $?))
 	create_user.sh ${DB}_ro ${DB} ro ${PASSWD_RO}
 	lRC=$(($lRC + $?))

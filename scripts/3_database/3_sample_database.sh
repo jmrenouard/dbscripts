@@ -15,7 +15,7 @@ cd /opt/local/test_db
 title2 "Inject DATABASE employees"
 mysql -v < ./employees.sql
 
-cmd "db_list employees"
+cmd "db_tables employees"
 
 cmd "db_count employees"
 
