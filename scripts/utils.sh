@@ -336,9 +336,8 @@ mysql -e "show status like '%wsrep%'"
 mysql -e "show variables like 'auto%'"
 mysql -e "show variables like 'wsrep_node%'"
 mysql -e "show variables like 'wsrep_cluster%'"
-) | grep -E
-'(wsrep_last_committed|wsrep_node|wsresp_cluster_a|cluster_status|connecte
-d|ready|state_comment|cluster_size|state_uuid|conf|auto_)'| column -t;
+) | grep -E '(wsrep_last_committed|wsrep_node|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
+sort | column -t
 }
 
 add_password_history()
