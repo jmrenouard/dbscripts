@@ -341,6 +341,13 @@ mysql -e "show variables like 'wsrep_cluster%'"
 sort | column -t
 }
 
+node_cluster_state()
+{
+    node=$1
+    param=$2
+    ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
+}
+
 tlog()
 {
     tail  -f /var/lib/mysql/mysqld.log &
@@ -351,6 +358,92 @@ provider_var()
 {
     mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
     perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
+}
+
+galera_members()
+{
+    mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';" 
+}
+
+galera_member_status()
+{
+#    true
+    parameters="auto_increment_increment
+auto_increment_offset 
+wsrep_cluster_conf_id
+wsrep_cluster_name
+wsrep_cluster_size
+wsrep_cluster_state_uuid
+wsrep_cluster_status
+wsrep_connected
+wsrep_last_committed 
+wsrep_local_state_comment
+wsrep_local_state_uuid
+wsrep_node_address 
+wsrep_node_incoming_address
+wsrep_node_name
+wsrep_ready"
+
+(
+echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
+for param in $parameters; do
+    echo -en "$param\t"
+    for node in $(galera_members); do
+        echo -en "$(node_cluster_state $node $param)\t"
+    done
+    echo
+done
+)|colunm -t
+}
+
+diff_schema()
+{
+    node1=$1
+    node2=$2
+    db=$3  
+    options=${4:-''}
+    tables=$5
+    lRC=0  
+    rm -f /tmp/db.diff
+    [ -z "$tables" ] && tables=$(db_tables $db)
+    tables=$(echo $tables | perl -pe 's/,:;/ /g')
+for table in $tables; do
+    echo -n "Comparing '$table'............" | tee -a /tmp/db.diff
+    ssh -q $node1 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file1.sql
+    ssh -q $node2 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file2.sql
+    diff -up /tmp/file1.sql /tmp/file2.sql >> /tmp/db.diff
+    if [ $? -eq 0 ]; then
+      echo "[OK]" |tee -a /tmp/db.diff
+    else
+      echo "[FAIL]" |tee -a /tmp/db.diff
+      lRC=1
+    fi 
+done
+
+if [ $lRC -gt 0 ]; then
+    echo "Some diff are presents"
+    echo "All details in /tmp/db.diff"
+    cat /tmp/db.diff
+else
+    echo "$db database is the same between $node1 and $node2 nodes (Specific options: $options)" 
+fi
+rm -f /tmp/file1.sql /tmp/file2.sql 
+return $lRC
+}
+
+galera_member_count_tables()
+{
+    db=$1
+(
+echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
+for tbl in $(db_tables $db); do
+    echo -en "$tbl\t"
+    for node in $(galera_members); do
+        echo -en "$(ssh -q $node "mysql -Nrs -e 'SELECT count(*) from $db.$tbl'")\t"
+    done
+    echo
+done
+)|column -t
 }
 
 add_password_history()

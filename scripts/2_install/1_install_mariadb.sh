@@ -50,5 +50,7 @@ cmd "chmod 755 /opt/local/MySQLTuner-perl/mysqltuner.pl"
 echo 'export PATH=$PATH:/opt/local/MySQLTuner-perl' > /etc/profile.d/mysqltuner.sh
 chmod 755 /etc/profile.d/mysqltuner.sh
 
+cmd "yum -y install perl-App-cpanminus"
+cmd "cpanm MySQL::Diff"
 footer "END SCRIPT: $NAME"
 exit $lRC
