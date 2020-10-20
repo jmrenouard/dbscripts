@@ -340,6 +340,10 @@ mysql -e "show variables like 'wsrep_cluster%'"
 sort | column -t
 }
 
+tlog()
+{
+    tail  -f /var/lib/mysql/mysqld.log &
+}
 provider_var()
 {
     mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \

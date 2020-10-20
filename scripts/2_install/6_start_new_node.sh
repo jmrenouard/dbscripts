@@ -31,7 +31,12 @@ innodb-flush-log-at-trx-commit = 0
 
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
-wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
+
+#wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
+#wsrep_provider_options='cert.log_conflicts=yes';
+
+#wsrep_log_conflicts=ON
+
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
