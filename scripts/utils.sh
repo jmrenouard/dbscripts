@@ -7,6 +7,7 @@ else
 	_DIR="$(readlink -f ".")"
 	_NAME="INLINE SHELL"
 fi
+HA_SOCKET=/tmp/admin.sock
 
 is() {
     if [ "$1" == "--help" ]; then
@@ -344,6 +345,8 @@ tlog()
 {
     tail  -f /var/lib/mysql/mysqld.log &
 }
+
+
 provider_var()
 {
     mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
@@ -368,4 +371,23 @@ last_state_changes()
     tac /tmp/galera.notif.txt |head -n 15
 }
 
+ha_status()
+{
+    local param=${1:-"info"}
+    echo "show $param" |  socat unix-connect:$HA_SOCKET stdio
+}
+ha_states()
+{
+   (echo -e "NAME TYPE STATE" 
+    echo "show stat" |  socat unix-connect:$HA_SOCKET stdio| cut -d, -f1,2,18 | tr ',' '\t'| sort -k 3| grep -ve '^#'
+    )|column -t
+}
+ha_disable()
+{
+    echo "disable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
+}
+ha_enable()
+{
+    echo "enable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
+}
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
