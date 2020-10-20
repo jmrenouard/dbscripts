@@ -33,6 +33,6 @@ touch /tmp/galera.notif.txt
 if [ "$(whoami)" = "root" ]; then
    chmod 700 /tmp/galera.notif.txt
    chown mysql. /tmp/galera.notif.txt
-
+fi
 echo -e "$(date)\t$(hostname -s)\t$INDEX\t$STATUS\t$CLUSTER_UUID\t$PRIMARY\t$MEMBERS" >> /tmp/galera.notif.txt
 exit 0
