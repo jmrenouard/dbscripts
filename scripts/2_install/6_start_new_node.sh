@@ -24,19 +24,26 @@ info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
 (
 echo "# Minimal Galera configuration - created $(date)
 [server]
-binlog-format=ROW
 default-storage-engine=innodb
+
+binlog-format=ROW
+sync-binlog = 0
+expire-logs-days=3
+
+innodb-defragment=1
 innodb-autoinc-lock-mode=2
-innodb-flush-log-at-trx-commit = 0
+innodb-flush-log-at-trx-commit = 2
 
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
-
+wsrep-slave-threads=$(( $(nproc) * 4 ))
 #wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
+
 #wsrep_provider_options='cert.log_conflicts=yes';
+#wsrep_log_conflicts=ON
+
 #wsrep_provider_options='gcs.fc_mimit=1024';
 
-#wsrep_log_conflicts=ON
 
 
 wsrep-cluster-name=${cluster_name}

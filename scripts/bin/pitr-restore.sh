@@ -61,7 +61,7 @@ done
 tree $DIR_RESTORE
 
 echo "Arret du service"
-systemctl stop maraidb
+systemctl stop mariadb
 
 echo "Sauvegarde de la base"
 DIR_BACKUP_DATA=/backups/backup_data/
