@@ -335,9 +335,8 @@ my_cluster_state() {
 (
 mysql -e "show status like '%wsrep%'"
 mysql -e "show variables like 'auto%'"
-mysql -e "show variables like 'wsrep_node%'"
-mysql -e "show variables like 'wsrep_cluster%'"
-) | grep -E '(wsrep_last_committed|wsrep_node|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
+mysql -e "show variables like 'wsrep_%'"
+) |grep -v wsrep_provider_options|| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
 sort | column -t
 }
 
@@ -393,7 +392,7 @@ for param in $parameters; do
     done
     echo
 done
-)|colunm -t
+)|column -t
 }
 
 diff_schema()
@@ -406,11 +405,15 @@ diff_schema()
     lRC=0  
     rm -f /tmp/db.diff
     [ -z "$tables" ] && tables=$(db_tables $db)
-    tables=$(echo $tables | perl -pe 's/,:;/ /g')
+    tables=$(echo $tables | perl -pe 's/[,:;]/ /g')
+    #echo $tables
+    #return 0
 for table in $tables; do
     echo -n "Comparing '$table'............" | tee -a /tmp/db.diff
     ssh -q $node1 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file1.sql
+    lRC=$(($lRC + $?))
     ssh -q $node2 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file2.sql
+    lRC=$(($lRC + $?))
     diff -up /tmp/file1.sql /tmp/file2.sql >> /tmp/db.diff
     if [ $? -eq 0 ]; then
       echo "[OK]" |tee -a /tmp/db.diff
@@ -483,4 +486,6 @@ ha_enable()
 {
     echo "enable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
 }
+
+
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
