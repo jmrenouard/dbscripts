@@ -7,6 +7,7 @@ else
 	_DIR="$(readlink -f ".")"
 	_NAME="INLINE SHELL"
 fi
+HA_SOCKET=/tmp/admin.sock
 
 is() {
     if [ "$1" == "--help" ]; then
@@ -176,9 +177,9 @@ EOF
     return 1
 }
 
-
 now() {
-    echo "$(date "+%F %T %Z")"
+    # echo "$(date "+%F %T %Z")"
+    echo "$(date "+%F %T %Z")($(hostname -s))"
 }
 
 error() {
@@ -321,11 +322,170 @@ db_count()
     done | sort -nr -k2 | column -t
 }
 
+galera_status()
+{
+    title1 "WSREP STATUS"
+    mysql -e "select * from information_schema.wsrep_status\G"
+    title1 "WSREP MEMBER"
+    mysql -e "select * from information_schema.wsrep_membership;" 
+    title1 "WSREP GLOBAL STATUS"     
+}
+
+my_cluster_state() {
+(
+mysql -e "show status like '%wsrep%'"
+mysql -e "show variables like 'auto%'"
+mysql -e "show variables like 'wsrep_%'"
+) |grep -v wsrep_provider_options|| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
+sort | column -t
+}
+
+node_cluster_state()
+{
+    node=$1
+    param=$2
+    ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
+}
+
+tlog()
+{
+    tail  -f /var/lib/mysql/mysqld.log &
+}
+
+
+provider_var()
+{
+    mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
+    perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
+}
+
+galera_members()
+{
+    mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';" 
+}
+
+galera_member_status()
+{
+#    true
+    parameters="auto_increment_increment
+auto_increment_offset 
+wsrep_cluster_conf_id
+wsrep_cluster_name
+wsrep_cluster_size
+wsrep_cluster_state_uuid
+wsrep_cluster_status
+wsrep_connected
+wsrep_last_committed 
+wsrep_local_state_comment
+wsrep_local_state_uuid
+wsrep_node_address 
+wsrep_node_incoming_address
+wsrep_node_name
+wsrep_ready"
+
+(
+echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
+for param in $parameters; do
+    echo -en "$param\t"
+    for node in $(galera_members); do
+        echo -en "$(node_cluster_state $node $param)\t"
+    done
+    echo
+done
+)|column -t
+}
+
+diff_schema()
+{
+    node1=$1
+    node2=$2
+    db=$3  
+    options=${4:-''}
+    tables=$5
+    lRC=0  
+    rm -f /tmp/db.diff
+    [ -z "$tables" ] && tables=$(db_tables $db)
+    tables=$(echo $tables | perl -pe 's/[,:;]/ /g')
+    #echo $tables
+    #return 0
+for table in $tables; do
+    echo -n "Comparing '$table'............" | tee -a /tmp/db.diff
+    ssh -q $node1 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file1.sql
+    lRC=$(($lRC + $?))
+    ssh -q $node2 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file2.sql
+    lRC=$(($lRC + $?))
+    diff -up /tmp/file1.sql /tmp/file2.sql >> /tmp/db.diff
+    if [ $? -eq 0 ]; then
+      echo "[OK]" |tee -a /tmp/db.diff
+    else
+      echo "[FAIL]" |tee -a /tmp/db.diff
+      lRC=1
+    fi 
+done
+
+if [ $lRC -gt 0 ]; then
+    echo "Some diff are presents"
+    echo "All details in /tmp/db.diff"
+    cat /tmp/db.diff
+else
+    echo "$db database is the same between $node1 and $node2 nodes (Specific options: $options)" 
+fi
+rm -f /tmp/file1.sql /tmp/file2.sql 
+return $lRC
+}
+
+galera_member_count_tables()
+{
+    db=$1
+(
+echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
+for tbl in $(db_tables $db); do
+    echo -en "$tbl\t"
+    for node in $(galera_members); do
+        echo -en "$(ssh -q $node "mysql -Nrs -e 'SELECT count(*) from $db.$tbl'")\t"
+    done
+    echo
+done
+)|column -t
+}
+
 add_password_history()
 {
 	local history_file=$HOME/.pass_mariadb
+    touch $history_file
 	chmod 600 $history_file
 
 	echo -e "$(date)\t$1\t$2" >> $history_file
 }
+rl()
+{
+    [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+}
+
+last_state_changes()
+{
+    tac /tmp/galera.notif.txt |head -n 15
+}
+
+ha_status()
+{
+    local param=${1:-"info"}
+    echo "show $param" |  socat unix-connect:$HA_SOCKET stdio
+}
+ha_states()
+{
+   (echo -e "NAME TYPE STATE" 
+    echo "show stat" |  socat unix-connect:$HA_SOCKET stdio| cut -d, -f1,2,18 | tr ',' '\t'| sort -k 3| grep -ve '^#'
+    )|column -t
+}
+ha_disable()
+{
+    echo "disable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
+}
+ha_enable()
+{
+    echo "enable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
+}
+
+
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.

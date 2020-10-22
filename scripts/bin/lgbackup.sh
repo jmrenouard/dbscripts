@@ -9,7 +9,7 @@ GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
 
-GALERA_SUPPORT=0
+GALERA_SUPPORT=1
 KEEP_LAST_N_BACKUPS=5
 
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
@@ -31,9 +31,11 @@ time mysqldump --all-databases \
 --flush-logs \
 --add-drop-database \
 --routines \
---opt \
+--skip-opt \
 --triggers \
---events\
+--events \
+--add-drop-table --add-locks --create-options --disable-keys --extended-insert \
+--quick --set-charset \
  --single-transaction | $GZIP_CMD > $BCK_FILE
 lRC=$?
 

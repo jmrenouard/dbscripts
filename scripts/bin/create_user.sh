@@ -10,7 +10,6 @@ TMP_FILE=$(mktemp)
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 banner "CREATING USER $USER - DB: $DB - PROFILE: $TYPE"
 
-
 echo "-- CREATE USER SQL COMMANDS
 CREATE OR REPLACE USER '$USER'@'192.168.%' IDENTIFIED BY '$PASSWD';
 CREATE OR REPLACE USER '$USER'@'10.%' IDENTIFIED BY '$PASSWD';

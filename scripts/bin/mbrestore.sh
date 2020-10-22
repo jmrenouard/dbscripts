@@ -64,12 +64,13 @@ rm -rf "$TMP_DIR/*"
 info "CMD: $GZIP_CMD $DUMP_FILE | mbstream -x"
 
 cd $TMP_DIR
+rm -rf $TMP_DIR/*
 $GZIP_CMD $DUMP_FILE | mbstream -x
 lRC=$?
 
 ls -lsh $TMP_DIR
 
-if [ $lRC -ne 0 ]; then
+if [ $lRC -eq 0 ]; then
 	chown -R mysql.mysql $TMP_DIR/*
 	systemctl stop mariadb
 	rm -rf $DATADIR/*
@@ -79,7 +80,7 @@ if [ $lRC -ne 0 ]; then
 fi
 
 lRC=$?
-[ $lRC -eq 0 ] && ok "MARAIBACKUP RESTORE OK"
+[ $lRC -eq 0 ] && ok "MARIABACKUP RESTORE OK"
 
 cmd "db_list"
 
