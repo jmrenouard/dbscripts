@@ -3,11 +3,20 @@
 if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 	_DIR="$(dirname "$(readlink -f "$0")")"
 	_NAME="$(basename "$(readlink -f "$0")")"
+	_CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
+	if [ -f "$_CONF_FILE" ];then
+		source $_CONF_FILE
+	else
+		mkdir -p $(dirname "$_CONF_FILE")
+		echo "# Config for $_NAME SCRIPT at $(date)">>$_CONF_FILE
+	fi
 else
 	_DIR="$(readlink -f ".")"
 	_NAME="INLINE SHELL"
 fi
 HA_SOCKET=/tmp/admin.sock
+
+export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
 
 is() {
     if [ "$1" == "--help" ]; then
@@ -327,8 +336,8 @@ galera_status()
     title1 "WSREP STATUS"
     mysql -e "select * from information_schema.wsrep_status\G"
     title1 "WSREP MEMBER"
-    mysql -e "select * from information_schema.wsrep_membership;" 
-    title1 "WSREP GLOBAL STATUS"     
+    mysql -e "select * from information_schema.wsrep_membership;"
+    title1 "WSREP GLOBAL STATUS"
 }
 
 my_cluster_state() {
@@ -361,24 +370,24 @@ provider_var()
 
 galera_members()
 {
-    mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';" 
+    mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
 }
 
 galera_member_status()
 {
 #    true
     parameters="auto_increment_increment
-auto_increment_offset 
+auto_increment_offset
 wsrep_cluster_conf_id
 wsrep_cluster_name
 wsrep_cluster_size
 wsrep_cluster_state_uuid
 wsrep_cluster_status
 wsrep_connected
-wsrep_last_committed 
+wsrep_last_committed
 wsrep_local_state_comment
 wsrep_local_state_uuid
-wsrep_node_address 
+wsrep_node_address
 wsrep_node_incoming_address
 wsrep_node_name
 wsrep_ready"
@@ -399,10 +408,10 @@ diff_schema()
 {
     node1=$1
     node2=$2
-    db=$3  
+    db=$3
     options=${4:-''}
     tables=$5
-    lRC=0  
+    lRC=0
     rm -f /tmp/db.diff
     [ -z "$tables" ] && tables=$(db_tables $db)
     tables=$(echo $tables | perl -pe 's/[,:;]/ /g')
@@ -420,7 +429,7 @@ for table in $tables; do
     else
       echo "[FAIL]" |tee -a /tmp/db.diff
       lRC=1
-    fi 
+    fi
 done
 
 if [ $lRC -gt 0 ]; then
@@ -428,9 +437,9 @@ if [ $lRC -gt 0 ]; then
     echo "All details in /tmp/db.diff"
     cat /tmp/db.diff
 else
-    echo "$db database is the same between $node1 and $node2 nodes (Specific options: $options)" 
+    echo "$db database is the same between $node1 and $node2 nodes (Specific options: $options)"
 fi
-rm -f /tmp/file1.sql /tmp/file2.sql 
+rm -f /tmp/file1.sql /tmp/file2.sql
 return $lRC
 }
 
@@ -474,7 +483,7 @@ ha_status()
 }
 ha_states()
 {
-   (echo -e "NAME TYPE STATE" 
+   (echo -e "NAME TYPE STATE"
     echo "show stat" |  socat unix-connect:$HA_SOCKET stdio| cut -d, -f1,2,18 | tr ',' '\t'| sort -k 3| grep -ve '^#'
     )|column -t
 }
@@ -487,5 +496,3 @@ ha_enable()
     echo "enable server ${1:-"galera/node1"}" |  socat unix-connect:$HA_SOCKET stdio
 }
 
-
-export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
