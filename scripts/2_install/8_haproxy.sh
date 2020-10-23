@@ -60,7 +60,6 @@ frontend stats
         mode http
         log global
         maxconn 10
-        #timeout queue 100s
         stats enable
         stats admin if TRUE
         stats hide-version
