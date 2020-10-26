@@ -264,6 +264,35 @@ footer()
     return $lRC
 }
 
+startLabelTimer()
+{
+    local LABEL=${1:-"GENERIC"}
+    eval "export START_TIME_$LABEL=$(date +%s);"
+}
+
+stopLabelTimer()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    [ "$LABEL" = "GENERIC" ] || shift;
+
+    eval "export STOP_TIME_$LABEL=$(date +%s);"
+    eval "local STOP_TIME=\$STOP_TIME_$LABEL;"
+    eval "local START_TIME=\$START_TIME_$LABEL;"
+    local STR_RESULT=$(echo $(($STOP_TIME-$START_TIME)) | awk '{printf "%02dh:%02dm:%02ds",$1/3600,$1%3600/60,$1%60}')
+    eval "export START_TIME_$LABEL=\$STOP_TIME_$LABEL;"
+    eval "export LAST_DURATION_$LABEL=\$STR_RESULT;"
+    return $LAST_RC
+}
+
+infoLabelTimer()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    info "Duration for $LABEL Timer: $(pgGetVal LAST_DURATION_$LABEL)"
+    return $LAST_RC
+}
+
 cmd()
 {
 	local cRC=0
