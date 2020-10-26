@@ -12,6 +12,7 @@ wget http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo -O /etc/yu
 yum -y install VirtualBox-6.1.x86_64
 yum -y install https://releases.hashicorp.com/vagrant/2.2.10/vagrant_2.2.10_x86_64.rpm
 
+curl -O http://downloadfiles.idera.com/products/IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
 
 yum install cloud-utils -y
 df
