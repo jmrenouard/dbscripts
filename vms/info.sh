@@ -4,7 +4,7 @@ VAGRANT=$(which vagrant 2>/dev/null)
 $VAGRANT ssh-config $*
 $VAGRANT status $*
 
-for vm in $(vagrant status| grep running|awk '{print $1}'); do 
+for vm in $($VAGRANT status| grep running|awk '{print $1}'); do
 echo -e "------------------------\n$vm\n----------------"
 echo "PING:"
 ping -c1 $vm

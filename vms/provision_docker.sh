@@ -3,8 +3,18 @@ echo '---------------------------------------------------'
 echo " * PROVISIONNING DOCKER-CE "
 echo '---------------------------------------------------'
 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install -y docker-ce docker-compose
+sudo yum -y remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+
+dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y docker-ce docker-ce-cli containerd.io
+
 sudo systemctl start docker
 sudo docker run hello-world
 sudo usermod -g docker vagrant
@@ -12,14 +22,14 @@ sudo usermod -g docker vagrant
 if [ -d "/var/lib/docker" ]; then
 	sudo systemctl stop docker
 	sudo systemctl status docker
-	sudo mv /var/lib/docker /data/
-	sudo ln -sf /data/docker /var/lib/docker
-	sudo ls -l /var/lib/docker/
+#	sudo rm-rf /var/lib/docker/*
 	sudo systemctl start docker
 	docker images
 	docker run hello-world
 fi
 
+curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+sudo chmod +x /usr/bin/docker-compose
 
 (
 	cat <<'EndOfScript'
