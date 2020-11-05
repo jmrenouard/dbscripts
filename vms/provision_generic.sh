@@ -76,17 +76,22 @@ sudo perl -i -pe 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_co
 sudo systemctl reload sshd
 
 echo '---------------------------------------------------'
-echo "6° Install some utlities"
+echo "6° Install EPEL REPOSITORY"
+echo '---------------------------------------------------'
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+echo '---------------------------------------------------'
+echo "7° Install some utlities"
 echo '---------------------------------------------------'
 sudo yum -y install rsync lftp socat htop python3 time
 
 echo '---------------------------------------------------'
-echo "7° update distro"
+echo "8° update distro"
 echo '---------------------------------------------------'
 sudo yum -y update || true
 
 echo '---------------------------------------------------'
-echo "8° Flagging provision"
+echo "9° Flagging provision"
 echo '---------------------------------------------------'
 echo -n "I am provisioning at $(date)" | sudo tee -a /etc/vagrant_provisioned_at
 
