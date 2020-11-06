@@ -2,12 +2,21 @@
 VAGRANT=$(which vagrant 2>/dev/null)
 [ -z "$VAGRANT" ] && VAGRANT=$(which vagrant.exe)
 
-#$VAGRANT cloud auth login --token=$1
+BOX="virtualbox.box"
+CLOUD_BOX=jmrenouard/centos8
+VERSION=8.0.2
 
-rm -f centos8.box
-$VAGRANT package --output  centos8.box
-md5sum centos8.box
+[ -f ".envtoken" ] && $VAGRANT cloud auth login --token=$(cat .envtoken)
+set -x
+rm -f $BOX
+$VAGRANT package --output $BOX
+MD5SUM_BOX=$(md5sum $BOX|awk '{print $1}')
 
-$VAGRANT cloud box show jmrenouard/centos8
+$VAGRANT cloud box show $CLOUD_BOX
 
-$VAGRANT cloud publish jmrenouard/centos8 $2 virtualbox centos8.box -d "Version v$2"
+$VAGRANT cloud publish $CLOUD_BOX $VERSION \
+ virtualbox $BOX -d "Version v$VERSION" --release --version-description "Version from $(date)" \
+--clean --checksum-type md5 --checksum $MD5SUM_BOX
+
+#$VAGRANT cloud version release $CLOUD_BOX $VERSION
+
