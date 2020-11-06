@@ -21,7 +21,8 @@ $VAGRANT cloud publish $CLOUD_BOX $VERSION \
  --box-version $VERSION \
  -d "Version v$VERSION" --release \
  --version-description "Version from $(date)" \
---checksum-type md5 --checksum $MD5SUM_BOX --force --debug
+  --force --debug \
+--checksum-type md5 --checksum $MD5SUM_BOX
 
 #$VAGRANT cloud version release $CLOUD_BOX $VERSION
 
