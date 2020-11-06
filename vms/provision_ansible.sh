@@ -3,27 +3,18 @@ echo '---------------------------------------------------'
 echo " * PROVISIONNING ANSIBLE "
 echo '---------------------------------------------------'
 
-python -mvenv ansible28
-source ./ansible28/bin/activate
-pip install --upgrade pip
-pip install 'ansible==2.8' ansible-lint molecule
-
-python -mvenv ansible29
-source ./ansible29/bin/activate
-pip install --upgrade pip
-pip install 'ansible==2.9' ansible-lint molecule
-
-
-python -mvenv ansible210
-source ./ansible210/bin/activate
-pip install --upgrade pip
-pip install 'ansible==2.10' ansible-lint molecule
-
-cat $HOME/.bash_profile
-source $HOME/.bash_profile
-#[ -d "$WORKON_HOME/ansible" ] || mkvirtualenv ansible
-#workon ansible
-#pip install ansible molecule
+for aversion in 2.8 2.9 2.10; do
+	echo '---------------------------------------------------'
+	echo " * PROVISIONNING ANSIBLE $aversion"
+	echo '---------------------------------------------------'
+	atag=$(echo $aversion | sed 's/\.//g')
+	if [ ! -d "$HOME/ansible${atag}" ]; then
+		python -mvenv ansible${atag}
+		source ./ansible${atag}/bin/activate
+		pip install --upgrade pip
+		pip install "ansible==$aversion" ansible-lint molecule
+	fi
+done
 
 (
 	cat <<'EndOfScript'
@@ -109,3 +100,5 @@ sudo chmod 755 /etc/profile.d/ansible.sh
 source /etc/profile.d/ansible.sh
 
 
+sudo rsync -av ~vagrant/ansible2* /root
+sudo chown -R root.root /root/ansible2*

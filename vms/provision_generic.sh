@@ -89,6 +89,9 @@ echo '---------------------------------------------------'
 echo "8° update distro"
 echo '---------------------------------------------------'
 sudo yum -y update || true
+sudo yum -y clean all || true
+echo "">$HOME/.bash_history
+echo "" | sudo tee /root/.bash_history
 
 echo '---------------------------------------------------'
 echo "9° Flagging provision"
