@@ -634,7 +634,7 @@ lgenAlias()
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no ForwardX11=no' -X -i $HOME/.conf/id_rsa root@$lippub"
+		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $HOME/.conf/id_rsa root@$lippub"
 	done
 }
 
