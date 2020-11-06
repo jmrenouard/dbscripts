@@ -15,7 +15,13 @@ class MyEtcd():
 			self.etcd = etcd3.client(host=self.config['server']['host'], port=int(self.config['server']['port']), user=self.config['server']['user'], password=self.config['server']['password'])
 		else:
 			self.etcd = etcd3.client(host=self.config['server']['host'], port=int(self.config['server']['port']))
-	
+
+	def watch(self, key='/toto'):
+		return self.etcd.watch(key)
+
+	def watch_prefix(self, prefix=''):
+		return self.etcd.watch_prefix(prefix)
+
 	def get(self, key='/toto'):
 		try:
 			result=self.etcd.get(key)[0].decode()
@@ -23,12 +29,21 @@ class MyEtcd():
 			result=None
 		return result
 
+	def get_prefix(self, prefix=''):
+		res=[]
+		for elt in self.etcd.get_prefix(prefix):
+			res.append( (elt[1].key.decode(), elt[0].decode() ) )
+		return res
+
 	def put(self, key, value):
 		self.etcd.put(key, value)
 		return self.get(key)
 
 	def delete(self, key):
 		self.etcd.delete(key)
+
+	def delete_prefix(self, key):
+		self.etcd.delete_prefix(key)
 
 	def get_all(self):
 		res=[]
