@@ -2,27 +2,40 @@
 echo '---------------------------------------------------'
 echo " * PROVISIONNING ANSIBLE "
 echo '---------------------------------------------------'
-sudo yum -y install python36-virtualenv
-sudo pip3 install virtualenvwrapper
 
-[ -d "/data/envs/ansible" ] && sudo rm -rf /data/envs/ansible
-sudo mkdir -p /data/envs
+python -mvenv ansible28
+source ./ansible28/bin/activate
+pip install --upgrade pip
+pip install 'ansible==2.8' ansible-lint molecule
 
-echo "export PATH=$PATH:.:/usr/local/bin
-export VIRTUALENVWRAPPER_VIRTUALENV=/usr/bin/virtualenv-3.6
-export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
-export WORKON_HOME=/data/envs
-export ANSIBLE_INVENTORY=/data/inventory
-source /usr/local/bin/virtualenvwrapper.sh
-" >> $HOME/.bash_profile
+python -mvenv ansible29
+source ./ansible29/bin/activate
+pip install --upgrade pip
+pip install 'ansible==2.9' ansible-lint molecule
+
+
+python -mvenv ansible210
+source ./ansible210/bin/activate
+pip install --upgrade pip
+pip install 'ansible==2.10' ansible-lint molecule
+
 cat $HOME/.bash_profile
 source $HOME/.bash_profile
-[ -d "$WORKON_HOME/ansible" ] || mkvirtualenv ansible
-workon ansible
-pip install ansible molecule
+#[ -d "$WORKON_HOME/ansible" ] || mkvirtualenv ansible
+#workon ansible
+#pip install ansible molecule
 
 (
 	cat <<'EndOfScript'
+
+venv_activate()
+{
+	cd $HOME
+	source ${1:-"ansible210"}/bin/activate
+
+}
+
+export ANSIBLE_INVENTORY=/data/inventory
 alias s=sudo
 alias h=history
 alias hserver='python -m http.server 8000'
@@ -93,6 +106,6 @@ EndOfScript
 ) | sudo tee /etc/profile.d/ansible.sh
 
 sudo chmod 755 /etc/profile.d/ansible.sh
-
+source /etc/profile.d/ansible.sh
 
 
