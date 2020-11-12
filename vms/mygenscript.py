@@ -11,6 +11,17 @@ def generate_bat_scripts(_metaconf):
         vmpip=int(_metaconf['vm_private_ip_postfix'])+int(vmid);
         vmpip=_metaconf['vm_private_ip_prefix']+str(vmpip)
         generate_bat_script(vmname, vmpip)
+def generate_inventory(_metaconf):
+    with open('inventory', "w") as inventory:
+        print("[control]", file=inventory)
+        print(f"{_metaconf['ansible_vm_name']} ansible_ssh_private_key_file=/data/ansible/id_rsa ansible_user=root ansible_host={_metaconf['ansible_vm_private_ip']}", file=inventory)
+
+        print("[target]", file=inventory)
+        for vmid in range(1, _metaconf['vm_number']+1):
+            vmname=_metaconf['vm_name_prefix'] + str(vmid);
+            vmpip=int(_metaconf['vm_private_ip_postfix'])+int(vmid);
+            vmpip=_metaconf['vm_private_ip_prefix']+str(vmpip)
+            print(f"{vmname} ansible_ssh_private_key_file=/data/ansible/id_rsa ansible_user=root ansible_host={vmpip}", file=inventory)
 
 def generate_bat_script(name, ip, user="vagrant", private_key="./private.ppk"):
     outputFile="putty_%s.bat" % name
@@ -24,6 +35,9 @@ def main(argv):
     rmWildCard('putty_*.bat')
 
     generate_bat_scripts(actual_conf)
+
+    rmWildCard('inventory')
+    generate_inventory(actual_conf)
     return 0
 
 if __name__ == "__main__":
