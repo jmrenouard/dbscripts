@@ -13,6 +13,7 @@ def generate_bat_scripts(_metaconf):
         generate_bat_script(vmname, vmpip)
 def generate_inventory(_metaconf):
     with open('inventory', "w") as inventory:
+        print("localhost ansible_connection=local", file=inventory)
         print("[control]", file=inventory)
         print(f"{_metaconf['ansible_vm_name']} ansible_ssh_private_key_file=/data/ansible/id_rsa ansible_user=root ansible_host={_metaconf['ansible_vm_private_ip']}", file=inventory)
 
