@@ -83,12 +83,15 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.
 echo '---------------------------------------------------'
 echo "7° Install some utlities"
 echo '---------------------------------------------------'
-sudo yum -y install rsync lftp socat htop python3 time
+sudo yum -y install rsync lftp socat htop python3 time git
 
 echo '---------------------------------------------------'
 echo "8° update distro"
 echo '---------------------------------------------------'
 sudo yum -y update || true
+sudo yum -y clean all || true
+echo "">$HOME/.bash_history
+echo "" | sudo tee /root/.bash_history
 
 echo '---------------------------------------------------'
 echo "9° Flagging provision"

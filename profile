@@ -572,8 +572,14 @@ lcreate()
 	done
 	echo
 	linode-cli linodes list
+	echo -e "$( date "+%d-%m-%Y:%H-%M")\t$NAME\troot\t$PASSWD\t$HOME/.conf/id_rsa" >> $HOME/.linode_access
+	chmod 600 $HOME/.linode_access
 }
 
+lchangepaswd()
+{
+	true
+}
 ldelete()
 {
 	for lid in $(linode-cli linodes list --text | perl -ne  "/\s$1\s/ and print" | awk '{print $1}'); do
@@ -634,7 +640,7 @@ lgenAlias()
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no ForwardX11=no' -X -i $HOME/.conf/id_rsa root@$lippub"
+		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $HOME/.conf/id_rsa root@$lippub"
 	done
 }
 

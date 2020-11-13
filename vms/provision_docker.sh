@@ -19,14 +19,11 @@ sudo systemctl start docker
 sudo docker run hello-world
 sudo usermod -g docker vagrant
 
-if [ -d "/var/lib/docker" ]; then
-	sudo systemctl stop docker
-	sudo systemctl status docker
-#	sudo rm-rf /var/lib/docker/*
-	sudo systemctl start docker
-	docker images
-	docker run hello-world
-fi
+sudo systemctl stop docker
+sudo systemctl status docker
+sudo systemctl start docker
+docker images
+docker run hello-world
 
 curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
 sudo chmod +x /usr/bin/docker-compose
