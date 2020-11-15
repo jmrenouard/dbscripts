@@ -4,3 +4,4 @@ vms/.vagrant/
 generated_hosts
 inventory
 .ansible.cfg
+vms/__pycache__/

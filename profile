@@ -674,7 +674,7 @@ vstop()
 
 vgetPrivateIp()
 {
-	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g;s/"//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2
 }
 
 vgetLogicalNames()

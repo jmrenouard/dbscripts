@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
       {ansible_vm_name}.vm.provision :hostmanager
     end""".format(**_metaconf), file=_metaconf['out'])
 
-    for vmid in range(1, _metaconf['vm_number']+1):
+    for vmid in range(1, int(_metaconf['vm_number'])+1):
         _metaconf['vmid']=vmid;
         _metaconf['vmpip']=_metaconf['vm_private_ip_postfix']+vmid;
 

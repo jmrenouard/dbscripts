@@ -1,0 +1,160 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+	config.vm.define "haproxy1" do |haproxy1|
+		haproxy1.vm.box = "jmrenouard/centos8"
+		haproxy1.vm.network "private_network", ip: "192.168.33.160", virtualbox__intnet: false
+		haproxy1.vm.network "public_network"
+
+		haproxy1.hostmanager.enabled = true
+		haproxy1.hostmanager.manage_host = false
+		haproxy1.hostmanager.manage_guest = true
+		haproxy1.hostmanager.ignore_private_ip = false
+		haproxy1.hostmanager.include_offline = true
+
+		haproxy1.vm.hostname = 'haproxy1'
+		haproxy1.hostmanager.aliases = %w(haproxy1.localdomain haproxy1.local c7chap.local)
+
+		haproxy1.vm.provider "virtualbox" do |vb|
+			vb.name="haproxy1"
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+		end
+		haproxy1.vm.provision "shell", path: "provision_generic.sh"
+#		haproxy1.vm.provision "shell", path: "provision_ansible.sh"
+#		haproxy1.vm.provision "shell", path: "provision_docker.sh"
+		haproxy1.vm.provision :hostmanager
+	end
+
+	config.vm.define "mariadb1" do |mariadb1|
+		mariadb1.vm.box = "jmrenouard/centos8"
+		mariadb1.vm.network "private_network", ip: "192.168.33.161", virtualbox__intnet: false
+		mariadb1.vm.network "public_network"
+
+
+		mariadb1.hostmanager.enabled = true
+		mariadb1.hostmanager.manage_host = false
+		mariadb1.hostmanager.manage_guest = true
+		mariadb1.hostmanager.ignore_private_ip = false
+		mariadb1.hostmanager.include_offline = true
+
+		mariadb1.vm.hostname = 'mariadb1'
+		mariadb1.hostmanager.aliases = %w(mariadb1.localdomain mariadb1.local c8db1.local)
+
+		mariadb1.vm.provider "virtualbox" do |vb|
+			vb.name="mariadb1"
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+		end
+		mariadb1.persistent_storage.enabled = true
+		mariadb1.persistent_storage.location = "mariadb1_data.vdi"
+		mariadb1.persistent_storage.size = 10240
+		mariadb1.persistent_storage.mountname = 'data'
+		mariadb1.persistent_storage.filesystem = 'ext4'
+		mariadb1.persistent_storage.mountpoint = '/data'
+		mariadb1.persistent_storage.volgroupname = 'datavol'
+
+		mariadb1.vm.provision "shell", path: "provision_generic.sh"
+		mariadb1.vm.provision :hostmanager
+	end
+
+	config.vm.define "mariadb2" do |mariadb2|
+		mariadb2.vm.box = "jmrenouard/centos8"
+		mariadb2.vm.network "private_network", ip: "192.168.33.162", virtualbox__intnet: false
+		mariadb2.vm.network "public_network"
+
+		mariadb2.hostmanager.enabled = true
+		mariadb2.hostmanager.manage_host = false
+		mariadb2.hostmanager.manage_guest = true
+		mariadb2.hostmanager.ignore_private_ip = false
+		mariadb2.hostmanager.include_offline = true
+
+		mariadb2.vm.hostname = 'mariadb2'
+		mariadb2.hostmanager.aliases = %w(mariadb2.localdomain mariadb2.local c8db2.local)
+
+		mariadb2.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="mariadb2"
+		end
+		mariadb2.persistent_storage.enabled = true
+		mariadb2.persistent_storage.location = "mariadb2_data.vdi"
+		mariadb2.persistent_storage.size = 10240
+		mariadb2.persistent_storage.mountname = 'data'
+		mariadb2.persistent_storage.filesystem = 'ext4'
+		mariadb2.persistent_storage.mountpoint = '/data'
+		mariadb2.persistent_storage.volgroupname = 'datavol'
+
+ 		mariadb2.vm.provision "shell", path: "provision_generic.sh"
+		mariadb2.vm.provision :hostmanager
+	end
+
+	config.vm.define "mariadb3" do |mariadb3|
+		mariadb3.vm.box = "jmrenouard/centos8"
+		mariadb3.vm.network "private_network", ip: "192.168.33.163", virtualbox__intnet: false
+		mariadb3.vm.network "public_network"
+
+		mariadb3.hostmanager.enabled = true
+		mariadb3.hostmanager.manage_host = false
+		mariadb3.hostmanager.manage_guest = true
+		mariadb3.hostmanager.ignore_private_ip = false
+		mariadb3.hostmanager.include_offline = true
+
+		mariadb3.vm.hostname = 'mariadb3'
+		mariadb3.hostmanager.aliases = %w(mariadb3.localdomain mariadb3.local c8db3.local)
+
+		mariadb3.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="mariadb3"
+		end
+		mariadb3.persistent_storage.enabled = true
+		mariadb3.persistent_storage.location = "mariadb3_data.vdi"
+		mariadb3.persistent_storage.size = 10240
+		mariadb3.persistent_storage.mountname = 'data'
+		mariadb3.persistent_storage.filesystem = 'ext4'
+		mariadb3.persistent_storage.mountpoint = '/data'
+		mariadb3.persistent_storage.volgroupname = 'datavol'
+
+ 		mariadb3.vm.provision "shell", path: "provision_generic.sh"
+		mariadb3.vm.provision :hostmanager
+	end
+
+	config.vm.define "mariadb4" do |mariadb4|
+		mariadb4.vm.box = "jmrenouard/centos8"
+		mariadb4.vm.network "private_network", ip: "192.168.33.164", virtualbox__intnet: false
+		mariadb4.vm.network "public_network"
+
+		mariadb4.hostmanager.enabled = true
+		mariadb4.hostmanager.manage_host = false
+		mariadb4.hostmanager.manage_guest = true
+		mariadb4.hostmanager.ignore_private_ip = false
+		mariadb4.hostmanager.include_offline = true
+
+		mariadb4.vm.hostname = 'mariadb4'
+		mariadb4.hostmanager.aliases = %w(mariadb4.localdomain mariadb4.local c8db4.local)
+
+		mariadb4.vm.provider "virtualbox" do |vb|
+			vb.gui = false
+			vb.memory = "1024"
+			vb.cpus = 2
+			vb.name="mariadb4"
+
+		end
+		mariadb4.persistent_storage.enabled = true
+		mariadb4.persistent_storage.location = "mariadb4_data.vdi"
+		mariadb4.persistent_storage.size = 10240
+		mariadb4.persistent_storage.mountname = 'data'
+		mariadb4.persistent_storage.filesystem = 'ext4'
+		mariadb4.persistent_storage.mountpoint = '/data'
+		mariadb4.persistent_storage.volgroupname = 'datavol'
+
+		mariadb4.vm.provision "shell", path: "provision_generic.sh"
+		mariadb4.vm.provision :hostmanager
+	end
+end
