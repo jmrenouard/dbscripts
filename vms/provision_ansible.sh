@@ -27,6 +27,8 @@ venv_activate()
 }
 
 export ANSIBLE_INVENTORY=/data/inventory
+export ANSIBLE_CONFIG=/data/ansible.cfg
+
 alias s=sudo
 alias h=history
 alias hserver='python -m http.server 8000'
