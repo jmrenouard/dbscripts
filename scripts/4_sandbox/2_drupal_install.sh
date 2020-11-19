@@ -21,7 +21,8 @@ firewall-cmd --reload
 cd /data/
 dnf -y install wget
 wget https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz
-tar xvf drupal-${DRUPAL_VERSION}.tar.gz
+tar xf drupal-${DRUPAL_VERSION}.tar.gz
+[ -d "/var/www/html/drupal" ] && rm -rf /var/www/html/drupal
 mv drupal-${DRUPAL_VERSION} /var/www/html/drupal
 
 mkdir /var/www/html/drupal/sites/default/files
@@ -34,7 +35,7 @@ restorecon -Rv /var/www/html/drupal
 restorecon -v /var/www/html/drupal/sites/default/settings.php
 restorecon -Rv /var/www/html/drupal/sites/default/files
 
-chown -R apache:apache  /var/www/html/drupal
+chown -R apache:apache /var/www/html/drupal
 (
 	cat <<"EndOfConf"
 	<VirtualHost *:80>
