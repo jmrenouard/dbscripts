@@ -12,8 +12,16 @@ if [ "$1" = "-l" -o "$1" = "--list" ]; then
 	ls -lsht $BCK_DIR
 	exit 0
 fi
+GALERA_SUPPORT=$(galera_is_enabled)
 
-
+if ["$GALERA_SUPPORT" = "1" ]; then
+	info "GALERA IS ACTIVATED"
+	echo -e "\t* Disable Galera with wsrep_on=off in configuration file"
+	echo -e "\t* Drop Galera Cache /var/lib/mysql/galera.cache"
+	echo -e "\t* Restart MariaDB or MySQL (systemctl restart mysql)"
+	echo -e "\t* Restart restore script $0 $*"
+	exit 1
+fi
 DUMP_FILE=$1
 if [ -z "$DUMP_FILE" ]; then
 	echo "The following archives were found; select one:"

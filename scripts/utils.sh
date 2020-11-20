@@ -314,6 +314,11 @@ pgSetVal()
 	eval "${var}='$*'"
 }
 
+tlog()
+{
+    tail  -f /var/lib/mysql/mysqld.log &
+}
+
 
 ## Code MariaDB
 
@@ -360,16 +365,21 @@ node_cluster_state()
     ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
 }
 
-tlog()
-{
-    tail  -f /var/lib/mysql/mysqld.log &
-}
-
-
 provider_var()
 {
     mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
     perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
+}
+
+galera_is_enabled()
+{
+	local var_wsrep_on=$(mysql -Nrs -e "show global variables like 'wsrep_on';")
+	if [ "$var_wsrep_on" = "on" || "$var_wsrep_on" = "ON" ]; then
+		echo "1"
+		exit 0
+	fi
+	echo "0"
+	exit 1
 }
 
 galera_members()

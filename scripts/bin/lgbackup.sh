@@ -9,13 +9,13 @@ GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
 
-GALERA_SUPPORT=1
+GALERA_SUPPORT=$(galera_is_enabled)
 KEEP_LAST_N_BACKUPS=5
 
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
 lRC=0
 
-if [ "GALERA_SUPPORT" = "1" ]; then
+if [ "$GALERA_SUPPORT" = "1" ]; then
 	info "Desynchronisation du noeud"
 	# desync
 	mysql -e 'set global wsrep_desync=on'
@@ -49,7 +49,7 @@ info "Fin du fichier $(basename $BCK_FILE)"
 zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
 
 
-if [ "GALERA_SUPPORT" = "1" ]; then
+if [ "$GALERA_SUPPORT" = "1" ]; then
 	info desync off
 	mysql -e 'set global wsrep_desync=off'
 
