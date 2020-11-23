@@ -5,6 +5,8 @@
 source /etc/os-release
 
 lRC=0
+TIMEZONE="GMT"
+TIMEZONE="Europe/Paris"
 banner "BEGIN SCRIPT: $_NAME"
 
 if [ "$VERSION_ID" = "7" ]; then
@@ -14,8 +16,7 @@ else
 	cmd "yum -y install ntpstat"
 fi
 
-
-cmd "timedatectl set-timezone Europe/Paris"
+cmd "timedatectl set-timezone $TIMEZONE"
 lRC=$(($lRC + $?))
 
 [ "$VERSION_ID" = "8" ] &&  cmd "ntpstat"
