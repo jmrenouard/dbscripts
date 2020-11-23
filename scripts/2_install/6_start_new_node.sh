@@ -1,19 +1,19 @@
 #!/bin/sh
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
-
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
-
-cluster_name="opencluster"
+DATADIR=/var/lib/mysql/
+cluster_name="meteocluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.161,192.168.33.162,192.168.33.163,192.168.33.164
+node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
 sst_user=galera
 sst_password=ohGh7boh7eeg6shuph
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+
 
 banner "BEGIN SCRIPT: $_NAME"
 

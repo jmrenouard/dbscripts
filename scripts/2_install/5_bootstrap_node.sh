@@ -62,5 +62,12 @@ echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql 
 
+
+
+
+scp /etc/bootstrap.conf dbsrv2:/etc
+scp /etc/bootstrap.conf dbsrv3:/etc
+
+
 footer "END SCRIPT: $NAME"
-exit $lRC
+exit $lRC3
