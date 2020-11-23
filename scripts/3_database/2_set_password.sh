@@ -49,4 +49,7 @@ add_password_history root "$PASSWD_ROOT"
 add_password_history replication "${PASSWD_REPLI}"
 add_password_history galera "${PASSWD_GALERA}"
 
+echo "sst_password=${PASSWD_GALERA}" > /etc/bootstrap.conf
+chmod 755 /etc/bootstrap.conf
+
 exit $lRC
