@@ -3,6 +3,7 @@
 if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 	_DIR="$(dirname "$(readlink -f "$0")")"
 	_NAME="$(basename "$(readlink -f "$0")")"
+    set -x
 	_CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
 	if [ -f "$_CONF_FILE" ];then
 		source $_CONF_FILE
@@ -10,6 +11,7 @@ if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 		mkdir -p $(dirname "$_CONF_FILE")
 		echo "# Config for $_NAME SCRIPT at $(date)">>$_CONF_FILE
 	fi
+    set +x
 else
 	_DIR="$(readlink -f ".")"
 	_NAME="INLINE SHELL"

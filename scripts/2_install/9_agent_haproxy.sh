@@ -13,13 +13,15 @@ banner "BEGIN SCRIPT: $_NAME"
 
 cmd 'yum -y install xinetd'
 
-echo "MYSQL_USERNAME='${galera_user}''
+echo "MYSQL_USERNAME='${galera_user}'
 MYSQL_PASSWORD='${galera_password}'
 AVAILABLE_WHEN_DONOR=0" > /etc/sysconfig/clustercheck
 
 sed -i  "/mysqlchk/d" /etc/services
 echo "mysqlchk 9200/tcp" >> /etc/services
 
+dos2unix /opt/local/bin/clustercheck
+ 
 echo "
 # default: on
 # description: mysqlchk
