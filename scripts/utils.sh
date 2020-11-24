@@ -365,6 +365,10 @@ node_cluster_state()
     ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
 }
 
+generate_sql_load()
+{
+    mysqlslap --auto-generate-sql --verbose --concurrency=50 --iterations=10 
+}
 get_ssh_mariadb_root_password()
 {
     node=$1
