@@ -1,17 +1,15 @@
 #!/bin/sh
 
-if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
+if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" ]; then
 	_DIR="$(dirname "$(readlink -f "$0")")"
 	_NAME="$(basename "$(readlink -f "$0")")"
-    set -x
 	_CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
 	if [ -f "$_CONF_FILE" ];then
 		source $_CONF_FILE
 	else
 		mkdir -p $(dirname "$_CONF_FILE")
-		echo "# Config for $_NAME SCRIPT at $(date)">>$_CONF_FILE
+		echo "# Config for $_NAME SCRIPT at $(date)" | tee -a $_CONF_FILE
 	fi
-    set +x
 else
 	_DIR="$(readlink -f ".")"
 	_NAME="INLINE SHELL"
@@ -365,6 +363,18 @@ node_cluster_state()
     node=$1
     param=$2
     ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
+}
+
+get_ssh_mariadb_root_password()
+{
+    node=$1
+    ssh -q $node "source /etc/profile.d/utils.sh;get_mariadb_root_password"
+}
+
+get_mariadb_root_password()
+{
+    [ -f "/root/.my.cnf" ] || return 0
+    grep -E "^password=" /root/.my.cnf | head -n1 | cut -d= -f2 
 }
 
 provider_var()

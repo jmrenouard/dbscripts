@@ -716,21 +716,25 @@ vgenAlias()
 vssh_exec()
 {
     local lsrv=$1
-    local fcmd=$2
     local lRC=0
-    if [ ! -f "$fcmd" ]; then
-        error "$fcmd Not exists"
-        return 127
-    fi
-    INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
+    shift
 
-    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
-        vip=$(vgetPrivateIp $srv)
-        [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
-        title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
-        (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$vip -i $DEFAULT_PRIVATE_KEY $INTERPRETER
-        footer "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
-        lRC=$(($lRC + $?))
+
+    for fcmd in $*; do
+        if [ ! -f "$fcmd" ]; then
+            error "$fcmd Not exists"
+            return 127
+        fi
+        INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
+
+        for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+            vip=$(vgetPrivateIp $srv)
+            [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+            title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+            (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$vip -i $DEFAULT_PRIVATE_KEY $INTERPRETER
+            footer "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+            lRC=$(($lRC + $?))
+        done
     done
     return $lRC
 }
