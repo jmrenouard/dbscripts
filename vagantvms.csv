@@ -1,3 +1,0 @@
-Num;Nom;Box;private_ip;mem;cpu;alias;datadir;datasize;default_pass;public_keys;private_keys;authorized_keys
-1;mariadb1;centos/8;192.168.33.161;2048;2;mariadb1.localdomain mariadb1.local db1;/data;20480;secret;$HOME/.ssh/id_rsa.pub;$HOME/.ssh/id_rsa;$HOME/.ssh/id_rsa.pub
-2;mariadb2;centos/8;192.168.33.162;2048;2;mariadb2.localdomain mariadb2.local db2;/data;20480;secret;$HOME/.ssh/id_rsa.pub;$HOME/.ssh/id_rsa;$HOME/.ssh/id_rsa.pub
