@@ -34,14 +34,11 @@ defaults
         timeout client 50000
         timeout server 50000
 
-frontend ${cluster_name}
-        bind *:3306
+listen galera_cluster_backend
         mode tcp
         option tcpka
         timeout client 1m
-        default_backend galera_cluster_backend
-
-backend galera_cluster_backend
+        bind *:3306
         balance leastconn
         # balance source
         # balance roundrobin
