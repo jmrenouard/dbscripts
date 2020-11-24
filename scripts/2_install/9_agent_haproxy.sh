@@ -6,6 +6,9 @@ lRC=0
 galera_user=galera
 galera_password=ohGh7boh7eeg6shuph
 
+[ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
+[ -n "$sst_password" ] && galera_password="$sst_password"
+
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd 'yum -y install xinetd'
