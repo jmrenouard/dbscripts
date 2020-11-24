@@ -8,8 +8,8 @@ banner "BEGIN SCRIPT: $_NAME"
 
 CONF_FILE="/etc/haproxy/haproxy.cfg"
 
-cluster_name="opencluster"
-node_addresses=192.168.33.161,192.168.33.162,192.168.33.163
+cluster_name="meteocluster"
+node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
 
 
 cmd "yum -y install haproxy"
