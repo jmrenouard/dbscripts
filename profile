@@ -742,9 +742,9 @@ vssh_exec()
 vssh_cmd()
 {
     local lsrv=$1
+    local lRC=0
     local fcmd=$2
     local silent=$3
-    local lRC=0
 
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         vip=$(vgetPrivateIp $srv)

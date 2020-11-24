@@ -83,7 +83,7 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.
 echo '---------------------------------------------------'
 echo "7° Install some utlities"
 echo '---------------------------------------------------'
-sudo yum -y install rsync lftp socat htop python3 time git telnet mysql
+sudo yum -y install rsync lftp socat htop python3 time git telnet
 
 echo '---------------------------------------------------'
 echo "8° update distro"
