@@ -21,6 +21,7 @@ firewall-cmd --reload
 cd /data/
 dnf -y install wget
 wget https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz
+set -x
 tar xf drupal-${DRUPAL_VERSION}.tar.gz
 [ -d "/var/www/html/drupal" ] && rm -rf /var/www/html/drupal
 mv drupal-${DRUPAL_VERSION} /var/www/html/drupal
