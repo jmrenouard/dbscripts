@@ -13,7 +13,7 @@ cmd "git clone https://github.com/datacharmer/test_db.git"
 cd /opt/local/test_db
 
 title2 "Inject DATABASE employees"
-mysql -v < ./employees.sql
+mysql < ./employees.sql
 
 cmd "db_tables employees"
 

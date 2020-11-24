@@ -5,14 +5,15 @@
 lRC=0
 CONF_FILE="/etc/sysconfig/garb"
 
-cluster_name="opencluster"
+cluster_name="meteocluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.161,192.168.33.162,192.168.33.163,192.168.33.164
+node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
 
 banner "BEGIN SCRIPT: $_NAME"
 
+cmd "systemctl stop mariadb" 
 cmd "rm -f $CONF_FILE"
 
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
