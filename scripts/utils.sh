@@ -365,10 +365,16 @@ node_cluster_state()
     ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
 }
 
+sql_1hour()
+{
+    mysqlbinlog --start-datetime "$(date --date '1 hour ago' +'%Y-%m-%d %T')" mysqld-bin.0000*
+}
+
 generate_sql_load()
 {
     mysqlslap --auto-generate-sql --verbose --concurrency=50 --iterations=10 
 }
+
 get_ssh_mariadb_root_password()
 {
     node=$1

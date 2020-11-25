@@ -15,7 +15,7 @@ cmd 'yum -y install xinetd'
 
 echo "MYSQL_USERNAME='${galera_user}'
 MYSQL_PASSWORD='${galera_password}'
-AVAILABLE_WHEN_DONOR=0" > /etc/sysconfig/clustercheck
+AVAILABLE_WHEN_DONOR=1" > /etc/sysconfig/clustercheck
 
 sed -i  "/mysqlchk/d" /etc/services
 echo "mysqlchk 9200/tcp" >> /etc/services
@@ -40,7 +40,9 @@ service mysqlchk
 	per_source = UNLIMITED
 }" > /etc/xinetd.d/mysqlchk
 
-cmd "service xinetd restart"
+
+cmd "systemctl enable xinetd"
+cmd "systemctl restart xinetd"
 
 footer "END SCRIPT: $NAME"
 exit $lRC

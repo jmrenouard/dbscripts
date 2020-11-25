@@ -71,6 +71,7 @@ frontend stats
 
 cmd "chmod 644 $CONF_FILE"
 
+cmd "systemctl enable haproxy"
 cmd "systemctl restart haproxy"
 
 footer "END SCRIPT: $NAME"
