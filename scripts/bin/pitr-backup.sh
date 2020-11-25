@@ -67,7 +67,7 @@ then
 fi
 
 echo "Check completed OK"
-
+#---------------------
 # Find latest backup directory
 LATEST=`find $BASEBACKDIR -mindepth 1 -maxdepth 1 -type d -printf "%P\n" | sort -nr | head -1`
 

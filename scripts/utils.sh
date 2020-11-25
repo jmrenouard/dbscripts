@@ -395,13 +395,13 @@ provider_var()
 
 galera_is_enabled()
 {
-	local var_wsrep_on=$(mysql -Nrs -e "show global variables like 'wsrep_on';")
-	if [ "$var_wsrep_on" = "on" || "$var_wsrep_on" = "ON" ]; then
+	local var_wsrep_on="$(mysql -Nrs -e "show global variables like 'wsrep_on';"|awk '{print $2}'| xargs -n1)"
+	if [ "$var_wsrep_on" = "ON" ]; then
 		echo "1"
-		exit 0
+		return 0
 	fi
 	echo "0"
-	exit 1
+	return 0
 }
 
 galera_members()

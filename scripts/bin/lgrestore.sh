@@ -14,7 +14,7 @@ if [ "$1" = "-l" -o "$1" = "--list" ]; then
 fi
 GALERA_SUPPORT=$(galera_is_enabled)
 
-if ["$GALERA_SUPPORT" = "1" ]; then
+if [ "$GALERA_SUPPORT" = "1" ]; then
 	info "GALERA IS ACTIVATED"
 	echo -e "\t* Disable Galera with wsrep_on=off in configuration file"
 	echo -e "\t* Drop Galera Cache /var/lib/mysql/galera.cache"

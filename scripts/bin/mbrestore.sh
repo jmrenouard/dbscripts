@@ -67,6 +67,7 @@ cd $TMP_DIR
 rm -rf $TMP_DIR/*
 $GZIP_CMD $DUMP_FILE | mbstream -x
 lRC=$?
+#mariabackup --prepare .
 
 ls -lsh $TMP_DIR
 
@@ -75,6 +76,7 @@ if [ $lRC -eq 0 ]; then
 	systemctl stop mariadb
 	rm -rf $DATADIR/*
 	rsync -avz $TMP_DIR/* $DATADIR/
+	chown -R mysql.mysql $DATADIR
 	systemctl start mariadb
 	[ $? -eq 0 ] && rm -rf $TMP_DIR
 fi

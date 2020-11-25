@@ -61,6 +61,8 @@ wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
 
 cmd "chmod 644 $CONF_FILE"
 
+
+cmd "rm -f ${DATADIR}/galera.cache ${DATADIR}/grastate.dat ${DATADIR}/gvwstate.dat"
 cmd "systemctl restart mariadb"
 
 echo "install soname 'wsrep_info';"| mysql -v

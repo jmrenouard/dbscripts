@@ -5,6 +5,8 @@ GZIP_CMD="pigz -cd"
 #GZIP_CMD="gzip -cd"
 #GZIP_CMD=tee
 DATADIR=/var/lib/mysql
+BACKDIR=/data/backups/pitr
+
 
 MYSQL_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 MYSQL_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
@@ -12,14 +14,14 @@ MYSQL_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs 
 DATE_RESTORE=$(date +"%Y-%m-%d %H:%M:%S")
 [ -n "$1" -a -n "$2" ] && DATE_RESTORE=$(date -d "$1 $2" +"%Y-%m-%d %H:%M:%S")
 
-DIR_RESTORE="/backups/mariabackup/restore_$(echo $DATE_RESTORE | tr ' ' '_' | tr ':' '-')"
+DIR_RESTORE="${BACKDIR}/restore_$(echo $DATE_RESTORE | tr ' ' '_' | tr ':' '-')"
 echo "RESTORE DIR: $DIR_RESTORE"
 
 # Récupération de la dernière sauvegrade full
-LAST_BASE_BACK=$(find /backups/mariabackup/base -mindepth 1 -maxdepth 1 -type d ! -newermt "$DATE_RESTORE" | sort -n | tail -1)
+LAST_BASE_BACK=$(find ${BACKDIR}/base -mindepth 1 -maxdepth 1 -type d ! -newermt "$DATE_RESTORE" | sort -n | tail -1)
 
 # Récupération des incrémentales correspondantes
-LASTEST_INCR_BASK=$(find /backups/mariabackup/incr -mindepth 2 -maxdepth 2 -type d ! -newermt "$DATE_RESTORE" | sort -n | grep "$(basename $LAST_BASE_BACK)")
+LASTEST_INCR_BASK=$(find ${BACKDIR}/incr -mindepth 2 -maxdepth 2 -type d ! -newermt "$DATE_RESTORE" | sort -n | grep "$(basename $LAST_BASE_BACK)")
 
 echo "Base backup : $LAST_BASE_BACK"
 echo "Incr backups : $LASTEST_INCR_BASK"
