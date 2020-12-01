@@ -563,6 +563,7 @@ lcreate()
 	done
 	echo "LINODE NAME  : $NAME"
 	echo "ROOT PASSWORD: $PASSWD"
+	echo "ROOT PASSWORD: $PUBKEY"
 	echo "EXTRA PARAM  : $EXTRA_TAGS"
 
 	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $PUBKEY)" --private_ip true --label $NAME $EXTRA_TAGS"
