@@ -553,6 +553,9 @@ lcreate()
 	shift
 	PASSWD=${1:-"$(pwgen -1 18)"}
 	shift
+	PUBKEY=${1}
+	shift
+	[ -f "$PUBKEY" ] || PUBKEY="$HOME/.conf/id_rsa.pub"
 	EXTRA_TAGS=""
 	while [ -n "$1" ]; do
 		EXTRA_TAGS="$EXTRA_TAGS --tags $1"
@@ -562,8 +565,8 @@ lcreate()
 	echo "ROOT PASSWORD: $PASSWD"
 	echo "EXTRA PARAM  : $EXTRA_TAGS"
 
-	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.conf/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS"
-	linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $HOME/.conf/id_rsa.pub)" --private_ip true --label $NAME $EXTRA_TAGS
+	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $PUBKEY)" --private_ip true --label $NAME $EXTRA_TAGS"
+	linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $PUBKEY)" --private_ip true --label $NAME $EXTRA_TAGS
 	true
 	while [ $? -eq 0 ]; do
 		echo -n ".."
@@ -572,7 +575,7 @@ lcreate()
 	done
 	echo
 	linode-cli linodes list
-	echo -e "$( date "+%d-%m-%Y:%H-%M")\t$NAME\troot\t$PASSWD\t$HOME/.conf/id_rsa" >> $HOME/.linode_access
+	echo -e "$( date "+%d-%m-%Y:%H-%M")\t$NAME\troot\t$PASSWD\t$PUBKEY\t${PUBKEY%.*}" | tee -a $HOME/.linode_access
 	chmod 600 $HOME/.linode_access
 }
 
