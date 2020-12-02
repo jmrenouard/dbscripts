@@ -1,7 +1,8 @@
-
 import glob
 import os
 import datetime
+from shell import Shell
+
 defaults = {
     'datetime'              :'%s' % datetime.datetime.now(),
     'generic_prefix'        : 'jmr',
@@ -19,13 +20,13 @@ defaults = {
     'vm_tags_2'             : 'proxy,linux',
 
     'vm_name_3'             : 'dbsrv1',
-    'vm_tags_3'             : 'mariadb,db,database,linux',
+    'vm_tags_3'             : 'mariadb,database,linux',
 
     'vm_name_4'             : 'dbsrv2',
-    'vm_tags_4'             : 'mariadb,db,database,linux',
+    'vm_tags_4'             : 'mariadb,database,linux',
 
     'vm_name_5'             : 'dbsrv3',
-    'vm_tags_5'             : 'mariadb,db,database,linux',
+    'vm_tags_5'             : 'mariadb,database,linux',
 
     'vm_name_6'             : 'manager1',
     'vm_tags_6'             : 'control,management,linux'
@@ -47,3 +48,15 @@ def rmWildCard(pattern):
             os.remove(filePath)
         except:
             print("Error while deleting file : ", filePath)
+
+
+def get_public_ip(name):
+    sh = Shell(verbose=False)
+    sh.run("linode-cli linodes list --label "+name+ " --text")
+    return sh.output()[1].split('\t')[6].split(' ')[0]
+
+
+def get_provate_ip(name):
+    sh = Shell(verbose=False)
+    sh.run("linode-cli linodes list --label "+name+ " --text")
+    return sh.output()[1].split('\t')[6].split(' ')[1]

@@ -563,11 +563,25 @@ lcreate()
 	done
 	echo "LINODE NAME  : $NAME"
 	echo "ROOT PASSWORD: $PASSWD"
-	echo "ROOT PASSWORD: $PUBKEY"
+	echo "PUB KEY      : $PUBKEY"
 	echo "EXTRA PARAM  : $EXTRA_TAGS"
 
-	info "CMD: linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $PUBKEY)" --private_ip true --label $NAME $EXTRA_TAGS"
-	linode-cli linodes create --root_pass "$PASSWD" --authorized_keys "$(cat $PUBKEY)" --private_ip true --label $NAME $EXTRA_TAGS
+	info "CMD: "
+	tmpFile=$(mktemp)
+	echo -n "#!/bin/bash"
+	echo -n "linode-cli linodes create --root_pass $PASSWD --authorized_keys " > $tmpFile
+	echo -n "'" >> $tmpFile
+	echo -n "$(cat $PUBKEY)" >> $tmpFile
+	echo -n "' " >> $tmpFile
+	echo "--private_ip true --label $NAME $EXTRA_TAGS" >> $tmpFile
+	info "$tmpFile"
+	info "CMD: $(cat $tmpFile)"
+	sh $tmpFile
+	if [ $? -ne 0 ]; then
+		error "FAILED CREATING $NAME LINODE"
+		return 127
+	fi
+	rm -f $tmpFile
 	true
 	while [ $? -eq 0 ]; do
 		echo -n ".."
@@ -579,8 +593,21 @@ lcreate()
 	echo -e "$( date "+%d-%m-%Y:%H-%M")\t$NAME\troot\t$PASSWD\t$PUBKEY\t${PUBKEY%.*}" | tee -a $HOME/.linode_access
 	chmod 600 $HOME/.linode_access
 }
+lgetLinodeId()
+{
+	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $1}'
+}
 
-lchangepaswd()
+lgetLinodePublicIp()
+{
+	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $7}'
+}
+lgetLinodePrivateIp()
+{
+	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $8}'
+}
+
+lchangepasswd()
 {
 	true
 }
@@ -612,6 +639,7 @@ lgenInventory()
 
 lgenHosts()
 {
+	prefix=$1
 	(
 	echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
@@ -619,6 +647,10 @@ lgenHosts()
 ### SPECIFIC CONFIG ###"
 for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
+			if [ -n "$prefix" ]; then
+				echo "$lname" | grep -q "^${prefix}_"
+				[ $? -eq 0 ] || continue
+			fi
 			lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
 			lippriv=$(echo "$srv"| tr ';' ' ' |awk '{print $3}')
 			echo "$lippub	$lname	${lname}.public		${lname}.ext	${lname}.external"
@@ -626,8 +658,7 @@ for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";"
 		done
 
 echo "### END SPECIFIC CONFIG ###"
-) > ${_DIR}/generated_hosts
-cat ${_DIR}/generated_hosts
+) |tee ${_DIR}/${prefix}generated_hosts
 }
 
 lsetupHosts()
@@ -641,10 +672,12 @@ lsetupHosts()
 
 lgenAlias()
 {
+	local PUBKEY=${1:-"$HOME/.conf/id_rsa"}
+	PUBKEY=$(readlink -f $PUBKEY)
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $HOME/.conf/id_rsa root@$lippub"
+		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $PUBKEY root@$lippub"
 	done
 }
 
