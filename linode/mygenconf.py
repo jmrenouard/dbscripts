@@ -22,50 +22,6 @@ source ../profile""".format(**_metaconf), file=_metaconf['out'])
         _metaconf['current_tags']=_metaconf['vm_tags_'+str(i)].replace(',', ' ');
         print("""lcreate {current_vm_name} {vm_generic_password} {vm_generic_pubkey} {current_tags}""".format(**_metaconf), file=_metaconf['out'])
 
-    print("""
-### COMMAND TO GENERATE /etc/hosts file
-lgenHosts {generic_prefix}""".format(**_metaconf), file=_metaconf['out'])
-
-    print("""
-### COMMAND TO GENERATE /etc/hosts file""".format(**_metaconf), file=_metaconf['out'])
-
-    for i in range(1, _metaconf['nb_linode_vms']+1):
-        lname=_metaconf['generic_prefix'] +'_' + _metaconf['vm_name_'+str(i)];
-        _metaconf['current_vm_name']=lname
-        _metaconf['current_public_ip']=get_public_ip(lname)
-        print("""ssh root@{current_public_ip} "hostnamectl set-hostname {current_vm_name}"
-scp {generic_prefix}generated_hosts root@{current_public_ip}:/etc/hosts
-ssh root@{current_public_ip} "chmod 644 /etc/hosts"
-scp id_rsa id_rsa.pub root@{current_public_ip}:/root/.ssh
-ssh root@{current_public_ip} "chmod -R 600 /root/.ssh/id_rsa"
-scp ../scripts/utils.sh root@{current_public_ip}:/etc/profile.d
-ssh root@{current_public_ip} "chmod 755 /etc/profile.d/utils.sh"
-
-""".format(**_metaconf), file=_metaconf['out'])
-
-        print("""ssh root@{current_public_ip} "hostnamectl set-hostname {current_vm_name}"
-scp {generic_prefix}generated_hosts root@{current_public_ip}:/etc/hosts
-ssh root@{current_public_ip} "chmod 644 /etc/hosts"
-scp id_rsa id_rsa.pub root@{current_public_ip}:/root/.ssh
-ssh root@{current_public_ip} "chmod -R 600 /root/.ssh/id_rsa"
-scp ../scripts/utils.sh root@{current_public_ip}:/etc/profile.d
-ssh root@{current_public_ip} "chmod 755 /etc/profile.d/utils.sh"
-
-""".format(**_metaconf), file=_metaconf['out'])
-
-    if i == _metaconf['nb_linode_vms']:
-        print("""ssh root@{current_public_ip} "dnf -y install git rsync"
-ssh root@{current_public_ip} "git clone https://github.com/jmrenouard/dbscripts.git"
-
-scp {generic_prefix}generated_hosts root@{current_public_ip}:/etc/hosts
-ssh root@{current_public_ip} "chmod 644 /etc/hosts"
-scp id_rsa id_rsa.pub root@{current_public_ip}:/root/.ssh
-ssh root@{current_public_ip} "chmod -R 600 /root/.ssh/id_rsa"
-scp ../scripts/utils.sh root@{current_public_ip}:/etc/profile.d
-ssh root@{current_public_ip} "chmod 755 /etc/profile.d/utils.sh"
-
-""".format(**_metaconf), file=_metaconf['out'])
-
     if _metaconf['out']!=sys.stdout:
         _metaconf['out'].close()
 

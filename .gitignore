@@ -5,3 +5,13 @@ generated_hosts
 inventory
 .ansible.cfg
 vms/__pycache__/
+linode/__pycache__
+linode/__pycache__/*
+linode/*generated_hosts
+linode/*.zip
+linode/putty.exe
+linode/*.bat
+linode/id_rsa*
+linode/*_drop_linodes.sh
+linode/*_provision_linodes.sh
+linode/*_generate_linodes.sh

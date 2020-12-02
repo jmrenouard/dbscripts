@@ -548,7 +548,7 @@ ssh_exec()
 
         for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
             title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv SERVER"
-            (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$srv -i $DEFAULT_PRIVATE_KEY $INTERPRETER
+            (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$srv -i ${DEFAULT_PRIVATE_KEY:-"/root/.ssh/id_rsa"} $INTERPRETER
             footer "RUNNING SCRIPT $(basename $fcmd) ON $srv SERVER"
             lRC=$(($lRC + $?))
         done
@@ -566,7 +566,7 @@ ssh_cmd()
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         [ -z "$silent" ] && title2 "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
         [ -n "$silent" ] && echo -ne "$srv\t$fcmd\t"
-        ssh -T root@$srv -i $DEFAULT_PRIVATE_KEY "$fcmd"
+        ssh -T root@$srv -i ${DEFAULT_PRIVATE_KEY:-"/root/.ssh/id_rsa"} "$fcmd"
         [ -n "$silent" ] && echo
         [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
         lRC=$(($lRC + $?))
@@ -588,7 +588,7 @@ ssh_copy()
         return 127
     fi
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
-        rsync -avz  -e "ssh -i $DEFAULT_PRIVATE_KEY" $fsource root@$srv:$fdest
+        rsync -avz  -e "ssh -i ${DEFAULT_PRIVATE_KEY:-"/root/.ssh/id_rsa"}" $fsource root@$srv:$fdest
         lRC=$(($lRC + $?))
 
         [ -z "$own" ] || ssh_cmd $srv "chown -R $own:$own $fdest" silent

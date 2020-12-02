@@ -7,6 +7,7 @@ defaults = {
     'datetime'              :'%s' % datetime.datetime.now(),
     'generic_prefix'        : 'jmr',
     'genscript_name'        : 'generate_linodes.sh',
+    'provscript_name'       : 'provision_linodes.sh',
     'delscript_name'        : 'drop_linodes.sh',
 
     'nb_linode_vms'         : 6,
