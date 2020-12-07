@@ -11,8 +11,8 @@ do
   	check_mariadb_password $muser $mpass silent
   	if [ $? -eq 0 ]; then
   		echo -e "$muser => $mpass - Password OK"
-  	else
-  		echo -e "$muser => $mpass - Password FAIL"
+#  	else
+#  		echo -e "$muser => $mpass - Password FAIL"
   	fi
   	i=$(($i + 1))
 done < "$inputFile"
