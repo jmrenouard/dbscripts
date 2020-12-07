@@ -509,6 +509,7 @@ add_password_history()
 }
 check_mariadb_password()
 {
+	[ "$3 != "silent" ] && info "check cmd: mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1' mysql"
 	ret="$(mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1' mysql 2>&1)"
 	awa="1"
 
