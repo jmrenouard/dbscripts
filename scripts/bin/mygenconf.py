@@ -7,7 +7,7 @@ from textwrap import dedent
 
 defaults = {
     'mysql_dir' : "/var/lib/mysql",
-
+    'port' : 3306
     'log_error' : "mysqld.log",
     'log_bin_name' : "mysqld-bin",
     'slow_query_log_file' : "mysqld-slow.log",
@@ -85,7 +85,7 @@ def output_my_cnf(_metaconf):
     log-queries-not-using-indexes  = ON
     long_query_time                = {long_query_time}
     bind_address                   = {bind_address}
-
+    port                           = {port}
     performance_schema=ON
     performance_schema_max_cond_classes     =80
     performance_schema_max_file_classes     =50

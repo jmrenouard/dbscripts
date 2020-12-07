@@ -43,6 +43,8 @@ password=${PASSWD_ROOT}
 chmod 600 /root/.my.cnf
 
 # mysql -Nrs -h$my_private_ipv4 -u root -p${PASSWD_ROOT} -e 'select 1' mysql
+# = 1
+
 footer "END SCRIPT: $NAME"
 
 info "ROOT PASSWORD: $PASSWD_ROOT"

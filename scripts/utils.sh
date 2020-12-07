@@ -507,6 +507,19 @@ add_password_history()
 
 	echo -e "$(date)\t$1\t$2" >> $history_file
 }
+check_mariadb_password()
+{
+	ret="$(mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1' mysql 2>&1)"
+	awa="1"
+
+	if [ "$ret" = "$awa" ]; then
+		[ "$3" != "silent" ] && info "PASSWORD FROM '$1' USER IS CORRECT."
+		return 0
+	fi
+	[ "$3" != "silent" ] && error "PASSWORD FROM '$1' IS INCORRECT."
+	return 1
+}
+
 rl()
 {
     [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh

@@ -11,6 +11,7 @@ info "RELOADING SYSCTL CONFIGURATION ..."
 
 #sunrpc.tcp_slot_table_entries = 128
 echo "fs.aio-max-nr = 1048576
+fs.nr_open=1048576
 vm.swappiness = 10" > $CONF_FILE
 
 cmd "cat $CONF_FILE"
