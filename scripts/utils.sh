@@ -18,8 +18,8 @@ HA_SOCKET=/tmp/admin.sock
 
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
 
-my_private_ipv4=$(ip a | grep inet | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
-my_public_ipv4=$(ip a | grep inet | grep '10.'| cut -d/ -f1 | awk '{print $2}')
+export my_private_ipv4=$(ip a | grep inet | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
+export my_public_ipv4=$(ip a | grep inet | grep '10.'| cut -d/ -f1 | awk '{print $2}')
 
 
 is() {
@@ -330,6 +330,11 @@ db_list()
 db_tables()
 {
     mysql -Nrs -e 'show tables' ${1:-"mysql"}
+}
+
+db_users()
+{
+	mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
 }
 
 db_count()
