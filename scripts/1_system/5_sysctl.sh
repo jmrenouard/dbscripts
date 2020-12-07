@@ -19,5 +19,7 @@ cmd "sysctl -q -p"
 
 cmd "sysctl -p $CONF_FILE"
 
+sysctl -a| grep -E '(swapi|aio-max-nr)'
+
 footer "END SCRIPT: $_NAME"
 exit $lRC

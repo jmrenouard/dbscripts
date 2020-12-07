@@ -13,16 +13,23 @@ if [ "$VERSION_ID" = "7" ]; then
 	cmd "yum -y install ntpdate"
 	cmd "ntpdate -vqd fr.pool.ntp.org"
 else
-	cmd "yum -y install ntpstat"
+	cmd "yum -y install ntpstat chrony"
+	lRC=$(($lRC + $?))
+	cmd "systemctl restart chronyd"
+	lRC=$(($lRC + $?))
 fi
 
 cmd "timedatectl set-timezone $TIMEZONE"
 lRC=$(($lRC + $?))
 
-[ "$VERSION_ID" = "8" ] &&  cmd "ntpstat"
+if [ "$VERSION_ID" = "8" ];then
+		cmd "ntpstat"
+		lRC=$(($lRC + $?))
+fi
 
 cmd "timedatectl"
 
 cmd "date"
+
 footer "END SCRIPT: $_NAME"
 exit $lRC
