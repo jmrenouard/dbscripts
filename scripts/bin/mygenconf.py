@@ -20,7 +20,7 @@ defaults = {
     'query_cache_type' : 0,
     'query_cache_size' : 0,
 
-    'long_query_time' : 2,
+    'long_query_time' : 30,
     'max_connections' : 100,
 
     'server_id' : 1,
@@ -83,7 +83,7 @@ def output_my_cnf(_metaconf):
     slow-query-log                 = 1
     slow-query-log-file            = {slow_query_log_file}
     log-queries-not-using-indexes  = ON
-    long_query_time                = 30
+    long_query_time                = {long_query_time}
     bind_address                   = {bind_address}
 
     performance_schema=ON
@@ -141,7 +141,7 @@ def mycnf_innodb_log_file_size_MB(innodb_buffer_pool_size_GB):
     if int(innodb_buffer_pool_size_GB) > 2:
         return '128M'
 
-    return '64M'
+    return '96M'
 
 
 def output_memory_gb(gb):
@@ -155,6 +155,8 @@ def output_memory_gb(gb):
 def mycnf_make(m):
 
     m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75)
+    if m['mysql_ram_gb'] == 1:
+        m['innodb_buffer_pool_size'] = '300M'
     m['innodb_log_file_size'] = mycnf_innodb_log_file_size_MB(m['mysql_ram_gb'])
     return m
 
