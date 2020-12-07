@@ -34,7 +34,7 @@ GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'galera'@'local
 CREATE OR REPLACE USER 'replication'@'192.168.%' IDENTIFIED BY '${PASSWD_REPLI}';
 GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168.%';
 " | mysql -uroot -v
-
+lRC=$(($lRC + $?))
 echo "[mysql]
 user=root
 password=${PASSWD_ROOT}
@@ -42,8 +42,12 @@ password=${PASSWD_ROOT}
 
 chmod 600 /root/.my.cnf
 
-# mysql -Nrs -h$my_private_ipv4 -u root -p${PASSWD_ROOT} -e 'select 1' mysql
-# = 1
+check_mariadb_password root ${PASSWD_ROOT}
+lRC=$(($lRC + $?))
+check_mariadb_password replication ${PASSWD_REPLI}
+lRC=$(($lRC + $?))
+check_mariadb_password galera ${PASSWD_GALERA}
+lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"
 
