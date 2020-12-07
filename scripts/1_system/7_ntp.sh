@@ -17,19 +17,18 @@ else
 	lRC=$(($lRC + $?))
 	cmd "systemctl restart chronyd"
 	lRC=$(($lRC + $?))
+	sleep 3s
 fi
 
 cmd "timedatectl set-timezone $TIMEZONE"
 lRC=$(($lRC + $?))
 
-if [ "$VERSION_ID" = "8" ];then
-		cmd "ntpstat"
-		lRC=$(($lRC + $?))
-fi
-
 cmd "timedatectl"
 
 cmd "date"
+
+ntpstat
+lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $_NAME"
 exit $lRC
