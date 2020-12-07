@@ -15,6 +15,11 @@ perl -i -pe 's/(SELINUX=).*/$1PERMISSIVE/g' /etc/sysconfig/selinux
 grep -q "SELINUX=PERMISSIVE" /etc/sysconfig/selinux
 lRC=$(($lRC + $?))
 
+title1 "REMOVING ENFORCING mode FROM /etc/selinux/config"
+perl -i -pe 's/(SELINUX=).*/$1PERMISSIVE/g' /etc/selinux/config
+grep -q "SELINUX=PERMISSIVE" /etc/selinux/config
+lRC=$(($lRC + $?))
+
 cmd "sestatus"
 
 footer "END SCRIPT: $_NAME"

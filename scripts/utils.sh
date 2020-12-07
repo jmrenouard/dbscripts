@@ -567,9 +567,9 @@ ssh_cmd()
         [ -z "$silent" ] && title2 "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
         [ -n "$silent" ] && echo -ne "$srv\t$fcmd\t"
         ssh -T root@$srv -i ${DEFAULT_PRIVATE_KEY:-"/root/.ssh/id_rsa"} "$fcmd"
+        lRC=$(($lRC + $?))
         [ -n "$silent" ] && echo
         [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
-        lRC=$(($lRC + $?))
     done
     return $lRC
 }
