@@ -156,7 +156,7 @@ def mycnf_make(m):
 
     m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75)
     if m['mysql_ram_gb'] == 1:
-        m['innodb_buffer_pool_size'] = '300M'
+        m['innodb_buffer_pool_size'] = '384M'
     m['innodb_log_file_size'] = mycnf_innodb_log_file_size_MB(m['mysql_ram_gb'])
     return m
 
