@@ -15,6 +15,11 @@ perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/sysconfig/selinux
 grep -q "SELINUX=ENFORCING" /etc/sysconfig/selinux
 lRC=$(($lRC + $?))
 
+title1 "REMOVING PERMISSIVE mode FROM /etc/selinux/config"
+perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/selinux/config
+grep -q "SELINUX=ENFORCING" /etc/selinux/config
+lRC=$(($lRC + $?))
+
 cmd "sestatus"
 
 cmd "yum -y install policycoreutils-python-utils"

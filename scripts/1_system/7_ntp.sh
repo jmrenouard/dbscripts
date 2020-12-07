@@ -27,8 +27,10 @@ cmd "timedatectl"
 
 cmd "date"
 
-ntpstat
-lRC=$(($lRC + $?))
+# Attente de résolution :)
+# sleep 3s
+#ntpstat
+#lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $_NAME"
 exit $lRC

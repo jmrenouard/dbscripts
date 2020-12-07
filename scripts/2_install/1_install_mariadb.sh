@@ -4,7 +4,7 @@
 source /etc/os-release
 
 lRC=0
-VERSION=10.5
+VERSION=${1:-"10.5"}
 
 banner "BEGIN SCRIPT: $_NAME"
 
@@ -24,6 +24,9 @@ cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
 cmd "yum -y remove mysql-server mariadb-server"
 lRC=$(($lRC + $?))
+
+
+cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 
 cmd "yum -y install python3 MariaDB-server MariaDB-backup MariaDB-client MariaDB-compat socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
 lRC=$(($lRC + $?))
