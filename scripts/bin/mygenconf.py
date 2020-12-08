@@ -71,7 +71,7 @@ def output_my_cnf(_metaconf):
     table-open-cache               = 128
     # INNODB #
     innodb-flush-method            = O_DIRECT
-
+    innodb-defragment			   = 1
     # DePRECATED IN MARIADB 10.5
     # innodb-log-files-in-group      = 2
 
@@ -175,7 +175,7 @@ def mycnf_make(m):
     # Pour 3 GO => 2G - 66%
     if m['mysql_ram_gb'] == 3:
         m['innodb_buffer_pool_size'] = '2G'
-        m['innodb_buffer_pool_chunk_size'] =2 *1024 * 1024* 1024 / 16
+        m['innodb_buffer_pool_chunk_size'] =2 * 1024 * 1024* 1024 / 16
 
     m['innodb_log_file_size'] = mycnf_innodb_log_file_size_MB(m['mysql_ram_gb'])
     return m

@@ -650,6 +650,7 @@ generate_multi_instance_example()
 
 killall_mariadbd()
 {
+	ps -edf | grep [m]ysqld_safe | awk '{print $2}' | xargs -n1 kill -9
 	ps -edf | grep [m]ariadbd | awk '{print $2}' | xargs -n1 kill -9
 }
 
