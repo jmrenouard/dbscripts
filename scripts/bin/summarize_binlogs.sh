@@ -1,9 +1,10 @@
 #!/bin/bash
 
 BINLOG_FILE=${1:-"mysqld-bin.000035"}
-START_TIME=${2:-"2015-01-16 13:30:00"}
-STOP_TIME=${3:-"2015-01-16 14:00:00"}
-
+START_TIME=${2}
+STOP_TIME=${3}
+[ -n "$START_TIME" ] && OPTS="--start-datetime='$START_TIME'"
+[ -n "$STOP_TIME" ] && OPTS="$OPTS --stop-datetime='$STOP_TIME'"
 mysqlbinlog --base64-output=decode-rows -vv --start-datetime="${START_TIME}" \
  --stop-datetime="${STOP_TIME}" ${BINLOG_FILE} | awk \
 'BEGIN {s_type=""; s_count=0;count=0;insert_count=0;update_count=0;delete_count=0;flag=0;} \

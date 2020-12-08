@@ -370,20 +370,19 @@ node_cluster_state()
     ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
 }
 
-sql_1hour()
+binlog_sql_xhours()
 {
-    mysqlbinlog --start-datetime "$(date --date '1 hour ago' +'%Y-%m-%d %T')" mysqld-bin.0000*
+	start_date=$(date --date "$1 hour ago" +'%Y-%m-%d %T')
+	echo "# START DATE: $start_date"
+#	exit 1
+    mysqlbinlog --base64-output=decode-rows -vv --start-datetime "$start_date" mysqld-bin.00*| \
+    perl -ne 's/^(#\d{6} \d{2}:\d{2}:\d{2}).*/$1/g and print; /^[#\/]/ or print'
 }
 
 generate_sql_load()
 {
-    mysqlslap --auto-generate-sql --verbose --concurrency=${1:-"50"} --iterations=${2:-"10"}
-}
-
-generate_sql_loads()
-{
 	for i in $(seq 1 ${1:-"500"}); do
-		generate_sql_load ${2:-"50"} ${3:-"10"}
+		mysqlslap --auto-generate-sql --verbose --concurrency=${2:-"50"} ${3:-"10"}
 		sleep ${4:-"2"}s
 	done
 }
