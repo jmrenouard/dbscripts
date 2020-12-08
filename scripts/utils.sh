@@ -629,3 +629,20 @@ updateScript()
 	ssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }
+
+
+generate_multi_instance_example()
+{
+
+	mysqld_multi --example | tee /etc/my.cnf.d/90_multi_config.cnf
+
+	for datadir in $(grep datadir /etc/my.cnf.d/90_multi_config.cnf| cut -d= -f2 | xargs -n 1); do
+		echo $datadir;
+		rm -rf $datadir;
+		mysql_install_db --user=mysql --datadir=$datadir;
+		ls -ls $datadir;
+		echo "--------------------------------------------";
+	done
+
+	mysqld_multi report
+}
