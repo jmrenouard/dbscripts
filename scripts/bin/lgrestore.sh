@@ -65,8 +65,8 @@ fi
 # now we can use the selected file
 info "$DUMP_FILE will be restored"
 
-info "CMD: $GZIP_CMD $DUMP_FILE | time mysql -f -v"
-$GZIP_CMD $DUMP_FILE | time mysql -f
+info "CMD: $GZIP_CMD $DUMP_FILE | mysql -f -v"
+$GZIP_CMD $DUMP_FILE | mysql -f
 lRC=$?
 [ $lRC -eq 0 ] && ok "RESTORE OK"
 

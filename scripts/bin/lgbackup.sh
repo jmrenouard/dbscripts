@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#set -x
-
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 BCK_DIR=/data/backups/logical
@@ -36,7 +34,7 @@ time mysqldump --all-databases \
 --events \
 --add-drop-table --add-locks --create-options --disable-keys --extended-insert \
 --quick --set-charset \
- --single-transaction | $GZIP_CMD > $BCK_FILE
+--single-transaction | $GZIP_CMD > $BCK_FILE
 lRC=$?
 
 if [ $lRC -eq 0 ]; then
