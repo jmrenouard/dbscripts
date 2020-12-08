@@ -24,7 +24,8 @@ defaults = {
     'max_connections' : 100,
 
     'server_id' : 1,
-    'bind_address' : '0.0.0.0'
+    'bind_address' : '0.0.0.0',
+    'innodb_buffer_pool_chunk_size' : 134217728
 }
 
 
@@ -78,6 +79,7 @@ def output_my_cnf(_metaconf):
     innodb-flush-log-at-trx-commit = 1
     innodb-file-per-table          = 1
     innodb-buffer-pool-size        = {innodb_buffer_pool_size}
+    innodb_buffer_pool_chunk_size  = {innodb_buffer_pool_chunk_size}
     # LOGGING #
     log-error                      = {log_error}
     slow-query-log                 = 1
@@ -154,16 +156,26 @@ def output_memory_gb(gb):
 
 def mycnf_make(m):
 	# Pour X GO > 3Go 75 % de la RAM
+	# 4 chunks par Go
     m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75)
+    m['innodb_buffer_pool_chunk_size'] =(float(m['mysql_ram_gb']) *  0.75 * 1024 * 1024* 1024) / (float(m['mysql_ram_gb']) * 4)
+
     # Pour 1 GO => 384M - 33%
+    # 4 chunks
     if m['mysql_ram_gb'] == 1:
         m['innodb_buffer_pool_size'] = '384M'
+        m['innodb_buffer_pool_chunk_size'] =384 * 1024 * 1024 / 4
+
     # Pour 2 GO => 1G - 50%
+    # 8 chunks
     if m['mysql_ram_gb'] == 2:
         m['innodb_buffer_pool_size'] = '1G'
+        m['innodb_buffer_pool_chunk_size'] =1024 * 1024* 1024 / 8
+
     # Pour 3 GO => 2G - 66%
     if m['mysql_ram_gb'] == 3:
         m['innodb_buffer_pool_size'] = '2G'
+        m['innodb_buffer_pool_chunk_size'] =2 *1024 * 1024* 1024 / 16
 
     m['innodb_log_file_size'] = mycnf_innodb_log_file_size_MB(m['mysql_ram_gb'])
     return m

@@ -637,6 +637,7 @@ generate_multi_instance_example()
 	mysqld_multi --example | tee /etc/my.cnf.d/90_multi_config.cnf
 
 	for datadir in $(grep datadir /etc/my.cnf.d/90_multi_config.cnf| cut -d= -f2 | xargs -n 1); do
+		#mysqld_multi stop
 		echo $datadir;
 		rm -rf $datadir;
 		mysql_install_db --user=mysql --datadir=$datadir;
@@ -645,4 +646,25 @@ generate_multi_instance_example()
 	done
 
 	mysqld_multi report
+}
+
+killall_mariadbd()
+{
+	ps -edf | grep [m]ariadbd | awk '{print $2}' | xargs -n1 kill -9
+}
+
+open_mariadb_root_from()
+{
+	local remoteIPv4=$1
+	local pass=$(get_mariadb_root_password)
+	 echo "
+ CREATE OR REPLACE USER 'root'@'$remoteIPv4' IDENTIFIED BY '$pass';
+ GRANT ALL PRIVILEGES ON *.* TO 'root'@'$remoteIPv4';
+	 " | mysql -v
+}
+
+revoke_mariadb_root_from()
+{
+	local remoteIPv4=$1
+	 echo "DROP USER 'root'@'$remoteIPv4' ;" | mysql -v
 }
