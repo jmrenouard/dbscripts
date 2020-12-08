@@ -406,11 +406,11 @@ get_mariadb_root_password()
 
 global_variables()
 {
-	mysql -Nrs -e "show global variables like '$1'"
+	mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/'
 }
 global_status()
 {
-	mysql -Nrs -e "show global status like '$1'"
+	mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
 }
 
 provider_var()
