@@ -1,8 +1,8 @@
 #!/bin/bash
 
 BINLOG_FILE=${1:-"mysqld-bin.000035"}
-START_TIME=${2}
-STOP_TIME=${3}
+START_TIME="$2"
+STOP_TIME="$3"
 [ -n "$START_TIME" ] && OPTS="--start-datetime='$START_TIME'"
 [ -n "$STOP_TIME" ] && OPTS="$OPTS --stop-datetime='$STOP_TIME'"
 mysqlbinlog --base64-output=decode-rows -vv --start-datetime="${START_TIME}" \
