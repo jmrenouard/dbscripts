@@ -377,7 +377,15 @@ sql_1hour()
 
 generate_sql_load()
 {
-    mysqlslap --auto-generate-sql --verbose --concurrency=50 --iterations=10
+    mysqlslap --auto-generate-sql --verbose --concurrency=${1:-"50"} --iterations=${2:-"10"}
+}
+
+generate_sql_loads()
+{
+	for i in $(seq 1 ${1:-"500"}); do
+		generate_sql_load ${2:-"50"} ${3:-"10"}
+		sleep ${4:-"2"}s
+	done
 }
 
 get_ssh_mariadb_root_password()

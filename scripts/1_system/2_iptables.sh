@@ -43,6 +43,8 @@ if [ "$VERSION_ID" = "8" ]; then
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=4568/tcp --permanent"
 	lRC=$(($lRC + $?))
+	cmd "firewall-cmd --add-port=5555/tcp --permanent"
+	lRC=$(($lRC + $?))
 	sudo firewall-cmd --reload
 fi
 
