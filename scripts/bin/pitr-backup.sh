@@ -73,7 +73,7 @@ LATEST=`find $BASEBACKDIR -mindepth 1 -maxdepth 1 -type d -printf "%P\n" | sort 
 
 AGE=`stat -c %Y $BASEBACKDIR/$LATEST`
 
-if [ "$LATEST" -a `expr $AGE + $FULLBACKUPCYCLE + 5` -ge $START ]
+if [ "$LATEST" -a `expr $AGE + $FULLBACKUPCYCLE + 5` -ge $START -a "$1" != "--full" ]
 then
   echo 'New incremental backup'
   # Create an incremental backup
@@ -108,6 +108,7 @@ then
   # Create incremental Backup
   $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --incremental-basedir=$INCRBASEDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz
 
+  [ -d "/admin/flags" ] || mkdir -p /admin/flags
   if [ $? -eq 0 ]; then
         touch /admin/flags/backup_incr.ok.flag
   else
@@ -119,10 +120,10 @@ else
 
   TARGETDIR=$BASEBACKDIR/`date +%F_%H-%M-%S`
   mkdir -p $TARGETDIR
+  [ -d "/admin/flags" ] || mkdir -p /admin/flags
 
   # Create a new full backup
   $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz
-
   if [ $? -eq 0 ]; then
         touch /admin/flags/backup_full.ok.flag
   else
