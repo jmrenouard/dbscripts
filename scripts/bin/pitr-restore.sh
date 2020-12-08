@@ -54,7 +54,8 @@ for incr in $LASTEST_INCR_BASK; do
         $GZIP_CMD $incr/backup.stream.gz | mbstream -x -C $DIR_INCR
 
         echo "Application incrémentale des modifications"
-        mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --apply-log-only --incremental-dir $DIR_INCR
+        #--apply-log-only
+        mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --incremental-dir $DIR_INCR
         [ $? -eq 0 ] || exit 1
         echo "OK"
 
