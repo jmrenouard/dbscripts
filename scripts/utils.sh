@@ -669,3 +669,8 @@ revoke_mariadb_root_from()
 	local remoteIPv4=$1
 	 echo "DROP USER 'root'@'$remoteIPv4' ;" | mysql -v
 }
+
+binlog_sql()
+{
+	mysqlbinlog -j 387 --stop-position=890 --base64-output=decode-rows -vv mysqld-bin.000011 | perl -ne '/^[#\/]/ or print'
+}

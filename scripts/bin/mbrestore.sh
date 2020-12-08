@@ -62,19 +62,20 @@ info "$DUMP_FILE will be restored"
 rm -rf "$TMP_DIR/*"
 
 info "CMD: $GZIP_CMD $DUMP_FILE | mbstream -x"
-
 cd $TMP_DIR
-rm -rf $TMP_DIR/*
 $GZIP_CMD $DUMP_FILE | mbstream -x
 lRC=$?
-#mariabackup --prepare .
+info "PREPARING RESTORE"
+mariabackup --prepare .
 
 ls -lsh $TMP_DIR
 
 if [ $lRC -eq 0 ]; then
-	chown -R mysql.mysql $TMP_DIR/*
+	#chown -R mysql.mysql $TMP_DIR/*
 	systemctl stop mariadb
-	rm -rf $DATADIR/*
+	#rm -rf $DATADIR/*
+	mv ${DATADIR} ${DATADIR}_$(date +%Y%m%d-%H%M%S)
+	mkdir -p ${DATADIR}
 	rsync -avz $TMP_DIR/* $DATADIR/
 	chown -R mysql.mysql $DATADIR
 	systemctl start mariadb
