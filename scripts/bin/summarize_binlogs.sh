@@ -3,11 +3,17 @@
 BINLOG_FILE=${1:-"mysqld-bin.000035"}
 START_TIME="$2"
 STOP_TIME="$3"
+
+[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+if [ "$(global_variables binlog_format)" != "ROW" ]; then
+	error "BINLOG FORMAT SHOULD BE ROW - ACTUAL FORMAT: $(global_variables binlog_format)"
+	exit 127
+fi
+global_variables
 OPTS="--base64-output=decode-rows -vv"
 [ "$START_TIME" = "" ] || OPTS="$OPTS --start-datetime='$START_TIME'"
 [ "$STOP_TIME" = "" ] || OPTS="$OPTS --stop-datetime='$STOP_TIME'"
-mysqlbinlog $OPTS ${BINLOG_FILE} | awk \
-'BEGIN {s_type=""; s_count=0;count=0;insert_count=0;update_count=0;delete_count=0;flag=0;} \
+mysqlbinlog $OPTS ${BINLOG_FILE} | awk 'BEGIN {s_type=""; s_count=0;count=0;insert_count=0;update_count=0;delete_count=0;flag=0;} \
 {if(match($0, /#15.*Table_map:.*mapped to number/)) {printf "Timestamp : " $1 " " $2 " Table : " $(NF-4); flag=1} \
 else if (match($0, /(### INSERT INTO .*..*)/)) {count=count+1;insert_count=insert_count+1;s_type="INSERT"; s_count=s_count+1;}  \
 else if (match($0, /(### UPDATE .*..*)/)) {count=count+1;update_count=update_count+1;s_type="UPDATE"; s_count=s_count+1;} \
@@ -16,4 +22,5 @@ else if (match($0, /^(# at) /) && flag==1 && s_count>0) {print " Query Type : "s
 else if (match($0, /^(COMMIT)/)) {print "[Transaction total : " count " Insert(s) : " insert_count " Update(s) : " update_count " Delete(s) : " \
 delete_count "] \n+----------------------+----------------------+----------------------+----------------------+"; \
 count=0;insert_count=0;update_count=0; delete_count=0;s_type=""; s_count=0; flag=0} } '
+
 
