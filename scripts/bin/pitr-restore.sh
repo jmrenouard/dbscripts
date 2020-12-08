@@ -38,7 +38,8 @@ mkdir -p $DIR_RESTORE/base
 # Décompression de la full
 echo "Decompression et preparation de la sauvegarde full dans $DIR_RESTORE/base"
 $GZIP_CMD $LAST_BASE_BACK/backup.stream.gz | mbstream -x -C $DIR_RESTORE/base
-mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD" --apply-log-only
+mariabackup --prepare --target-dir $DIR_RESTORE/base --user $MYSQL_USER --password "$MYSQL_PASSWORD"
+#--apply-log-only
 [ $? -eq 0 ] || exit 1
 echo "OK"
 

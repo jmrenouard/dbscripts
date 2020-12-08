@@ -66,7 +66,7 @@ cd $TMP_DIR
 $GZIP_CMD $DUMP_FILE | mbstream -x
 lRC=$?
 info "PREPARING RESTORE"
-mariabackup --prepare .
+mariabackup --prepare --target-dir=.
 
 ls -lsh $TMP_DIR
 
