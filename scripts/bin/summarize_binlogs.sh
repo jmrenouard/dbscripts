@@ -3,9 +3,10 @@
 BINLOG_FILE=${1:-"mysqld-bin.000035"}
 START_TIME="$2"
 STOP_TIME="$3"
-[ "$START_TIME" = "" ] || OPTS="--start-datetime='$START_TIME'"
+OPTS="--base64-output=decode-rows -vv"
+[ "$START_TIME" = "" ] || OPTS="$OPTS --start-datetime='$START_TIME'"
 [ "$STOP_TIME" = "" ] || OPTS="$OPTS --stop-datetime='$STOP_TIME'"
-mysqlbinlog --base64-output=decode-rows -vv -$OPTS ${BINLOG_FILE} | awk \
+mysqlbinlog $OPTS ${BINLOG_FILE} | awk \
 'BEGIN {s_type=""; s_count=0;count=0;insert_count=0;update_count=0;delete_count=0;flag=0;} \
 {if(match($0, /#15.*Table_map:.*mapped to number/)) {printf "Timestamp : " $1 " " $2 " Table : " $(NF-4); flag=1} \
 else if (match($0, /(### INSERT INTO .*..*)/)) {count=count+1;insert_count=insert_count+1;s_type="INSERT"; s_count=s_count+1;}  \
