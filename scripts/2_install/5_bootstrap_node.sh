@@ -64,8 +64,8 @@ echo "select * from information_schema.wsrep_membership;" | mysql
 
 
 
-scp /etc/bootstrap.conf dbsrv2:/etc
-scp /etc/bootstrap.conf dbsrv3:/etc
+scp /etc/bootstrap.conf jmr_dbsrv2:/etc
+scp /etc/bootstrap.conf jmr_dbsrv3:/etc
 
 
 footer "END SCRIPT: $NAME"
