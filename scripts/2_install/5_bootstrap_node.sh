@@ -36,6 +36,7 @@ innodb-flush-log-at-trx-commit = 0
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
 
+wsrep-slave-threads=$(( $(nproc) * 4 ))
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
 wsrep-node-address=${private_ip}

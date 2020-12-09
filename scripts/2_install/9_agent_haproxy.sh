@@ -21,7 +21,7 @@ sed -i  "/mysqlchk/d" /etc/services
 echo "mysqlchk 9200/tcp" >> /etc/services
 
 dos2unix /opt/local/bin/clustercheck
- 
+
 echo "
 # default: on
 # description: mysqlchk
@@ -43,6 +43,10 @@ service mysqlchk
 
 cmd "systemctl enable xinetd"
 cmd "systemctl restart xinetd"
+
+
+firewall-cmd --add-port=9200/tcp --permanent
+firewall-cmd --reload
 
 footer "END SCRIPT: $NAME"
 exit $lRC

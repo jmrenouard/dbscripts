@@ -8,8 +8,8 @@ banner "BEGIN SCRIPT: $_NAME"
 
 CONF_FILE="/etc/haproxy/haproxy.cfg"
 
-cluster_name="meteocluster"
-node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
+cluster_name="adistacluster"
+node_addresses=192.168.192.108,192.168.164.48,192.168.165.29
 
 
 cmd "yum -y install haproxy"
@@ -73,6 +73,12 @@ cmd "chmod 644 $CONF_FILE"
 
 cmd "systemctl enable haproxy"
 cmd "systemctl restart haproxy"
+
+
+
+firewall-cmd --add-port=3310/tcp --permanent
+firewall-cmd --add-port=3306/tcp --permanent
+firewall-cmd --reload
 
 footer "END SCRIPT: $NAME"
 exit $lRC

@@ -53,3 +53,6 @@ SHOW ENGINE INNODB STATUS;
 select * from sys.schema_unused_indexes sui ;
 
 select count(dept_no) from employees.dept_manager;
+
+--
+select * from information_schema.w

@@ -4,7 +4,7 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 DATADIR=/var/lib/mysql/
-cluster_name="meteocluster"
+cluster_name="adistacluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
@@ -67,7 +67,8 @@ cmd "systemctl restart mariadb"
 
 echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
-echo "select * from information_schema.wsrep_membership;" | mysql 
+title2 "MEMBERS IN GALERA"
+echo "select * from information_schema.wsrep_membership;" | mysql
 
 footer "END SCRIPT: $NAME"
 exit $lRC
