@@ -373,10 +373,10 @@ node_cluster_state()
 binlog_sql_xhours()
 {
 	start_date=$(date --date "$1 hour ago" +'%Y-%m-%d %T')
-	echo "# START DATE: $start_date"
+	echo "-- START DATE: $start_date"
 #	exit 1
-    mysqlbinlog --base64-output=decode-rows -vv --start-datetime "$start_date" mysqld-bin.0* 2>/dev/null| \
-    perl -ne 's/^(#\d{6} \d{2}:\d{2}:\d{2}).*/$1/g and print; /^[#\/]/ or print'
+    mysqlbinlog --base64-output=decode-rows -vv --start-datetime "$start_date" /var/lib/mysql/mysqld-bin.0* 2>/dev/null| \
+    perl -ne 's/^(#\d{6} \d{2}:\d{2}:\d{2}).*/$1/g and print; /^[#\/]/ or print' | perl -pe 's/^#/-- /g'
 }
 
 binlog_sql_type_xhours()
@@ -387,7 +387,7 @@ binlog_sql_type_xhours()
 generate_sql_load()
 {
 	for i in $(seq 1 ${1:-"500"}); do
-		mysqlslap --auto-generate-sql --verbose --concurrency=${2:-"50"} ${3:-"10"}
+		mysqlslap --auto-generate-sql --verbose --concurrency=${2:-"50"} --iterations=${3:-"10"}
 		sleep ${4:-"2"}s
 	done
 }

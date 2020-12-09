@@ -38,3 +38,18 @@ select t.TABLE_SCHEMA,  t.TABLE_NAME , round(DATA_FREE/DATA_length)*100 FROM inf
 -- https://mariadb.com/kb/en/defragmenting-innodb-tablespaces/
 -- innodb-defragment=1
 set global innodb_defragment=1;
+
+-- 
+select DISTINCT (engine), t.TABLE_TYPE from information_schema.TABLES t  ;
+
+-- 
+show global variables like '%log_error%';
+
+--
+
+SHOW ENGINE INNODB STATUS;
+
+--
+select * from sys.schema_unused_indexes sui ;
+
+select count(dept_no) from employees.dept_manager;

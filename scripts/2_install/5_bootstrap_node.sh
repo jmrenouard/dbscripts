@@ -5,13 +5,13 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 DATADIR=/var/lib/mysql/
-cluster_name="meteocluster"
+cluster_name="adistacluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
+node_addresses=192.168.192.108,192.168.164.48,192.168.165.29
 sst_user=galera
-sst_password=ohGh7boh7eeg6shuph
+sst_password=kee2iesh1Ohk1puph8
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
@@ -59,7 +59,7 @@ cmd "/usr/bin/galera_new_cluster"
 
 echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
-echo "select * from information_schema.wsrep_membership;" | mysql 
+echo "select * from information_schema.wsrep_membership;" | mysql
 
 
 
