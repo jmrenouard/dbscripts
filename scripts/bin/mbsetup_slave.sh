@@ -36,7 +36,7 @@ systemctl start mariadb
 # ...
 echo "
 --stop slave;
-STOP SLAVE
+STOP SLAVE;
 
 --RESET  slave
 RESET SLAVE;
