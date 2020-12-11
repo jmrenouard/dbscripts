@@ -21,7 +21,7 @@ fi
 rm -rf $datadir/*
 
 cd $datadir
-ssh -q $master "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz-cd | mbstream -v -x
+ssh -q $master "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz -cd | mbstream -v -x
 
 chown -R mysql.mysql $datadir
 ls -ls
