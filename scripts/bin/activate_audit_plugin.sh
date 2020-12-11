@@ -13,6 +13,7 @@
 echo "[mariadb]
 plugin_load_add = server_audit
 server_audit=FORCE_PLUS_PERMANENT
+server_audit_logging=ON
 server_audit_output_type=file
 server_audit_file_rotate_now=ON
 server_audit_file_rotate_size=1000000
