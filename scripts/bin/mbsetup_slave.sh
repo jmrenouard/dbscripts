@@ -23,6 +23,7 @@ rm -rf $datadir/*
 cd $datadir
 ssh -q $master "mariabackup --user=root --backup --stream=mbstream" | mbstream -v -x
 
+chown -R mysql.mysql $datadir
 ls -ls
 rfile=$(awk '{print $1}' xtrabackup_binlog_info)
 posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
