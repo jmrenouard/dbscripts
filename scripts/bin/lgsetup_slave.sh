@@ -38,7 +38,7 @@ MASTER_USER='$ruser',
 MASTER_PASSWORD='$pass',
 MASTER_PORT=3306;
 
-STOP SLAVE;"  | mysql-e
+STOP SLAVE;"  | mysql -e
 
 title2 "SYNCHRONIZING LOGICAL DATA FROM $master"
 cd $datadir
