@@ -36,13 +36,15 @@ CHANGE MASTER TO
 MASTER_HOST='$master_pivate_ipv4',
 MASTER_USER='$ruser',
 MASTER_PASSWORD='$pass',
-MASTER_PORT=3306;"  | mysql-e
+MASTER_PORT=3306;
+
+STOP SLAVE;"  | mysql-e
 
 title2 "SYNCHRONIZING LOGICAL DATA FROM $master"
 cd $datadir
 BACKUP_CMD="mysqldump --all-databases --master-data=1 --flush-logs --add-drop-database --routines --skip-opt --triggers --events --add-drop-table --add-locks --create-options --disable-keys --extended-insert --quick --set-charset --single-transaction"
 
-if [ "COMPRESS" = "1" ]; then
+if [ "$COMPRESS" = "1" ]; then
 	ssh -q $master_pivate_ipv4 "$BACKUP_CMD | pigz" | pigz -cd | mysql -f
 else
 	ssh -q $master_pivate_ipv4 "$BACKUP_CMD" | mysql -f

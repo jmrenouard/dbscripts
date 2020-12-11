@@ -29,7 +29,7 @@ rm -rf $datadir/*
 
 title2 "SYNCHRONIZING DATADIR FROM $master"
 cd $datadir
-if [ "COMPRESS" = "1" ]; then
+if [ "$COMPRESS" = "1" ]; then
 	ssh -q $master_pivate_ipv4 "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz -cd | mbstream -v -x
 else
 	ssh -q $master_pivate_ipv4 "mariabackup --user=root --backup --stream=mbstream" | mbstream -v -x
