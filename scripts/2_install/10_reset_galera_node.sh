@@ -2,7 +2,7 @@
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
-lRC=
+lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd "systemctl stop mariadb"

@@ -27,8 +27,12 @@ lRC=$(($lRC + $?))
 
 
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
+lRC=$(($lRC + $?))
 
-cmd "yum -y install python3 MariaDB-server MariaDB-backup MariaDB-client MariaDB-compat tree socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
+cmd "yum -y install python3 MariaDB-server MariaDB-backup MariaDB-client MariaDB-compat MariaDB-cracklib-password-check MariaDB-connect-engine"
+lRC=$(($lRC + $?))
+
+cmd "yum -y install cracklib cracklib-dicts tree socat jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://repo.percona.com/yum/release/${VERSION_ID}/RPMS/x86_64/percona-toolkit-3.2.1-1.el8.x86_64.rpm"
