@@ -699,9 +699,12 @@ binlog_sql()
 get_replication_status()
 {
 	title2 "REPLICATION STATUS:"
-	mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind|_State|Master_Host)' | sort
+	mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind|_State|Master_Host)'
 	sep1
+	(
+	mysql -rs -e "select @@report_host\G"
+	mysql -rs -e "select @@server_id\G"
 	mysql -rs -e "select @@read_only\G"
-	sep1
 	mysql -rs -e "select @@log_slave_updates\G"
+	) | grep -v '\*\*\*' | column -t
 }
