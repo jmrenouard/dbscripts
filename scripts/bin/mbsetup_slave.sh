@@ -21,7 +21,11 @@ fi
 rm -rf $datadir/*
 
 cd $datadir
-ssh -q $master "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz -cd | mbstream -v -x
+if [ "COMPRESS" = "1" ]; then
+	ssh -q $master "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz -cd | mbstream -v -x
+else
+	ssh -q $master "mariabackup --user=root --backup --stream=mbstream" | mbstream -v -x
+fi
 
 chown -R mysql.mysql $datadir
 ls -ls
@@ -29,9 +33,17 @@ rfile=$(awk '{print $1}' xtrabackup_binlog_info)
 posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
 systemctl start mariadb
 # ...
-mysql -ve "CHANGE MASTER TO MASTER_HOST='$master', MASTER_USER='$ruser', MASTER_PORT=3306, MASTER_LOG_FILE='$rfile', MASTER_LOG_POS=$posrfile"
+echo "CHANGE MASTER TO
+MASTER_HOST='$master',
+MASTER_USER='$ruser',
+MASTER_PASSWORD='$pass',
+MASTER_PORT=3306,
+MASTER_LOG_FILE='$rfile',
+MASTER_LOG_POS=$posrfile;
 
-mysql -ve 'start slave;'
+--Start slave
+START SLAVE;
+" |mysql -ve
 
 sleep 1s
 
