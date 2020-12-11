@@ -50,12 +50,14 @@ else
 	ssh -q $master_pivate_ipv4 "$BACKUP_CMD" | mysql -f
 fi
 
-title2 "SETUP SQL REPLICATION WITH START SLAVE AND CHANGE MASTER TO"
-
+title2 "STARTING REPLICATION"
 # ...
 echo "-- Start slave
 START SLAVE;
 " |mysql -v
+
+title2 "RESTARTING MARIADB SERVER"
+systemctl restart mariadb
 
 sleep 1s
 
