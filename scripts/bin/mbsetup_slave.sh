@@ -44,7 +44,8 @@ posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
 title2 "RETRIEVING REPLICATION POSITION $rfile($posrfile)"
 title2 "ADDING REPLICATION CONFIG"
 
-echo "log_slave_updates=1
+echo "[mariadb]
+log_slave_updates=1
 read_only=on" | tee /etc/my.cnf.d/100-replication_config.cnf
 
 title2 "STARTING MARIADB SERVER"
