@@ -21,7 +21,7 @@ fi
 rm -rf $datadir/*
 
 cd $datadir
-ssh -q $master "mariabackup --user=root --backup --stream=mbstream" | mbstream -v -x
+ssh -q $master "mariabackup --user=root --backup --stream=mbstream | pigz" | pigz-cd | mbstream -v -x
 
 chown -R mysql.mysql $datadir
 ls -ls
@@ -29,10 +29,10 @@ rfile=$(awk '{print $1}' xtrabackup_binlog_info)
 posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
 systemctl start mariadb
 # ...
-mysql -e  "CHANGE MASTER TO MASTER_HOST='$master', MASTER_USER='$ruser', MASTER_PORT=3306, MASTER_LOG_FILE='$rfile', MASTER_LOG_POS=$posrfile"
+mysql -ve "CHANGE MASTER TO MASTER_HOST='$master', MASTER_USER='$ruser', MASTER_PORT=3306, MASTER_LOG_FILE='$rfile', MASTER_LOG_POS=$posrfile"
 
-mysql -e 'start slave;'
+mysql -ve 'start slave;'
 
 sleep 1s
 
-mysql -e 'SHOW SLAVE STATUS;' | grep -Ei '(_Running|Err|Behind)'
+mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind)'
