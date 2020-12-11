@@ -12,7 +12,6 @@ systemctl restart mariadb
 
 title2 "PROMOTING SLAVE"
 echo "SET GLOBAL read_only=OFF;
-SET GLOBAL log_slave_updates=OFF;
 -- stop slave;
 STOP SLAVE;
 -- RESET  slave
