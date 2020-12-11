@@ -43,7 +43,7 @@ MASTER_LOG_POS=$posrfile;
 
 --Start slave
 START SLAVE;
-" |mysql -ve
+" |mysql -v
 
 sleep 1s
 
