@@ -45,7 +45,7 @@ title2 "RETRIEVING REPLICATION POSITION $rfile($posrfile)"
 title2 "ADDING REPLICATION CONFIG"
 
 echo "log_slave_updates=1
-read_only=on" | tee /etc/my.cnf.d/1000-replication config.cnf
+read_only=on" | tee /etc/my.cnf.d/100-replication_config.cnf
 
 title2 "STARTING MARIADB SERVER"
 systemctl start mariadb
