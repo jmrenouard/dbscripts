@@ -3,7 +3,7 @@
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 lRC=$?
-banner "SETUP SALVE HOST WITH MARIABACKUP"
+banner "SETUP SLAVE HOST WITH MARIABACKUP"
 master=$1
 if [ -z "$master" ]; then
 	error "Please give a master host"
