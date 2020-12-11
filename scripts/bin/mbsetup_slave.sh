@@ -75,9 +75,6 @@ START SLAVE;
 
 sleep 1s
 
-title2 "REPLICATION STATUS:"
-mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind)'
-mysql -e "select @@read_only"
-mysql -e "select @@log_slave_updates"
+get_replication_status
 
 footer "SETUP SLAVE HOST WITH MARIABACKUP"

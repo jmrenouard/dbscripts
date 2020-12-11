@@ -695,3 +695,13 @@ binlog_sql()
 {
 	mysqlbinlog -j 387 --stop-position=890 --base64-output=decode-rows -vv mysqld-bin.000011 | perl -ne '/^[#\/]/ or print'
 }
+
+get_replication_status()
+{
+	title2 "REPLICATION STATUS:"
+	mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind|_State|Master_Host)' | sort
+	sep1
+	mysql -rs -e "select @@read_only\G"
+	sep1
+	mysql -rs -e "select @@log_slave_updates\G"
+}
