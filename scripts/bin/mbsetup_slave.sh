@@ -34,14 +34,13 @@ rfile=$(awk '{print $1}' xtrabackup_binlog_info)
 posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
 systemctl start mariadb
 # ...
-echo "
---stop slave;
+echo "-- stop slave;
 STOP SLAVE;
 
---RESET  slave
+-- RESET  slave
 RESET SLAVE;
 
-- setup slave
+-- setup slave
 CHANGE MASTER TO
 MASTER_HOST='$master_pivate_ipv4',
 MASTER_USER='$ruser',
@@ -50,7 +49,7 @@ MASTER_PORT=3306,
 MASTER_LOG_FILE='$rfile',
 MASTER_LOG_POS=$posrfile;
 
---Start slave
+-- Start slave
 START SLAVE;
 " |mysql -v
 
