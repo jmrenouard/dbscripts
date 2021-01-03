@@ -647,6 +647,7 @@ updateScript()
 	local lsrv=${1}
 	_DIR=/root/dbscripts
 	ssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 644
+	ssh_cmd $lsrv "mkdir -p /opt/local/bin"
 	ssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }

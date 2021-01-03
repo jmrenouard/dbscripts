@@ -4,7 +4,7 @@
 
 banner "BEGIN SCRIPT: $_NAME"
 
-#cmd "create_database.sh employees employees employees_rw employees_ro"
+cmd "create_database.sh employees employees employees_rw employees_ro"
 
 
 cd /opt/local
