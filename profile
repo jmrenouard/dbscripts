@@ -569,7 +569,7 @@ lcreate()
 	info "CMD: "
 	tmpFile=$(mktemp)
 	echo -n "#!/bin/bash"
-	echo -n "linode-cli linodes create --root_pass $PASSWD --authorized_keys " > $tmpFile
+	echo -n "linode-cli linodes create $LINODE_OPTIONS --root_pass $PASSWD --authorized_keys " > $tmpFile
 	echo -n "'" >> $tmpFile
 	echo -n "$(cat $PUBKEY)" >> $tmpFile
 	echo -n "' " >> $tmpFile
