@@ -578,7 +578,6 @@ ssh_exec()
     local lRC=0
     shift
 
-
     for fcmd in $*; do
         if [ ! -f "$fcmd" ]; then
             error "$fcmd Not exists"
