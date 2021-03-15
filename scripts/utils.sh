@@ -708,3 +708,63 @@ get_replication_status()
 	mysql -rs -e "select @@log_slave_updates\G"
 	) | grep -v '\*\*\*' | column -t
 }
+
+
+#----------------------------------------------------------------------------------------------------
+# Create the logical volume and the file system
+#----------------------------------------------------------------------------------------------------
+
+createLogicalVolume() {
+    vg=$1
+    lv=$2
+    lvsize=$3
+    lvuser=$4
+    lvhome=$5
+    lvfstype=${6:-"ext4"}
+    lvdisplay /dev/${vg}/${lv} &>/dev/null 
+    if [ $? -eq 0 ]; then
+        echo "THE LOGICAL VOLUME /dev/${vg}/${lv} HAS BEEN ALREADY CREATED"
+        return 1
+    fi    
+
+    echo "CREATING LOGICAL VOLUME /dev/${vg}/${lv} (SIZE : ${lvsize}) ..."
+    mkdir -p ${lvhome}
+
+    if $(grep -q "%" <<< "${lvsize}")
+    then
+        lvcreate -L${lvsize} -n ${lv} ${vg} 
+    else
+        lvcreate -l${lvsize} -n ${lv} ${vg} 
+    fi
+
+    mkfs.${lvfstype} /dev/${vg}/${lv}
+    mount /dev/${vg}/${lv} ${lvhome}
+    chown ${lvuser}: ${lvhome}
+    chmod 755 ${lvhome}
+
+    # Options de montage
+    if $(grep -q "/home\|/tmp\|/var/log/audit" <<< "${lvhome}")
+    then
+        option="${lvfstype}    nosuid,nodev,noexec        0       2"
+    elif $(grep -q "/var" <<< "${lvhome}")
+    then
+        option="${lvfstype}    nosuid,nodev        0       2"
+        if $(grep -q "/var/log" <<< "${lvhome}")
+        then
+            option="${lvfstype}    defaults        0       2"
+        fi
+
+    fi
+
+    [ `grep -c "^/dev/${vg}/${lv}" /etc/fstab` = 0 ] && \
+    echo "/dev/${vg}/${lv}        ${lvhome}       ${option}">>/etc/fstab
+
+    lvdisplay /dev/${vg}/${lv} &>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "[ERROR] CREATE LOGICAL VOLUME /dev/${vg}/${lv} : NOK"
+        return 1
+    fi
+
+    echo "[INFO] CREATE LOGICAL VOLUME /dev/${vg}/${lv} : OK"
+    return 0
+}
