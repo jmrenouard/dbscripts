@@ -479,6 +479,8 @@ diff_schema()
     tables=$(echo $tables | perl -pe 's/[,:;]/ /g')
     #echo $tables
     #return 0
+    echo "<h1> Comparaison table ...</h1>"
+    echo "<pre>"
 for table in $tables; do
     echo -n "Comparing '$table'............" | tee -a /tmp/db.diff
     ssh -q $node1 "mysqldump $options --opt --compact --skip-extended-insert $db $table" > /tmp/file1.sql
@@ -493,7 +495,7 @@ for table in $tables; do
       lRC=1
     fi
 done
-
+echo "</pre>"
 if [ $lRC -gt 0 ]; then
     echo "Some diff are presents"
     echo "All details in /tmp/db.diff"
