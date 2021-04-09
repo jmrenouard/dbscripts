@@ -327,14 +327,14 @@ db_list()
    mysql -Nrs -e 'show databases'
 }
 
-db_tables()
-{
-    mysql -Nrs -e 'show tables' ${1:-"mysql"}
-}
-
 db_users()
 {
 	mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
+}
+
+db_tables()
+{
+    mysql -Nrs -e 'show tables' ${1:-"mysql"}
 }
 
 db_count()
