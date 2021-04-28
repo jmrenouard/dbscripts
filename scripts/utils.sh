@@ -1,18 +1,18 @@
 #!/bin/sh
 
 if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" ]; then
-	_DIR="$(dirname "$(readlink -f "$0")")"
-	_NAME="$(basename "$(readlink -f "$0")")"
-	_CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
-	if [ -f "$_CONF_FILE" ];then
-		source $_CONF_FILE
-	else
-		mkdir -p $(dirname "$_CONF_FILE")
-		echo "# Config for $_NAME SCRIPT at $(date)" | tee -a $_CONF_FILE
-	fi
+    _DIR="$(dirname "$(readlink -f "$0")")"
+    _NAME="$(basename "$(readlink -f "$0")")"
+    _CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
+    if [ -f "$_CONF_FILE" ];then
+        source $_CONF_FILE
+    else
+        mkdir -p $(dirname "$_CONF_FILE")
+        echo "# Config for $_NAME SCRIPT at $(date)" | tee -a $_CONF_FILE
+    fi
 else
-	_DIR="$(readlink -f ".")"
-	_NAME="INLINE SHELL"
+    _DIR="$(readlink -f ".")"
+    _NAME="INLINE SHELL"
 fi
 HA_SOCKET=/tmp/admin.sock
 
@@ -126,26 +126,26 @@ EOF
         forights)
             [ "$(stat -c %a $value_a)" = "$value_b" ]; return $?;;
         fagegt)
-			[ $(fileAge $value_a) -gt $value_b ]; return  $?;;
+            [ $(fileAge $value_a) -gt $value_b ]; return  $?;;
         fagelt)
-			[ $(fileAge $value_a) -lt $value_b ]; return  $?;;
+            [ $(fileAge $value_a) -lt $value_b ]; return  $?;;
         fmagegt)
-			[ $(fileMinAge $value_a) -gt $value_b ]; return  $?;;
+            [ $(fileMinAge $value_a) -gt $value_b ]; return  $?;;
         fmagelt)
-			[ $(fileMinAge $value_a) -lt $value_b ]; return  $?;;
+            [ $(fileMinAge $value_a) -lt $value_b ]; return  $?;;
         fhagegt)
-			[ $(fileHourAge $value_a) -gt $value_b ]; return  $?;;
+            [ $(fileHourAge $value_a) -gt $value_b ]; return  $?;;
         fhagelt)
-			[ $(fileHourAge $value_a) -lt $value_b ]; return  $?;;
+            [ $(fileHourAge $value_a) -lt $value_b ]; return  $?;;
         fdagegt)
-			[ $(fileDayAge $value_a) -gt $value_b ]; return  $?;;
+            [ $(fileDayAge $value_a) -gt $value_b ]; return  $?;;
         fdagelt)
-			[ $(fileDayAge $value_a) -lt $value_b ]; return  $?;;
+            [ $(fileDayAge $value_a) -lt $value_b ]; return  $?;;
         fcontains)
-			shift;
-			grep -q "$*" $value_a
-			return  $?
-			;;
+            shift;
+            grep -q "$*" $value_a
+            return  $?
+            ;;
         user)
             is eq $(whoami) $value_a; return $?;;
         empty)
@@ -220,7 +220,7 @@ ok()
 }
 
 warn() {
-	local lRC=$?
+    local lRC=$?
     echo "$(now) WARNING: $*" 1>&2
     [ -n "$TEE_LOG_FILE" ] && echo "$(now) WARNING: $*">>$TEE_LOG_FILE
     return $lRC
@@ -242,9 +242,9 @@ sep2()
 }
 title1() {
     sep1
-	echo "$(now) $*" 1>&2
-	[ -n "$TEE_LOG_FILE" ] && echo "$(now) $*">>$TEE_LOG_FILE
-	sep1
+    echo "$(now) $*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now) $*">>$TEE_LOG_FILE
+    sep1
 }
 
 title2()
@@ -255,8 +255,8 @@ title2()
 }
 banner()
 {
-	title1 "START: $*"
-	info " run as $(whoami)@$(hostname -s)"
+    title1 "START: $*"
+    info " run as $(whoami)@$(hostname -s)"
 }
 
 footer()
@@ -270,26 +270,26 @@ footer()
 
 cmd()
 {
-	local cRC=0
-	local tcmd="$1"
-	local descr=${2:-"$tcmd"}
-	if [ -z "$2" ]; then
-		title1 "RUNNING COMMAND: $tcmd"
-	else
-		title1 "$descr"
-		info "RUNNING COMMAND: $tcmd"
-		sep1
-	fi
-	$tcmd
-	cRC=$?
-	info "RETURN CODE: $cRC"
-	if [ $cRC -eq 0 ]; then
-		ok "$descr"
-	else
-		error "$descr"
-	fi
-	sep1
-	return $cRC
+    local cRC=0
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    if [ -z "$2" ]; then
+        title1 "RUNNING COMMAND: $tcmd"
+    else
+        title1 "$descr"
+        info "RUNNING COMMAND: $tcmd"
+        sep1
+    fi
+    $tcmd
+    cRC=$?
+    info "RETURN CODE: $cRC"
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr"
+    fi
+    sep1
+    return $cRC
 }
 
 function ask_yes_or_no() {
@@ -303,15 +303,15 @@ function ask_yes_or_no() {
 
 pgGetVal()
 {
-	local value=$1
-	echo $(eval "echo \$${value}")
+    local value=$1
+    echo $(eval "echo \$${value}")
 }
 
 pgSetVal()
 {
-	local var=$1
-	shift
-	eval "${var}='$*'"
+    local var=$1
+    shift
+    eval "${var}='$*'"
 }
 
 tlog()
@@ -329,7 +329,7 @@ db_list()
 
 db_users()
 {
-	mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
+    mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
 }
 
 db_tables()
@@ -372,24 +372,24 @@ node_cluster_state()
 
 binlog_sql_xhours()
 {
-	start_date=$(date --date "$1 hour ago" +'%Y-%m-%d %T')
-	echo "-- START DATE: $start_date"
-#	exit 1
+    start_date=$(date --date "$1 hour ago" +'%Y-%m-%d %T')
+    echo "-- START DATE: $start_date"
+#    exit 1
     mysqlbinlog --base64-output=decode-rows -vv --start-datetime "$start_date" /var/lib/mysql/mysqld-bin.0* 2>/dev/null| \
     perl -ne 's/^(#\d{6} \d{2}:\d{2}:\d{2}).*/$1/g and print; /^[#\/]/ or print' | perl -pe 's/^#/-- /g'
 }
 
 binlog_sql_type_xhours()
 {
-	binlog_sql_xhours ${1:-"1"}| grep -E '^(INSERT|DELETE|DROP|CREATE|UPDATE|COMMIT|ROLLBACK)' | awk '{print $1}' | cut -d/ -f 1 | sort | uniq -c | sort -nr
+    binlog_sql_xhours ${1:-"1"}| grep -E '^(INSERT|DELETE|DROP|CREATE|UPDATE|COMMIT|ROLLBACK)' | awk '{print $1}' | cut -d/ -f 1 | sort | uniq -c | sort -nr
 }
 
 generate_sql_load()
 {
-	for i in $(seq 1 ${1:-"500"}); do
-		mysqlslap --auto-generate-sql --verbose --concurrency=${2:-"50"} --iterations=${3:-"10"}
-		sleep ${4:-"2"}s
-	done
+    for i in $(seq 1 ${1:-"500"}); do
+        mysqlslap --auto-generate-sql --verbose --concurrency=${2:-"50"} --iterations=${3:-"10"}
+        sleep ${4:-"2"}s
+    done
 }
 
 get_ssh_mariadb_root_password()
@@ -406,11 +406,11 @@ get_mariadb_root_password()
 
 global_variables()
 {
-	mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/'
+    mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/'
 }
 global_status()
 {
-	mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
+    mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
 }
 
 provider_var()
@@ -421,13 +421,13 @@ provider_var()
 
 galera_is_enabled()
 {
-	local var_wsrep_on="$(mysql -Nrs -e "show global variables like 'wsrep_on';"|awk '{print $2}'| xargs -n1)"
-	if [ "$var_wsrep_on" = "ON" ]; then
-		echo "1"
-		return 0
-	fi
-	echo "0"
-	return 0
+    local var_wsrep_on="$(mysql -Nrs -e "show global variables like 'wsrep_on';"|awk '{print $2}'| xargs -n1)"
+    if [ "$var_wsrep_on" = "ON" ]; then
+        echo "1"
+        return 0
+    fi
+    echo "0"
+    return 0
 }
 
 galera_members()
@@ -524,24 +524,24 @@ done
 
 add_password_history()
 {
-	local history_file=$HOME/.pass_mariadb
+    local history_file=$HOME/.pass_mariadb
     touch $history_file
-	chmod 600 $history_file
+    chmod 600 $history_file
 
-	echo -e "$(date)\t$1\t$2" >> $history_file
+    echo -e "$(date)\t$1\t$2" >> $history_file
 }
 check_mariadb_password()
 {
-	[ "$3" != "silent" ] && info "check cmd: mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1'"
-	ret="$(mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1' 2>&1)"
-	awa="1"
+    [ "$3" != "silent" ] && info "check cmd: mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1'"
+    ret="$(mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1' 2>&1)"
+    awa="1"
 
-	if [ "$ret" = "$awa" ]; then
-		[ "$3" != "silent" ] && info "PASSWORD FROM '$1' USER IS CORRECT."
-		return 0
-	fi
-	[ "$3" != "silent" ] && error "PASSWORD FROM '$1' IS INCORRECT."
-	return 1
+    if [ "$ret" = "$awa" ]; then
+        [ "$3" != "silent" ] && info "PASSWORD FROM '$1' USER IS CORRECT."
+        return 0
+    fi
+    [ "$3" != "silent" ] && error "PASSWORD FROM '$1' IS INCORRECT."
+    return 1
 }
 
 rl()
@@ -645,11 +645,11 @@ ssh_copy()
 
 updateScript()
 {
-	local lsrv=${1}
-	_DIR=/root/dbscripts
-	ssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 644
-	ssh_cmd $lsrv "mkdir -p /opt/local/bin"
-	ssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
+    local lsrv=${1}
+    _DIR=/root/dbscripts
+    ssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 644
+    ssh_cmd $lsrv "mkdir -p /opt/local/bin"
+    ssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }
 
@@ -657,58 +657,58 @@ updateScript()
 generate_multi_instance_example()
 {
 
-	mysqld_multi --example | tee /etc/my.cnf.d/90_multi_config.cnf
+    mysqld_multi --example | tee /etc/my.cnf.d/90_multi_config.cnf
 
-	for datadir in $(grep datadir /etc/my.cnf.d/90_multi_config.cnf| cut -d= -f2 | xargs -n 1); do
-		#mysqld_multi stop
-		echo $datadir;
-		rm -rf $datadir;
-		mysql_install_db --user=mysql --datadir=$datadir;
-		ls -ls $datadir;
-		echo "--------------------------------------------";
-	done
+    for datadir in $(grep datadir /etc/my.cnf.d/90_multi_config.cnf| cut -d= -f2 | xargs -n 1); do
+        #mysqld_multi stop
+        echo $datadir;
+        rm -rf $datadir;
+        mysql_install_db --user=mysql --datadir=$datadir;
+        ls -ls $datadir;
+        echo "--------------------------------------------";
+    done
 
-	mysqld_multi report
+    mysqld_multi report
 }
 
 killall_mariadbd()
 {
-	ps -edf | grep [m]ysqld_safe | awk '{print $2}' | xargs -n1 kill -9
-	ps -edf | grep [m]ariadbd | awk '{print $2}' | xargs -n1 kill -9
+    ps -edf | grep [m]ysqld_safe | awk '{print $2}' | xargs -n1 kill -9
+    ps -edf | grep [m]ariadbd | awk '{print $2}' | xargs -n1 kill -9
 }
 
 open_mariadb_root_from()
 {
-	local remoteIPv4=$1
-	local pass=$(get_mariadb_root_password)
-	 echo "
+    local remoteIPv4=$1
+    local pass=$(get_mariadb_root_password)
+     echo "
  CREATE OR REPLACE USER 'root'@'$remoteIPv4' IDENTIFIED BY '$pass';
  GRANT ALL PRIVILEGES ON *.* TO 'root'@'$remoteIPv4';
-	 " | mysql -v
+     " | mysql -v
 }
 
 revoke_mariadb_root_from()
 {
-	local remoteIPv4=$1
-	 echo "DROP USER 'root'@'$remoteIPv4' ;" | mysql -v
+    local remoteIPv4=$1
+     echo "DROP USER 'root'@'$remoteIPv4' ;" | mysql -v
 }
 
 binlog_sql()
 {
-	mysqlbinlog -j 387 --stop-position=890 --base64-output=decode-rows -vv mysqld-bin.000011 | perl -ne '/^[#\/]/ or print'
+    mysqlbinlog -j 387 --stop-position=890 --base64-output=decode-rows -vv mysqld-bin.000011 | perl -ne '/^[#\/]/ or print'
 }
 
 get_replication_status()
 {
-	title2 "REPLICATION STATUS:"
-	mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind|_State|Master_Host)'
-	sep1
-	(
-	mysql -rs -e "select @@report_host\G"
-	mysql -rs -e "select @@server_id\G"
-	mysql -rs -e "select @@read_only\G"
-	mysql -rs -e "select @@log_slave_updates\G"
-	) | grep -v '\*\*\*' | column -t
+    title2 "REPLICATION STATUS:"
+    mysql -e 'SHOW SLAVE STATUS\G' | grep -Ei '(_Running|Err|Behind|_State|Master_Host)'
+    sep1
+    (
+    mysql -rs -e "select @@report_host\G"
+    mysql -rs -e "select @@server_id\G"
+    mysql -rs -e "select @@read_only\G"
+    mysql -rs -e "select @@log_slave_updates\G"
+    ) | grep -v '\*\*\*' | column -t
 }
 
 

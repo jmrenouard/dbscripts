@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
@@ -65,13 +65,17 @@ fi
 # now we can use the selected file
 info "$DUMP_FILE will be restored"
 
-info "CMD: $GZIP_CMD $DUMP_FILE | mysql -f -v"
-$GZIP_CMD $DUMP_FILE | mysql -f
+info "Checking SHA256 SIGN file"
+sha256sum -c ${DUMP=_FILE}.sha256sum
 lRC=$?
-[ $lRC -eq 0 ] && ok "RESTORE OK"
-
-cmd "db_list"
-cmd "db_tables"
+if [ $lRC -eq 0 ]; then
+    info "CMD: $GZIP_CMD $DUMP_FILE | mysql -f -v"
+    $GZIP_CMD $DUMP_FILE | mysql -f
+    lRC=$?
+    [ $lRC -eq 0 ] && ok "RESTORE OK"
+    cmd "db_list"
+    cmd "db_tables"
+fi
 
 info "FINAL CODE RETOUR: $lRC"
 footer "RESTORING DB"
