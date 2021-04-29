@@ -46,7 +46,7 @@ if [ -z "$DUMP_FILE" ]; then
 fi
 
 if [ ! -f "$DUMP_FILE" ]; then
-    warn "$DUMP_FILE doeasnt exist"
+    warn "$DUMP_FILE doesnt exist"
     lRC=127
 fi
 
@@ -68,6 +68,15 @@ info "$DUMP_FILE will be restored"
 info "Checking SHA256 SIGN file"
 sha256sum -c ${DUMP=_FILE}.sha256sum
 lRC=$?
+
+my_status
+if { $? -ne 0 }; then
+    error "LOGICAL RESTAORE FAILED: Server must be running ...."
+    info "FINAL CODE RETOUR: $lRC"
+    footer "RESTORING DB"
+    exit 2
+fi
+
 if [ $lRC -eq 0 ]; then
     info "CMD: $GZIP_CMD $DUMP_FILE | mysql -f -v"
     $GZIP_CMD $DUMP_FILE | mysql -f

@@ -12,8 +12,13 @@ KEEP_LAST_N_BACKUPS=5
 
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
 
-
 lRC=0
+
+my_status
+if [ $? -ne 0 ]; then
+    error "LOGICAL BACKUP FAILED: Server must be running ...."
+	exit 2
+fi
 
 if [ "$GALERA_SUPPORT" = "1" ]; then
     info "Desynchronisation du noeud"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" ]; then
+if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" -a "$0" != "-su" ]; then
     _DIR="$(dirname "$(readlink -f "$0")")"
     _NAME="$(basename "$(readlink -f "$0")")"
     _CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
@@ -318,9 +318,16 @@ tlog()
 {
     tail  -f /var/lib/mysql/mysqld.log &
 }
-
-
 ## Code MariaDB
+my_status()
+{
+    local lRC=0
+    mysqladmin ping &>/dev/null
+    lRC=$?
+    [ $lRC -eq 0 ] && ok "mysql server is running ...."
+    [ $lRC -eq 0 ] || error "mysql server is stopped ...."
+    return $lRC
+}
 
 db_list()
 {
