@@ -8,6 +8,8 @@ BCK_DIR=/data/backups/logical
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
 
+[ -f "/etc/lgconfig.sh" ] && source /etc/lgconfig.sh
+
 if [ "$1" = "-l" -o "$1" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
@@ -66,12 +68,12 @@ fi
 info "$DUMP_FILE will be restored"
 
 info "Checking SHA256 SIGN file"
-sha256sum -c ${DUMP=_FILE}.sha256sum
+sha256sum -c ${DUMP_FILE}.sha256sum
 lRC=$?
 
 my_status
-if { $? -ne 0 }; then
-    error "LOGICAL RESTAORE FAILED: Server must be running ...."
+if [ $? -ne 0 ]; then
+    error "LOGICAL RESTORE FAILED: Server must be running ...."
     info "FINAL CODE RETOUR: $lRC"
     footer "RESTORING DB"
     exit 2
