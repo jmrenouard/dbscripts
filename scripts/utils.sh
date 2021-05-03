@@ -800,6 +800,12 @@ alias gst='git status'
 alias grm='git rm -f'
 alias gadd='git add'
 alias gcm='git commit -m'
+alias gps='git push'
+alias gpl='git pull'
+alias glg='git log'
+alias gbl='git blame'
+alias grs='git reset --soft HEAD~1'
+alias grh='git reset --hard HEAD~1'
 
 gunt() {
     git status | \
@@ -823,3 +829,4 @@ gad() {
     sort | uniq | \
     xargs -n 1 git rm -f
 }
+
