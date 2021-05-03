@@ -803,7 +803,7 @@ alias gcm='git commit -m'
 
 gunt() {
     git status | \
-    grep -vE '(git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
+    grep -vE '( to publish your local commits|git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
     sort | uniq | \
     xargs -n 1 $*
 }
