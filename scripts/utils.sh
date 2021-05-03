@@ -793,6 +793,7 @@ createLogicalVolume() {
 alias h=history
 alias s=sudo
 alias rsh='ssh -l root'
+alias lh='ls -lsh'
 alias ll='ls -ls'
 alias la='ls -lsa'
 
@@ -803,9 +804,11 @@ alias gcm='git commit -m'
 alias gps='git push'
 alias gpl='git pull'
 alias glg='git log'
+alias gmh='git log --follow -p --'
 alias gbl='git blame'
 alias grs='git reset --soft HEAD~1'
 alias grh='git reset --hard HEAD~1'
+alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
 
 gunt() {
     git status | \
@@ -829,4 +832,3 @@ gad() {
     sort | uniq | \
     xargs -n 1 git rm -f
 }
-
