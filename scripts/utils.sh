@@ -14,6 +14,8 @@ else
     _DIR="$(readlink -f ".")"
     _NAME="INLINE SHELL"
 fi
+[ -f '/etc/os-release' ] && source /etc/os-release
+
 HA_SOCKET=/tmp/admin.sock
 
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
@@ -812,7 +814,7 @@ alias serve="python -m $(python -c 'import sys; print("http.server" if sys.versi
 
 gunt() {
     git status | \
-    grep -vE '( to publish your local commits|git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
+    grep -vE '(Changes to be committed:| to publish your local commits|git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
     sort | uniq | \
     xargs -n 1 $*
 }
