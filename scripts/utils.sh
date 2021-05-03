@@ -660,6 +660,17 @@ updateScript()
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }
 
+lUdateScript()
+{
+    _DIR=/root/dbscripts
+    rsync -av $_DIR/scripts/utils.sh /etc/profile.d/utils.sh 
+    chown root.root /etc/profile.d/utils.sh
+    chmod 755 /etc/profile.d/utils.sh
+    [ -d "/opt/local/bin" ] && mkdir -p /opt/local/bin
+    rsync -av $_DIR/scripts/bin /opt/local/
+    chown -R root.root /opt/local/bin
+    chmod -R 755 /opt/local/bin
+}
 
 generate_multi_instance_example()
 {
@@ -776,4 +787,31 @@ createLogicalVolume() {
 
     echo "[INFO] CREATE LOGICAL VOLUME /dev/${vg}/${lv} : OK"
     return 0
+}
+
+# Some Alias 
+alias h=history
+alias s=sudo
+alias rsh='ssh -l root'
+alias ll='ls -ls'
+alias la='ls -lsa'
+
+alias gst='git status'
+alias grm='git rm -f'
+alias gadd='git add'
+alias gcm='git commit -m'
+
+gunt() {
+    git status | \
+    grep -vE '(git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
+    sort | uniq | \
+    xargs -n 1 $*
+}
+
+gam() {
+    git status | \
+    grep 'modified:' | \
+    cut -d: -f2- | \
+    sort | uniq | \
+    xargs -n 1 $*
 }
