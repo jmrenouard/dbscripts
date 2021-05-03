@@ -813,5 +813,13 @@ gam() {
     grep 'modified:' | \
     cut -d: -f2- | \
     sort | uniq | \
-    xargs -n 1 $*
+    xargs -n 1 git add
+}
+
+gad() {
+    git status | \
+    grep 'deleted:' | \
+    cut -d: -f2- | \
+    sort | uniq | \
+    xargs -n 1 git rm -f
 }
