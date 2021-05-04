@@ -556,6 +556,7 @@ check_mariadb_password()
 rl()
 {
     [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+    chsh -s /bin/bash root
 }
 
 last_state_changes()
@@ -810,7 +811,13 @@ alias gmh='git log --follow -p --'
 alias gbl='git blame'
 alias grs='git reset --soft HEAD~1'
 alias grh='git reset --hard HEAD~1'
-alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+
+which python
+if [ $? -eq 0 ]; then
+    alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+else
+    alias serve="python3 -m $(python3 -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+fi
 
 gunt() {
     git status | \

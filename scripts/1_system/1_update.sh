@@ -1,16 +1,17 @@
-#!bash
+#!/bin/sh
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
-title1 "RUNNING COMMAND: yum -y update"
-yum -y update
+PCKMANAGER="yum"
+[ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
+
+cmd "$PCKMANAGER -y update" "UPDATE PACKAGE LIST"
 lRC=$(($lRC + $?))
 
-title1 "RUNNING COMMAND: yum -y upgrade"
-yum -y upgrade
+cmd "$PCKMANAGER -y upgrade" "UPDATE PACKAGES"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"
