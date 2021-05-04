@@ -1,13 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
-source /etc/os-release
-
-if [ "$VERSION_ID" = "7" ]; then
+if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	cmd "iptables -L"
 	cmd "/sbin/iptables --flush OUTPUT"
 	cmd "/sbin/iptables --flush INPUT"
@@ -30,9 +28,7 @@ if [ "$VERSION_ID" = "7" ]; then
 	cmd "/sbin/iptables -A OUTPUT -p udp --dport 4444 -j ACCEPT"
 
 	cmd "iptables -L"
-fi
-
-if [ "$VERSION_ID" = "8" ]; then
+else 
 	cmd "timeout 10 systemctl restart firewalld"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=3306/tcp --permanent"

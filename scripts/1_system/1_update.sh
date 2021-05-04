@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
@@ -12,6 +12,9 @@ cmd "$PCKMANAGER -y update" "UPDATE PACKAGE LIST"
 lRC=$(($lRC + $?))
 
 cmd "$PCKMANAGER -y upgrade" "UPDATE PACKAGES"
+lRC=$(($lRC + $?))
+
+cmd "$PCKMANAGER -y install firewalld" "INSTALL FIREWALLD"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"
