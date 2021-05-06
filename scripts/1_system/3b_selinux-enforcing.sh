@@ -5,15 +5,21 @@
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
+if [ "$ID" = "ubuntu" ]; then
+	cmd "apt install -y policycoreutils selinux-utils selinux-basics" "INSTALL SELINUX for $ID"
+else
+	cmd "yum -y install policycoreutils-python-utils" "INSTALL SELINUX UTILITIES for $ID"
+fi
 cmd "setenforce 1" "SELINUX IN ENFORCING MODE"
-lRC=$(($lRC + $?))
+#lRC=$(($lRC + $?))
 
-cmd "cat /etc/sysconfig/selinux" "CONTENT OF /etc/sysconfig/selinux"
-
-title1 "REMOVING PERMISSIVE mode FROM /etc/sysconfig/selinux"
-perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/sysconfig/selinux
-grep -q "SELINUX=ENFORCING" /etc/sysconfig/selinux
-lRC=$(($lRC + $?))
+if [ -f "/etc/sysconfig/selinux" ]; then  
+	cmd "cat /etc/sysconfig/selinux" "CONTENT OF /etc/sysconfig/selinux"
+	title1 "REMOVING PERMISSIVE mode FROM /etc/sysconfig/selinux"
+	perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/sysconfig/selinux
+	grep -q "SELINUX=ENFORCING" /etc/sysconfig/selinux
+	lRC=$(($lRC + $?))
+fi
 
 title1 "REMOVING PERMISSIVE mode FROM /etc/selinux/config"
 perl -i -pe 's/(SELINUX=).*/$1ENFORCING/g' /etc/selinux/config
@@ -22,7 +28,6 @@ lRC=$(($lRC + $?))
 
 cmd "sestatus"
 
-cmd "yum -y install policycoreutils-python-utils"
 
 semanage boolean -l| grep mysql
 
@@ -41,4 +46,5 @@ title2 "Trace SE Linux MariaDB"
 grep -i mysql /var/log/audit/audit.log
 
 footer "END SCRIPT: $_NAME"
+>>>>>>> 7ab0ce90e0b1f0b388bcddef71f2b31e01b1b014
 exit $lRC

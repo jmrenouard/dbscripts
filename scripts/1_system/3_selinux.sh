@@ -5,6 +5,8 @@
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
+[ "$ID" = "ubuntu" ] && cmd "apt install -y policycoreutils selinux-utils selinux-basics" "INSTALL SELINUX for $ID"
+
 cmd "setenforce 0" "SELINUX IN PERMISSIVE MODE"
 #lRC=$(($lRC + $?))
 
@@ -24,4 +26,5 @@ lRC=$(($lRC + $?))
 cmd "sestatus"
 
 footer "END SCRIPT: $_NAME"
+>>>>>>> 7ab0ce90e0b1f0b388bcddef71f2b31e01b1b014
 exit $lRC
