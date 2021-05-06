@@ -14,6 +14,8 @@ else
     _DIR="$(readlink -f ".")"
     _NAME="INLINE SHELL"
 fi
+[ -f '/etc/os-release' ] && source /etc/os-release
+
 HA_SOCKET=/tmp/admin.sock
 
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
@@ -554,6 +556,7 @@ check_mariadb_password()
 rl()
 {
     [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+    chsh -s /bin/bash root
 }
 
 last_state_changes()
@@ -660,6 +663,17 @@ updateScript()
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }
 
+lUdateScript()
+{
+    _DIR=/root/dbscripts
+    rsync -av $_DIR/scripts/utils.sh /etc/profile.d/utils.sh 
+    chown root.root /etc/profile.d/utils.sh
+    chmod 755 /etc/profile.d/utils.sh
+    [ -d "/opt/local/bin" ] && mkdir -p /opt/local/bin
+    rsync -av $_DIR/scripts/bin /opt/local/
+    chown -R root.root /opt/local/bin
+    chmod -R 755 /opt/local/bin
+}
 
 generate_multi_instance_example()
 {
@@ -776,4 +790,54 @@ createLogicalVolume() {
 
     echo "[INFO] CREATE LOGICAL VOLUME /dev/${vg}/${lv} : OK"
     return 0
+}
+
+# Some Alias 
+alias h=history
+alias s=sudo
+alias rsh='ssh -l root'
+alias lh='ls -lsh'
+alias ll='ls -ls'
+alias la='ls -lsa'
+
+alias gst='git status'
+alias grm='git rm -f'
+alias gadd='git add'
+alias gcm='git commit -m'
+alias gps='git push'
+alias gpl='git pull'
+alias glg='git log'
+alias gmh='git log --follow -p --'
+alias gbl='git blame'
+alias grs='git reset --soft HEAD~1'
+alias grh='git reset --hard HEAD~1'
+
+which python
+if [ $? -eq 0 ]; then
+    alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+else
+    alias serve="python3 -m $(python3 -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+fi
+
+gunt() {
+    git status | \
+    grep -vE '(Changes to be committed:| to publish your local commits|git add|git restore|On branch|Your branch|Untracked files|nclude in what will b|but untracked files present|no changes added to commit|modified:|deleted:|Changes not staged for commit)' |\
+    sort | uniq | \
+    xargs -n 1 $*
+}
+
+gam() {
+    git status | \
+    grep 'modified:' | \
+    cut -d: -f2- | \
+    sort | uniq | \
+    xargs -n 1 git add
+}
+
+gad() {
+    git status | \
+    grep 'deleted:' | \
+    cut -d: -f2- | \
+    sort | uniq | \
+    xargs -n 1 git rm -f
 }
