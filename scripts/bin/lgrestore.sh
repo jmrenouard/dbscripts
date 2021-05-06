@@ -81,6 +81,15 @@ fi
 
 # check access root before inserting database
 # adding time command
+
+#mysql -u root -e 'show processlist'
+#systemctl stop mysql
+#rm -rf /var/lib/mysql/*
+#mysql_install_db --user=mysql
+#ls -lsah /var/lib/mysql
+#systemctl start mysql
+#watch "mysql -u root -e 'show processlist'"
+
 if [ $lRC -eq 0 ]; then
     info "CMD: $GZIP_CMD $DUMP_FILE | mysql -uroot -f -v mysql"
     $GZIP_CMD $DUMP_FILE | time mysql -uroot -f mysql
