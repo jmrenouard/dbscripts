@@ -79,9 +79,11 @@ if [ $? -ne 0 ]; then
     exit 2
 fi
 
+# check access root before inserting database
+# adding time command
 if [ $lRC -eq 0 ]; then
-    info "CMD: $GZIP_CMD $DUMP_FILE | mysql -f -v"
-    $GZIP_CMD $DUMP_FILE | mysql -f
+    info "CMD: $GZIP_CMD $DUMP_FILE | mysql -uroot -f -v mysql"
+    $GZIP_CMD $DUMP_FILE | time mysql -uroot -f mysql
     lRC=$?
     [ $lRC -eq 0 ] && ok "RESTORE OK"
     cmd "db_list"
