@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 lRC=0
 CONF_FILE=/etc/sysctl.d/99-mariadb.conf

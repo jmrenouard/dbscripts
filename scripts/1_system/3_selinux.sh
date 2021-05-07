@@ -26,5 +26,4 @@ lRC=$(($lRC + $?))
 cmd "sestatus"
 
 footer "END SCRIPT: $_NAME"
->>>>>>> 7ab0ce90e0b1f0b388bcddef71f2b31e01b1b014
 exit $lRC

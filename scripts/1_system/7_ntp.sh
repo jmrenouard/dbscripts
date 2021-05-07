@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
@@ -9,17 +9,24 @@ TIMEZONE="GMT"
 TIMEZONE="Europe/Paris"
 banner "BEGIN SCRIPT: $_NAME"
 
-if [ "$VERSION_ID" = "7" ]; then
-	cmd "yum -y install ntpdate"
-	cmd "ntpdate -vqd fr.pool.ntp.org"
+if [ "$ID" != "ubuntu" ];then
+	if [ "$VERSION_ID" = "7" ]; then
+		cmd "yum -y install ntpdate"
+		cmd "ntpdate -vqd fr.pool.ntp.org"
+	else
+		cmd "yum -y install ntpstat chrony"
+		lRC=$(($lRC + $?))
+		cmd "systemctl restart chronyd"
+		lRC=$(($lRC + $?))
+		sleep 3s
+	fi
 else
-	cmd "yum -y install ntpstat chrony"
-	lRC=$(($lRC + $?))
-	cmd "systemctl restart chronyd"
-	lRC=$(($lRC + $?))
-	sleep 3s
+		cmd "apt -y install ntpstat chrony"
+		lRC=$(($lRC + $?))
+		cmd "systemctl restart chronyd"
+		lRC=$(($lRC + $?))
+		sleep 3s	
 fi
-
 cmd "timedatectl set-timezone $TIMEZONE"
 lRC=$(($lRC + $?))
 

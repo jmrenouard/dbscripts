@@ -33,7 +33,6 @@ semanage boolean -l| grep mysql
 
 # PAsser en permissive uniquement les règles MYSQL
 #cmd "semanage permissive -a mysqld_t"
-
 cmd "semanage port -m -t mysqld_port_t -p tcp 4444"
 cmd "semanage port -m -t mysqld_port_t -p tcp 4567"
 cmd "semanage port -a -t mysqld_port_t -p tcp 4568"
@@ -46,5 +45,4 @@ title2 "Trace SE Linux MariaDB"
 grep -i mysql /var/log/audit/audit.log
 
 footer "END SCRIPT: $_NAME"
->>>>>>> 7ab0ce90e0b1f0b388bcddef71f2b31e01b1b014
 exit $lRC

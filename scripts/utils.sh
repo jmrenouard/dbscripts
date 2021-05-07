@@ -23,6 +23,7 @@ export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
 export my_private_ipv4=$(ip a | grep inet | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
 export my_public_ipv4=$(ip a | grep inet | grep '10.'| cut -d/ -f1 | awk '{print $2}')
 
+export DEBIAN_FRONTEND=noninteractive
 
 is() {
     if [ "$1" == "--help" ]; then
@@ -663,7 +664,7 @@ updateScript()
     ssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
 }
 
-lUdateScript()
+lUpdateScript()
 {
     _DIR=/root/dbscripts
     rsync -av $_DIR/scripts/utils.sh /etc/profile.d/utils.sh 
