@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 source /etc/os-release
@@ -8,26 +8,16 @@ VERSION=${1:-"10.5"}
 
 banner "BEGIN SCRIPT: $_NAME"
 
-cmd 'rm -f /etc/yum.repos.d/mariadb_*.repo'
 
-info "SETUP mariadb_${VERSION}.repo FILE"
-echo "# MariaDB $VERSION CentOS repository list - created $(date)
-# http://downloads.mariadb.org/mariadb/repositories/
-[mariadb]
-name = MariaDB_$VERSION
-baseurl = http://yum.mariadb.org/$VERSION/centos${VERSION_ID}-amd64
-module_hotfixes=1
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1" > /etc/yum.repos.d/mariadb_${VERSION}.repo
+find /etc/apt/sources.list.d -type f -iname '*mariadb*.list' -exec rm -f {} \;
 
-cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
-
-cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
-
-cmd "yum -y install python3 MariaDB-backup MariaDB-client socat telnet rsync tree nmap lsof perl-DBI nc pigz git pwgen"
-lRC=$(($lRC + $?))
-
-cmd "pip3 install mycli"
+if [ "$VERSION_CODENAME" = "groovy" ];then
+	cmd "apt-get install software-properties-common" "ADDING SOFTWARE PROPERTIES"
+	apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+	add-apt-repository "deb [arch=amd64,arm64,ppc64el] http://nyc2.mirrors.digitalocean.com/mariadb/repo/$VERSION/ubuntu $VERSION_CODENAME main"
+fi
+cmd "apt -y update" "UPDATE PACKAGE LIST"
+cmd "apt -y install python3 mariadb-client mycli mariadb-backup socat telnet rsync tree nmap lsof netcat pigz git pwgen"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"

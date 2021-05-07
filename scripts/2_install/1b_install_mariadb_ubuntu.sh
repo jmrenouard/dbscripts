@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 source /etc/os-release
@@ -19,7 +19,7 @@ cmd "apt -y update" "UPDATE PACKAGE LIST"
 cmd "apt -y install python3 mariadb-client mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect"
 lRC=$(($lRC + $?))
 
-cmd "apt -y install cracklib-runtime python3-cracklib tree netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
+cmd "apt -y install cracklib-runtime python3-cracklib tree telnet netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
 lRC=$(($lRC + $?))
 
 cmd "apt -y install percona-toolkit mycli"
