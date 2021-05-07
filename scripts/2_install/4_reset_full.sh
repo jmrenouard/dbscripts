@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
@@ -14,7 +14,7 @@ cmd "systemctl stop mariadb"
 
 sleep 2s
 
-cmd "rm -rf $DATADIR"
+cmd "rm -rf $DATADIR /var/log/mysql/*"
 cmd "mysql_install_db --user mysql --skip-name-resolve --datadir=$DATADIR"
 
 cmd "systemctl enable mariadb"
@@ -27,16 +27,18 @@ cmd "netstat -ltnp"
 
 ps -edf |grep [m]ysqld
 
-cmd "ls -ls /var/lib/mysql"
+cmd "ls -ls $DATADIR"
 
 cmd "journalctl -xe -o cat -u mariadb"
 
-cmd "tail -n 30 /var/lib/mysql/mysqld.log"
+cmd "tail -n 30 /var/log/mysql/mysqld.log"
 
 
 cd /opt/local
-cmd "git clone https://github.com/FromDual/mariadb-sys.git"
-lRC=$(($lRC + $?))
+if [ -d "./mariadb-sys" ]; then
+	cmd "git clone https://github.com/FromDual/mariadb-sys.git"
+	lRC=$(($lRC + $?))
+fi
 cd /opt/local/mariadb-sys
 mysql -f < sys_10.sql
 

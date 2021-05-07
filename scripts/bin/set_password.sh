@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 USER=$1
 PASSWD="${2:-"$(pwgen -1 18)"}"

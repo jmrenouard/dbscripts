@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 finalID=$(hostname -s|cut -da -f3)
 

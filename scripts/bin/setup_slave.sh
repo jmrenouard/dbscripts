@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 master=$1
 user=replication

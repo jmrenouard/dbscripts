@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Create a backup user
 # GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'backup'@'localhost' identified by 'YourPassword';

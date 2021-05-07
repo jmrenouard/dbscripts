@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 password=PhiShanohHohXohTh6
 db=employees

@@ -7,11 +7,11 @@ from textwrap import dedent
 
 defaults = {
     'mysql_dir' : "/var/lib/mysql",
-    'port' : 3306
-    'log_error' : "mysqld.log",
+    'port' : 3306,
+    'log_error' : "/var/log/mysql/mysqld.log",
     'log_bin_name' : "mysqld-bin",
-    'slow_query_log_file' : "mysqld-slow.log",
-
+    'slow_query_log_file' : "/var/log/mysql/mysqld.log",
+    'socket_path': '/var/lib/mysql/mysql.sock',
     'pid_file' : "mysqld.pid",
 
 
@@ -35,7 +35,7 @@ def output_my_cnf(_metaconf):
     # GENERAL #
     user                           = mysql
     default-storage-engine         = InnoDB
-    socket                         = {mysql_dir}/mysql.sock
+    socket                         = {socket_path}
     pid-file                       = {pid_file}
     # MyISAM #
     # key-buffer-size                = 32M
@@ -158,7 +158,7 @@ def mycnf_make(m):
 	# Pour X GO > 3Go 75 % de la RAM
 	# 4 chunks par Go
     m['innodb_buffer_pool_size'] = output_memory_gb(float(m['mysql_ram_gb']) *  0.75)
-    m['innodb_buffer_pool_chunk_size'] =(float(m['mysql_ram_gb']) *  0.75 * 1024 * 1024* 1024) / (float(m['mysql_ram_gb']) * 4)
+    m['innodb_buffer_pool_chunk_size'] =int((float(m['mysql_ram_gb']) *  0.75 * 1024 * 1024* 1024) / (float(m['mysql_ram_gb']) * 4))
 
     # Pour 1 GO => 384M - 33%
     # 4 chunks

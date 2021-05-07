@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 bytesToHumanReadable() {
     local i=${1:-0} d="" s=0 S=("Bytes" "KiB" "MiB" "GiB" "TiB" "PiB" "EiB" "YiB" "ZiB")

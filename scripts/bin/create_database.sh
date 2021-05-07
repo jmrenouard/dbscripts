@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 DB=$1
 PASSWD_OWNER="${2:-"$(pwgen -1 18)"}"

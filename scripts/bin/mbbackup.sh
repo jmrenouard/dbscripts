@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #set -x
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
