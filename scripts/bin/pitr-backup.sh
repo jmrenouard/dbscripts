@@ -102,6 +102,15 @@ then
     INCRBASEDIR=$LATESTINCR
   fi
 
+  if [ ! -f "$INCRBASEDIR/xtrabackup_checkpoints" ]; then
+           echo "$INCRBASEDIR DOESNT GET ANY xtrabackup_checkpoints file ..."
+           echo "REMOVING IT"
+           [ -d "$INCRBASEDIR" ] && rm -rf $INCRBASEDIR
+           echo "RESTARTING A FULL BACKUP...."
+           $0 --full
+           exit $?
+  fi
+
   TARGETDIR=$INCRBACKDIR/$LATEST/`date +%F_%H-%M-%S`
   mkdir -p $TARGETDIR
 
