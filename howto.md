@@ -75,3 +75,22 @@ Resolving Dependencies
 ...
 ```
 
+## Check Vagrant installed plugins ## 
+
+```
+$ sudo sh init_vagrant.sh check
+vagrant-hostmanager (1.8.9, global)
+vagrant-persistent-storage (0.0.49, global)
+vagrant-vbguest (0.29.0, global)
+```
+
+## Build and start exercics VMs ## 
+
+```
+$ sudo sh start.sh
+vagrant-hostmanager (1.8.9, global)
+vagrant-persistent-storage (0.0.49, global)
+vagrant-vbguest (0.29.0, global)
+``
+
+

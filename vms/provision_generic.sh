@@ -69,21 +69,24 @@ sudo mkdir -p /var/tmp2
 sudo chmod -R 777 /var/tmp2
 
 echo '---------------------------------------------------'
-echo "5° Change SSHD behaviour password authentication  and root connexion allowed"
+echo "5° Install EPEL REPOSITORY"
+echo '---------------------------------------------------'
+ ps -edf | grep '[y]um'| awk '{ print $2}' | xargs -n 10 sudo kill -9
+
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+echo '---------------------------------------------------'
+echo "6° Install some utlities"
+echo '---------------------------------------------------'
+sudo yum -y install rsync lftp socat htop python3 time git telnet perl
+
+echo '---------------------------------------------------'
+echo "7° Change SSHD behaviour password authentication  and root connexion allowed"
 echo '---------------------------------------------------'
 sudo perl -i -pe 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sudo perl -i -pe 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sudo systemctl reload sshd
 
-echo '---------------------------------------------------'
-echo "6° Install EPEL REPOSITORY"
-echo '---------------------------------------------------'
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-
-echo '---------------------------------------------------'
-echo "7° Install some utlities"
-echo '---------------------------------------------------'
-sudo yum -y install rsync lftp socat htop python3 time git telnet
 
 echo '---------------------------------------------------'
 echo "8° update distro"
