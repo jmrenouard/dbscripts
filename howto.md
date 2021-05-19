@@ -97,6 +97,10 @@ vagrant-vbguest (0.29.0, global)
 ## Generate SSH config file ##
 
 ```
+mkdir -p $HOME/.conf
+cp id_rsa $HOME/.conf
+chmod 600  $HOME/.conf/id_rsa
+
 mkdir -p $HOME/.ssh
 cp id_rsa $HOME/.ssh/id_rsa_vms
 chmod 600  $HOME/.ssh/id_rsa_vms

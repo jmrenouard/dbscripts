@@ -23,7 +23,7 @@ curl -O http://downloadfiles.idera.com/products/IderaSQLDiagnosticManagerForMySQ
 yum -y install ./IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.rpm
 unzip IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
 
-yum install cloud-utils -y
+yum install cloud-utils dos2unix -y
 df
 #growpart /dev/sda 1
 #resize2fs /dev/sda1

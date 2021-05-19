@@ -8,8 +8,15 @@ fi
 
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
+[ "$(pwd)" = "$HOME" ]&& export VMS_DIR="${_DIR}/dbscripts/vms"
 
 export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
+
+export proxy_vms="proxy1,proxy2"
+export db_vms="dbsrv1,dbsrv2,dbsrv3"
+export app_vms="app1"
+export all_vms="app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"
+
 is() {
     if [ "$1" == "--help" ]; then
         cat << EOF
@@ -851,7 +858,7 @@ vsetupVMs()
 
 vupdateScript()
 {
-	local lsrv=${1:-"app1,proxy1,dbsrv1,dbsrv2,dbsrv3"}
+	local lsrv=${1:-"app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"}
 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
 	vssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
     vssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
