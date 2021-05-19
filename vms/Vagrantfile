@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
       mgt1.hostmanager.aliases = %w(mgt1.localdomain mgt1.local)
 
       #mgt1.vm.synced_folder "/data", "/data", create: true
-      mgt1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #mgt1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
       mgt1.vm.provider "virtualbox" do |vb|
          vb.name="mgt1"
          vb.gui = false
@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
       app1.hostmanager.aliases = %w(app1.localdomain app1.local)
 
       #app1.vm.synced_folder "/data", "/data", create: true
-
+      #app1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
       app1.vm.provider "virtualbox" do |vb|
          vb.name="app1"
          vb.gui = false
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
       proxy1.hostmanager.aliases = %w(proxy1.localdomain proxy1.local)
 
       #proxy1.vm.synced_folder "/data", "/data", create: true
-      proxy1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #proxy1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
       proxy1.vm.provider "virtualbox" do |vb|
          vb.name="proxy1"
          vb.gui = false
@@ -90,7 +90,7 @@ Vagrant.configure("2") do |config|
       proxy2.hostmanager.aliases = %w(proxy2.localdomain proxy2.local)
 
       #proxy2.vm.synced_folder "/data", "/data", create: true
-      proxy2.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #proxy2.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
 
       proxy2.vm.provider "virtualbox" do |vb|
          vb.name="proxy2"
@@ -117,7 +117,7 @@ Vagrant.configure("2") do |config|
       dbsrv1.hostmanager.aliases = %w(dbsrv1.localdomain dbsrv1.local)
 
       #dbsrv1.vm.synced_folder "/data", "/data", create: true
-      dbsrv1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #dbsrv1.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
 
       dbsrv1.vm.provider "virtualbox" do |vb|
          vb.name="dbsrv1"
@@ -142,7 +142,7 @@ Vagrant.configure("2") do |config|
       dbsrv2.hostmanager.aliases = %w(dbsrv2.localdomain dbsrv2.local)
 
       #dbsrv2.vm.synced_folder "/data", "/data", create: true
-      dbsrv2.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #dbsrv2.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
 
       dbsrv2.vm.provider "virtualbox" do |vb|
          vb.name="dbsrv2"
@@ -167,7 +167,7 @@ Vagrant.configure("2") do |config|
       dbsrv3.hostmanager.aliases = %w(dbsrv3.localdomain dbsrv3.local)
 
       #dbsrv3.vm.synced_folder "/data", "/data", create: true
-      dbsrv3.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
+      #dbsrv3.vm.disk :disk, size: "#{DISKSIZE}GB", primary: true
 
       dbsrv3.vm.provider "virtualbox" do |vb|
          vb.name="dbsrv3"
