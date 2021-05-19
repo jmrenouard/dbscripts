@@ -1,5 +1,10 @@
 # DB scripts #
 
+## Example ##
+
+![Architecture](https://raw.githubusercontent.com/jmrenouard/dbscripts/master/archi.png)
+
+
 ## Setup VM Vagrant ##
 ```
 # sudo sh installSoft.sh
