@@ -5,10 +5,10 @@ if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 else
 	_DIR="$(readlink -f ".")"
 fi
+[ "$(pwd)" = "$HOME" ] && export _DIR="$HOME/dbscripts/"
 
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
-[ "$(pwd)" = "$HOME" ]&& export VMS_DIR="${_DIR}/dbscripts/vms"
 
 export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
 
