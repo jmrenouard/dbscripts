@@ -3,7 +3,7 @@
 ## Update Centos Like OS ##
 
 ```
-$ sudo yum -y update 
+$ sudo yum -y update
 ...
 ```
 
@@ -26,7 +26,7 @@ Resolving deltas: 100% (1076/1076), done.
 
 ```
 $ cd dbscripts
-$ sudo sh ./installSoft.sh 
+$ sudo sh ./installSoft.sh
 Loaded plugins: fastestmirror
 ...
 ```
@@ -47,7 +47,7 @@ VirtualBox-6.1-6.1.22_144080_el7-1.x86_64
 
 ```
 $ cd vms
-$ sudo sh init_vagrant.sh 
+$ sudo sh init_vagrant.sh
 Installing the 'vagrant-vbguest' plugin. This can take a few minutes...
 Fetching micromachine-3.0.0.gem
 Fetching vagrant-vbguest-0.29.0.gem
@@ -75,7 +75,7 @@ Resolving Dependencies
 ...
 ```
 
-## Check Vagrant installed plugins ## 
+## Check Vagrant installed plugins ##
 
 ```
 $ sudo sh init_vagrant.sh check
@@ -84,14 +84,14 @@ vagrant-persistent-storage (0.0.49, global)
 vagrant-vbguest (0.29.0, global)
 ```
 
-## Build and start exercics VMs ## 
+## Build and start exercics VMs ##
 
 ```
 $ sudo sh start.sh
 vagrant-hostmanager (1.8.9, global)
 vagrant-persistent-storage (0.0.49, global)
 vagrant-vbguest (0.29.0, global)
-``
+```
 
 
 ## Generate SSH config file ##
