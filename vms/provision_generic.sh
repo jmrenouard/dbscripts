@@ -31,6 +31,7 @@ GLOBAL_PUBLIC_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDLKrVxG8aZwzxWES3PR0qD+
 
 PUBLIC_AUTHORIZED_KEYS="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDIS1Vif1rnAV+w5outuLTQTzUbGwvFkoR2g0S6hagJDgKr1UEazS6QedfOghnK3Y83GHRzT4bGRDHuKIWqJfzWpoJrAVhfXD/KGBiQzgu1R7J5WAbEvcyj0B6lHkvEfDZSDVj3TFUnKfqFwH8rHhq+fk98IzWSULp0N3f9PjWAKD2ANaTd3stTrlguWACYuR4ez9bCdS7w8X94XxjoVNAxb29qBgCH/DRvmsT2mjoAv5VUlWJliYVPyCYcqSWdlMe8p9YKuqu+OASwiew59uttjBNSRqjv2Rr1/624o5LQDeZfhnQdGJ18nGs20v3NSGZubDtn4AL2OkvB4VS8guXAtl1Dj1xmzbndO3twxBNa9AiYbBK/YOhhvK9vkiKuS6gF5NyKj+5bPj7/fLOefQfyvM2Hxfpmz7XPWIr1bkkRHm3D4nOujMMq+xRFKUwe42kbUL8FGVWItSrVnJCq/7RRyqyhzOm4VuHp1YZrhg66E6KZRPuz+Ifh/jpQ2MUTIzU=
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDwYsQzPrFALGuVyfQEm0UOden3lV3n83KZJyuSJzzt/UqqFYPNXdIRLSqjANN17vntsFPviFHGr2MnS0ipR5NVd9ESk1lsZ/MkSwVwmTp3D9Q+EdHaalLsNVHj/tTiHu/lWEH8JXNyLB6nqLjirHZxLgYGVGBEFk6XgC0Sb1Cetc6Y6VS0uBUKlWo6rOtCYJIjqLth/D/1QXM/wPWkrcMCnHAEXEDJYuCP98pDf75tVhOmWuzKNPtdFTgFean/ig6YRJCN6EN1NwWUZU7AN7ejZV1LeubgI+CQiOee06DUO8xbEe9yUYBFM91y45dKyHrLJkmvkpyGfyeSfWGHoUCt jmren@DESKTOP-JPKE7F3
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDJPKACA1l2Yz+5HFSiY7FWTxNiH5YdqzNLvaPfDMUG0GusfjSV89t1XWxOMoVnNCm2S0pyC1B67SWRNxrQ1Vv4nbkYIM6nVV8BR2ScfCzvFHT6nxbQ/uVocIpJ7hFRPvce/hm/7TkFJfk+NLWZlUJ/qbiwqhzTD32sZA1bWjNXiRw9315hc/bCKNyT87F94YQCbD3dXJds1q3RdKNXXbI76bo5q/kxrzLSiqj9lxTNui95PKf3IUSnR3fBXhvUzVPPuB2fYCawNziqhlrBL55Iz35tB4ejll/UuyUb+j+mw7C+n6ZNNOfomS2Fe7iBW1iArirnHK0RNGlvbfnFT7oV root@DESKTOP-JPKE7F3
 $GLOBAL_PUBLIC_KEY"
 
 
@@ -84,7 +85,13 @@ echo '---------------------------------------------------'
 echo "7° Change SSHD behaviour password authentication  and root connexion allowed"
 echo '---------------------------------------------------'
 sudo perl -i -pe 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+sudo perl -i -pe 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+
+sudo perl -i -pe 's/PermitRootLogin no/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sudo perl -i -pe 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
+
+sudo perl -i -pe 's/PubkeyAuthentication no/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+sudo perl -i -pe 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 sudo systemctl reload sshd
 
 
