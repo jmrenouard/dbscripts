@@ -667,7 +667,7 @@ updateScript()
 lUpdateScript()
 {
     _DIR=/root/dbscripts
-    rsync -av $_DIR/scripts/utils.sh /etc/profile.d/utils.sh 
+    rsync -av $_DIR/scripts/utils.sh /etc/profile.d/utils.sh
     chown root.root /etc/profile.d/utils.sh
     chmod 755 /etc/profile.d/utils.sh
     [ -d "/opt/local/bin" ] && mkdir -p /opt/local/bin
@@ -745,20 +745,20 @@ createLogicalVolume() {
     lvuser=$4
     lvhome=$5
     lvfstype=${6:-"ext4"}
-    lvdisplay /dev/${vg}/${lv} &>/dev/null 
+    lvdisplay /dev/${vg}/${lv} &>/dev/null
     if [ $? -eq 0 ]; then
         echo "THE LOGICAL VOLUME /dev/${vg}/${lv} HAS BEEN ALREADY CREATED"
         return 1
-    fi    
+    fi
 
     echo "CREATING LOGICAL VOLUME /dev/${vg}/${lv} (SIZE : ${lvsize}) ..."
     mkdir -p ${lvhome}
 
     if $(grep -q "%" <<< "${lvsize}")
     then
-        lvcreate -L${lvsize} -n ${lv} ${vg} 
+        lvcreate -L${lvsize} -n ${lv} ${vg}
     else
-        lvcreate -l${lvsize} -n ${lv} ${vg} 
+        lvcreate -l${lvsize} -n ${lv} ${vg}
     fi
 
     mkfs.${lvfstype} /dev/${vg}/${lv}
@@ -793,7 +793,7 @@ createLogicalVolume() {
     return 0
 }
 
-# Some Alias 
+# Some Alias
 alias h=history
 alias s=sudo
 alias rsh='ssh -l root'
@@ -813,7 +813,7 @@ alias gbl='git blame'
 alias grs='git reset --soft HEAD~1'
 alias grh='git reset --hard HEAD~1'
 
-which python
+which python &>/dev/null
 if [ $? -eq 0 ]; then
     alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
 else

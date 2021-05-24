@@ -4,7 +4,6 @@
 
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
-
 PCKMANAGER="yum"
 [ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
 
