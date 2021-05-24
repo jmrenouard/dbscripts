@@ -18,9 +18,9 @@
 | 2 | Download and install all new package avalaible | root | # yum -y update |
 
 
-
 ##  Update Procedure example for Red Hat Family OS
 ```
 # yum clean all
 
 # yum -y update
+```
