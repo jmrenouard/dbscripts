@@ -10,7 +10,7 @@ fi
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
 
-export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
+[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
 export db_vms="dbsrv1,dbsrv2,dbsrv3"
@@ -259,7 +259,7 @@ footer()
     local lRC=${lRC:-"$?"}
 
     [ $lRC -eq 0 ] && title1 "END: $* ENDED SUCCESSFULLY"
-    [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR"
+    [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR ($lRC)"
     return $lRC
 }
 
@@ -793,12 +793,12 @@ vssh_cmd()
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
-        [ -z "$silent" ] && title2 "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
+        [ -z "$silent" ] && title2 "RUNNING UNIX COMMAND: $fcmd ON $srv($vip) SERVER"
         [ -n "$silent" ] && echo -ne "$srv\t$fcmd\t"
         ssh -T root@$vip -i $DEFAULT_PRIVATE_KEY "$fcmd"
-        [ -n "$silent" ] && echo
-        [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
         lRC=$(($lRC + $?))
+        [ -n "$silent" ] && echo
+        [ -z "$silent" ] && footer "RUNNING UNIX COMMAND: $fcmd ON $srv($vip) SERVER"
     done
     return $lRC
 }
@@ -819,16 +819,21 @@ vssh_copy()
     for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+        [ -z "$silent" ] && title2 "SSH COPY $fsource ON $srv($vip):$fdest "
+
         rsync -avz  -e "ssh -i $DEFAULT_PRIVATE_KEY" $fsource root@$vip:$fdest
         lRC=$(($lRC + $?))
 
-        [ -z "$own" ] || vssh_cmd $srv "chown -R $own:$own $fdest" silent
-        lRC=$(($lRC + $?))
-        [ -z "$mode" ] || vssh_cmd $srv "chmod -R $mode $fdest" silent
-        lRC=$(($lRC + $?))
-
-        [ -z "$silent" ] && footer "RUNNING SCRIPT $fcmd ON $srv($vip) SERVER"
-        lRC=$(($lRC + $?))
+        if [ -n "$own" ]; then
+         vssh_cmd $srv "chown -R $own:$own $fdest" silent
+         lRC=$(($lRC + $?))
+       fi
+       if [ -n "$mode" ]; then
+         vssh_cmd $srv "chmod -R $mode $fdest" silent
+         lRC=$(($lRC + $?))
+       fi
+       [ -z "$silent" ] && footer "SSH COPY $fsource ON $srv($vip):$fdest "
+       #lRC=$(($lRC + $?))
     done
     return $lRC
 }
@@ -859,7 +864,10 @@ vsetupVMs()
 vupdateScript()
 {
 	local lsrv=${1:-"app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"}
+	banner "UPDATE SCRIPTS"
+	title2 "TRANSFERT utils.sh TO $lsrv"
 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
-	vssh_copy $lsrv $_DIR/scripts/bin /opt/local root 755
-    vssh_cmd $lsrv "chmod -R 755 /opt/local/bin"
+	title2 "TRANSFERT bin scripts TO $lsrv"
+	vssh_copy $lsrv $_DIR/scripts/bin/ /opt/local/bin root 755
+    footer "UPDATE SCRIPTS"
 }

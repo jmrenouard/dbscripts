@@ -8,7 +8,7 @@ cluster_name="adistacluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
+node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 sst_user=galera
 sst_password=ohGh7boh7eeg6shuph
 

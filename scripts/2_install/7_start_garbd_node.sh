@@ -9,11 +9,11 @@ cluster_name="meteocluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.173,192.168.33.174,192.168.33.175
+node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 
 banner "BEGIN SCRIPT: $_NAME"
 
-cmd "systemctl stop mariadb" 
+cmd "systemctl stop mariadb"
 cmd "rm -f $CONF_FILE"
 
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
