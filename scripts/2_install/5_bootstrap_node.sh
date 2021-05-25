@@ -9,7 +9,7 @@ cluster_name="adistacluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.192.108,192.168.164.48,192.168.165.29
+node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 sst_user=galera
 sst_password=kee2iesh1Ohk1puph8
 
@@ -63,10 +63,9 @@ echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql
 
 
-
-
-scp /etc/bootstrap.conf jmr_dbsrv2:/etc
-scp /etc/bootstrap.conf jmr_dbsrv3:/etc
+for srv in $(echo $node_addresses | tr ',' ' ') ;do
+	[ "$private_ip" == "$srv" ] && scp /etc/bootstrap.conf root@$srv:/etc
+done
 
 
 footer "END SCRIPT: $NAME"
