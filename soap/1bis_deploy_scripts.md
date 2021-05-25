@@ -2,10 +2,12 @@
 
 ## Table of contents
 - [Main document target](#main-document-target)
-- [Main update Procedure for Red Hat Family OS](#main-update-procedure-for-red-hat-family-os)
-- [Update Procedure example for Red Hat Family OS](#update-procedure-example-for-red-hat-family-os)
+- [Main procedure](#main-procedure)
+- [Big cleanup procedure](#big-cleanup-procedure)
+- [Cleanup procedure example](#cleanup-procedure-example)
+- [Install procedure example](#install-procedure-example)
 
-
+²
 ## Main document target
 
 > Install script and utilities in order to be able to manage MariaDB/MySQL properly.
@@ -26,7 +28,7 @@
 | 3 | Push and install script | root | # vupdateScript dbsrv1 |
 
 ##  Cleanup procedure example
-```
+```bash
 # cd dbscripts
 # source profile
 # vssh_cmd dbsrv1 'rm -rf /opt/local/bin /etc/profile.d/utils.sh'
@@ -41,7 +43,7 @@
 ```
 
 ## Install procedure example
-```
+```bash
 # cd dbscripts
 # source profile
 # vupdateScript dbsrv1
@@ -133,5 +135,4 @@ dbsrv1  chmod -R 755 /opt/local/bin
 
 # echo $?
 0
-
 ```
