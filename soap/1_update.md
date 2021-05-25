@@ -3,8 +3,11 @@
 ## Table of contents
 - [Main document target](#main-document-target)
 - [Main update Procedure for Red Hat Family OS](#main-update-procedure-for-red-hat-family-os)
+- [Main update Procedure for Debian Family OS](#main-update-procedure-for-debian-family-os)
+- [Big cleanup procedure](#big-cleanup-procedure)
 - [Update Procedure example for Red Hat Family OS](#update-procedure-example-for-red-hat-family-os)
-
+- [Update Procedure example for Debian Family OS](#update-procedure-example-for-debian-family-os)
+- [Update Procedure example remotely](#update-procedure-example-remotely)
 
 ## Main document target
 
@@ -60,7 +63,7 @@
 0
 ```
 
-##  Update Procedure example remotly
+##  Update Procedure example remotely
 ```bash
 # vssh_exec dbsrv1 scripts/1_system/1_update.sh
 2021-05-25 19:16:57 CEST(DESKTOP-JPKE7F3) RUNNING SCRIPT 1_update.sh ON dbsrv1(192.168.33.191) SERVER
