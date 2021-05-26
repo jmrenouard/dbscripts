@@ -1,41 +1,40 @@
-# Standard Operations: Update System
+# Opérations Standard : Mise à jour du système
 
-## Table of contents
+## Table des matières
 - [Main document target](#main-document-target)
-- [Main update Procedure for Red Hat Family OS](#main-update-procedure-for-red-hat-family-os)
-- [Main update Procedure for Debian Family OS](#main-update-procedure-for-debian-family-os)
-- [Big cleanup procedure](#big-cleanup-procedure)
-- [Update Procedure example for Red Hat Family OS](#update-procedure-example-for-red-hat-family-os)
-- [Update Procedure example for Debian Family OS](#update-procedure-example-for-debian-family-os)
-- [Update Procedure example remotely](#update-procedure-example-remotely)
+- [Main update Procédure for Red Hat Family OS](#main-update-Procédure-for-red-hat-family-os)
+- [Main update Procédure for Debian Family OS](#main-update-Procédure-for-debian-family-os)
+- [Big cleanup Procédure](#big-cleanup-Procédure)
+- [Update Procédure example for Red Hat Family OS](#update-Procédure-example-for-red-hat-family-os)
+- [Update Procédure example for Debian Family OS](#update-Procédure-example-for-debian-family-os)
+- [Update Procédure example remotely](#update-Procédure-example-remotely)
 
-## Main document target
+## Objectifs du docuement
 
-> Update system packages to insure hight security level
+> Définir la procédure de mise à jour des logiciels installés afin d'assurer un haut niveau de sécurité
 
-
-## Main update Procedure for Red Hat Family OS
-| Step | Description | User | Command |
+## Procédure de mise à jourpour les OS de type Red Hat
+| Etape | Description | Utilisateur | Commande |
 | --- | --- | --- | --- |
-| 1 | Update package information | root | # yum clean all |
-| 2 | Download and install all new package avalaible | root | # yum -y update |
-| 3 | Check return code | root | echo $? (0) |
+| 1 | Mise à jour des informations de paquets | root | # yum clean all |
+| 2 | Téléchargement et mise à jour des paquets sur le serveur | root | # yum -y update |
+| 3 | Vérifier le code retour  | root | echo $? (0) |
 
-## Main update Procedure for Debian Family OS
-| Step | Description | User | Command |
+## Procédure de mise à jourpour les OS de type Debian
+| Etape | Description | Utilisateur | Commande |
 | --- | --- | --- | --- |
-| 1 | Update package information | root | # apt update |
-| 2 | Download and install all new package avalaible | root | # apt upgrade -y |
-| 3 | Check return code | root | echo $? (0) |
+| 1 | Mise à jour des informations de paquets | root | # apt update |
+| 2 | Téléchargement et mise à jour des paquets sur le serveur | root | # apt upgrade -y |
+| 3 | Vérifier le code retour  | root | echo $? (0) |
 
-## Scripted and remote update procedure
-| Step | Description | User | Command |
+## Procédure de mise à jour
+| Etape | Description | Utilisateur | Commande |
 | --- | --- | --- | --- |
 | 1 | Load utilities functions  | root | # source profile |
 | 2 | Execute generic script remotly  | root | # vssh_exec dbsrv1 scripts/1_system/1_update.sh |
-| 3 | Check return code | root | echo $? (0) |
+| 3 | Vérifier le code retour  | root | echo $? (0) |
 
-##  Update Procedure example for Red Hat Family OS
+## Exemple de procédure de mise à jour pour OS de type Red Hat
 ```bash
 # yum clean all
 ...
@@ -49,7 +48,7 @@
 0
 ```
 
-##  Update Procedure example for Debian Family OS
+##   Exemple de procédure de mise à jour pour OS de type Debian 
 ```bash
 # apt update
 ...
@@ -63,7 +62,7 @@
 0
 ```
 
-##  Update Procedure example remotely
+##  Exemple de procédure à distance par script
 ```bash
 # vssh_exec dbsrv1 scripts/1_system/1_update.sh
 2021-05-25 19:16:57 CEST(DESKTOP-JPKE7F3) RUNNING SCRIPT 1_update.sh ON dbsrv1(192.168.33.191) SERVER
@@ -75,7 +74,7 @@
 2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
 2021-05-25 17:16:55 UTC(dbsrv1) UPDATE PACKAGE LIST
 2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
-2021-05-25 17:16:55 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y update
+2021-05-25 17:16:55 UTC(dbsrv1) INFO: RUNNING Commande: yum -y update
 2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
 Last metadata expiration check: 1:29:30 ago on Tue 25 May 2021 03:47:26 PM UTC.
 Dependencies resolved.
@@ -87,7 +86,7 @@ Complete!
 2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
 2021-05-25 17:16:57 UTC(dbsrv1) UPDATE PACKAGES
 2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
-2021-05-25 17:16:57 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y upgrade
+2021-05-25 17:16:57 UTC(dbsrv1) INFO: RUNNING Commande: yum -y upgrade
 2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
 Last metadata expiration check: 1:29:31 ago on Tue 25 May 2021 03:47:26 PM UTC.
 Dependencies resolved.
@@ -99,7 +98,7 @@ Complete!
 2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
 2021-05-25 17:16:58 UTC(dbsrv1) INSTALL FIREWALLD
 2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
-2021-05-25 17:16:58 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y install firewalld
+2021-05-25 17:16:58 UTC(dbsrv1) INFO: RUNNING Commande: yum -y install firewalld
 2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
 Last metadata expiration check: 1:29:32 ago on Tue 25 May 2021 03:47:26 PM UTC.
 Package firewalld-0.8.2-2.el8.noarch is already installed.
