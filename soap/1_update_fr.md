@@ -1,4 +1,4 @@
-# Opérations Standard : Mise à jour du système
+# Opération Standard : Mise à jour du système
 
 ## Table des matières
 - [Objectifs du document](#objectifs-du-document)

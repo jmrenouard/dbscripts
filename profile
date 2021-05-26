@@ -756,6 +756,25 @@ vgenAlias()
     export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
 }
 
+vssh_get_host_pattern_list()
+{
+    local patt=$1
+    grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile |grep -e "$patt" | cut -d. -f1| xargs -n 1
+}
+
+vssh_get_host_list()
+{
+    echo $* | perl -pe 's/[, :]/\n/g' | while read -r line
+    do
+        echo $line | grep -q '*'
+        if [ $? -eq 0 ]; then
+            #echo "PATERN HOST: $line"
+            vssh_get_host_pattern_list $line
+        else
+            echo $line
+        fi
+    done | sort | uniq | xargs -n 1
+}
 
 vssh_exec()
 {
@@ -771,7 +790,7 @@ vssh_exec()
         fi
         INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
 
-        for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+        for srv in $(vssh_get_host_list $lsrv); do
             vip=$(vgetPrivateIp $srv)
             [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
             title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
@@ -790,7 +809,7 @@ vssh_cmd()
     local fcmd=$2
     local silent=$3
 
-    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+    for srv in $(vssh_get_host_list $lsrv); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
         [ -z "$silent" ] && title2 "RUNNING UNIX COMMAND: $fcmd ON $srv($vip) SERVER"
@@ -816,7 +835,7 @@ vssh_copy()
         error "$fsource Not exists"
         return 127
     fi
-    for srv in $(echo $lsrv | perl -pe 's/[, :]/\n/g'); do
+    for srv in $(vssh_get_host_list $lsrv); do
         vip=$(vgetPrivateIp $srv)
         [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
         [ -z "$silent" ] && title2 "SSH COPY $fsource ON $srv($vip):$fdest "
