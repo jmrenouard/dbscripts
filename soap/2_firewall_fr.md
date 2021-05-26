@@ -9,9 +9,9 @@
 
 ## Objectifs du document
 
-> Configurer le parefeu 
-> Autoriser les principaux ports TCP 
-> Augmenter le niveau de sécurité des accès réseaux TCP 
+>  * Configurer le parefeu 
+   * Autoriser les principaux ports TCP 
+   * Augmenter le niveau de sécurité des accès réseaux TCP 
 
 ## Procédure de configuration et activation de firewall
 | Etape | Description | Utilisateur | Commande |
@@ -19,34 +19,6 @@
 | 1 | Load utilities functions  | root | # source profile |
 | 2 | Execute generic script remotly  | root | # vssh_exec dbsrv1 scripts/1_system/1_update.sh |
 | 3 | Vérifier le code retour  | root | echo $? (0) |
-
-## Exemple de procédure de mise à jour pour OS de type Red Hat
-```bash
-# yum clean all
-...
-...
-# echo $?
-0
-
-# yum -y update
-...
-# echo $?
-0
-```
-
-## Exemple de procédure de mise à jour pour OS de type Debian 
-```bash
-# apt update
-...
-...
-# echo $?
-0
-
-# apt upgrade -y
-...
-# echo $?
-0
-```
 
 ## Exemple de procédure à distance par script
 ```bash
