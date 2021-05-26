@@ -10,8 +10,8 @@
 ## Objectifs du document
 
 >  * Configurer le parefeu 
-   * Autoriser les principaux ports TCP 
-   * Augmenter le niveau de sécurité des accès réseaux TCP 
+ * Autoriser les principaux ports TCP 
+ * Augmenter le niveau de sécurité des accès réseaux TCP 
 
 ## Procédure de configuration et activation de firewall
 | Etape | Description | Utilisateur | Commande |
