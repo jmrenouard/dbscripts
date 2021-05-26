@@ -8,8 +8,8 @@ fi
 [ "$(pwd)" = "$HOME" ] && export _DIR="$HOME/dbscripts/"
 
 export VMS_DIR="$(readlink -f ".")/vms"
+[ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
-
 [ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
 
 export proxy_vms="proxy1,proxy2"

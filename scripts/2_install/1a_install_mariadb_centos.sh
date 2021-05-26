@@ -6,6 +6,11 @@ source /etc/os-release
 lRC=0
 VERSION=${1:-"10.5"}
 
+##title_en: Centos MariaDB 10.5 server installation
+##title_fr: Installation du servuer MariaDB 10.5 sur OS Centos  
+##goals_en: Package software installation for MariaDB / Related tools installation / Last security packages installation
+##goals_fr: Installation des packages logiciels pour MariaDB / Installation des logiciels tiers relatif aux bases de données / Installation des dernières versions logicielles
+
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd 'rm -f /etc/yum.repos.d/mariadb_*.repo'
