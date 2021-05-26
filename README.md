@@ -29,29 +29,6 @@
     # vssh_cmd haproxy1 "hostname -s"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Easymysql #
 **Helper Bash script for MySQL multi instance management on one server**
 
