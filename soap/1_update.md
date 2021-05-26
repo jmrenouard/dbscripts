@@ -4,7 +4,7 @@
 - [Main document target](#main-document-target)
 - [Main update Procedure for Red Hat Family OS](#main-update-procedure-for-red-hat-family-os)
 - [Main update Procedure for Debian Family OS](#main-update-procedure-for-debian-family-os)
-- [Big cleanup procedure](#big-cleanup-procedure)
+- [Scripted and remote update procedure](#scripted-and-remote-update-procedure)
 - [Update Procedure example for Red Hat Family OS](#update-procedure-example-for-red-hat-family-os)
 - [Update Procedure example for Debian Family OS](#update-procedure-example-for-debian-family-os)
 - [Update Procedure example remotely](#update-procedure-example-remotely)
@@ -12,7 +12,6 @@
 ## Main document target
 
 > Update system packages to insure hight security level
-
 
 ## Main update Procedure for Red Hat Family OS
 | Step | Description | User | Command |

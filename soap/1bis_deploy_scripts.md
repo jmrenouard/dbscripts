@@ -7,18 +7,15 @@
 - [Cleanup procedure example](#cleanup-procedure-example)
 - [Install procedure example](#install-procedure-example)
 
-²
 ## Main document target
 
 > Install script and utilities in order to be able to manage MariaDB/MySQL properly.
-
 
 ## Main procedure
 | Step | Description | User | Command |
 | --- | --- | --- | --- |
 | 1 | Load utilities functions  | root | # source profile |
 | 2 | Push and install script | root | # vupdateScript dbsrv1 |
-
 
 ## Big cleanup procedure
 | Step | Description | User | Command |

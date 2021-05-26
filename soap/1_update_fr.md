@@ -1,15 +1,15 @@
 # Opérations Standard : Mise à jour du système
 
 ## Table des matières
-- [Main document target](#main-document-target)
-- [Main update Procédure for Red Hat Family OS](#main-update-Procédure-for-red-hat-family-os)
-- [Main update Procédure for Debian Family OS](#main-update-Procédure-for-debian-family-os)
-- [Big cleanup Procédure](#big-cleanup-Procédure)
-- [Update Procédure example for Red Hat Family OS](#update-Procédure-example-for-red-hat-family-os)
-- [Update Procédure example for Debian Family OS](#update-Procédure-example-for-debian-family-os)
-- [Update Procédure example remotely](#update-Procédure-example-remotely)
+- [Objectifs du document](#objectifs-du-document)
+- [Procédure de mise à jourpour les OS de type Red Hat](#procédure-de-mise-à-jourpour-les-os-de-type-red-hat)
+- [Procédure de mise à jourpour les OS de type Debian](#procédure-de-mise-à-jourpour-les-os-de-type-debian)
+- [Procédure de mise à jour](#procédure-de-mise-à-jour)
+- [Exemple de procédure de mise à jour pour OS de type Red Hat](#exemple-de-procédure-de-mise-à-jour-pour-os-de-type-red-hat)
+- [Exemple de procédure de mise à jour pour OS de type Debian](#exemple-de-procédure-de-mise-à-jour-pour-os-de-type-debian)
+- [Exemple de procédure à distance par script](#exemple-de-procédure-à-distance-par-script)
 
-## Objectifs du docuement
+## Objectifs du document
 
 > Définir la procédure de mise à jour des logiciels installés afin d'assurer un haut niveau de sécurité
 
@@ -48,7 +48,7 @@
 0
 ```
 
-##   Exemple de procédure de mise à jour pour OS de type Debian 
+## Exemple de procédure de mise à jour pour OS de type Debian 
 ```bash
 # apt update
 ...
@@ -62,7 +62,7 @@
 0
 ```
 
-##  Exemple de procédure à distance par script
+## Exemple de procédure à distance par script
 ```bash
 # vssh_exec dbsrv1 scripts/1_system/1_update.sh
 2021-05-25 19:16:57 CEST(DESKTOP-JPKE7F3) RUNNING SCRIPT 1_update.sh ON dbsrv1(192.168.33.191) SERVER
