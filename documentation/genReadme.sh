@@ -2,7 +2,7 @@
 
 echo "# List of Standard Operation Sheet" > README.md
 
-for mdf in $(find . -type f -iname '*.md' | grep -v '_fr'); do
+for mdf in $(find . -type f -iname '*.md' | grep -v '_fr' | grep -v 'README.md'); do
 	title=$(head -1 $mdf | cut -d: -f2)
 	echo " *  [$title]($mdf)"
 done >> README.md
