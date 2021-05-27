@@ -8,7 +8,7 @@ for mdf in $(find . -type f -iname '*.md' | grep -v '_fr'); do
 done >> README.md
 
 
-echo "# Liste des procédures opérationnelles standards" > README.md
+echo "# Liste des procédures opérationnelles standards" >> README.md
 
 for mdf in $(find . -type f -iname '*.md' | grep '_fr'); do
 	title=$(head -1 $mdf | cut -d: -f2)
