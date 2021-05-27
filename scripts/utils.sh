@@ -680,6 +680,17 @@ lUpdateScript()
     chmod -R 755 /opt/local/bin
 }
 
+copy_rc()
+{
+
+	for srv in $(grep node_addresses= /etc/bootstrap.conf| cut -d= -f2 | tr ',' ' ' ) ;do
+		[ "$my_private_ipv4" == "$srv" ] && continue
+		info "COPYING /etc/bootstrap.conf TO $srv"
+		rsync -avz /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
+		info "COPYING /root/.my.cnf TO $srv"
+		rsync -avz /root/.my.cnf root@$srv:/root 2>/dev/null
+	done
+}
 get_last_datadir_access()
 {
 	limit=${1:-"20"}
@@ -687,6 +698,15 @@ get_last_datadir_access()
 
 	 sudo find $datadir -type f | xargs -n 1 sudo stat | grep "Modify: $(date +%Y-)" | perl -pe 's/Modify: //g;s/\.\d+ //g' | sort -n | uniq -c | tail -n $limit
 }
+
+tail_error_log()
+{
+	log_file="$(global_variables log_error)"
+
+	[ -f "$log_file" ] && tail -f $log_file &
+}
+
+
 
 generate_multi_instance_example()
 {

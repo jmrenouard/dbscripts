@@ -84,7 +84,10 @@ fi
 
 if [ $lRC -eq 0 -a -n "$KEEP_LAST_N_BACKUPS" ]; then
     info "KEEP LAST $KEEP_LAST_N_BACKUPS BACKUPS"
-    ls -tp $BCK_DIR| grep -v '/$' | tail -n +$(($KEEP_LAST_N_BACKUPS +1)) | while IFS= read -r f; do
+    (
+    	ls -tp $BCK_DIR| grep -v '/$' | grep 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
+    	ls -tp $BCK_DIR| grep -v '/$' | grep -v 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
+    ) | while IFS= read -r f; do
         echo "Removing $f";
         rm -f $BCK_DIR/$f
     done

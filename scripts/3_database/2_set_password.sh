@@ -38,6 +38,7 @@ lRC=$(($lRC + $?))
 echo "[mysql]
 user=root
 password=${PASSWD_ROOT}
+socket=/run/mysqld/mysqld.sock
 " > /root/.my.cnf
 
 chmod 600 /root/.my.cnf
@@ -58,7 +59,9 @@ add_password_history root "$PASSWD_ROOT"
 add_password_history replication "${PASSWD_REPLI}"
 add_password_history galera "${PASSWD_GALERA}"
 
-echo "sst_password=${PASSWD_GALERA}" > /etc/bootstrap.conf
+echo "node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+sst_user=galera
+sst_password=${PASSWD_GALERA}" > /etc/bootstrap.conf
 chmod 755 /etc/bootstrap.conf
 
 exit $lRC

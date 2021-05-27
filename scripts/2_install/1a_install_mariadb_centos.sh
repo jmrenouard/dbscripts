@@ -32,12 +32,6 @@ if [ "$force" = "1" ]; then
 	lRC=$(($lRC + $?))
 fi
 
-cmd "mkdir  -p /var/log/mysql /run/mysqld"
-cmd "chown -R mysql.mysql /var/log/mysql /run/mysqld"
-cmd "ln -sf /run/mysqld/mysqld.sock /var/lib/mysql/mysql.sock"
-
-lRC=$(($lRC + $?))
-
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 lRC=$(($lRC + $?))
 
@@ -50,7 +44,10 @@ lRC=$(($lRC + $?))
 cmd "yum -y install https://repo.percona.com/yum/release/latest/RPMS/x86_64/percona-toolkit-3.2.1-1.el6.x86_64.rpm"
 ln -sf lRC=$(($lRC + $?))
 
-cmd "pip3 install mycli"
+#cmd "pip3 install mycli"
+#lRC=$(($lRC + $?))
+
+cmd "yum -y install https://github.com/maxbube/mydumper/releases/download/v0.10.5/mydumper-0.10.5-1.el${VERSION_ID}.x86_64.rpm"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/m/mysqlreport-3.5-24.fc34.noarch.rpm"

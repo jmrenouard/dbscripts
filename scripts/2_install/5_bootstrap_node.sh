@@ -72,9 +72,9 @@ echo "select * from information_schema.wsrep_membership;" | mysql
 
 
 for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
-	[ "$private_ip" == "$srv" ] || scp /etc/bootstrap.conf root@$srv:/etc
+	info "COPYING /etc/bootstrap.conf TO $srv"
+	[ "$private_ip" == "$srv" ] || scp /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
 done
-
 
 footer "END SCRIPT: $NAME"
 exit $lRC3

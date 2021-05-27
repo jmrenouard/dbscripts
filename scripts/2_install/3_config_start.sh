@@ -14,6 +14,7 @@ DATADIR="/var/lib/mysql"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 #server_id=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1 | cut -d. -f4)
 
+
 mem_gb=$(free -g| grep Mem: | awk '{print $2}')
 [ $mem_gb -eq 0 ] && mem_gb=1
 
@@ -21,6 +22,11 @@ mem_gb=$(free -g| grep Mem: | awk '{print $2}')
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd "rm -f $CONF_FILE"
+
+cmd "mkdir -p /var/log/mysql /run/mysqld"
+cmd "chown -R mysql.mysql /var/log/mysql /run/mysqld"
+cmd "ln -sf /run/mysqld/mysqld.sock /var/lib/mysql/mysql.sock"
+
 
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
 
