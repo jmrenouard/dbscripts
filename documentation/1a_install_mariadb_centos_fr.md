@@ -1,4 +1,4 @@
-# Opération Standard : Installation du servuer MariaDB 10.5 sur OS Centos  
+# Opération Standard : Installation du serveur MariaDB 10.5 sur OS Centos
 
 ## Table des matières
 - [Objectifs du document](#objectifs-du-document)

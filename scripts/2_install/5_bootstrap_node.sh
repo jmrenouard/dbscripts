@@ -15,6 +15,14 @@ sst_password=kee2iesh1Ohk1puph8
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
+
+##title_en: Galera Cluster bootstrap
+##title_fr: Initialisation du cluster Galera
+##goals_en: Start  a 1st operationnal node /  Start a consistent first node / Galera Cluster initialisation
+##goals_fr: Démarrer un 1ere noeud Galera operationnel / Démarrer un noeud dans un état consistant  / Initialiser un cluster Galera
+
+
+
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd "rm -f $CONF_FILE"
@@ -63,8 +71,8 @@ echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql
 
 
-for srv in $(echo $node_addresses | tr ',' ' ') ;do
-	[ "$private_ip" == "$srv" ] && scp /etc/bootstrap.conf root@$srv:/etc
+for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
+	[ "$private_ip" == "$srv" ] || scp /etc/bootstrap.conf root@$srv:/etc
 done
 
 

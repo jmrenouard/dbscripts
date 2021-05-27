@@ -1,11 +1,14 @@
 #!/bin/bash
 
-file_md=$1
-target_hosts=$2
-script_file=$3
+target_hosts=$1
+script_file=$2
+file_md=$3
+[ -z "$file_md" ] && file_md=$(basename ${script_file%.*})
 
+[ "$force" = "1" ] && rm -f ${file_md}.md ${file_md}_fr.md
+
+echo "GENERATING ${file_md}.md and ${file_md}_fr.md"
 source ../profile
-
 
 title_en="$(grep '##title_en: ' $script_file | perl -pe 's/^##title_en: //g')"
 title_fr="$(grep '##title_fr: ' $script_file | perl -pe 's/^##title_fr: //g')"
@@ -94,3 +97,5 @@ fi
 
 sh genToc.sh ${file_md}.md 
 sh genToc.sh ${file_md}_fr.md
+
+sh genReadme.sh

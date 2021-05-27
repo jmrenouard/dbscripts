@@ -416,8 +416,12 @@ get_mariadb_root_password()
 
 global_variables()
 {
-    mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/'
+    res=$(mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
+
+    [ -z "$res" -a -n "$2" ] && res="$2"
+    echo -n $res
 }
+
 global_status()
 {
     mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
@@ -674,6 +678,14 @@ lUpdateScript()
     rsync -av $_DIR/scripts/bin /opt/local/
     chown -R root.root /opt/local/bin
     chmod -R 755 /opt/local/bin
+}
+
+get_last_datadir_access()
+{
+	limit=${1:-"20"}
+	datadir=$(global_variables datadir /var/lib/mysql)
+
+	 sudo find $datadir -type f | xargs -n 1 sudo stat | grep "Modify: $(date +%Y-)" | perl -pe 's/Modify: //g;s/\.\d+ //g' | sort -n | uniq -c | tail -n $limit
 }
 
 generate_multi_instance_example()

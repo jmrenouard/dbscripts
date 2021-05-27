@@ -34,6 +34,8 @@ fi
 
 cmd "mkdir  -p /var/log/mysql /run/mysqld"
 cmd "chown -R mysql.mysql /var/log/mysql /run/mysqld"
+cmd "ln -sf /run/mysqld/mysqld.sock /var/lib/mysql/mysql.sock"
+
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
@@ -46,7 +48,7 @@ cmd "yum -y install cracklib cracklib-dicts tree socat jemalloc rsync nmap lsof 
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://repo.percona.com/yum/release/latest/RPMS/x86_64/percona-toolkit-3.2.1-1.el6.x86_64.rpm"
-lRC=$(($lRC + $?))
+ln -sf lRC=$(($lRC + $?))
 
 cmd "pip3 install mycli"
 lRC=$(($lRC + $?))

@@ -305,6 +305,7 @@ pgSetVal()
 
 
 alias sssh='sudo ssh -l root'
+alias rsh='ssh -l root'
 alias srsync="sudo rsync  -e 'ssh -l root'"
 alias pass='pwgen -1 18'
 
