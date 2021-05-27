@@ -14,6 +14,10 @@ sst_password=ohGh7boh7eeg6shuph
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
+##title_en: Adding a new member into a galera Cluster
+##title_fr: Initialisation d un nouveau membre dasn le cluster Galera
+##goals_en: Start a other operationnal node /  Start a consistent new node / Adding Galera Cluster member
+##goals_fr: Démarrer un nouveau noeud Galera operationnel / Démarrer un autre noeud dans un état consistant  / Ajouter un nouveau membre au cluster Galera
 
 banner "BEGIN SCRIPT: $_NAME"
 

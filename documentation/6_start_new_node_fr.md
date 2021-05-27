@@ -1,4 +1,4 @@
-# Opération Standard : Initialisation d un nouveau membre dasn le cluster Galera
+# Opération Standard : Initialisation d un nouveau membre dans le cluster Galera
 
 ## Table des matières
 - [Objectifs du document](#objectifs-du-document)
