@@ -70,6 +70,127 @@ SELECT * FROM performance_schema.events_stages_history_long;
 --  mysql -Nrs -e "SHOW CREATE TABLE $tbl" sys
 -- done
 
+-- Tables without primary key
+SELECT DISTINCT t.table_schema, t.table_name
+  FROM information_schema.tables AS t
+  LEFT JOIN information_schema.columns AS c ON t.table_schema = c.table_schema AND t.table_name = c.table_name
+        AND c.column_key = "PRI"
+ WHERE t.table_schema NOT IN ('information_schema', 'mysql', 'performance_schema')
+   AND c.table_name IS NULL AND t.table_type != 'VIEW';
+
+--  Connections mal fermées
+SELECT ess.user, ess.host
+     , (a.total_connections - a.current_connections) - ess.count_star as not_closed
+     , ((a.total_connections - a.current_connections) - ess.count_star) * 100 /
+       (a.total_connections - a.current_connections) as pct_not_closed
+  FROM performance_schema.events_statements_summary_by_account_by_event_name ess
+  JOIN performance_schema.accounts a on (ess.user = a.user and ess.host = a.host)
+ WHERE ess.event_name = 'statement/com/quit'
+   AND (a.total_connections - a.current_connections) > ess.count_star
+;
+
+-- Indexes non utilisés
+SELECT DISTINCT s.table_schema, s.table_name, s.index_name
+--     , i.count_star
+  FROM information_schema.statistics AS s
+  LEFT JOIN performance_schema.table_io_waits_summary_by_index_usage AS i
+         ON (s.table_schema = i.object_schema AND s.table_name = i.object_name AND s.index_name = i.index_Name)
+ WHERE s.table_schema NOT IN ('mysql', 'performance_schema', 'sys', 'information_schema')
+   AND s.index_name != 'PRIMARY'
+   AND i.count_star = 0
+ ORDER BY s.table_schema, s.table_name, s.index_name
+;
+
+-- Utilisateurs jamais connectés
+SELECT DISTINCT m_u.user
+  FROM mysql.user m_u
+  LEFT JOIN performance_schema.users ps_u ON m_u.user = ps_u.user
+ WHERE ps_u.user IS NULL
+ ORDER BY m_u.user
+;
+
+-- les mauvaises requêtes par utilisateur
+SELECT user, host, event_name
+     , sum_created_tmp_disk_tables AS tmp_disk_tables
+     , sum_select_full_join AS full_join
+     , sum_select_range_check AS range_check
+     , sum_sort_merge_passes AS sort_merge
+  FROM performance_schema.events_statements_summary_by_account_by_event_name
+ WHERE sum_created_tmp_disk_tables > 0
+    OR sum_select_full_join > 0
+    OR sum_select_range_check > 0
+    OR sum_sort_merge_passes > 0
+ ORDER BY sum_sort_merge_passes DESC
+ LIMIT 10
+;
+
+-- profile des acces par table
+SELECT object_type, object_schema, object_name
+     , count_star, count_read, count_write, count_fetch
+     , count_insert, count_update, count_delete
+  FROM performance_schema.table_io_waits_summary_by_table
+ WHERE count_star > 0
+ ORDER BY count_star DESC;
+
+SELECT object_type, object_schema, object_name, index_name
+     , count_star, count_read, count_write, count_fetch
+     , count_insert, count_update, count_delete
+  FROM performance_schema.table_io_waits_summary_by_index_usage
+ WHERE count_star > 0
+   AND index_name IS NOT NULL
+ ORDER BY count_star DESC;
+
+-- Long queries
+SELECT left(digest_text, 64)
+     , ROUND(SUM(timer_end-timer_start)/1000000000, 1) AS tot_exec_ms
+     , ROUND(SUM(timer_end-timer_start)/1000000000/COUNT(*), 1) AS avg_exec_ms
+     , ROUND(MIN(timer_end-timer_start)/1000000000, 1) AS min_exec_ms
+     , ROUND(MAX(timer_end-timer_start)/1000000000, 1) AS max_exec_ms
+     , ROUND(SUM(timer_wait)/1000000000, 1) AS tot_wait_ms
+     , ROUND(SUM(timer_wait)/1000000000/COUNT(*), 1) AS avg_wait_ms
+     , ROUND(MIN(timer_wait)/1000000000, 1) AS min_wait_ms
+     , ROUND(MAX(timer_wait)/1000000000, 1) AS max_wait_ms
+     , ROUND(SUM(lock_time)/1000000000, 1) AS tot_lock_ms
+     , ROUND(SUM(lock_time)/1000000000/COUNT(*), 1) AS avglock_ms
+     , ROUND(MIN(lock_time)/1000000000, 1) AS min_lock_ms
+     , ROUND(MAX(lock_time)/1000000000, 1) AS max_lock_ms
+     , MIN(LEFT(DATE_SUB(NOW(), INTERVAL (isgs.VARIABLE_VALUE - TIMER_START*10e-13) second), 19)) AS first_seen
+     , MAX(LEFT(DATE_SUB(NOW(), INTERVAL (isgs.VARIABLE_VALUE - TIMER_START*10e-13) second), 19)) AS last_seen
+     , COUNT(*) as cnt
+  FROM performance_schema.events_statements_history_long
+  JOIN information_schema.global_status AS isgs
+ WHERE isgs.variable_name = 'UPTIME'
+ GROUP BY LEFT(digest_text,64)
+ ORDER BY tot_exec_ms DESC;
+
+-- tables sans écriture
+SELECT t.table_schema, t.table_name, t.table_rows, tio.count_read, tio.count_write
+  FROM information_schema.tables AS t
+  JOIN performance_schema.table_io_waits_summary_by_table AS tio
+    ON tio.object_schema = t.table_schema AND tio.object_name = t.table_name
+ WHERE t.table_schema NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')
+   AND tio.count_write = 0
+ ORDER BY t.table_schema, t.table_name;
+
+-- Req avec erreur et warning
+SELECT * FROM performance_schema.events_statements_history
+ WHERE errors != 0 OR warnings != 0\G
+
+ -- Verrou InnoDB
+ SELECT lock_trx_id, lock_mode, lock_type, lock_table, lock_index FROM information_schema.innodb_locks;
+
+SELECT trx_id, trx_state, trx_started, trx_wait_started, trx_mysql_thread_id, trx_query, trx_tables_in_use, trx_tables_locked, trx_lock_structs, trx_rows_locked, trx_rows_modified
+  FROM information_schema.innodb_trx
+ ORDER BY trx_started, trx_wait_started;
+
+-- Last SQL statements by thread
+SELECT EVENT_ID, SQL_TEXT, CURRENT_SCHEMA   FRom performance_schema.events_statements_history  ORDER BY EVENT_ID DESC  LIMIT 10;
+
+--Comptage par  Evenement
+SELECT event_name, COUNT(*)
+  FROM performance_schema.events_statements_history
+ GROUP BY event_name;
+
 -- Analyse des requêtes
 x$statement_analysis
 -------------------------------------------
