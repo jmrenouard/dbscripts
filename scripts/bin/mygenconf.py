@@ -88,40 +88,23 @@ def output_my_cnf(_metaconf):
     long_query_time                = {long_query_time}
     bind_address                   = {bind_address}
     port                           = {port}
-    performance_schema=ON
-    performance_schema_max_cond_classes     =80
-    performance_schema_max_file_classes     =50
-    performance_schema_max_mutex_classes    =200
-    performance_schema_max_rwlock_classes   =40
-    performance_schema_max_socket_classes   =10
-    performance_schema_max_stage_classes    =150
-    performance_schema_max_statement_classes=168
-    performance_schema_max_thread_classes   =50
+    performance_schema             = ON
+    performance-schema-consumer-events-statements-history-long = ON
+    performance-schema-consumer-events-statements-history = ON
+    performance-schema-consumer-events-statements-current = ON
+    performance-schema-consumer-events-stages-current=ON
+    performance-schema-consumer-events-stages-history=ON
+    performance-schema-consumer-events-stages-history-long=ON
+    performance-schema-consumer-events-transactions-current=ON
+    performance-schema-consumer-events-transactions-history=ON
+    performance-schema-consumer-events-transactions-history-long=ON
+    performance-schema-consumer-events-waits-current=ON
+    performance-schema-consumer-events-waits-history=ON
+    performance-schema-consumer-events-waits-history-long=ON
+    performance-schema-instrument='%=ON'
+    max-digest-length=2048
+    performance-schema-max-digest-length=2018
 
-    performance_schema_accounts_size=100
-    performance_schema_hosts_size   =100
-    performance_schema_users_size   =100
-    performance_schema_events_stages_history_long_size    =1000
-    performance_schema_events_stages_history_size         =10
-    performance_schema_events_statements_history_long_size=1000
-    performance_schema_events_statements_history_size     =10
-    performance_schema_events_waits_history_long_size     =10000
-    performance_schema_events_waits_history_size          =10
-
-    performance_schema_max_cond_instances   =1258
-    performance_schema_max_file_handles     =32768
-    performance_schema_max_file_instances   =6250
-    performance_schema_max_mutex_instances  =5133
-    performance_schema_max_rwlock_instances =2765
-    performance_schema_max_table_handles    =366
-    performance_schema_max_table_instances  =587
-    performance_schema_max_socket_instances =230
-    performance_schema_max_thread_instances =288
-    performance_schema_setup_actors_size =100
-    performance_schema_setup_objects_size=100
-
-    performance_schema_session_connect_attrs_size=512
-    performance_schema_digests_size              =200
     """.format(**mycnf_make(_metaconf))))
 
 #    [mysql]

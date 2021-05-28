@@ -39,3 +39,5 @@ use employees;
 set GLOBAL long_query_time=3;
 select sleep(6);
 
+# Plugins Information
+select CONCAT(PLUGIN_NAME,'(' ,PLUGIN_VERSION,')'), PLUGIN_STATUS, PLUGIN_DESCRIPTION from all_plugins;
