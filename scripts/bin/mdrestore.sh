@@ -14,7 +14,10 @@ if [ "$1" = "-l" -o "$1" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
 fi
-
+if [ "$2" = "-l" -o "$2" = "--list" ]; then
+    ls -lsht $BCK_DIR/$1/
+    exit 0
+fi
 GALERA_SUPPORT=$(galera_is_enabled)
 
 if [ "$GALERA_SUPPORT" = "1" ]; then
@@ -80,7 +83,7 @@ fi
 
 if [ -z "$targetdb" ]; then
 	echo -e
-	read -p '"Target dabase name : "' targetdb
+	read -p 'Target dabase name : ' targetdb
 fi
 
 info "TARGET DATABASE IS $sourcedb"
@@ -102,7 +105,7 @@ time myloader \
 --overwrite-tables \
 --database $targetdb \
 --source-db=$sourcedb \
---purge-mode DROP"
+--purge-mode DROP
 lRC=$?
 [ $lRC -eq 0 ] && ok "RESTORE OK"
 cmd "db_list"
