@@ -93,6 +93,8 @@ fi
 info "Liste fichier backup"
 ls -lsh $BCK_TARGET
 
+info "BACKUP DIR: $BCK_TARGET"
+info "Size: $(du -sh $BCK_TARGET| awk '{print $1}')"
 info "FINAL CODE RETOUR: $lRC"
 footer "LOGICAL BACKUP"
 exit $lRC

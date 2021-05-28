@@ -52,11 +52,11 @@ run_load()
 	) | tee run_load_${nbmin}_$(date +%Y%m%d_%H%M).log}
 }
 
-$my_sysbench --tables=120 --table-size=1000000 /usr/share/sysbench/oltp_read_write.lua cleanup
+echo "$my_sysbench --tables=120 --table-size=1000000 /usr/share/sysbench/oltp_read_write.lua cleanup
 $my_sysbench --tables=120 --table-size=1000000 /usr/share/sysbench/oltp_read_write.lua prepare
 
 $my_sysbench --tables=120 --table-size=1000000 --threads=4 --time=0 --events=0 --report-interval=1 /usr/share/sysbench/oltp_read_write.lua run
 $my_sysbench --tables=120 --table-size=1000000 --threads=4 --time=0 --events=0 --report-interval=1 --rate=40 /usr/share/sysbench/oltp_read_write.lua run
 
 #Limiter à 5 minutes
-$my_sysbench --tables=120 --table-size=1000000 --threads=8 --time=300 --events=0 --report-interval=1 --rate=40 /usr/share/sysbench/oltp_read_write.lua run
+$my_sysbench --tables=120 --table-size=1000000 --threads=8 --time=300 --events=0 --report-interval=1 --rate=40 /usr/share/sysbench/oltp_read_write.lua run"
