@@ -14,22 +14,22 @@ echo "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${PASSWD_ROOT}');
 CREATE OR REPLACE USER 'root'@'192.168.%' IDENTIFIED BY '${PASSWD_ROOT}';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.%';
 
-DROP USER IF EXISTS 'root'@'10.%','replication'@'10.%','galera'@'10.%';
+DROP USER IF EXISTS 'root'@'192.168.%','replication'@'192.168.%','galera'@'192.168.%';
 
--- CREATE OR REPLACE USER 'root'@'10.%' IDENTIFIED BY '${PASSWD_ROOT}';
--- GRANT ALL PRIVILEGES ON *.* TO 'root'@'10.%';
+-- CREATE OR REPLACE USER 'root'@'192.168.%' IDENTIFIED BY '${PASSWD_ROOT}';
+-- GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.%';
 
--- CREATE OR REPLACE USER 'galera'@'10.%' IDENTIFIED BY '${PASSWD_GALERA}';
--- GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'galera'@'10.%';
+-- CREATE OR REPLACE USER 'galera'@'192.168.%' IDENTIFIED BY '${PASSWD_GALERA}';
+-- GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'galera'@'192.168.%';
 
 CREATE OR REPLACE USER 'galera'@'192.168.%' IDENTIFIED BY '${PASSWD_GALERA}';
 GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'galera'@'192.168.%';
 
 CREATE OR REPLACE USER 'galera'@'localhost' IDENTIFIED BY '${PASSWD_GALERA}';
-GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'galera'@'localhost';
+GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT,SUPER ON *.* TO 'galera'@'localhost';
 
--- CREATE OR REPLACE USER 'replication'@'10.%' IDENTIFIED BY '${PASSWD_REPLI}';
--- GRANT REPLICATION SLAVE ON *.* TO 'replication'@'10.%';
+-- CREATE OR REPLACE USER 'replication'@'192.168.%' IDENTIFIED BY '${PASSWD_REPLI}';
+-- GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168.%';
 
 CREATE OR REPLACE USER 'replication'@'192.168.%' IDENTIFIED BY '${PASSWD_REPLI}';
 GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168.%';
@@ -38,7 +38,7 @@ lRC=$(($lRC + $?))
 echo "[mysql]
 user=root
 password=${PASSWD_ROOT}
-socket=/run/mysqld/mysqld.sock
+#socket=/run/mysqld/mysqld.sock
 " > /root/.my.cnf
 
 chmod 600 /root/.my.cnf

@@ -10,7 +10,7 @@ defaults = {
     'port' : 3306,
     'log_error' : "/var/log/mysql/mysqld.log",
     'log_bin_name' : "mysqld-bin",
-    'slow_query_log_file' : "/var/log/mysql/mysqld.log",
+    'slow_query_log_file' : "/var/log/mysql/slow_query.log",
     'socket_path': '/var/lib/mysql/mysql.sock',
     'pid_file' : "mysqld.pid",
 
@@ -31,6 +31,9 @@ defaults = {
 
 def output_my_cnf(_metaconf):
     print(dedent("""
+    [client]
+    socket                         = {socket_path}
+
     [mysqld]
     # GENERAL #
     user                           = mysql

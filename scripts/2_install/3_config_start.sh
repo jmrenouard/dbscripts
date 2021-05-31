@@ -32,7 +32,7 @@ info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
 
 (
 echo "# Minimal configuration - created $(date)"
-python3 /opt/local/bin/mygenconf.py server_id=$server_id mysql_ram_gb=$mem_gb socket_path=/run/mysqld/mysqld.sock
+python3 /opt/local/bin/mygenconf.py server_id=$server_id mysql_ram_gb=$mem_gb
 ) | tee -a $CONF_FILE
 
 cmd "chmod 644 $CONF_FILE"
