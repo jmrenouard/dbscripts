@@ -319,8 +319,9 @@ pgSetVal()
 
 tlog()
 {
-    tail  -f /var/lib/mysql/mysqld.log &
+    tail_error_log
 }
+
 ## Code MariaDB
 my_status()
 {
@@ -699,6 +700,7 @@ get_last_datadir_access()
 	 sudo find $datadir -type f | xargs -n 1 sudo stat | grep "Modify: $(date +%Y-)" | perl -pe 's/Modify: //g;s/\.\d+ //g' | sort -n | uniq -c | tail -n $limit
 }
 
+
 tail_error_log()
 {
 	log_file="$(global_variables log_error)"
@@ -706,7 +708,12 @@ tail_error_log()
 	[ -f "$log_file" ] && tail -f $log_file &
 }
 
+less_error_log()
+{
+	log_file="$(global_variables log_error)"
 
+	[ -f "$log_file" ] && less $log_file
+}
 
 generate_multi_instance_example()
 {

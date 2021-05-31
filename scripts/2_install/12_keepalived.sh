@@ -7,6 +7,8 @@ lRC=0
 
 banner "BEGIN SCRIPT: $_NAME"
 
+https://github.com/sysown/proxysql/releases/download/v2.1.1/proxysql_2.1.1-ubuntu20_arm64.deb
+
 if [ "$ID" = "ubuntu" ]; then
         cmd "apt -y install https://github.com/sysown/proxysql/releases/download/v2.1.1/proxysql_2.1.1-ubuntu20_arm64.deb"
 else 
