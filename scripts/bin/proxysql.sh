@@ -31,7 +31,7 @@ pmysqldump()
     --skip-triggers --skip-add-drop-table --no-data main 2>/dev/null| grep -E 'CREATE TABLE' | perl -pe 's/CREATE /TRUNCATE /g;s/\(/;/g'
 
 
-     mysqldump -P$pport -u$puser -p$ppass -h$phost -h 127.0.0.1 \
+     mysqldump -P$pport -u$puser -p$ppass -h$phost \
      --no-tablespaces \
      --no-create-info \
      --no-create-db \
