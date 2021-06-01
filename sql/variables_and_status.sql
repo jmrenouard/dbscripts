@@ -41,3 +41,11 @@ select sleep(6);
 
 # Plugins Information
 select CONCAT(PLUGIN_NAME,'(' ,PLUGIN_VERSION,')'), PLUGIN_STATUS, PLUGIN_DESCRIPTION from all_plugins;
+
+
+
+
+create table jmr (i int primary key auto_increment,  txt varchar(20) NOT NULL);
+insert into jmr(txt) values ('super');
+insert into jmr(txt) values ('sympa');
+insert into jmr(txt) values ('genial');

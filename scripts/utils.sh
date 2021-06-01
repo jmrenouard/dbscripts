@@ -356,6 +356,11 @@ db_count()
     done | sort -nr -k2 | column -t
 }
 
+db_stat_count()
+{
+    #select table_name, table_rows from information_schema.tables where table_schema='employees' order by 2 DESC;
+    mysql -Nrs -e "select table_name, stat_value from mysql.innodb_index_stats where stat_name='n_diff_pfx02' and database_name='${1:-"mysql"}' order by 2 DESC;"
+}
 galera_status()
 {
     title1 "WSREP STATUS"
@@ -421,6 +426,11 @@ get_mariadb_root_password()
     grep -E "^password=" /root/.my.cnf | head -n1 | cut -d= -f2
 }
 
+perform_select()
+{
+    for i in $(seq 1 1000); do mysql -e 'select 1'; echo $i; sleep ${1:-"0.5"}s; done
+
+}
 global_variables()
 {
     res=$(mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
@@ -523,6 +533,46 @@ if [ $lRC -gt 0 ]; then
     cat /tmp/db.diff
 else
     echo "$db database is the same between $node1 and $node2 nodes (Specific options: $options)"
+fi
+rm -f /tmp/file1.sql /tmp/file2.sql
+return $lRC
+}
+
+diff_checksum()
+{
+    node1=$1
+    node2=$2
+    db=$3
+    tables=$5
+    lRC=0
+    rm -f /tmp/db.diff
+    [ -z "$tables" ] && tables=$(db_tables $db)
+    tables=$(echo $tables | perl -pe 's/[,:;]/ /g')
+    #echo $tables
+    #return 0
+    echo "<h1> Comparaison checksum table ...</h1>"
+    echo "<pre>"
+for table in $tables; do
+    echo -n "Comparing '$table'............" | tee -a /tmp/db.diff
+    ssh -q $node1 "mysql -Nrs -e 'CHECKSUM TABLE $table' $db" > /tmp/file1.sql
+    lRC=$(($lRC + $?))
+    ssh -q $node2 "mysql -Nrs -e 'CHECKSUM TABLE $table' $db" > /tmp/file2.sql
+    lRC=$(($lRC + $?))
+    diff -up /tmp/file1.sql /tmp/file2.sql >> /tmp/db.diff
+    if [ $? -eq 0 ]; then
+      echo "[OK]" |tee -a /tmp/db.diff
+    else
+      echo "[FAIL]" |tee -a /tmp/db.diff
+      lRC=1
+    fi
+done
+echo "</pre>"
+if [ $lRC -gt 0 ]; then
+    echo "Some diff are presents"
+    echo "All details in /tmp/db.diff"
+    cat /tmp/db.diff
+else
+    echo "$db database table checksums are the same between $node1 and $node2 nodes (Specific options: $options)"
 fi
 rm -f /tmp/file1.sql /tmp/file2.sql
 return $lRC
