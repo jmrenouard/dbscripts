@@ -358,11 +358,18 @@ db_count()
 
 galera_status()
 {
+    
     title1 "WSREP STATUS"
     mysql -e "select * from information_schema.wsrep_status\G"
+    title1 "WSREP GLOBAL STATUS"
+    mysql -e "select * from mysql.wsrep_cluster\G"
     title1 "WSREP MEMBER"
     mysql -e "select * from information_schema.wsrep_membership;"
     title1 "WSREP GLOBAL STATUS"
+    mysql -e "select * from mysql.wsrep_cluster_members\G"
+    title1 "WSREP STREAMING REPLICATION"
+    mysql -e "select * from mysql.wsrep_streaming_log\G"
+       
 }
 
 my_cluster_state() {
