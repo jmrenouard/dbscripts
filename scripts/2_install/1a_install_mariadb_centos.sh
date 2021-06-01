@@ -10,7 +10,7 @@ VERSION=${1:-"10.5"}
 ##title_fr: Installation du serveur MariaDB 10.5 sur OS Centos  
 ##goals_en: Package software installation for MariaDB / Related tools installation / Last security packages installation
 ##goals_fr: Installation des packages logiciels pour MariaDB / Installation des logiciels tiers relatif aux bases de données / Installation des dernières versions logicielles
-
+force=0
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd 'rm -f /etc/yum.repos.d/mariadb_*.repo'

@@ -16,6 +16,7 @@ server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 
 
 mem_gb=$(free -g| grep Mem: | awk '{print $2}')
+[ $mem_gb -eq 1 ] && mem_gb=2
 [ $mem_gb -eq 0 ] && mem_gb=1
 
 
@@ -25,7 +26,7 @@ cmd "rm -f $CONF_FILE"
 
 cmd "mkdir -p /var/log/mysql /run/mysqld"
 cmd "chown -R mysql.mysql /var/log/mysql /run/mysqld"
-cmd "ln -sf /run/mysqld/mysqld.sock /var/lib/mysql/mysql.sock"
+#cmd "ln -sf /run/mysqld/mysqld.sock /var/lib/mysql/mysql.sock"
 
 
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
@@ -60,12 +61,14 @@ sleep 3s
 cmd "netstat -ltnp"
 cmd "netstat -lxnp"
 cmd "ps -edf |grep [m]ysqld"
+cmd "ps -edf |grep [m]ariadbd"
 
 cmd "ls -ls /var/lib/mysql"
 
 cmd "journalctl -xe -o cat -u mariadb"
 
 [ -f "/var/lib/mysql/mysqld.log" ] && cmd "tail -n 15 /var/lib/mysql/mysqld.log"
+[ -f "/var/log/mysql/mysqld.log" ] && cmd "tail -n 15 /var/log/mysql/mysqld.log"
 
 sleep 3s
 systemctl is-active mariadb

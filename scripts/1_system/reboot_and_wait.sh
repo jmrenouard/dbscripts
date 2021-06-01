@@ -7,9 +7,9 @@ hostname -a
 pwd
 SRV=$1
 
-SSH_CMD="ssh -o StrictHostKeyChecking=no -i /home/rundeck/.ssh/id_rsa rundeck@${SRV}"
+SSH_CMD="ssh -o StrictHostKeyChecking=no ${SRV}"
 
-$SSH_CMD "sudo reboot" & 
+$SSH_CMD "reboot" & 
 
 sleep 5s
 i=0
