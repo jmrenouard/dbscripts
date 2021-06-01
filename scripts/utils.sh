@@ -706,6 +706,10 @@ get_last_datadir_access()
 	 sudo find $datadir -type f | xargs -n 1 sudo stat | grep "Modify: $(date +%Y-)" | perl -pe 's/Modify: //g;s/\.\d+ //g' | sort -n | uniq -c | tail -n $limit
 }
 
+grep_error_log()
+{
+    grep -Ei '(err|warn|fat)' /var/log/mysql/mysqld.log
+}
 
 tail_error_log()
 {
