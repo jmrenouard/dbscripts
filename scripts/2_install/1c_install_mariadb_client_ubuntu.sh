@@ -17,7 +17,7 @@ if [ "$VERSION_CODENAME" = "groovy" ];then
 	add-apt-repository "deb [arch=amd64,arm64,ppc64el] http://nyc2.mirrors.digitalocean.com/mariadb/repo/$VERSION/ubuntu $VERSION_CODENAME main"
 fi
 cmd "apt -y update" "UPDATE PACKAGE LIST"
-cmd "apt -y install python3 mariadb-client mycli mariadb-backup socat telnet rsync tree nmap lsof netcat pigz git pwgen"
+cmd "apt -y install python3 mariadb-client mylvmbackup mycli mariadb-backup socat telnet rsync tree nmap lsof netcat pigz git pwgen"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"
