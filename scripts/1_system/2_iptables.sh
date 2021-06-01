@@ -41,7 +41,8 @@ else
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=5555/tcp --permanent"
 	lRC=$(($lRC + $?))
-	sudo firewall-cmd --reload
+	cmd "firewall-cmd --reload"
+	cmd "firewall-cmd --list-all"
 fi
 
 footer "END SCRIPT: $_NAME"
