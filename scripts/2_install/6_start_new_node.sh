@@ -28,15 +28,14 @@ info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
 (
 echo "# Minimal Galera configuration - created $(date)
 [server]
-default-storage-engine=innodb
-
 binlog-format=ROW
-sync-binlog = 0
-expire-logs-days=3
-
-innodb-defragment=1
+default-storage-engine=innodb
 innodb-autoinc-lock-mode=2
 innodb-flush-log-at-trx-commit = 2
+
+sync-binlog = 0
+expire-logs-days=3
+innodb-defragment=1
 
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so

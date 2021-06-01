@@ -5,10 +5,10 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 DATADIR=/var/lib/mysql/
-cluster_name="adistacluster"
+cluster_name="jmrcluster"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
-private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
+private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1)
 node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 sst_user=galera
 sst_password=kee2iesh1Ohk1puph8
@@ -39,7 +39,11 @@ echo "# Minimal Galera configuration - created $(date)
 binlog-format=ROW
 default-storage-engine=innodb
 innodb-autoinc-lock-mode=2
-innodb-flush-log-at-trx-commit = 0
+innodb-flush-log-at-trx-commit = 2
+
+sync-binlog = 0
+expire-logs-days=3
+innodb-defragment=1
 
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
@@ -70,11 +74,10 @@ echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql
 
-
 for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
 	info "COPYING /etc/bootstrap.conf TO $srv"
 	[ "$private_ip" == "$srv" ] || scp /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
 done
 
 footer "END SCRIPT: $NAME"
-exit $lRC3
+exit $lRC
