@@ -358,7 +358,6 @@ db_count()
 
 galera_status()
 {
-    
     title1 "WSREP STATUS"
     mysql -e "select * from information_schema.wsrep_status\G"
     title1 "WSREP GLOBAL STATUS"
@@ -696,7 +695,7 @@ copy_rc()
 		info "COPYING /etc/bootstrap.conf TO $srv"
 		rsync -avz /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
 		info "COPYING /root/.my.cnf TO $srv"
-		rsync -avz /root/.my.cnf root@$srv:/root 2>/dev/null
+		rsync -avz /root/.my.cnf /root/.pass_mariadb root@$srv:/root 2>/dev/null
 	done
 }
 get_last_datadir_access()
