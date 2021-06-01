@@ -23,7 +23,7 @@ ${MysqlOsUser} hard nproc 65535
 root soft nproc 65535
 root hard nproc 65535
 
-# Taille des core dump
+# Taille des core dumps
 * soft core 0
 * hard core 0">>$CONF_FILE
 

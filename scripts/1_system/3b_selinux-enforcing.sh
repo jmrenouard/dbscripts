@@ -28,7 +28,7 @@ lRC=$(($lRC + $?))
 
 cmd "sestatus"
 
-
+info "CMD: semanage boolean -l| grep mysql"
 semanage boolean -l| grep mysql
 
 # PAsser en permissive uniquement les règles MYSQL
@@ -39,6 +39,7 @@ cmd "semanage port -a -t mysqld_port_t -p tcp 4568"
 semanage port -l| grep mysql
 
 cmd 'semanage fcontext -a -t mysqld_db_t "/data(/.*)?"'
+info "CMD: semanage boolean -l| grep mysql"
 semanage fcontext -l| grep mysql
 
 title2 "Trace SE Linux MariaDB"

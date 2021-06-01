@@ -11,9 +11,11 @@ banner "BEGIN SCRIPT: $_NAME"
 
 if [ "$ID" != "ubuntu" ];then
 	if [ "$VERSION_ID" = "7" ]; then
+		# Centos 7 / Red Hat 7
 		cmd "yum -y install ntpdate"
 		cmd "ntpdate -vqd fr.pool.ntp.org"
 	else
+		# Centos 8 / Red Hat 8
 		cmd "yum -y install ntpstat chrony"
 		lRC=$(($lRC + $?))
 		cmd "systemctl restart chronyd"
@@ -21,6 +23,7 @@ if [ "$ID" != "ubuntu" ];then
 		sleep 3s
 	fi
 else
+		# Ubuntu / Debian
 		cmd "apt -y install ntpstat chrony"
 		lRC=$(($lRC + $?))
 		cmd "systemctl restart chronyd"
