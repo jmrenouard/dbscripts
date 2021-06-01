@@ -74,10 +74,13 @@ echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql
 
+#set -x
 for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
+	[ "$private_ip" == "$srv" ] && continue
 	info "COPYING /etc/bootstrap.conf TO $srv"
-	[ "$private_ip" == "$srv" ] || scp /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
+	scp -o "StrictHostKeyChecking=no" /etc/bootstrap.conf root@$srv:/etc 2>/dev/null
 done
+#set +x
 
 footer "END SCRIPT: $NAME"
 exit $lRC
