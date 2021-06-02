@@ -438,7 +438,9 @@ perform_select()
 perform_ms()
 {
 	echo "type: read / write / key /update / mixed"
+	set -x
 	mysqlslap --host=localhost --auto-generate-sql --verbose --iterations=${2:-"10"} --concurrency=${3:-"10"} --number-char-cols=10 --number-int_cols=10 --auto-generate-sql-load-type=${1:-"mixed"}
+	set +x
 }
 
 global_variables()
