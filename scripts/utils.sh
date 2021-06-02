@@ -434,6 +434,13 @@ perform_select()
     for i in $(seq 1 1000); do mysql -e 'select 1'; echo $i; sleep ${1:-"0.5"}s; done
 
 }
+
+perform_ms()
+{
+	echo "type: read / write / key /update / mixed"
+	mysqlslap --host=localhost --auto-generate-sql --verbose --iterations=${2:-"10"} --concurrency=${3:-"10"} --number-char-cols=10 --number-int_cols=10 --auto-generate-sql-load-type=${1:-"mixed"}
+}
+
 global_variables()
 {
     res=$(mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
