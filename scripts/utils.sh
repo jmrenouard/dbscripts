@@ -554,6 +554,17 @@ rm -f /tmp/file1.sql /tmp/file2.sql
 return $lRC
 }
 
+optimize_db()
+{
+	mysqlcheck -vvvos ${1:-"mysql"}
+}
+
+optimize_db()
+{
+	mysqlcheck -vvvas ${1:-"mysql"}
+}
+
+
 diff_checksum()
 {
     node1=$1
