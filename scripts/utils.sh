@@ -356,10 +356,13 @@ db_count()
     done | sort -nr -k2 | column -t
 }
 
-db_stat_count()
+db_fast_count()
 {
-    #select table_name, table_rows from information_schema.tables where table_schema='employees' order by 2 DESC;
-    mysql -Nrs -e "select table_name, stat_value from mysql.innodb_index_stats where stat_name='n_diff_pfx02' and database_name='${1:-"mysql"}' order by 2 DESC;"
+ 	# BAsed on innodb stat
+    #mysql -Nrs -e "select table_name, stat_value from mysql.innodb_index_stats where stat_name='n_diff_pfx02' and database_name='${1:-"mysql"}' order by 2 DESC;"
+ 	# based on information schema
+ 	mysql -Nrs -e "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
+
 }
 galera_status()
 {
