@@ -11,9 +11,14 @@ node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
 node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 
+[ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+
 banner "BEGIN SCRIPT: $_NAME"
 
 cmd "systemctl stop mariadb"
+
+cmd "systemctl disable mariadb"
+
 cmd "rm -f $CONF_FILE"
 
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
@@ -31,7 +36,7 @@ GALERA_GROUP='${cluster_name}'
 
 # Optional Galera internal options string (e.g. SSL settings)
 # see http://galeracluster.com/documentation-webpages/galeraparameters.html
-# GALERA_OPTIONS=""
+# GALERA_OPTIONS='base_port=4567'
 
 # Log file for garbd. Optional, by default logs to syslog
 LOG_FILE='/tmp/garb.log'
