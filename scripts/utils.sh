@@ -502,6 +502,14 @@ done
 )|column -t
 }
 
+force_primary_view()
+{
+    if [ "$(global_status wsrep_cluster_status)" != "Primary" ]; then
+        ask_yes_or_no "Make this node a prim view for the whole clusterr"
+        [ $? -eq 0 ] && mysql -e "set global wsrep_provider_options='pc.bootstrap=1'"
+    fi
+}
+
 diff_schema()
 {
     node1=$1
