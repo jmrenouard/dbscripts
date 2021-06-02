@@ -18,10 +18,11 @@ if [ "$ID" != "ubuntu" ];then
 		# Centos 8 / Red Hat 8
 		cmd "yum -y install ntpstat chrony"
 		lRC=$(($lRC + $?))
-		cmd "systemctl restart chronyd"
-		lRC=$(($lRC + $?))
-		sleep 3s
+		
 	fi
+	cmd "systemctl restart chronyd"
+	lRC=$(($lRC + $?))
+	sleep 3s
 else
 		# Ubuntu / Debian
 		cmd "apt -y install ntpstat chrony"
