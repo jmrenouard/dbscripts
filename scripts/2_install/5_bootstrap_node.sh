@@ -59,6 +59,9 @@ wsrep-sst-method=mariabackup
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
+
+
+wsrep_log_conflicts=1
 "
 ) | tee -a $CONF_FILE
 

@@ -461,6 +461,11 @@ galera_is_enabled()
     return 0
 }
 
+get_cert_conflits()
+{
+    grep -a -A10 -E 'WSREP.*cluster confli' /var/log/mysql/mysqld.log | grep -a -E 'WSREP: cluster conflic|SQL'
+}
+
 galera_members()
 {
     mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
