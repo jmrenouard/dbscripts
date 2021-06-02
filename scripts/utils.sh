@@ -565,10 +565,11 @@ return $lRC
 
 optimize_db()
 {
+    # For innoDB: alter table employees.* engine=InnoDB;
 	mysqlcheck -vvvos ${1:-"mysql"}
 }
 
-optimize_db()
+analyze_db()
 {
 	mysqlcheck -vvvas ${1:-"mysql"}
 }

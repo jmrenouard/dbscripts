@@ -8,8 +8,7 @@ if [ "$freeEnd" = "rm" ]; then
   exit $?
 fi
 
-available=$(df -P| grep $mp | awk '{print $4}')
+available=$(df -P| grep '${mp}$' | awk '{print $4}')
 sizedd=$(($available-$freeEnd))
 
 dd bs=1024 if=/dev/zero of=${mp}/dd.file count=$sizedd
-

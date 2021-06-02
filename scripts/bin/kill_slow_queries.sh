@@ -1,7 +1,7 @@
 #!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
-mysql -e 'show processlist' | grep -v 'system user'
+mysql -e 'show processlist' | grep -v 'system user'| colunm -t
 
 max_time=${1:-"0"}
 for req in $(mysql -Nrs -B -e "select id from information_schema.processlist where user <> 'system user' and TIME >= '${max_time}'"); do 
@@ -11,3 +11,5 @@ for req in $(mysql -Nrs -B -e "select id from information_schema.processlist whe
 		[ $? -eq 0 ] && mysql -v -e "KILL $req"
 	fi
 done
+
+#pt-kill --print --busy-time=5 --idle-time=5 --kill-query

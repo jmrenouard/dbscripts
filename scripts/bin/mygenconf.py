@@ -60,7 +60,7 @@ def output_my_cnf(_metaconf):
     report-host                    = server-{server_id}
     # BINARY LOGGING #
     log-bin                        = {log_bin_name}
-
+    expire-logs-days               = 7
     # CACHES AND LIMITS #
     max-connections                = {max_connections}
     tmp-table-size                 = 32M
@@ -75,6 +75,7 @@ def output_my_cnf(_metaconf):
     # INNODB #
     innodb-flush-method            = O_DIRECT
     innodb-defragment			   = 1
+
     # DePRECATED IN MARIADB 10.5
     # innodb-log-files-in-group      = 2
 
