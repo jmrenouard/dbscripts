@@ -10,3 +10,6 @@ for srv in $(echo $node_addresses| tr ',' ' '); do
 	echo "* RESTARTING $srv"
 	ssh -q $srv "systemctl restart mysql"
 done 
+
+
+galera_member_status
