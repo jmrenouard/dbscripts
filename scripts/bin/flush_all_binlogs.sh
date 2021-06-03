@@ -3,7 +3,7 @@
 [ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
 
 
-title2 "FLUSHIIING BINARY LOGS"
+title2 "FLUSHING BINARY LOGS"
 mysql -v -e "FLUSH BINARY LOGS;"
 
 
@@ -15,4 +15,5 @@ title2 "REMOVING ALL PREVIOUS BIN LOG"
 
 mysql -v  -e " PURGE BINARY LOGS TO '$last_binlog'" 
 
+title2 "CURRENT BINARY LOG"
 mysql -e 'show binary logs'
