@@ -66,6 +66,8 @@ then
   exit 1
 fi
 
+[ -d "/admin/flags" ] || mkdir -p /admin/flags
+
 echo "Check completed OK"
 #---------------------
 # Find latest backup directory
@@ -116,8 +118,6 @@ then
 
   # Create incremental Backup
   $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --incremental-basedir=$INCRBASEDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz
-
-  [ -d "/admin/flags" ] || mkdir -p /admin/flags
   if [ $? -eq 0 ]; then
         touch /admin/flags/backup_incr.ok.flag
   else
@@ -129,7 +129,6 @@ else
 
   TARGETDIR=$BASEBACKDIR/`date +%F_%H-%M-%S`
   mkdir -p $TARGETDIR
-  [ -d "/admin/flags" ] || mkdir -p /admin/flags
 
   # Create a new full backup
   $BACKCMD --backup $USEROPTIONS $ARGS --extra-lsndir=$TARGETDIR --stream=xbstream | $GZIP_CMD > $TARGETDIR/backup.stream.gz

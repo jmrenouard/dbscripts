@@ -64,10 +64,6 @@ else
     echo "PROBLEME BACKUP"
 fi
 
-info "Fin du fichier $(basename $BCK_FILE)"
-zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
-lRC=$(($lRC + $?))
-
 if [ "$GALERA_SUPPORT" = "1" ]; then
     info desync off
     mysql -e 'set global wsrep_desync=off'
@@ -75,6 +71,10 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
     info etat Desynchronisation
     mysql -e 'select @@wsrep_desync'
 fi
+
+info "Fin du fichier $(basename $BCK_FILE)"
+zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
+lRC=$(($lRC + $?))
 
 if [ "$logbinopt" != "OFF" ]; then
     info "POSITION LOGBIN DANS $(basename $BCK_FILE)"

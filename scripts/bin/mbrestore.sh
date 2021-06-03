@@ -9,10 +9,22 @@ DATADIR=/var/lib/mysql
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
+[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
 
 if [ "$1" = "-l" -o "$1" = "--list" ]; then
 	ls -lsht $BCK_DIR
 	exit 0
+fi
+
+GALERA_SUPPORT=$(galera_is_enabled)
+
+if [ "$GALERA_SUPPORT" = "1" ]; then
+    info "GALERA IS ACTIVATED"
+    echo -e "\t* Disable Galera with wsrep_on=off in configuration file"
+    echo -e "\t* Drop Galera Cache /var/lib/mysql/galera.cache"
+    echo -e "\t* Restart MariaDB or MySQL (systemctl restart mysql)"
+    echo -e "\t* Restart restore script $0 $*"
+    exit 1
 fi
 
 DUMP_FILE=$1
@@ -54,6 +66,10 @@ if [ "$2" != "-f" -a "$2" != "--force" ]; then
 		die "CANCEL BY USER"
 	fi
 fi
+
+info "Checking SHA256 SIGN file"
+sha256sum -c ${DUMP_FILE}.sha256sum
+lRC=$?
 
 # now we can use the selected file
 info "$DUMP_FILE will be restored"

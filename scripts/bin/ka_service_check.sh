@@ -4,7 +4,7 @@
 echo "$(date) $0 $*" >> /logs/scripts/ka_scripts.log
 SRVNAME=${srv:-"haproxy"}
 
-FAULT_FLAG="/admin/flags/ka_fault_haproxy.flag"
+FAULT_FLAG="/tmp/ka_fault_haproxy.flag"
 if [ -f "$FAULT_FLAG" ]; then
 	echo "ENTERING FAULT MODE"
 	exit 2
@@ -15,4 +15,3 @@ sta=$(systemctl is-active $SRVNAME)
 
 systemctl is-active $SRVNAME
 exit $?
-

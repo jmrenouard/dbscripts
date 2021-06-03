@@ -11,8 +11,12 @@ CONF_FILE="/etc/haproxy/haproxy.cfg"
 cluster_name="adistacluster"
 node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
 
+[ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
+source /etc/os-release
 
-cmd "yum -y install haproxy"
+cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
+
+cmd "yum -y install haproxy socat keepalived"
 
 cmd "setenforce 0"
 
@@ -79,6 +83,15 @@ cmd "systemctl restart haproxy"
 firewall-cmd --add-port=3310/tcp --permanent
 firewall-cmd --add-port=3306/tcp --permanent
 firewall-cmd --reload
+
+cmd "netstat -ltpn | grep 3306"
+lRC=$(($lRC + $?))
+
+cmd "netstat -ltpn | grep 3310"
+lRC=$(($lRC + $?))
+
+cmd "systemctl status haproxy"
+lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"
 exit $lRC

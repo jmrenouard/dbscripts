@@ -24,10 +24,7 @@ cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 
-cmd "yum -y install python3 MariaDB-backup mylvmbackup sysbench MariaDB-client socat telnet rsync tree nmap lsof perl-DBI nc pigz git pwgen"
-lRC=$(($lRC + $?))
-
-cmd "pip3 install mycli"
+cmd "yum -y install python3 MariaDB-backup sysbench MariaDB-client socat telnet rsync tree nmap lsof perl-DBI nc pigz git pwgen"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"

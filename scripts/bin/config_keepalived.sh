@@ -7,7 +7,7 @@ IPV1=${4:-"192.168.33.180/24"}
 BRC1=${5:-"192.168.33.255"}
 INT1=${6:-"eth1"}
 
-PASSWD=${7:-Utraldsd"}
+PASSWD=${7:-"Utraldsd"}
 
 rm -f /tmp/keepalived.conf
 cat <<EOF >/tmp/keepalived.conf
@@ -46,8 +46,7 @@ vrrp_instance VI_1 {
 EOF
 
 cat /tmp/keepalived.conf
-
-        
+  
 [ -d "/etc/keepalived" ] || sudo mkdir -p /etc/keepalived
 [ -f "/etc/keepalived/keepalived.conf" ] && sudo mv /etc/keepalived/keepalived.conf /etc/keepalived/keepalived.conf.bak
 

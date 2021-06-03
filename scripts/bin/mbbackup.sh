@@ -13,6 +13,8 @@ BACK_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 BACK_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
 LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
+
+[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
 lRC=0
 
 banner "MARIABACKUP BACKUP DB"
@@ -45,6 +47,10 @@ if [ $lRC -eq 0 -a -n "$KEEP_LAST_N_BACKUPS" ]; then
 		rm -f $BCK_DIR/$f
 	done
 fi
+
+info "Adding signature file"
+sha256sum $BCK_FILE > ${BCK_FILE}.sha256sum
+
 info Liste fichier backup
 ls -lsh $BCK_DIR
 

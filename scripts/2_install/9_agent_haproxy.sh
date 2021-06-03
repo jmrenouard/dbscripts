@@ -48,5 +48,15 @@ cmd "systemctl restart xinetd"
 firewall-cmd --add-port=9200/tcp --permanent
 firewall-cmd --reload
 
+cmd "netstat -ltpn | grep 9200"
+lRC=$(($lRC + $?))
+
+cmd "curl -v http://127.0.0.1:9200/"
+lRC=$(($lRC + $?))
+
+cmd "curl -v http://${my_private_ipv4}:9200/"
+lRC=$(($lRC + $?))
+
+
 footer "END SCRIPT: $NAME"
 exit $lRC
