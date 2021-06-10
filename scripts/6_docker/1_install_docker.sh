@@ -1,9 +1,13 @@
 #!/bin/bash
-echo '---------------------------------------------------'
-echo " * PROVISIONNING DOCKER-CE "
-echo '---------------------------------------------------'
-sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-sudo yum -y remove docker \
+
+
+[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+
+lRC=0
+
+title1 "PROVISIONNING DOCKER-CE"
+dnf install -y dnf-utils device-mapper-persistent-data lvm2
+dnf -y remove docker \
                   docker-client \
                   docker-client-latest \
                   docker-common \
@@ -13,20 +17,20 @@ sudo yum -y remove docker \
                   docker-engine
 
 dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install -y docker-ce docker-ce-cli containerd.io
+dnf install -y docker-ce docker-ce-cli containerd.io
 
-sudo systemctl start docker
-sudo docker run hello-world
-sudo usermod -g docker vagrant
+systemctl start docker
+docker run hello-world
+#usermod -g docker vagrant
 
-sudo systemctl stop docker
-sudo systemctl status docker
-sudo systemctl start docker
+systemctl stop docker
+systemctl status docker
+systemctl start docker
 docker images
 docker run hello-world
 
 curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
-sudo chmod +x /usr/bin/docker-compose
+chmod +x /usr/bin/docker-compose
 
 (
 	cat <<'EndOfScript'
@@ -71,7 +75,8 @@ alias dkip='docker image prune -a -f'
 alias dkvp='docker volume prune -f'
 alias dksp='docker system prune -a -f'
 EndOfScript
-) | sudo tee /etc/profile.d/docker.sh
 
-sudo chmod 755 /etc/profile.d/docker.sh
+) | tee /etc/profile.d/docker.sh
+
+chmod 755 /etc/profile.d/docker.sh
 
