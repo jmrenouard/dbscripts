@@ -576,15 +576,15 @@ lcreate()
 
 	info "CMD: "
 	tmpFile=$(mktemp)
-	echo -n "#!/bin/bash"
-	echo -n "linode-cli linodes create $LINODE_OPTIONS --root_pass $PASSWD --authorized_keys " > $tmpFile
-	echo -n "'" >> $tmpFile
-	echo -n "$(cat $PUBKEY)" >> $tmpFile
-	echo -n "' " >> $tmpFile
-	echo "--private_ip true --label $NAME $EXTRA_TAGS" >> $tmpFile
+	echo  "#!/bin/bash" > $tmpFile
+	echo "" >> $tmpFile
+	echo -n "linode-cli linodes create $LINODE_OPTIONS --root_pass $PASSWD --authorized_keys '" >> $tmpFile
+	echo -n "$(sed -e "s/^M//" $PUBKEY)' " >> $tmpFile
+	echo  "--private_ip true --label $NAME $EXTRA_TAGS" >> $tmpFile
+	echo 'exit $?'>> $tmpFile
 	info "$tmpFile"
-	info "CMD: $(cat $tmpFile)"
-	sh $tmpFile
+	cat $tmpFile
+	bash -x $tmpFile
 	if [ $? -ne 0 ]; then
 		error "FAILED CREATING $NAME LINODE"
 		return 127
@@ -649,10 +649,10 @@ lgenHosts()
 {
 	prefix=$1
 	(
-	echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+	#echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+#::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
-### SPECIFIC CONFIG ###"
+echo "## START_LINODE_HOSTS"
 for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 			lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 			if [ -n "$prefix" ]; then
@@ -665,22 +665,27 @@ for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";"
 			echo "$lippriv 		${lname}.private	${lname}.int	${lname}.internal"
 		done
 
-echo "### END SPECIFIC CONFIG ###"
+echo "## END_LINODE_HOSTS"
 ) |tee ${_DIR}/${prefix}generated_hosts
+}
+
+lcleanHosts()
+{
+	sed -i -n '1,/## START_LINODE_HOSTS/p;/## END_LINODE_HOSTS/,$p' /etc/hosts
+	sed -i '/## START_LINODE_HOSTS/,/## END_LINODE_HOSTS/d' /etc/hosts
 }
 
 lsetupHosts()
 {
-	lgenInventory
+	#lgenInventory
+	lcleanHosts
 	lgenHosts
-	acp all ${_DIR}/generated_hosts /tmp
-	acmd all "cat /tmp/generated_hosts > /etc/hosts"
-	acmd all "cat /etc/hosts"
+	cat ${_DIR}/generated_hosts | tee -a /etc/hosts
 }
 
 lgenAlias()
 {
-	local PUBKEY=${1:-"$HOME/.conf/id_rsa"}
+	local PUBKEY=${1:-"$DEFAULT_PRIVATE_KEY"}
 	PUBKEY=$(readlink -f $PUBKEY)
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
@@ -719,7 +724,14 @@ vstop()
 
 vgetPrivateIp()
 {
-	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g;s/"//g'| xargs -n 1 | grep -E "^$1:" | cut -d: -f2
+	(
+	grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile | \
+	perl -pe 's/.vm.network "private_network", ip: "/:/g;s/", virtualbox__intnet: false//g;s/"//g'| \
+	xargs -n 1 | \
+	grep -E "^$1:" | \
+	cut -d: -f2
+	grep -E "\s$1\s" /etc/hosts | awk '{print $1}'
+	) | sort -n | uniq
 }
 
 vgetLogicalNames()
@@ -760,7 +772,11 @@ vgenAlias()
 vssh_get_host_pattern_list()
 {
     local patt=$1
-    grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile |grep -e "$patt" | cut -d. -f1| xargs -n 1
+
+    (
+		grep '.vm.network "private_network", ip:' $VMS_DIR/Vagrantfile |grep -e "$patt" | cut -d. -f1
+		grep -vE '^#' /etc/hosts | awk '{print $2}'| grep -v '.private' |grep -e "$patt"
+	) | sort | uniq | xargs -n 1
 }
 
 vssh_get_host_list()

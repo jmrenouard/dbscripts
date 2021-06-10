@@ -20,8 +20,8 @@ HA_SOCKET=/tmp/admin.sock
 
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.
 
-export my_private_ipv4=$(ip a | grep inet | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
-export my_public_ipv4=$(ip a | grep inet | grep '10.'| cut -d/ -f1 | awk '{print $2}')
+export my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
+export my_public_ipv4=$(ip a | grep inet | grep 'brd' | grep -v '192.168'| cut -d/ -f1 | awk '{print $2}')
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -973,11 +973,15 @@ alias gbl='git blame'
 alias grs='git reset --soft HEAD~1'
 alias grh='git reset --hard HEAD~1'
 alias use='mysql'
+
 which python &>/dev/null
 if [ $? -eq 0 ]; then
-    alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
-else
-    alias serve="python3 -m $(python3 -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+    python --version 2>/dev/null| grep -q 'Python 3'
+    if [ $? -eq 0 ]; then
+    	alias serve="python -m $(python -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+    else
+    	alias serve="python3 -m $(python3 -c 'import sys; print("http.server" if sys.version_info[:2] > (2,7) else "SimpleHTTPServer")')"
+    fi
 fi
 
 gunt() {

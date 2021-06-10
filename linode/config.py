@@ -3,7 +3,7 @@ import os
 import datetime
 from shell import Shell
 
-defaults = {
+defaults_mariadb = {
     'datetime'              :'%s' % datetime.datetime.now(),
     'generic_prefix'        : 'jmr',
     'genscript_name'        : 'generate_linodes.sh',
@@ -33,6 +33,28 @@ defaults = {
     'vm_tags_6'             : 'control,management,linux'
 }
 
+defaults_elk = {
+    'datetime'              :'%s' % datetime.datetime.now(),
+    'generic_prefix'        : 'elk',
+    'genscript_name'        : 'generate_linodes.sh',
+    'provscript_name'       : 'provision_linodes.sh',
+    'delscript_name'        : 'drop_linodes.sh',
+
+    'nb_linode_vms'         : 3,
+    'vm_generic_password'   : 'eixo1hoo7Goo7suu9v',
+    'vm_generic_pubkey'     : './id_rsa.pub',
+
+    'vm_name_1'             : 'elksrv',
+    'vm_tags_1'             : 'application,webapps,linux',
+
+    'vm_name_2'             : 'pgsrv1',
+    'vm_tags_2'             : 'postgresql,postgres,database,linux',
+
+    'vm_name_3'             : 'pgsrv2',
+    'vm_tags_3'             : 'postgresql,postgres,database,linux'
+}
+
+defaults=defaults_elk
 
 def merge_params(conf, params):
     result = defaults
@@ -57,7 +79,7 @@ def get_public_ip(name):
     return sh.output()[1].split('\t')[6].split(' ')[0]
 
 
-def get_provate_ip(name):
+def get_private_ip(name):
     sh = Shell(verbose=False)
     sh.run("linode-cli linodes list --label "+name+ " --text")
     return sh.output()[1].split('\t')[6].split(' ')[1]
