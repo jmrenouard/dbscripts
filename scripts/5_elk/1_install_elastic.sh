@@ -47,14 +47,6 @@ xpack.security.enabled: true
 
 grep -E "(http.port|network.host)" /etc/elasticsearch/elasticsearch.yml
 
-#title2 "CREATION LOG DIR"
-#cmd "mkdir -p /usr/share/elasticsearch/logs"
-#cmd "chown -R elasticsearch. /usr/share/elasticsearch/logs"
-
-#title2 "CREATION DATA DIR"
-#cmd "mkdir -p /usr/share/elasticsearch/data"
-#cmd "chown -R elasticsearch. /usr/share/elasticsearch/data"
-
 export PATH=$PATH:/usr/share/elasticsearch
 
 title1 "STEP 2: START ELASTICSEARCH SERVICE"

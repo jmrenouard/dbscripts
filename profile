@@ -666,7 +666,7 @@ for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";"
 		done
 
 echo "## END_LINODE_HOSTS"
-) |tee ${_DIR}/${prefix}generated_hosts
+) > ${_DIR}/${prefix}generated_hosts
 }
 
 lcleanHosts()
