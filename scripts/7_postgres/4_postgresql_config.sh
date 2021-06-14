@@ -30,6 +30,7 @@ ALTER SYSTEM SET log_statement = 'ddl';
 ALTER SYSTEM SET log_duration = 'on';
 ALTER SYSTEM SET log_hostname = 'on';
 ALTER SYSTEM SET log_error_verbosity = 'default';
+ALTER SYSTEM SET  log_line_prefix = '%m [%p] %q%u@%d '
 -- ALTER SYSTEM SET log_line_prefix = '%m [%p]:%e [%l-1] user=%u,db=%d,host=%h,app=%a';
 ALTER SYSTEM SET log_lock_waits = 'on';
 ALTER SYSTEM SET log_temp_files = 0;

@@ -36,5 +36,44 @@ lRC=$(($lRC + $?))
 cmd "dnf -y install filebeat metricbeat"
 lRC=$(($lRC + $?))
 
+
+sed -i -e '/host:/d' -e '/hosts:/d' -e '/username:/d' -e '/password:/d' /etc/filebeat/filebeat.yml
+
+perl -i -pe 's/".*:9200"/"139.162.226.249:9200"/g' /etc/filebeat/filebeat.yml
+
+perl -i -pe 's/(setup.kibana:)/$1
+    host: "139.162.226.249:5601"
+    username: "elastic"
+    password: "elastic"
+    /g' /etc/filebeat/filebeat.yml
+
+perl -i -pe 's/(output.elasticsearch:)/$1
+    hosts: [ "139.162.226.249:9200" ]
+    username: "elastic"
+    password: "elastic"
+    /g' /etc/filebeat/filebeat.yml
+
+cmd "filebeat modules list"
+
+cmd "filebeat modules enable system postgresql"
+lRC=$(($lRC + $?))
+
+sed -i -e "/var.path/d" -e /pgsql/d' /etc/filebeat/modules.d/postgresql.yml
+echo "        var.paths:
+            - /var/lib/pgsql/13/data/log/*
+">> /etc/filebeat/modules.d/postgresql.yml
+
+cmd "filebeat test config -e"
+lRC=$(($lRC + $?))
+
+cmd "filebeat setup -e"
+
+cmd "systemctl restart filebeat"
+lRC=$(($lRC + $?))
+
+
+cmd "systemctl enable filebeat"
+lRC=$(($lRC + $?))
+
 footer "END SCRIPT: $NAME"
 exit $lRC

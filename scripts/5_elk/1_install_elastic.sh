@@ -38,6 +38,7 @@ sed -i -e "/network.host/d" \
 echo "
 #network.host: $my_private_ipv4
 network.host: 0.0.0.0
+#network.bind_host: \"0.0.0.0\"
 http.port: 9200
 
 discovery.type: single-node
@@ -45,9 +46,15 @@ discovery.type: single-node
 xpack.security.enabled: true
 " >>/etc/elasticsearch/elasticsearch.yml
 
+sed -i '/preferIPv4Stack/d' /etc/elasticsearch/jvm.options
+echo "-Djava.net.preferIPv4Stack=true" >> /etc/elasticsearch/jvm.options
 grep -E "(http.port|network.host)" /etc/elasticsearch/elasticsearch.yml
 
 export PATH=$PATH:/usr/share/elasticsearch
+
+
+firewall-cmd --zone=public --permanent --add-port=9200/tcp
+firewall-cmd --zone=public --permanent --add-port=5601/tcp
 
 title1 "STEP 2: START ELASTICSEARCH SERVICE"
 cmd "/bin/systemctl stop elasticsearch"

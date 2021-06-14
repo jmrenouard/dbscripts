@@ -29,7 +29,7 @@ cmd  "dnf install -y postgresql${VERSION} postgresql${VERSION}-server postgresql
 lRC=$(($lRC + $?))
 
 
-cmd "dnf -y install python3 pgbackrest pgbadger htop nrpe nagios-plugins-nrpe nagios-plugins-all"
+cmd "dnf -y install python3 pgbackrest pgbadger htop nrpe nagios-plugins-nrpe nagios-plugins-all telnet"
 lRC=$(($lRC + $?))
 
 cmd "dnf -y install cracklib cracklib-dicts tree socat sysbench jemalloc rsync nmap lsof perl-DBI nc  pigz perl-DBD-MySQL git pwgen"
