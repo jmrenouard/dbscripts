@@ -1,0 +1,5 @@
+openpyxl
+jinja2
+flask
+mysql-connector-python
+records
