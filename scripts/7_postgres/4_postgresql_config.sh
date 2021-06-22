@@ -77,6 +77,7 @@ DROP ROLE IF EXISTS monitoring;
 CREATE ROLE monitoring;
 ALTER ROLE monitoring WITH SUPERUSER NOINHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'monitoring1234' VALID UNTIL 'infinity';
 
+ALTER USER postgres WITH PASSWORD 'postgres';
 " | su - postgres -c "psql -Upostgres"
 
 
