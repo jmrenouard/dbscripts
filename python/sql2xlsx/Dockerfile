@@ -1,5 +1,5 @@
-# set base image (host OS)
-FROM python:3.8
+# syntax=docker/dockerfile:1
+FROM python:3.8-slim-buster
 
 # set the working directory in the container
 WORKDIR /code
