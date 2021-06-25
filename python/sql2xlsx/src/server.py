@@ -2,8 +2,8 @@ from openpyxl import load_workbook, Workbook
 from openpyxl.writer.excel import save_virtual_workbook, ExcelWriter
 from flask import Flask, make_response, request, render_template, redirect, url_for, send_file
 from io import BytesIO
-
-import mysql.connector
+import records
+#import mysql.connector
 
 from zipfile import ZipFile,ZIP_DEFLATED
 
@@ -30,16 +30,19 @@ server = Flask(__name__)
 
 @server.route("/")
 def hello():
-    return "Hello World!"
+    return "Hello World toto !"
 
 @server.route('/sql')
-def employees():
+@server.route('/sql/')
+@server.route('/sql/<type_out>')
+def employees(type_out='json'):
     content=""
     db = records.Database(URI)
-    rows = db.query('select first_name, last_name from employees')
+    rows = db.query('select first_name, last_name from employees limit 10')
+    content = "<pre>" + rows.export(type_out) +"</pre>"
 
     response = make_response(content, 200)
-    response.mimetype = "text/plain"
+    response.mimetype = "text/html"
     return response
 
 @server.route("/xls")
@@ -59,4 +62,4 @@ def xlsgen():
 
 
 if __name__ == "__main__":
-    server.run(host='0.0.0.0')
+    server.run(host='0.0.0.0', debug=True)

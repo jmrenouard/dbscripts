@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.8-slim-buster
+FROM python:3.8
 
 # set the working directory in the container
 WORKDIR /code
@@ -11,7 +11,9 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
-COPY src/ .
+RUN mkdir src
+
+COPY src/* src/
 
 # command to run on container start
-CMD [ "python", "./server.py" ]
+CMD [ "python", "./src/server.py" ]

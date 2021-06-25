@@ -1,5 +1,9 @@
+python-dotenv
+pymysql
+mysql-connector-python
+records
 openpyxl
 jinja2
 flask
-mysql-connector-python
-records
+Flask-MySQLdb
+pyyaml
