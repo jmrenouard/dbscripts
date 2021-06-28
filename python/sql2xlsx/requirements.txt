@@ -1,7 +1,7 @@
 python-dotenv
 pymysql
 mysql-connector-python
-records
+pugsql
 openpyxl
 jinja2
 flask

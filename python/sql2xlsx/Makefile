@@ -36,4 +36,4 @@ shell:
 up: update
 
 update:
-	$(DOCKERCMD) ps | grep -E "($(NAME)|$(PORT)/tcp)" | cut -d " " -f1 | xargs -n 1 -I{} $(DOCKERCMD) cp src/* {}:/code/src
+	$(DOCKERCMD) ps | grep -E "($(NAME)|$(PORT)/tcp)" | cut -d " " -f1 | xargs -n 1 -I{} $(DOCKERCMD) cp src/*.py {}:/code/src
