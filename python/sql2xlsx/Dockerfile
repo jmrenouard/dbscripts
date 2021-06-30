@@ -13,7 +13,8 @@ RUN pip install -r requirements.txt
 # copy the content of the local src directory to the working directory
 RUN mkdir src
 
-COPY src/* src/
+COPY src/*.py src/
+COPY src/.env src/
 
 # command to run on container start
 CMD [ "python", "./src/server.py" ]

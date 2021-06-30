@@ -1,4 +1,5 @@
 python-dotenv
+python-dotenv[cli]
 pymysql
 mysql-connector-python
 pugsql

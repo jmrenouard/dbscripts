@@ -3,16 +3,15 @@ from openpyxl.writer.excel import save_virtual_workbook, ExcelWriter
 from openpyxl.worksheet.table import Table as Otable
 from openpyxl.worksheet.table import TableStyleInfo
 from openpyxl.utils import get_column_letter
-from flask import Flask, make_response, request, render_template, redirect, url_for, send_file
+from flask import Flask, make_response, request, render_template, redirect, url_for, send_file, abort
 from io import BytesIO
 import sqlalchemy
 from sqlalchemy import create_engine
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+#from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 from sqlalchemy import inspect
 from zipfile import ZipFile,ZIP_DEFLATED
-
-URI="mysql://root:secret@192.168.0.50:3306/employees"
-
+from dotenv import load_dotenv
+from os import getenv
 
 def save_virtual_workbook(workbook,):
     """Return an in-memory workbook, suitable for a Django response."""
@@ -31,8 +30,9 @@ def save_virtual_workbook(workbook,):
     return virtual_workbook
 
 
+load_dotenv()
+URI=getenv("URI")
 server = Flask(__name__)
-
 
 @server.route("/")
 def hello():
@@ -62,15 +62,17 @@ def employees(type_out='json'):
 
 @server.route("/xls")
 def xlsgen():
+    if request.args.get('token') != getenv('WEB_TOKEN'):
+        abort(403)
     engine = create_engine(URI)
     inspector = inspect(engine)
 
     wb = Workbook()
-    wb.remove_sheet(wb.active)
-    ws = wb.create_sheet(title='employees')
+    wb.remove(wb.active)
+    ws = wb.create_sheet(title=getenv('WS_TITLE'))
 
     with engine.connect() as con:
-        rs = con.execute('select first_name, last_name from employees limit 20')
+        rs = con.execute(getenv('SQL_REQUEST'))
         #ws.append(rs._metadata.keys)
 
         headers=[]
@@ -87,12 +89,13 @@ def xlsgen():
     table = Otable(displayName="Employees", ref="A1:" + get_column_letter(ws.max_column) + str(ws.max_row))
 
     # Add a default style with striped rows and banded columns
-    style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False, showLastColumn=False, showRowStripes=True, showColumnStripes=True)
+    style = TableStyleInfo(name="TableStyleDark11", showFirstColumn=True, showLastColumn=True, showRowStripes=True, showColumnStripes=False)
     table.tableStyleInfo = style
     ws.add_table(table)
+
     content = save_virtual_workbook(wb)
     resp = make_response(content)
-    resp.headers['Content-Disposition'] = 'attachment; filename=employees.xlsx'
+    resp.headers['Content-Disposition'] = 'attachment; filename='+ getenv('WS_TITLE') +'.xlsx'
     resp.headers['Content-Type'] = 'application/x-xlsx'
     return resp
 
