@@ -2,7 +2,11 @@
 
 SRV=$1
 CYCLE=${2:-"10"}
-SSH_CMD="ssh -o StrictHostKeyChecking=no ${SRV}"
+SSH_CMD="ssh -v -o StrictHostKeyChecking=no ${SRV}"
+
+$SSH_CMD "apt -y update"
+$SSH_CMD "apt -y upgrade"
+
 
 $SSH_CMD "reboot" & 
 
