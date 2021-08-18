@@ -34,9 +34,9 @@ echo "$SRV IS NOT REBOOTED AFTER $((1 +$CYCLE * 3)) s"
 exit 3
 
 
-SRV_LST="ix1-bv-u18-DrivePPdriveBD-01.renater.fr
-ix1-bv-u18-DrivePPdriveBD-02.renater.fr
-ix1-bv-u18-DrivePPdriveBD-03.renater.fr"
+SRV_LST="dbsrv1
+dbsrv2
+dbsrv3"
 
 for srv in $SRV_LST; do
 	bash -x update_and_reboot.sh $srv 
