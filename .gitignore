@@ -16,3 +16,5 @@ linode/*_drop_linodes.sh
 linode/*_provision_linodes.sh
 linode/*_generate_linodes.sh
 Idera*
+**/gmail.ini
+**/sms.ini
