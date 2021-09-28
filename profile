@@ -382,6 +382,7 @@ randpw()
         return $?
 }
 
+alias | grep -q gcm && unalias gcm
 gcm()
 {
         git commit -m "$@"
@@ -545,9 +546,15 @@ genShraredSshKeys()
 ##############################################################################################################
 # LINODE CODE
 ##############################################################################################################
+which linode-cli &>/dev/null
+[ $? -eq 0 ] && LINODEC="$(which linode-cli)"
+
+which linode-cli.exe &>/dev/null
+[ $? -eq 0 ] && LINODEC="linode-cli.exe"
+
 llist()
 {
-	linode-cli linodes list $*
+	$LINODEC linodes list $*
 }
 
 lcreate()
@@ -563,7 +570,7 @@ lcreate()
 	shift
 	PUBKEY=${1}
 	shift
-	[ -f "$PUBKEY" ] || PUBKEY="$HOME/.conf/id_rsa.pub"
+	[ -f "$PUBKEY" ] || PUBKEY="$HOME/.ssh/id_rsa.pub"
 	EXTRA_TAGS=""
 	while [ -n "$1" ]; do
 		EXTRA_TAGS="$EXTRA_TAGS --tags $1"
@@ -572,13 +579,14 @@ lcreate()
 	echo "LINODE NAME  : $NAME"
 	echo "ROOT PASSWORD: $PASSWD"
 	echo "PUB KEY      : $PUBKEY"
+    echo "PRIV KEY     : ${PUBKEY%.*}"
 	echo "EXTRA PARAM  : $EXTRA_TAGS"
 
 	info "CMD: "
 	tmpFile=$(mktemp)
 	echo  "#!/bin/bash" > $tmpFile
 	echo "" >> $tmpFile
-	echo -n "linode-cli linodes create $LINODE_OPTIONS --root_pass $PASSWD --authorized_keys '" >> $tmpFile
+	echo -n "$LINODEC linodes create $LINODE_OPTIONS --root_pass $PASSWD --authorized_keys '" >> $tmpFile
 	echo -n "$(sed -e "s/^M//" $PUBKEY)' " >> $tmpFile
 	echo  "--private_ip true --label $NAME $EXTRA_TAGS" >> $tmpFile
 	echo 'exit $?'>> $tmpFile
@@ -594,25 +602,46 @@ lcreate()
 	while [ $? -eq 0 ]; do
 		echo -n ".."
 		sleep 2s
-		linode-cli linodes list --text | grep $NAME | grep -qE '(booting|provisioning)'
+		$LINODEC linodes list --text | grep $NAME | grep -qE '(booting|provisioning)'
 	done
 	echo
-	linode-cli linodes list
+	$LINODEC linodes list
 	echo -e "$( date "+%d-%m-%Y:%H-%M")\t$NAME\troot\t$PASSWD\t$PUBKEY\t${PUBKEY%.*}" | tee -a $HOME/.linode_access
 	chmod 600 $HOME/.linode_access
+
+    # Changing hostname with hostnamectl
+    sleep 3s
+    lchangeHostname $NAME
 }
+
+lchangeHostname()
+{
+    local NAME=$1
+    local LHOSTNAME=${2:-"$NAME"}
+    echo "LINODE NAME  : $NAME"
+    echo "PRIV KEY     : ${PUBKEY%.*}"
+    ssh -i ${PUBKEY%.*}  -o "StrictHostKeyChecking=no" root@$(lgetLinodePublicIp $NAME) "hostnamectl set-hostname $LHOSTNAME"
+}
+
+lssh()
+{
+    NAME=$1
+    shift
+    ssh -i ${PUBKEY%.*}  -o "StrictHostKeyChecking=no" root@$(lgetLinodePublicIp $NAME) "$*"
+}
+
 lgetLinodeId()
 {
-	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $1}'
+	$LINODEC linodes list --label $1 --text | tail -n1 | awk '{print $1}'
 }
 
 lgetLinodePublicIp()
 {
-	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $7}'
+	$LINODEC linodes list --label $1 --text | tail -n1 | awk '{print $7}'
 }
 lgetLinodePrivateIp()
 {
-	linode-cli linodes list --label $1 --text | tail -n1 | awk '{print $8}'
+	$LINODEC linodes list --label $1 --text | tail -n1 | awk '{print $8}'
 }
 
 lchangepasswd()
@@ -621,17 +650,17 @@ lchangepasswd()
 }
 ldelete()
 {
-	for lid in $(linode-cli linodes list --text | perl -ne  "/\s$1\s/ and print" | awk '{print $1}'); do
+	for lid in $($LINODEC linodes list --text | perl -ne  "/\s$1\s/ and print" | awk '{print $1}'); do
 		info "DELETING $lid LINODES"
 		llist --text | grep $lid
-		linode-cli linodes delete $lid
+		$LINODEC linodes delete $lid
 	done
 	llist
 }
 
 lgenInventory()
 {
-	for tag in $(linode-cli tags list --text |grep -v label); do
+	for tag in $($LINODEC tags list --text |grep -v label); do
 		[ $(llist --text --tags $tag | wc -l) -eq 1 ] && continue
 		echo "[$tag]"
 		for srv in $(llist --text --tags $tag | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7}'); do
@@ -692,6 +721,80 @@ lgenAlias()
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
 		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $PUBKEY root@$lippub"
 	done
+}
+
+lcopy()
+{
+    local lsrv=$1
+    local fsource=$2
+    local fdest=$3
+    local own=$4
+    local mode=$5
+    local lRC=0
+
+    if [ ! -f "$fsource" -a ! -d "$fsource" ]; then
+        error "$fsource Not exists"
+        return 127
+    fi
+    vip=$(lgetLinodePublicIp $lsrv)
+    rsync -avz  -e "ssh -i ${PUBKEY%.*} -o 'StrictHostKeyChecking=no'" $fsource root@$vip:$fdest
+    lRC=$(($lRC + $?))
+
+    if [ -n "$own" ]; then
+        lssh $lsrv "chown -R $own:$own $fdest"
+        lRC=$(($lRC + $?))
+    fi
+    if [ -n "$mode" ]; then
+        lssh $lsrv "chmod -R $mode $fdest"
+        lRC=$(($lRC + $?))
+    fi
+    lssh $lsrv "ls -lsh $fdest"
+    [ -z "$silent" ] && footer "SSH COPY $fsource ON $srv($vip):$fdest "
+    return $lRC
+}
+
+lupdateScript()
+{
+    local lsrvs=${1:-"app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"}
+
+    banner "UPDATE SCRIPTS $lsrvs"
+
+    #set +x
+    #set -x
+    for lsrv in $($LINODEC linodes list --text | perl -ne  "/$1/ and print" | awk '{print $2}'); do
+        lssh $lsrv "mkdir -p /opt/local/bin"
+        title2 "TRANSFERT utils.sh TO $lsrv"
+        lcopy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
+        title2 "TRANSFERT bin scripts TO $lsrv"
+        lcopy $lsrv $_DIR/scripts/bin/ /opt/local/bin root 755
+    done
+    footer "UPDATE SCRIPTS"
+}
+
+lexec()
+{
+    local lsrv=$1
+    local lRC=0
+    shift
+
+
+    for fcmd in $*; do
+        if [ ! -f "$fcmd" ]; then
+            error "$fcmd Not exists"
+            return 127
+        fi
+        INTERPRETER=$(head -n 1 $fcmd | sed -e 's/#!//')
+
+        for srv in $($LINODEC linodes list --text | perl -ne  "/$lsrv/ and print" | awk '{print $2}'); do
+            vip=$(lgetLinodePublicIp $srv)
+            [ -n "$vip" ] || (warn "IGNORING $srv" ;continue)
+            title2 "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+            (echo "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh";echo;cat $fcmd) | grep -v "#!" | ssh -T root@$vip -i ${PUBKEY%.*} -o "StrictHostKeyChecking=no" $INTERPRETER
+            footer "RUNNING SCRIPT $(basename $fcmd) ON $srv($vip) SERVER"
+            lRC=$(($lRC + $?))
+        done
+    done
+    return $lRC
 }
 
 ##############################################################################################################
