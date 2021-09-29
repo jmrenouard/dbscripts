@@ -18,31 +18,35 @@ setup_ubuntu_sshfs_client()
 
 setup_centos_sshfs_client()
 {
-    yum -y install sshfs
+    yum -y install epel-release
+    yum -y install fuse-sshfs
 }
 
-createSSHfsShare()
+create_sshfs_share()
 {
     local mp=$1
     shift
+
+    # création du répertoire uniquement
     mkdir -p $mp
     chmod 777 $mp
     chown nobody:nogroup $mp
 
-    sed -i "/$(echo $mp| perl -pe 's/\//\\\//g')/d" /etc/exports
-    for ip in $*; do
-                   echo "$mp $ip(${default_mode},sync,no_subtree_check)" >> /etc/exports
-    done
-    exportfs -rav
-    systemctl restart nfs-kernel-server
+    [ -d "/home/backupbdd" ] ||adduser --disabled-password --gecos ""  backupbdd
+
+
+    #sed -i "/$(echo $mp| perl -pe 's/\//\\\//g')/d" /etc/exports
+    #for ip in $*; do
+    #               echo "$mp $ip(${default_mode},sync,no_subtree_check)" >> /etc/exports
+    #done
+    #exportfs -rav
+    #systemctl restart nfs-kernel-server
 }
 
-removeSSHfsShare()
+remove_sshfs_share()
 {
     local mp=$1
-    sed -i "/$(echo $mp| perl -pe 's/\//\\\//g')/d" /etc/exports
-    exportfs -rav
-    systemctl restart nfs-kernel-server
+    truelcop
 }
 
 mountSSHfsShare()
@@ -78,4 +82,7 @@ umountSSHfsShare()
     df -Ph
 }
 
-setup_ubuntu_sshfs_client
+#setup_ubuntu_sshfs_server
+#setup_ubuntu_sshfs_client
+#setup_centos_sshfs_client
+
