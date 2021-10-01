@@ -4,6 +4,21 @@
 
 lRC=0
 
+setup_ubuntu_nfs_server()
+{
+    apt -y install nfs-kernel-server nfswatch nfstrace quota stunnel4
+}
+
+setup_ubuntu_nfs_client()
+{
+    apt -y install nfs-common stunnel4
+}
+
+setup_centos_nfs_client()
+{
+    yum -y install nfs-utils stunnel
+}
+
 push_cert_config()
 {
     local target=$1
