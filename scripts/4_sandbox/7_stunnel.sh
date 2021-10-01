@@ -7,22 +7,25 @@ lRC=0
 #!/bin/bash
 default_mode=rw
 
-setup_ubuntu_nfs_server()
+setup_ubuntu_stunnel_server()
 {
-    apt -y install nfs-kernel-server nfswatch nfstrace quota
+    apt update
+    apt -y install nfs-kernel-server nfswatch nfstrace quota stunnel4
 }
 
-setup_ubuntu_nfs_client()
+setup_ubuntu_stunnel_client()
 {
-    apt -y install nfs-common
+    apt update
+    apt -y install nfs-common stunnel4
 }
 
-setup_centos_nfs_client()
+setup_centos_stunnel_client()
 {
-    yum -y install nfs-utils
+    yum -y install epel-release
+    yum -y install nfs-utils stunnel
 }
 
-createNfsShare()
+create_stunnel_config()
 {
     local mp=$1
     shift
@@ -38,7 +41,7 @@ createNfsShare()
     systemctl restart nfs-kernel-server
 }
 
-removeNfsShare()
+removestunnelShare()
 {
     local mp=$1
     sed -i "/$(echo $mp| perl -pe 's/\//\\\//g')/d" /etc/exports
@@ -59,9 +62,11 @@ mountNfsShare()
     df -Ph | grep "$lmp"
     [ $? -eq 0 ] && umount $lmp
 
-    echo "$srv:$mp    $lmp   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0" >> /etc/fstab
-
     mount $lmp
+
+    if [ $? -eq 0 ]; then
+                   echo "$srv:$mp    $lmp   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0" >> /etc/fstab
+    fi
     df -Ph
 }
 
