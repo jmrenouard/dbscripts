@@ -59,11 +59,9 @@ mountNfsShare()
     df -Ph | grep "$lmp"
     [ $? -eq 0 ] && umount $lmp
 
-    mount $lmp
+    echo "$srv:$mp    $lmp   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0" >> /etc/fstab
 
-    if [ $? -eq 0 ]; then
-                   echo "$srv:$mp    $lmp   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0" >> /etc/fstab
-    fi
+    mount $lmp
     df -Ph
 }
 
