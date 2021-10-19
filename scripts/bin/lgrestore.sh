@@ -7,8 +7,19 @@ BCK_DIR=/data/backups/logical
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
+TARGET_CONFIG=$(to_lower $1)
+lRC=0
 
-[ -f "/etc/lgconfig.sh" ] && source /etc/lgconfig.sh
+banner "LOGICAL BACKUP"
+
+if [ -f "/etc/backupbdd/lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig.sh"
+    source /etc/backupbdd/lgconfig.sh
+fi
+if  [ -n "$1" -a -f "/etc/backupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh"
+    source /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh
+fi
 
 if [ "$1" = "-l" -o "$1" = "--list" ]; then
     ls -lsht $BCK_DIR

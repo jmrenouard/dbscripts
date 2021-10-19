@@ -38,7 +38,7 @@ if  [ -n "$1" -a -f "/etc/backupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
     source /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh
 fi
 
-info "CHECKING STATUS IN local MODE"
+info "CHECKING MYSQL STATUS"
 my_status
 if [ $? -ne 0 ]; then
     error "LOGICAL BACKUP FAILED: Server must be running ...."

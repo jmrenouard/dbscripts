@@ -44,7 +44,7 @@ fi
 
 SSH_CMD="ssh -q -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
 
-info "CHECKING STATUS IN local MODE"
+info "CHECKING STATUS IN REMOTE SSH MODE"
 my_status
 if [ $? -ne 0 ]; then
     error "SSH LOGICAL BACKUP FAILED: Server must be running ...."
