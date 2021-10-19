@@ -1,36 +1,70 @@
 #!/usr/bin/env bash
 
+# Support Galera (desync node if needed)
+# Support possition un logbin for PITR recovery with mysqlbinlog
+# Parallel compression with pigz if installed
+# Check Dump Completed at the end of dump
+# Checksum generation
+# purge old backups if dump is OK
+
+# Missing
+# Support stop / start Slave if replciation slave
+# support SSH remote command
+# Support Flag file for supervision
+# Support NRPE generation
+# Support general history file for ELK
+# Support HTML report
+
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 BCK_DIR=/data/backups/logical
 GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
-GALERA_SUPPORT=$(galera_is_enabled)
+GALERA_SUPPORT="0"
 KEEP_LAST_N_BACKUPS=5
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
-
-[ -f "/etc/lgconfig.sh" ] && source /etc/lgconfig.sh
+LOCAL_BACKUP=1
 
 lRC=0
 
 banner "LOGICAL BACKUP"
-my_status
-if [ $? -ne 0 ]; then
-    error "LOGICAL BACKUP FAILED: Server must be running ...."
-    lRC=2 footer "LOGICAL BACKUP"
-	exit 2
+
+if [ -f "/etc/lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/lgconfig.sh"
+    source /etc/lgconfig.sh
+fi
+if  [ -n "$1" -a -f "/etc/lgconfig_$1.sh" ]; then
+    info "LOADING CONFIG FROM /etc/lgconfig_$1.sh"
+    source /etc/lgconfig_$1.sh
 fi
 
-if [ "$GALERA_SUPPORT" = "1" ]; then
-    info "Desynchronisation du noeud"
-    # desync
-    mysql -e 'set global wsrep_desync=on'
+if [ "$LOCAL_BACKUP" = "1" ]; then
+    info "CHECKING STATUS IN local MODE"
+    my_status
+    if [ $? -ne 0 ]; then
+        error "LOGICAL BACKUP FAILED: Server must be running ...."
+        lRC=2 footer "LOGICAL BACKUP"
+    	exit 2
+    fi
+    GALERA_SUPPORT=$(galera_is_enabled)
 
-    info  "etat Desynchronisation"
-    mysql -e 'select @@wsrep_desync'
+    if [ "$GALERA_SUPPORT" = "1" ]; then
+        info "Desynchronisation du noeud"
+        # desync
+        mysql -e 'set global wsrep_desync=on'
+
+        info  "etat Desynchronisation"
+        mysql -e 'select @@wsrep_desync'
+    fi
 fi
-[ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
+
+if [ -d "$BCK_DIR" ]; then
+    info "CREATING DIRECTORY: $BCK_DIR"
+    mkdir -p $BCK_DIR
+else
+    info "DIRECTORY $BCK_DIR ALREADY EXISTS"
+done
 
 add_opt=""
 logbinopt="$(global_variables log_bin)"
@@ -59,17 +93,19 @@ time mysqldump --all-databases $add_opt \
 lRC=$?
 
 if [ $lRC -eq 0 ]; then
-    echo "BACKUP OK ..........."
+    info "BACKUP OK ..........."
 else
-    echo "PROBLEME BACKUP"
+    error "mysqldump BACKUP error"
 fi
 
-if [ "$GALERA_SUPPORT" = "1" ]; then
-    info desync off
-    mysql -e 'set global wsrep_desync=off'
+if [ "$LOCAL_BACKUP" = "1" ]; then
+    if [ "$GALERA_SUPPORT" = "1" ]; then
+        info desync off
+        mysql -e 'set global wsrep_desync=off'
 
-    info etat Desynchronisation
-    mysql -e 'select @@wsrep_desync'
+        info etat Desynchronisation
+        mysql -e 'select @@wsrep_desync'
+    fi
 fi
 
 info "Fin du fichier $(basename $BCK_FILE)"

@@ -1011,3 +1011,18 @@ vupdateScript()
 	vssh_copy $lsrv $_DIR/scripts/bin/ /opt/local/bin root 755
     footer "UPDATE SCRIPTS"
 }
+
+local_updateScript()
+{
+    banner "UPDATE SCRIPTS"
+    mkdir -p /opt/local/bin
+    title2 "TRANSFERT utils.sh TO $lsrv"
+    cp -v $_DIR/scripts/utils.sh /etc/profile.d/utils.sh
+    chown root: /etc/profile.d/utils.sh
+    chmod 755 /etc/profile.d/utils.sh
+    title2 "TRANSFERT bin scripts TO $lsrv"
+    cp $_DIR/scripts/bin/ /opt/local/bin
+    chown -R root: /opt/local/bin
+    chmod -R 755 /opt/local/bin
+    footer "UPDATE SCRIPTS"
+}
