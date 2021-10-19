@@ -24,18 +24,18 @@ GZIP_CMD=pigz
 GALERA_SUPPORT="0"
 KEEP_LAST_N_BACKUPS=5
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
-
+TARGET_CONFIG=$(to_lower $1)
 lRC=0
 
 banner "LOGICAL BACKUP"
 
-if [ -f "/etc/lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/lgconfig.sh"
-    source /etc/lgconfig.sh
+if [ -f "/etc/backupbdd/lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig.sh"
+    source /etc/backupbdd/lgconfig.sh
 fi
-if  [ -n "$1" -a -f "/etc/lgconfig_$1.sh" ]; then
-    info "LOADING CONFIG FROM /etc/lgconfig_$1.sh"
-    source /etc/lgconfig_$1.sh
+if  [ -n "$1" -a -f "/etc/backupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh"
+    source /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh
 fi
 
 info "CHECKING STATUS IN local MODE"
@@ -56,7 +56,7 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
     mysql -e 'select @@wsrep_desync'
 fi
 
-if [ -d "$BCK_DIR" ]; then
+if [ ! -d "$BCK_DIR" ]; then
     info "CREATING DIRECTORY: $BCK_DIR"
     mkdir -p $BCK_DIR
 else
