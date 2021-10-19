@@ -42,41 +42,39 @@ if  [ -n "$TARGET_CONFIG" -a -f "/etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh" 
     source /etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh
 fi
 
-SSH_CMD="ssh -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
-#env
-exit 0
+SSH_CMD="ssh -q -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
 
-if [ "$LOCAL_BACKUP" = "1" ]; then
-    info "CHECKING STATUS IN local MODE"
-    my_status
-    if [ $? -ne 0 ]; then
-        error "SSH LOGICAL BACKUP FAILED: Server must be running ...."
-        lRC=2 footer "SSH LOGICAL BACKUP"
-    	exit 2
-    fi
-    GALERA_SUPPORT=$(galera_is_enabled)
+info "CHECKING STATUS IN local MODE"
+my_status
+if [ $? -ne 0 ]; then
+    error "SSH LOGICAL BACKUP FAILED: Server must be running ...."
+    lRC=2 footer "SSH LOGICAL BACKUP"
+	exit 2
+fi
+GALERA_SUPPORT=$(galera_is_enabled)
+info "GALERA MODE: $GALERA_SUPPORT"
+if [ "$GALERA_SUPPORT" = "1" ]; then
+    info "Desynchronisation du noeud"
+    # desync
+    raw_mysql 'set global wsrep_desync=on'
 
-    if [ "$GALERA_SUPPORT" = "1" ]; then
-        info "Desynchronisation du noeud"
-        # desync
-        mysql -e 'set global wsrep_desync=on'
-
-        info  "etat Desynchronisation"
-        mysql -e 'select @@wsrep_desync'
-    fi
+    info  "Etat Desynchronisation"
+    raw_mysql 'select @@wsrep_desync'
 fi
 
-if [ -d "$BCK_DIR" ]; then
+
+if [ ! -d "$BCK_DIR" ]; then
     info "CREATING DIRECTORY: $BCK_DIR"
     mkdir -p $BCK_DIR
 else
     info "DIRECTORY $BCK_DIR ALREADY EXISTS"
-done
+fi
 
 add_opt=""
 logbinopt="$(global_variables log_bin)"
 [ "$logbinopt" = "OFF" ] || add_opt="--master-data=1 --flush-logs"
 
+#exit 0
 info "Backup logique mysldump dans le fichier $(basename $BCK_FILE)"
 title1 "Command: time mysqldump --all-databases $add_opt \
 --add-drop-database \
@@ -88,7 +86,7 @@ title1 "Command: time mysqldump --all-databases $add_opt \
 --quick --set-charset \
 --single-transaction | $GZIP_CMD > $BCK_FILE"
 
-time mysqldump --all-databases $add_opt \
+time $SSH_CMD "mysqldump --all-databases $add_opt \
 --add-drop-database \
 --routines \
 --skip-opt \
@@ -96,7 +94,7 @@ time mysqldump --all-databases $add_opt \
 --events \
 --add-drop-table --add-locks --create-options --disable-keys --extended-insert \
 --quick --set-charset \
---single-transaction | $GZIP_CMD > $BCK_FILE
+--single-transaction | $GZIP_CMD" > $BCK_FILE
 lRC=$?
 
 if [ $lRC -eq 0 ]; then
@@ -105,14 +103,12 @@ else
     error "mysqldump BACKUP error"
 fi
 
-if [ "$LOCAL_BACKUP" = "1" ]; then
-    if [ "$GALERA_SUPPORT" = "1" ]; then
-        info desync off
-        mysql -e 'set global wsrep_desync=off'
+if [ "$GALERA_SUPPORT" = "1" ]; then
+    info desync off
+    raw_mysql 'set global wsrep_desync=off'
 
-        info etat Desynchronisation
-        mysql -e 'select @@wsrep_desync'
-    fi
+    info etat Desynchronisation
+    raw_mysql 'select @@wsrep_desync'
 fi
 
 info "Fin du fichier $(basename $BCK_FILE)"

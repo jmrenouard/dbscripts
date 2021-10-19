@@ -208,6 +208,17 @@ to_upper()
     echo "$*" | tr '[:lower:]' '[:upper:]'
 }
 
+reverse_rc()
+{
+    local lrc=$1
+    if [ "$lrc" = "0" ]; then
+        echo "26"
+        return 26
+    fi
+    echo "0"
+    return 0
+
+}
 error() {
     local lRC=$?
     echo "$(now) ERROR: $*" 1>&2
@@ -336,33 +347,47 @@ tlog()
 my_status()
 {
     local lRC=0
-    mysqladmin ping &>/dev/null
-    lRC=$?
-    [ $lRC -eq 0 ] && ok "mysql server is running ...."
-    [ $lRC -eq 0 ] || error "mysql server is stopped ...."
-    return $lRC
+    $SSH_CMD mysqladmin ping 2>&1 | grep -qi error
+    lRC=$(reverse_rc $?)
+    info "RC: $lRC"
+    if [ $lRC -eq 0 ]; then
+        ok "mysql server is running ...."
+        return 0
+    fi
+    error "mysql server is stopped ...."
+    return 1
+}
+
+raw_mysql()
+{
+    if [ -z "$SSH_CMD" ];then
+        mysql -Nrs -e "$*"
+        return $?
+    fi
+    echo "$*" |$SSH_CMD mysql -Nrs
+    return $?
 }
 
 db_list()
 {
-   mysql -Nrs -e 'show databases'
+   $SSH_CMD mysql -Nrs -e 'show databases'
 }
 
 db_users()
 {
-    mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
+    $SSH_CMD mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
 }
 
 db_tables()
 {
-    mysql -Nrs -e 'show tables' ${1:-"mysql"}
+    $SSH_CMD mysql -Nrs -e 'show tables' ${1:-"mysql"}
 }
 
 db_count()
 {
     for tbl in $(db_tables ${1:-"mysql"}); do
         echo -ne "$tbl\t"
-        mysql -Nrs -e "select count(*) from $tbl" ${1:-"mysql"}
+        $SSH_CMD mysql -Nrs -e "select count(*) from $tbl" ${1:-"mysql"}
     done | sort -nr -k2 | column -t
 }
 
@@ -371,29 +396,29 @@ db_fast_count()
  	# BAsed on innodb stat
     #mysql -Nrs -e "select table_name, stat_value from mysql.innodb_index_stats where stat_name='n_diff_pfx02' and database_name='${1:-"mysql"}' order by 2 DESC;"
  	# based on information schema
- 	mysql -Nrs -e "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
+ 	$SSH_CMD mysql -Nrs -e "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
 
 }
 galera_status()
 {
     title1 "WSREP STATUS"
-    mysql -e "select * from information_schema.wsrep_status\G"
+    $SSH_CMD mysql -e "select * from information_schema.wsrep_status\G"
     title1 "WSREP GLOBAL STATUS"
-    mysql -e "select * from mysql.wsrep_cluster\G"
+    $SSH_CMD mysql -e "select * from mysql.wsrep_cluster\G"
     title1 "WSREP MEMBER"
-    mysql -e "select * from information_schema.wsrep_membership;"
+    $SSH_CMD mysql -e "select * from information_schema.wsrep_membership;"
     title1 "WSREP GLOBAL STATUS"
-    mysql -e "select * from mysql.wsrep_cluster_members\G"
+    $SSH_CMD mysql -e "select * from mysql.wsrep_cluster_members\G"
     title1 "WSREP STREAMING REPLICATION"
-    mysql -e "select * from mysql.wsrep_streaming_log\G"
+    $SSH_CMD mysql -e "select * from mysql.wsrep_streaming_log\G"
        
 }
 
 my_cluster_state() {
 (
-mysql -e "show status like '%wsrep%'"
-mysql -e "show variables like 'auto%'"
-mysql -e "show variables like 'wsrep_%'"
+$SSH_CMD mysql -e "show status like '%wsrep%'"
+$SSH_CMD mysql -e "show variables like 'auto%'"
+$SSH_CMD mysql -e "show variables like 'wsrep_%'"
 ) |grep -v wsrep_provider_options|| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
 sort | column -t
 }
@@ -455,7 +480,7 @@ perform_ms()
 
 global_variables()
 {
-    res=$(mysql -Nrs -e "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
+    res=$(raw_mysql "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
 
     [ -z "$res" -a -n "$2" ] && res="$2"
     echo -n $res
@@ -463,18 +488,20 @@ global_variables()
 
 global_status()
 {
-    mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
+    $SSH_CMD mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
 }
 
 provider_var()
 {
-    mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
+    $SSH_CMD mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
     perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
 }
 
 galera_is_enabled()
 {
-    local var_wsrep_on="$(mysql -Nrs -e "show global variables like 'wsrep_on';"|awk '{print $2}'| xargs -n1)"
+    local var_wsrep_on=""
+    var_wsrep_on="$(raw_mysql "show global variables like 'wsrep_on'")"
+    var_wsrep_on=$(echo $var_wsrep_on|awk '{print $2}'| xargs -n 1)
     if [ "$var_wsrep_on" = "ON" ]; then
         echo "1"
         return 0
@@ -490,7 +517,7 @@ get_cert_conflits()
 
 galera_members()
 {
-    mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
+    $SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
 }
 
 galera_member_status()
