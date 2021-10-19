@@ -24,36 +24,46 @@ GZIP_CMD=pigz
 GALERA_SUPPORT="0"
 KEEP_LAST_N_BACKUPS=5
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
+SSH_PRIVATE_KEY=/root/.ssh/id_rsa
+SSH_USER=root
+SSH_HOSTNAME=targetbdd.infra
 
+TARGET_CONFIG=$(to_lower $1)
 lRC=0
 
-banner "LOGICAL BACKUP"
+banner "SSH LOGICAL BACKUP"
 
-if [ -f "/etc/lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/lgconfig.sh"
-    source /etc/lgconfig.sh
+if [ -f "/etc/backupbdd/ssh_lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/ssh_lgconfig.sh"
+    source /etc/backupbdd/ssh_lgconfig.sh
 fi
-if  [ -n "$1" -a -f "/etc/lgconfig_$1.sh" ]; then
-    info "LOADING CONFIG FROM /etc/lgconfig_$1.sh"
-    source /etc/lgconfig_$1.sh
+if  [ -n "$TARGET_CONFIG" -a -f "/etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh"
+    source /etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh
 fi
 
-info "CHECKING STATUS IN local MODE"
-my_status
-if [ $? -ne 0 ]; then
-    error "LOGICAL BACKUP FAILED: Server must be running ...."
-    lRC=2 footer "LOGICAL BACKUP"
-	exit 2
-fi
-GALERA_SUPPORT=$(galera_is_enabled)
+SSH_CMD="ssh -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
+#env
+exit 0
 
-if [ "$GALERA_SUPPORT" = "1" ]; then
-    info "Desynchronisation du noeud"
-    # desync
-    mysql -e 'set global wsrep_desync=on'
+if [ "$LOCAL_BACKUP" = "1" ]; then
+    info "CHECKING STATUS IN local MODE"
+    my_status
+    if [ $? -ne 0 ]; then
+        error "SSH LOGICAL BACKUP FAILED: Server must be running ...."
+        lRC=2 footer "SSH LOGICAL BACKUP"
+    	exit 2
+    fi
+    GALERA_SUPPORT=$(galera_is_enabled)
 
-    info  "etat Desynchronisation"
-    mysql -e 'select @@wsrep_desync'
+    if [ "$GALERA_SUPPORT" = "1" ]; then
+        info "Desynchronisation du noeud"
+        # desync
+        mysql -e 'set global wsrep_desync=on'
+
+        info  "etat Desynchronisation"
+        mysql -e 'select @@wsrep_desync'
+    fi
 fi
 
 if [ -d "$BCK_DIR" ]; then
@@ -121,7 +131,7 @@ if [ $lRC -eq 0 -a -n "$KEEP_LAST_N_BACKUPS" ]; then
     	ls -tp $BCK_DIR| grep -v '/$' | grep 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
     	ls -tp $BCK_DIR| grep -v '/$' | grep -v 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
     ) | while IFS= read -r f; do
-        info "Removing $f BACKUP FILE";
+        echo "Removing $f";
         rm -f $BCK_DIR/$f
     done
 fi
@@ -133,5 +143,5 @@ info "Liste fichier backup"
 ls -lsh $BCK_DIR
 
 info "FINAL CODE RETOUR: $lRC"
-footer "LOGICAL BACKUP"
+footer "SSH LOGICAL BACKUP"
 exit $lRC

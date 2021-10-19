@@ -198,6 +198,16 @@ now() {
     echo "$(date "+%F %T %Z")($(hostname -s))"
 }
 
+to_lower()
+{
+    echo "$*" | tr '[:upper:]' '[:lower:]'
+}
+
+to_upper()
+{
+    echo "$*" | tr '[:lower:]' '[:upper:]'
+}
+
 error() {
     local lRC=$?
     echo "$(now) ERROR: $*" 1>&2
