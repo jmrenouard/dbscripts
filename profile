@@ -1021,7 +1021,7 @@ local_updateScript()
     chown root: /etc/profile.d/utils.sh
     chmod 755 /etc/profile.d/utils.sh
     title2 "TRANSFERT bin scripts TO $lsrv"
-    cp -R $_DIR/scripts/bin/ /opt/local/bin
+    cp -R $_DIR/scripts/bin /opt/local
     chown -R root: /opt/local/bin
     chmod -R 755 /opt/local/bin
     footer "UPDATE SCRIPTS"
