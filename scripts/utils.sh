@@ -8,7 +8,7 @@ if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bas
         source $_CONF_FILE
     else
         mkdir -p $(dirname "$_CONF_FILE")
-        echo "# Config for $_NAME SCRIPT at $(date)" | tee -a $_CONF_FILE
+        #echo "# Config for $_NAME SCRIPT at $(date)" | tee -a $_CONF_FILE
     fi
 else
     _DIR="$(readlink -f ".")"
@@ -24,6 +24,8 @@ export my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep '192.168'| cut -d/
 export my_public_ipv4=$(ip a | grep inet | grep 'brd' | grep -v '192.168'| cut -d/ -f1 | awk '{print $2}')
 
 export DEBIAN_FRONTEND=noninteractive
+SSH_CLIENT="ssh -q -o TCPKeepAlive=yes -o ServerAliveInterval=50 -o strictHostKeyChecking=no"
+SCP_CLIENT="scp -q -o TCPKeepAlive=yes -o ServerAliveInterval=50 -o strictHostKeyChecking=no"
 
 is() {
     if [ "$1" == "--help" ]; then
@@ -198,6 +200,7 @@ now() {
     echo "$(date "+%F %T %Z")($(hostname -s))"
 }
 
+
 to_lower()
 {
     echo "$*" | tr '[:upper:]' '[:lower:]'
@@ -219,6 +222,115 @@ reverse_rc()
     return 0
 
 }
+
+
+################################################################################
+start_timer()
+{
+    local LABEL=${1:-"GENERIC"}
+    eval "export START_TIME_$LABEL=$(date +%s);"
+}
+
+update_timer()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    [ "$LABEL" = "GENERIC" ] || shift;
+
+    eval "export STOP_TIME_$LABEL=$(date +%s);"
+    eval "local STOP_TIME=\$STOP_TIME_$LABEL;"
+    eval "local START_TIME=\$START_TIME_$LABEL;"
+    debug "START_TIME $LABEL = $(get_val START_TIME_$LABEL)"
+    debug "STOP_TIME $LABEL = $(get_val STOP_TIME_$LABEL)"
+    debug "START_TIME = $(get_val START_TIME)"
+    debug "STOP_TIME  = $(get_val STOP_TIME)"
+    local STR_RESULT=$(echo $(($STOP_TIME-$START_TIME)) | awk '{printf "%02dh:%02dm:%02ds",$1/3600,$1%3600/60,$1%60}')
+    eval "export START_TIME_$LABEL=\$STOP_TIME_$LABEL;"
+
+    eval "export LAST_DURATION_$LABEL=\$STR_RESULT;"
+    debug "LAST DURATION $LABEL = $(get_val LAST_DURATION_$LABEL)"
+    return $LAST_RC
+}
+
+reset_all_timers()
+{
+    unset $(env| grep START_TIME|cut -d= -f 1| xargs)
+    unset $(env| grep LAST_DURATION|cut -d= -f 1| xargs)
+}
+
+reset_timer()
+{
+    local LABEL=${1:-"GENERIC"}
+    unset $(env| grep "START_TIME_$LABEL"|cut -d= -f 1| xargs)
+    unset $(env| grep "LAST_DURATION_$LABEL"|cut -d= -f 1| xargs)
+}
+
+dump_timer()
+{
+    local LABEL=${1:-"GENERIC"}
+    env| grep "START_TIME_$LABEL"
+    env| grep "LAST_DURATION_$LABEL"
+}
+
+get_timer_duration()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    eval "local LAST_DURATION=\$LAST_DURATION_$LABEL;"
+    if [ -z "$LAST_DURATION" ]; then
+        echo "NO '$LABEL' DURATION"
+    else
+        echo $LAST_DURATION
+    fi
+    return $LAST_RC
+}
+
+get_timer_start_date()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    local result=$(get_val START_TIME_$LABEL)
+    if [ -z "$result" ]; then
+        echo "NO START DATE FOR $LABEL label"
+    else
+        echo $result
+    fi
+    return $LAST_RC
+}
+
+get_timer_stop_date()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    local result=$(get_val STOP_TIME_$LABEL)
+    if [ -z "$result" ]; then
+        echo "NO STOP DATE FOR $LABEL label"
+    else
+        echo $result
+    fi
+    return $LAST_RC
+}
+
+dump_timer()
+{
+    local LAST_RC=$?
+    local LABEL=${1:-"GENERIC"}
+    info "START DATE($LABEL): $(printf "%(%F %T %Z)T" $(get_timer_start_date $LABEL))"
+    update_timer $LABEL
+    info "STOP DATE($LABEL) : $(printf "%(%F %T %Z)T" $(get_timer_stop_date $LABEL))"
+    info "DURATION($LABEL)  : $(get_timer_duration $LABEL)"
+
+    return $LAST_RC
+}
+
+trim_len()
+{
+    local l=$1
+    shift
+    echo -n $* | head -c $l
+    echo "..."
+}
+
 error() {
     local lRC=$?
     echo "$(now) ERROR: $*" 1>&2
@@ -234,6 +346,13 @@ die() {
 info() {
     [ "$quiet" != "yes" ] && echo "$(now) INFO: $*" 1>&2
     [ -n "$TEE_LOG_FILE" ] && echo "$(now) INFO: $*">>$TEE_LOG_FILE
+    return 0
+}
+
+debug() {
+    [ "$DEBUG" = "1" ] || return 0
+    [ "$quiet" != "yes" ] && echo "$(now) DEBUG: $*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now) DEBUG: $*">>$TEE_LOG_FILE
     return 0
 }
 
@@ -279,6 +398,7 @@ title2()
 }
 banner()
 {
+    start_timer
     title1 "START: $*"
     info " run as $(whoami)@$(hostname -s)"
 }
@@ -286,7 +406,8 @@ banner()
 footer()
 {
     local lRC=${lRC:-"$?"}
-
+    dump_timer
+    info "FINAL CODE RETOUR: $lRC"
     [ $lRC -eq 0 ] && title1 "END: $* ENDED SUCCESSFULLY"
     [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR"
     return $lRC
@@ -298,10 +419,10 @@ cmd()
     local tcmd="$1"
     local descr=${2:-"$tcmd"}
     if [ -z "$2" ]; then
-        title1 "RUNNING COMMAND: $tcmd"
+        title1 "RUNNING COMMAND: $(trim_len 25 $tcmd)"
     else
         title1 "$descr"
-        info "RUNNING COMMAND: $tcmd"
+        info "RUNNING COMMAND: $(trim_len 25 $tcmd)"
         sep1
     fi
     $tcmd
@@ -316,6 +437,31 @@ cmd()
     return $cRC
 }
 
+info_cmd()
+{
+    local cRC=0
+    local tcmd="$1"
+    if [ -z "$2" ]; then
+        title1 "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+    else
+        title1 "$descr"
+        info "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+        sep1
+    fi
+    eval "$tcmd 2>&1" | while read -r line;do
+      info ">> $(trim_len 40 $line)"
+    done
+    cRC=$?
+    info "RETURN CODE: $cRC"
+    if [ $cRC -eq 0 ]; then
+        ok "$(trim_len 25 $tcmd)"
+    else
+        error "$(trim_len 25 $tcmd)"
+    fi
+    sep1
+    return $cRC
+}
+
 function ask_yes_or_no() {
     read -p "$1 ([y]es or [n]o): "
     case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
@@ -325,17 +471,28 @@ function ask_yes_or_no() {
     return 1
 }
 
-pgGetVal()
+
+get_val()
 {
     local value=$1
     echo $(eval "echo \$${value}")
 }
 
-pgSetVal()
+set_val()
 {
     local var=$1
     shift
     eval "${var}='$*'"
+}
+
+pgGetVal()
+{
+    get_val $*
+}
+
+pgSetVal()
+{
+    set_val $*
 }
 
 tlog()
@@ -349,7 +506,6 @@ my_status()
     local lRC=0
     $SSH_CMD mysqladmin ping 2>&1 | grep -qi error
     lRC=$(reverse_rc $?)
-    info "RC: $lRC"
     if [ $lRC -eq 0 ]; then
         ok "mysql server is running ...."
         return 0
@@ -360,34 +516,35 @@ my_status()
 
 raw_mysql()
 {
+    local lDB=${DB:-"mysql"}
     if [ -z "$SSH_CMD" ];then
-        mysql -Nrs -e "$*"
+        mysql -Nrs -e "$*" $lDB
         return $?
     fi
-    echo "$*" |$SSH_CMD mysql -Nrs
+    echo "$*" |$SSH_CMD mysql -Nrs $lDB
     return $?
 }
 
 db_list()
 {
-   $SSH_CMD mysql -Nrs -e 'show databases'
+   raw_mysql 'show databases'
 }
 
 db_users()
 {
-    $SSH_CMD mysql -Nrs -e 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
+    raw_mysql 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
 }
 
 db_tables()
 {
-    $SSH_CMD mysql -Nrs -e 'show tables' ${1:-"mysql"}
+    DB="${1:-"mysql"}" raw_mysql 'show tables'
 }
 
 db_count()
 {
-    for tbl in $(db_tables ${1:-"mysql"}); do
+    for tbl in $(DB=${1:-"mysql"} db_tables); do
         echo -ne "$tbl\t"
-        $SSH_CMD mysql -Nrs -e "select count(*) from $tbl" ${1:-"mysql"}
+        DB=${1:-"mysql"} raw_mysql "select count(*) from $tbl"
     done | sort -nr -k2 | column -t
 }
 
@@ -396,7 +553,7 @@ db_fast_count()
  	# BAsed on innodb stat
     #mysql -Nrs -e "select table_name, stat_value from mysql.innodb_index_stats where stat_name='n_diff_pfx02' and database_name='${1:-"mysql"}' order by 2 DESC;"
  	# based on information schema
- 	$SSH_CMD mysql -Nrs -e "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
+ 	raw_mysql "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
 
 }
 galera_status()
@@ -486,6 +643,13 @@ global_variables()
     echo -n $res
 }
 
+set_global_variables()
+{
+    raw_mysql "set global $1 = '$2'"
+
+    global_variables $1
+}
+
 global_status()
 {
     $SSH_CMD mysql -Nrs -e "show global status like '$1'"| perl -pe 's/^.*?\s+(.*)$/$1/'
@@ -500,14 +664,12 @@ provider_var()
 galera_is_enabled()
 {
     local var_wsrep_on=""
-    var_wsrep_on="$(raw_mysql "show global variables like 'wsrep_on'")"
-    var_wsrep_on=$(echo $var_wsrep_on|awk '{print $2}'| xargs -n 1)
+    var_wsrep_on="$(global_variables 'wsrep_on')"
     if [ "$var_wsrep_on" = "ON" ]; then
         echo "1"
         return 0
     fi
     echo "0"
-    return 0
 }
 
 get_cert_conflits()
@@ -934,6 +1096,34 @@ get_replication_status()
 #----------------------------------------------------------------------------------------------------
 # Create the logical volume and the file system
 #----------------------------------------------------------------------------------------------------
+decypher_file()
+{
+    cdecat="zcat"
+    [ "$GZIP_CMD" = "$(which pigz)" ] && cdecat="$GZIP_CMD -cd"
+    local encFile=$1
+    local keyFile=${2:-"/opt/mysql/.encrypted.cnf"}
+
+    [ -f "$1" ] || return 1
+
+    local outFile=${3:-"$(echo $encFile | sed -E 's/\.enc\.gz$//')"}
+    [ -z "$ENCRPYTED_ALGORITHM" ] && ENCRPYTED_ALGORITHM="aes-256-cbc"
+    $cdecat $encFile | openssl $ENCRPYTED_ALGORITHM -d -salt -kfile "$keyFile" > $outFile
+    [ $? -eq 0 ] && rm -f $encFile
+}
+
+cypher_file()
+{
+    local inFile=$1
+    local keyFile=${2:-"/opt/mysql/.encrypted.cnf"}
+    local outFile=${3:-"${inFile}.enc.gz"}
+
+    [ -f "$1" ] || return 1
+
+    [ -z "$ENCRPYTED_ALGORITHM" ] && ENCRPYTED_ALGORITHM="aes-256-cbc"
+
+    cat $inFile | openssl $ENCRPYTED_ALGORITHM -salt -kfile "$keyFile" | $GZIP_CMD >> $outFile
+    [ $? -eq 0 ] && rm -f $inFile
+}
 
 createLogicalVolume() {
     vg=$1

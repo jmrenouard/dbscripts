@@ -54,12 +54,12 @@ fi
 GALERA_SUPPORT=$(galera_is_enabled)
 info "GALERA MODE: $GALERA_SUPPORT"
 if [ "$GALERA_SUPPORT" = "1" ]; then
+    info "GALERA IS ENABLED"
     info "Desynchronisation du noeud"
     # desync
     raw_mysql 'set global wsrep_desync=on'
 
-    info  "Etat Desynchronisation"
-    raw_mysql 'select @@wsrep_desync'
+    info  "Etat Desynchronisation: WSREP_DESYNC($(global_variables wsrep_desync))"
 fi
 
 
@@ -75,8 +75,9 @@ logbinopt="$(global_variables log_bin)"
 [ "$logbinopt" = "OFF" ] || add_opt="--master-data=1 --flush-logs"
 
 #exit 0
+start_timer "BACKUP"
 info "Backup logique mysldump dans le fichier $(basename $BCK_FILE)"
-title1 "Command: time mysqldump --all-databases $add_opt \
+title1 "Command: mysqldump --all-databases $add_opt \
 --add-drop-database \
 --routines \
 --skip-opt \
@@ -86,7 +87,7 @@ title1 "Command: time mysqldump --all-databases $add_opt \
 --quick --set-charset \
 --single-transaction | $GZIP_CMD > $BCK_FILE"
 
-time $SSH_CMD "mysqldump --all-databases $add_opt \
+$SSH_CMD "mysqldump --all-databases $add_opt \
 --add-drop-database \
 --routines \
 --skip-opt \
@@ -102,22 +103,21 @@ if [ $lRC -eq 0 ]; then
 else
     error "mysqldump BACKUP error"
 fi
-
+dump_timer "BACKUP"
 if [ "$GALERA_SUPPORT" = "1" ]; then
-    info desync off
-    raw_mysql 'set global wsrep_desync=off'
+    info "GALERA IS ENABLED"
+    set_global_variables wsrep_desync OFF
 
-    info etat Desynchronisation
-    raw_mysql 'select @@wsrep_desync'
+    info  "Etat Desynchronisation: WSREP_DESYNC( $(global_variables wsrep_desync) )"
 fi
 
 info "Fin du fichier $(basename $BCK_FILE)"
-zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
+info_cmd "zcat $BCK_FILE | tail -n 5 | grep 'Dump completed'"
 lRC=$(($lRC + $?))
 
 if [ "$logbinopt" != "OFF" ]; then
     info "POSITION LOGBIN DANS $(basename $BCK_FILE)"
-    zcat $BCK_FILE | head -n 40 | grep -E 'CHANGE MASTER'
+    info_cmd "zcat $BCK_FILE | head -n 40 | grep -E 'CHANGE MASTER'"
     lRC=$(($lRC + $?))
 fi
 
@@ -127,7 +127,7 @@ if [ $lRC -eq 0 -a -n "$KEEP_LAST_N_BACKUPS" ]; then
     	ls -tp $BCK_DIR| grep -v '/$' | grep 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
     	ls -tp $BCK_DIR| grep -v '/$' | grep -v 'sha256sum' | tail -n +$(($KEEP_LAST_N_BACKUPS +1))
     ) | while IFS= read -r f; do
-        echo "Removing $f";
+        info "Removing $f";
         rm -f $BCK_DIR/$f
     done
 fi
@@ -138,6 +138,5 @@ sha256sum $BCK_FILE > ${BCK_FILE}.sha256sum
 info "Liste fichier backup"
 ls -lsh $BCK_DIR
 
-info "FINAL CODE RETOUR: $lRC"
 footer "SSH LOGICAL BACKUP"
 exit $lRC
