@@ -1233,3 +1233,27 @@ gad() {
     sort | uniq | \
     xargs -n 1 git rm -f
 }
+
+
+check_all_nrpe_conf()
+{
+    local lFilter=${1:-'.*'}
+    lRC=0
+    tmpRc=0
+    grep 'command\[check_' /etc/nagios/nrpe.cfg /etc/nagios/nrpe.d/*| cut -d\] -f1| cut -d\[ -f2 | grep -E "$lFilter" | while IFS= read -r line; do
+        echo "---------------------------------------------------------"
+        echo "$line"
+        echo "---------------------------------------------------------"
+        /usr/lib64/nagios/plugins/check_nrpe -4 -H 127.0.0.1 -c $line
+        tmpRc=$?
+        if [ $tmpRc -ne 0 ]; then
+            error "CHECKING $line => FAILED"
+        else
+            info "CHECKING $line => OK"
+        fi
+        lRC=$((lRC + $tmpRc))
+        echo ""
+        echo ""
+
+    done
+}
