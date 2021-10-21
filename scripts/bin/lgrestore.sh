@@ -11,13 +11,13 @@ lRC=0
 
 banner "LOGICAL RESTORE"
 
-if [ -f "/etc/backupbdd/lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig.sh"
-    source /etc/backupbdd/lgconfig.sh
+if [ -f "/etc/mybackupbdd/lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/lgconfig.sh"
+    source /etc/mybackupbdd/lgconfig.sh
 fi
-if  [ -n "$1" -a -f "/etc/backupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh"
-    source /etc/backupbdd/lgconfig_$TARGET_CONFIG.sh
+if  [ -n "$1" -a -f "/etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh"
+    source /etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh
 fi
 
 if [ "$1" = "-l" -o "$1" = "--list" ]; then

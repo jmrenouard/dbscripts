@@ -33,13 +33,13 @@ lRC=0
 
 banner "SSH LOGICAL BACKUP"
 
-if [ -f "/etc/backupbdd/ssh_lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/backupbdd/ssh_lgconfig.sh"
-    source /etc/backupbdd/ssh_lgconfig.sh
+if [ -f "/etc/mybackupbdd/ssh_lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig.sh"
+    source /etc/mybackupbdd/ssh_lgconfig.sh
 fi
-if  [ -n "$TARGET_CONFIG" -a -f "/etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh"
-    source /etc/backupbdd/ssh_lgconfig_$TARGET_CONFIG.sh
+if  [ -n "$TARGET_CONFIG" -a -f "/etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh"
+    source /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh
 fi
 
 SSH_CMD="ssh -q -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
