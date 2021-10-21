@@ -11,13 +11,13 @@ lRC=0
 
 banner "SSH LOGICAL RESTORE"
 
-if [ -f "/etc/mybackupbdd/ssh_lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig.sh"
-    source /etc/mybackupbdd/ssh_lgconfig.sh
+if [ -f "/etc/mybackupbdd/ssh_lgconfig.conf" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig.conf"
+    source /etc/mybackupbdd/ssh_lgconfig.conf
 fi
-if  [ -n "$1" -a -f "/etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh"
-    source /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.sh
+if  [ -n "$1" -a -f "/etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf"
+    source /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf
 fi
 
 SSH_CMD="ssh -q -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
