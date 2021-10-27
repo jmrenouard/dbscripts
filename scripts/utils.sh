@@ -504,13 +504,28 @@ tlog()
 my_status()
 {
     local lRC=0
-    $SSH_CMD mysqladmin ping 2>&1 | grep -qi error
+    $SSH_CMD mysqladmin ping 2>&1 | grep -qiE '(error|commande introuvable|command not found)'
     lRC=$(reverse_rc $?)
     if [ $lRC -eq 0 ]; then
         ok "mysql server is running ...."
         return 0
     fi
     error "mysql server is stopped ...."
+    return 1
+}
+
+
+## Code PostgreSQL
+pg_status()
+{
+    local lRC=0
+    $SSH_CMD pg_isready 2>&1 | grep -qiE 'accepting connections'
+    lRC=$?
+    if [ $lRC -eq 0 ]; then
+        ok "PostgreSQL server is running ...."
+        return 0
+    fi
+    error "PostgreSQL server is stopped ...."
     return 1
 }
 
