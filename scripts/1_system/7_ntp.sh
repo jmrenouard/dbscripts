@@ -25,18 +25,26 @@ if [ "$ID" != "ubuntu" ];then
 	sleep 3s
 else
 		# Ubuntu / Debian
-		cmd "apt -y install ntpstat chrony"
+		cmd "apt -y install ntpstat ntp"
 		lRC=$(($lRC + $?))
-		cmd "systemctl restart chronyd"
+		
+		cmd "systemctl enable ntp"
+		lRC=$(($lRC + $?))
+		
+		cmd "systemctl restart ntp"
 		lRC=$(($lRC + $?))
 		sleep 3s	
 fi
 cmd "timedatectl set-timezone $TIMEZONE"
 lRC=$(($lRC + $?))
 
-cmd "timedatectl"
+cmd "timedatectl status"
 
 cmd "date"
+
+cmd "ntpstat"
+
+cmd "ntpq -p"
 
 # Attente de résolution :)
 # sleep 3s

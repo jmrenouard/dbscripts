@@ -10,7 +10,7 @@ fi
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
-[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
+[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/.ssh/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
 export db_vms="dbsrv1,dbsrv2,dbsrv3"
@@ -719,11 +719,12 @@ lsetupHosts()
 lgenAlias()
 {
 	local PUBKEY=${1:-"$DEFAULT_PRIVATE_KEY"}
-	PUBKEY=$(readlink -f $PUBKEY)
+	[ -f "$PRIVKEY" ] || PRIVKEY=$HOME/.ssh/id_rsa
+    PUBKEY=$(readlink -f $PUBKEY)
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
-		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $PUBKEY root@$lippub"
+		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $PRIVKEY root@$lippub"
 	done
 }
 
@@ -780,7 +781,6 @@ lexec()
     local lsrv=$1
     local lRC=0
     shift
-
 
     for fcmd in $*; do
         if [ ! -f "$fcmd" ]; then

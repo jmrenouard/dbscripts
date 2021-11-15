@@ -34,11 +34,11 @@ echo "$SRV IS NOT REBOOTED AFTER $((1 +$CYCLE * 3)) s"
 exit 3
 
 
-SRV_LST="dbsrv1
-dbsrv2
-dbsrv3"
+#SRV_LST="galera1
+#galera1
+#galera1"
 
-for srv in $SRV_LST; do
-	bash -x update_and_reboot.sh $srv 
-	sleep 20s
-done
+#for srv in $SRV_LST; do
+#	bash -x update_and_reboot.sh $srv 
+#	sleep 20s
+#done

@@ -45,7 +45,7 @@ echo "## Scripted and remote update procedure
 | Step | Description | User | Command |
 | --- | --- | --- | --- |
 | 1 | Load utilities functions  | root | # source profile |
-| 2 | Execute generic script remotly  | root | # vssh_exec ${target_hosts} ${script_file} |
+| 2 | Execute generic script remotely  | root | # vssh_exec ${target_hosts} ${script_file} |
 | 3 | Check return code | root | echo $? (0) |
 
 ##  Update Procedure example remotely
@@ -74,11 +74,11 @@ echo "${goals_fr}" | while IFS= read -r line; do
 echo ">  * $line"
 done >> ${file_md}_fr.md
 
-echo "## Procédure scriptées à distance via SSH
+echo "## Procédure scriptée à distance via le protocole SSH
 | Etape | Description | Utilisateur | Commande |
 | --- | --- | --- | --- |
 | 1 | Load utilities functions  | root | # source profile |
-| 2 | Execute generic script remotly  | root | # vssh_exec ${target_hosts} ${script_file} |
+| 2 | Execute generic script remotely  | root | # vssh_exec ${target_hosts} ${script_file} |
 | 3 | Vérifier le code retour  | root | echo $? (0) |
 
 ##  Exemple de procédure à distance par script
