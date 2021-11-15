@@ -21,3 +21,4 @@ Idera*
 python/chromedriver.exe
 python/selenium/**
 python/linkedin.ini
+*.bak
