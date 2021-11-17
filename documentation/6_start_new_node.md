@@ -10,7 +10,7 @@
 >  * Start a other operationnal node
 >  *  Start a consistent new node
 >  * Adding Galera Cluster member
-## Scripted and remote update procedure
+## Scripted and remote updates procedure
 | Step | Description | User | Command |
 | --- | --- | --- | --- |
 | 1 | Load utilities functions  | root | # source profile |
