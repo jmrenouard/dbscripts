@@ -10,17 +10,20 @@ fi
 rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
 rpm -v --import https://www.virtualbox.org/download/oracle_vbox.asc
 
-yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+dnf -y install dnf-plugins-core dnf-utils
+dnf-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
 
-yum install sublime-text kernel-devel kernel-headers gcc make perl wget -y
+dnf install sublime-text kernel-devel kernel-headers gcc make perl wget pigz -y
 
 wget http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo -O /etc/yum.repos.d/virtualbox.repo
 exit 0
-yum -y install VirtualBox-6.1.x86_64
-yum -y install https://releases.hashicorp.com/vagrant/2.2.16/vagrant_2.2.16_x86_64.rpm
+dnf -y install VirtualBox-6.1.x86_64
+
+dnf-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+dnf -y install vagrant
 
 curl -O http://downloadfiles.idera.com/products/IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
-yum -y install ./IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.rpm
+dnf -y install ./IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.rpm
 unzip IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
 
 yum install cloud-utils dos2unix -y
