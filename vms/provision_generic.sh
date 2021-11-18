@@ -74,12 +74,12 @@ echo "5° Install EPEL REPOSITORY"
 echo '---------------------------------------------------'
  ps -edf | grep '[y]um'| awk '{ print $2}' | xargs -n 10 sudo kill -9
 
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
 echo '---------------------------------------------------'
 echo "6° Install some utlities"
 echo '---------------------------------------------------'
-sudo yum -y install rsync lftp socat htop python3 time git telnet perl
+sudo dnf -y install rsync lftp socat htop python3 time git telnet perl
 
 echo '---------------------------------------------------'
 echo "7° Change SSHD behaviour password authentication  and root connexion allowed"
@@ -98,8 +98,8 @@ sudo systemctl reload sshd
 echo '---------------------------------------------------'
 echo "8° update distro"
 echo '---------------------------------------------------'
-sudo yum -y update || true
-sudo yum -y clean all || true
+sudo dnf -y update || true
+sudo dnf -y clean all || true
 echo "">$HOME/.bash_history
 echo "" | sudo tee /root/.bash_history
 

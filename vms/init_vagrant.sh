@@ -11,4 +11,4 @@ $VAGRANT plugin install vagrant-vbguest
 $VAGRANT plugin install vagrant-hostmanager
 $VAGRANT plugin install vagrant-persistent-storage
 
-yum -y install dkms kernel-devel
+dnf -y install dkms kernel-devel
