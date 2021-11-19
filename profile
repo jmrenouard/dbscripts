@@ -10,7 +10,7 @@ fi
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
-[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/.conf/id_rsa"
+[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/dbscripts/vms/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
 export db_vms="dbsrv1,dbsrv2,dbsrv3"
