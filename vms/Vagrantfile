@@ -32,8 +32,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "app1" do |app1|
       app1.vm.box = "bento/centos-8"
       app1.vm.hostname = 'app1'
-      app1.vm.network "private_network", ip: "192.168.56.171", bridge: DBRIDGE
-      app1.vm.network "public_network", type: "dhcp"
+      app1.vm.network "private_network", ip: "192.168.56.171"
+      app1.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       app1.hostmanager.enabled = true
       app1.hostmanager.manage_host = false
       app1.hostmanager.manage_guest = true
@@ -56,8 +56,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "proxy1" do |proxy1|
       proxy1.vm.box = "bento/centos-8"
       proxy1.vm.hostname = 'proxy1'
-      proxy1.vm.network "private_network", ip: "192.168.56.181", bridge: DBRIDGE
-      proxy1.vm.network "public_network", type: "dhcp"
+      proxy1.vm.network "private_network", ip: "192.168.56.181"
+      proxy1.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       proxy1.hostmanager.enabled = true
       proxy1.hostmanager.manage_host = false
       proxy1.hostmanager.manage_guest = true
@@ -81,8 +81,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "proxy2" do |proxy2|
       proxy2.vm.box = "bento/centos-8"
       proxy2.vm.hostname = 'proxy2'
-      proxy2.vm.network "private_network", ip: "192.168.56.182", bridge: DBRIDGE
-      proxy2.vm.network "public_network", type: "dhcp"
+      proxy2.vm.network "private_network", ip: "192.168.56.182"
+      proxy2.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       proxy2.hostmanager.enabled = true
       proxy2.hostmanager.manage_host = false
       proxy2.hostmanager.manage_guest = true
@@ -108,8 +108,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "dbsrv1" do |dbsrv1|
       dbsrv1.vm.box = "bento/centos-8"
       dbsrv1.vm.hostname = 'dbsrv1'
-      dbsrv1.vm.network "private_network", ip: "192.168.56.191", bridge: DBRIDGE
-      dbsrv1.vm.network "public_network", type: "dhcp"
+      dbsrv1.vm.network "private_network", ip: "192.168.56.191"
+      dbsrv1.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       dbsrv1.hostmanager.enabled = true
       dbsrv1.hostmanager.manage_host = false
       dbsrv1.hostmanager.manage_guest = true
@@ -133,8 +133,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "dbsrv2" do |dbsrv2|
       dbsrv2.vm.box = "bento/centos-8"
       dbsrv2.vm.hostname = 'dbsrv2'
-      dbsrv2.vm.network "private_network", ip: "192.168.56.192", bridge: DBRIDGE
-      dbsrv2.vm.network "public_network", type: "dhcp"
+      dbsrv2.vm.network "private_network", ip: "192.168.56.192"
+      dbsrv2.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       dbsrv2.hostmanager.enabled = true
       dbsrv2.hostmanager.manage_host = false
       dbsrv2.hostmanager.manage_guest = true
@@ -158,8 +158,8 @@ Vagrant.configure("2") do |config|
     config.vm.define "dbsrv3" do |dbsrv3|
       dbsrv3.vm.box = "bento/centos-8"
       dbsrv3.vm.hostname = 'dbsrv3'
-      dbsrv3.vm.network "private_network", ip: "192.168.56.193", bridge: DBRIDGE
-      dbsrv3.vm.network "public_network", type: "dhcp"
+      dbsrv3.vm.network "private_network", ip: "192.168.56.193"
+      dbsrv3.vm.network "public_network", type: "dhcp", bridge: DBRIDGE
       dbsrv3.hostmanager.enabled = true
       dbsrv3.hostmanager.manage_host = false
       dbsrv3.hostmanager.manage_guest = true
