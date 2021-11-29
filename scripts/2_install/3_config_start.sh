@@ -2,8 +2,8 @@
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
-##title_en: MariaDB 10.5 server configuration based on  CPU/RAM
-##title_fr: Cionfiguration du serveur MariaDB 10.5 basée sur la RAM et CPU
+##title_en: MariaDB 10.6 server configuration based on  CPU/RAM
+##title_fr: Configuration du serveur MariaDB 10.5 basée sur la RAM et CPU
 ##goals_en: Create configuration file / Setup systemctl service mariadb / Clean up log file / Starting service / Check service health
 ##goals_fr: Creation du fichier de configuration / Paramétrage du service mariadb / Nettoyage des fichiers de logs / Démarrage du service / vérification de l etat du service
 
