@@ -5,11 +5,11 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 DATADIR=/var/lib/mysql/
-cluster_name="jmrcluster"
+cluster_name="gendarmerie"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 sst_user=galera
 sst_password=kee2iesh1Ohk1puph8
 
@@ -19,7 +19,7 @@ sst_password=kee2iesh1Ohk1puph8
 ##title_en: Galera Cluster bootstrap
 ##title_fr: Initialisation du cluster Galera
 ##goals_en: Start  a 1st operationnal node /  Start a consistent first node / Galera Cluster initialisation
-##goals_fr: Démarrer un 1ere noeud Galera operationnel / Démarrer un noeud dans un état consistant  / Initialiser un cluster Galera
+##goals_fr: Démarrer un 1ere nœud Galera opérationnel / Démarrer un nœud dans un état consistant  / Initialiser un cluster Galera
 
 
 

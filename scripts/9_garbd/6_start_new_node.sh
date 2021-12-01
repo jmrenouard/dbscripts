@@ -4,13 +4,13 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 DATADIR=/var/lib/mysql/
-cluster_name="adistacluster"
+cluster_name="gendarmerie"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
-private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1)
+node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 sst_user=galera
-sst_password=ohGh7boh7eeg6shuph
+sst_password=kee2iesh1Ohk1puph8
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
