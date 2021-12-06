@@ -4,7 +4,7 @@
 source /etc/os-release
 
 lRC=0
-VERSION=${1:-"10.5"}
+VERSION=${1:-"10.6"}
 
 ##title_en: Centos MariaDB 10.5 server installation
 ##title_fr: Installation du serveur MariaDB 10.5 sur OS Centos  

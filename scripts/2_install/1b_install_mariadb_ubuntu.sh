@@ -4,7 +4,7 @@
 source /etc/os-release
 
 lRC=0
-VERSION=${1:-"10.5"}
+VERSION=${1:-"10.6"}
 
 banner "BEGIN SCRIPT: $_NAME"
 

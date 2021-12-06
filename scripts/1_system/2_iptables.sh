@@ -39,8 +39,8 @@ else
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=4568/tcp --permanent"
 	lRC=$(($lRC + $?))
-	cmd "firewall-cmd --add-port=5555/tcp --permanent"
-	lRC=$(($lRC + $?))
+#	cmd "firewall-cmd --add-port=5555/tcp --permanent"
+#	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --reload"
 	cmd "firewall-cmd --list-all"
 fi
