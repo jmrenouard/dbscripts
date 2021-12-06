@@ -35,7 +35,7 @@ fi
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install python3 MariaDB-server mylvmbackup MariaDB-backup MariaDB-client MariaDB-compat MariaDB-cracklib-password-check MariaDB-connect-engine"
+cmd "yum -y install python3 MariaDB-server mylvmbackup mariadb-backup MariaDB-backup MariaDB-client MariaDB-compat MariaDB-cracklib-password-check MariaDB-connect-engine"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install cracklib cracklib-dicts tree socat sysbench jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
