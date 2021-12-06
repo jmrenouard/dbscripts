@@ -73,13 +73,13 @@ cmd "journalctl -xe -o cat -u mariadb"
 sleep 3s
 systemctl is-active mariadb
 echo $?
-cd /opt/local
-if [ ! -d "./mariadb-sys" ]; then
-	cmd "git clone https://github.com/FromDual/mariadb-sys.git"
-	lRC=$(($lRC + $?))
-fi
-cd /opt/local/mariadb-sys
-mysql -f < sys_10.sql
+#cd /opt/local
+#if [ ! -d "./mariadb-sys" ]; then
+#	cmd "git clone https://github.com/FromDual/mariadb-sys.git"
+#	lRC=$(($lRC + $?))
+#fi
+#cd /opt/local/mariadb-sys
+#mysql -f < sys_10.sql
 
 footer "END SCRIPT: $NAME"
 exit $lRC
