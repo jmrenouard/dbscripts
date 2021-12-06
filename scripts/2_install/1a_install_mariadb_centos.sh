@@ -35,19 +35,20 @@ fi
 cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install python3 MariaDB-server mylvmbackup mariadb-backup MariaDB-backup MariaDB-client MariaDB-compat MariaDB-cracklib-password-check MariaDB-connect-engine"
+cmd "yum -y install MariaDB-server galera-4 MariaDB-client MariaDB-shared MariaDB-backup MariaDB-common"
+
+cmd "yum -y install python3 mylvmbackup MariaDB-cracklib-password-check MariaDB-connect-engine"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install cracklib cracklib-dicts tree socat sysbench jemalloc rsync nmap lsof perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install https://repo.percona.com/yum/release/latest/RPMS/x86_64/percona-toolkit-3.2.1-1.el6.x86_64.rpm"
-ln -sf lRC=$(($lRC + $?))
+cmd "yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
+lRC=$(($lRC + $?))
+cmd "yum -y install percona-toolkit"
+lRC=$(($lRC + $?))
 
-#cmd "pip3 install mycli"
-#lRC=$(($lRC + $?))
-
-cmd "yum -y install https://github.com/maxbube/mydumper/releases/download/v0.10.5/mydumper-0.10.5-1.el${VERSION_ID}.x86_64.rpm"
+cmd "yum -y install https://github.com/mydumper/mydumper/releases/download/v0.11.3-3/mydumper-0.11.3-3.el${VERSION_ID}.x86_64.rpm"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/m/mysqlreport-3.5-24.fc34.noarch.rpm"
@@ -69,7 +70,5 @@ cmd "chmod 755 /opt/local/MySQLTuner-perl/mysqltuner.pl"
 echo 'export PATH=$PATH:/opt/local/MySQLTuner-perl' > /etc/profile.d/mysqltuner.sh
 chmod 755 /etc/profile.d/mysqltuner.sh
 
-cmd "yum -y install perl-App-cpanminus"
-#cmd "cpanm MySQL::Diff"
 footer "END SCRIPT: $NAME"
 exit $lRC
