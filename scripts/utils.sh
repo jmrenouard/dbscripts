@@ -591,7 +591,7 @@ my_cluster_state() {
 $SSH_CMD mysql -e "show status like '%wsrep%'"
 $SSH_CMD mysql -e "show variables like 'auto%'"
 $SSH_CMD mysql -e "show variables like 'wsrep_%'"
-) |grep -v wsrep_provider_options|| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
+) |grep -v wsrep_provider_options| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
 sort | column -t
 }
 

@@ -49,7 +49,7 @@ add_password_history root "$PASSWD_ROOT"
 add_password_history replication "${PASSWD_REPLI}"
 add_password_history galera "${PASSWD_GALERA}"
 
-echo "node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+echo "node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 sst_user=galera
 sst_password=${PASSWD_GALERA}
 cluster_name="gendarmerie"
