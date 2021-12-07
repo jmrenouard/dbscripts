@@ -742,13 +742,13 @@ get_non_innodb_table_count()
 
 tables_without_primary_key()
 {
-    echo 'SELECT DISTINCT t.table_schema, t.table_name
+    echo "SELECT DISTINCT t.table_schema, t.table_name
        FROM information_schema.tables AS t
        LEFT JOIN information_schema.columns AS c ON t.table_schema = c.table_schema AND t.table_name = c.table_name
-             AND c.column_key = "PRI"
-      WHERE t.table_schema NOT IN ('information_schema', 'mysql', 'performance_schema')
+             AND c.column_key = 'PRI'
+      WHERE t.table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
         AND c.table_name IS NULL AND t.table_type != 'VIEW';
-' | mysql -v
+" | mysql -v
 }
 
 
@@ -1073,6 +1073,12 @@ killall_mariadbd()
     ps -edf | grep [m]ariadbd | awk '{print $2}' | xargs -n1 kill -9
 }
 
+reset_quorum()
+{
+ systemctl stop mysql
+ perl –pe –i 's/safe_to_bootstrap: 0/ safe_to_bootstrap: 1/g' /var/lib/mysql/grastate.dat
+ galera_new_cluster
+}
 open_mariadb_root_from()
 {
     local remoteIPv4=$1
