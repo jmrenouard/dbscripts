@@ -557,9 +557,9 @@ db_tables()
 
 db_count()
 {
-    for tbl in $(DB=${1:-"mysql"} db_tables); do
+    for tbl in $(db_tables ${1:-"mysql"}); do
         echo -ne "$tbl\t"
-        DB=${1:-"mysql"} raw_mysql "select count(*) from $tbl"
+        raw_mysql "select count(*) from ${1:-"mysql"}.$tbl"
     done | sort -nr -k2 | column -t
 }
 
