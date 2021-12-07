@@ -2,6 +2,7 @@ https://dd4t.dadesktop.com
 
 https://dd4t.dadesktop.com/da/join/eb6809
 
+https://github.com/jmrenouard/dbscripts/
 
 ```bash
 git pull
@@ -28,7 +29,7 @@ vssh_exec $all_vms scripts/1_system/6_tuned.sh
 vssh_exec $all_vms scripts/1_system/7_ntp.sh
 ```
 
-# installation
+# Installation
 
 ```bash
 vssh_exec $db_vms scripts/2_install/1a_install_mariadb_centos.sh
@@ -40,7 +41,7 @@ vssh_exec $db_vms scripts/2_install/1a_install_mariadb_centos.sh
 vssh_exec $db_vms scripts/2_install/3_config_start.sh
 ```
 
-# Securisation et données
+# Sécurisation et données
 
 ```bash
 vssh_exec dbsrv1 scripts/3_database/1_secure_access.sh
@@ -61,3 +62,4 @@ vssh_exec dbsrv2,dbsrv3 scripts/8_galera/6_start_new_node.sh
 
 
 
+grant all on sbtest.* to 'sbtest'@'localhost';

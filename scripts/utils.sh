@@ -15,7 +15,7 @@ else
     _NAME="INLINE SHELL"
 fi
 [ -f '/etc/os-release' ] && source /etc/os-release
-
+export LC_ALL="C"
 HA_SOCKET=/tmp/admin.sock
 
 export PATH=$PATH:/opt/local/bin:/opt/local/MySQLTuner-perl:.

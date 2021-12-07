@@ -5,11 +5,11 @@
 lRC=0
 CONF_FILE="/etc/sysconfig/garb"
 
-cluster_name="meteocluster"
+cluster_name="gendarmerie"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1)
-node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 

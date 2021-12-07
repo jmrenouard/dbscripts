@@ -39,14 +39,11 @@ innodb-force-primary-key=1
 wsrep-on=on
 wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
 wsrep-slave-threads=$(( $(nproc) * 4 ))
-#wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
+wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
 #wsrep_provider_options='cert.log_conflicts=yes';
 #wsrep_log_conflicts=ON
-
 #wsrep_provider_options='gcs.fc_mimit=1024';
-
-
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
@@ -58,14 +55,10 @@ wsrep-sst-method=mariabackup
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
-
-wsrep_log_conflicts=1
-
 "
 ) | tee -a $CONF_FILE
 
 cmd "chmod 644 $CONF_FILE"
-
 
 cmd "rm -f ${DATADIR}/galera.cache ${DATADIR}/grastate.dat ${DATADIR}/gvwstate.dat"
 cmd "systemctl restart mariadb"
