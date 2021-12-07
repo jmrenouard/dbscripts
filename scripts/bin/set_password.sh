@@ -11,6 +11,7 @@ banner "CHANGING DB USER: $USER"
 
 for hst in $(mysql -Nrs -e "SELECT host from mysql.user WHERE user='$USER'"); do
 	mysql -v -e "SET PASSWORD FOR '$USER'@'$hst' = PASSWORD('$PASSWD');"
+	[ $? -eq 0 ] && add_password_history $USER  $PASSWD
 done
 lRC=$?
 

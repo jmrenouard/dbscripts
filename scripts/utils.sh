@@ -756,7 +756,7 @@ force_primary_view()
 {
     if [ "$(global_status wsrep_cluster_status)" != "Primary" ]; then
         ask_yes_or_no "Make this node a prim view for the whole cluster"
-        [ $? -eq 0 ] && mysql -e "set global wsrep_provider_options='pc.bootstrap=1'"
+        [ $? -eq 0 ] && reset_quorum
     fi
 }
 
