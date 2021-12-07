@@ -1,7 +1,8 @@
 #!/bin/bash
 
-sudo rpm -e IderaSQLdmforMySQL-8.9.2-0.x86_64
-sudo rpm -e IderaSQLdmforMySQL-8.9.2-0.x86_64
-sudo rm -rf /etc/init.d/MONyogd /usr/local/MONyog/
+rpm -qa | grep -i idera| xargs -n1 rpm -e IderaSQLdmforMySQL-8.9.2-0.x86_64
+rm -rf /etc/init.d/MONyogd /usr/local/MONyog/
 
-sudo yum -y install $HOME/Downloads/Idera*.rpm
+curl https://downloadfiles.idera.com/products/IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
+unzip IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm.zip
+yum -y install IderaSQLDiagnosticManagerForMySQL-Linux-x64-rpm
