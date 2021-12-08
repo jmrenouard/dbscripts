@@ -24,7 +24,8 @@ INCRBACKDIR=$BACKDIR/incr
 FULLBACKUPCYCLE=43200 # Create a new full backup every X seconds / 12 heures
 KEEP=3 # Number of additional backups cycles a backup should kept for.
 
-USEROPTIONS="--user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --host=${MYSQL_HOST} --port=${MYSQL_PORT}"
+#--host=${MYSQL_HOST} --port=${MYSQL_PORT}
+USEROPTIONS="--user=${MYSQL_USER} --password=${MYSQL_PASSWORD}"
 ARGS=""
 START=`date +%s`
 
