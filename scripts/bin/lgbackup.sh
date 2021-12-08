@@ -61,7 +61,7 @@ if [ ! -d "$BCK_DIR" ]; then
     mkdir -p $BCK_DIR
 else
     info "DIRECTORY $BCK_DIR ALREADY EXISTS"
-done
+fi
 
 add_opt=""
 logbinopt="$(global_variables log_bin)"

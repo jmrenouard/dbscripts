@@ -10,7 +10,7 @@ PASSWD_GALERA="$(pwgen -1 18)"
 
 banner "BEGIN SCRIPT: $_NAME"
 
-echo "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${PASSWD_ROOT}');GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
+echo "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${PASSWD_ROOT}');GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
 
 CREATE OR REPLACE USER 'root'@'192.168.%' IDENTIFIED BY '${PASSWD_ROOT}';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.%';

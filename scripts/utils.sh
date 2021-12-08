@@ -747,8 +747,7 @@ tables_without_primary_key()
        LEFT JOIN information_schema.columns AS c ON t.table_schema = c.table_schema AND t.table_name = c.table_name
              AND c.column_key = 'PRI'
       WHERE t.table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')
-        AND c.table_name IS NULL AND t.table_type != 'VIEW';
-" | mysql -v
+        AND c.table_name IS NULL AND t.table_type != 'VIEW';" | mysql -v
 }
 
 
