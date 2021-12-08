@@ -73,7 +73,6 @@ title1 "Command: time mysqldump --all-databases $add_opt \
 --routines \
 --skip-opt \
 --triggers \
---events \
 --add-drop-table --add-locks --create-options --disable-keys --extended-insert \
 --quick --set-charset \
 --single-transaction | $GZIP_CMD > $BCK_FILE"
@@ -83,7 +82,6 @@ time mysqldump --all-databases $add_opt \
 --routines \
 --skip-opt \
 --triggers \
---events \
 --add-drop-table --add-locks --create-options --disable-keys --extended-insert \
 --quick --set-charset \
 --single-transaction | $GZIP_CMD > $BCK_FILE
@@ -108,6 +106,11 @@ fi
 info "Fin du fichier $(basename $BCK_FILE)"
 zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
 lRC=$(($lRC + $?))
+if [ $lRC -eq 0 ]; then
+    info "BACKUP OK FIN FICHIER..........."
+else
+    error "mysqldump BACKUP error FIN FICHIER: Dump completed"
+fi
 
 if [ "$logbinopt" != "OFF" ]; then
     info "POSITION LOGBIN DANS $(basename $BCK_FILE)"
