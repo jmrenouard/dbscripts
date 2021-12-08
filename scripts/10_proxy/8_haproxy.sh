@@ -8,8 +8,8 @@ banner "BEGIN SCRIPT: $_NAME"
 
 CONF_FILE="/etc/haproxy/haproxy.cfg"
 
-cluster_name="adistacluster"
-node_addresses=192.168.33.191,192.168.33.192,192.168.33.193
+cluster_name="gendarmerie"
+node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 
 [ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
 source /etc/os-release
