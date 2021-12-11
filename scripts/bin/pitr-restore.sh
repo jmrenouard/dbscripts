@@ -17,7 +17,7 @@ DATE_RESTORE=$(date +"%Y-%m-%d %H:%M:%S")
 DIR_RESTORE="${BACKDIR}/restore_$(echo $DATE_RESTORE | tr ' ' '_' | tr ':' '-')"
 echo "RESTORE DIR: $DIR_RESTORE"
 
-# Récupération de la dernière sauvegrade full
+# Récupération de la dernière sauvegarde full
 LAST_BASE_BACK=$(find ${BACKDIR}/base -mindepth 1 -maxdepth 1 -type d ! -newermt "$DATE_RESTORE" | sort -n | tail -1)
 
 # Récupération des incrémentales correspondantes
