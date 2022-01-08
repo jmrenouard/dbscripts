@@ -771,3 +771,5 @@ lUpdateScript()
     chown -R root.root /opt/local/bin
     chmod -R 755 /opt/local/bin
 }
+
+[ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh
