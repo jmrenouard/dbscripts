@@ -14,7 +14,7 @@ sudo docker volume create portainer_data
 
 echo -n "portainer" > /var/tmp/portainer_password
 
-sudo docker ps -a |grep portainer| awk ''| xargs -n 1 sudo docker rm -f
+sudo docker ps -a |grep "portainer-ce" | awk '{print $1}'| xargs -n 1 sudo docker rm -f
 
 sudo docker run -d -p 9000:9000 -p 8000:8000 \
 --name=portainer --restart=always \
