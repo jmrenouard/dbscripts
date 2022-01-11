@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #!/bin/bash
 
 if [ "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" -a "$0" != "-su" ]; then
