@@ -772,4 +772,3 @@ lUpdateScript()
     chmod -R 755 /opt/local/bin
 }
 
-[ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh

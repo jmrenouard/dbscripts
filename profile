@@ -1007,14 +1007,14 @@ vsetupVMs()
 
 vupdateScript()
 {
-	local lsrv=${1:-"app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"}
+	local lsrv=${1:-"app1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"}
 	banner "UPDATE SCRIPTS"
 	vssh_cmd $lsrv "mkdir -p /opt/local/bin"
 	title2 "TRANSFERT utils.sh TO $lsrv"
 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
 	title2 "TRANSFERT mysql.utils.sh TO $lsrv"
-    vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.mysql.sh root 755
-    title2 "TRANSFERT bin scripts TO $lsrv"
+ 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.mysql.sh root 755
+        title2 "TRANSFERT bin scripts TO $lsrv"
 	vssh_copy $lsrv $_DIR/scripts/bin/ /opt/local/bin root 755
     footer "UPDATE SCRIPTS"
 }
