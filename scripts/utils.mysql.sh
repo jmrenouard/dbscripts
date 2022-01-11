@@ -83,7 +83,7 @@ galera_status()
     $SSH_CMD mysql -e "select * from mysql.wsrep_cluster_members\G"
     title1 "WSREP STREAMING REPLICATION"
     $SSH_CMD mysql -e "select * from mysql.wsrep_streaming_log\G"
-       
+
 }
 
 my_cluster_state() {
@@ -231,11 +231,11 @@ done
 
 get_non_innodb_table_count()
 {
-    echo "select TABLE_SCHEMA, ENGINE , count(*) 
-    from information_schema.tables 
-    where TABLE_TYPE like 'Base table' 
-    AND ENGINE <> 'InnoDB' 
-    and TABLE_SCHEMA NOT IN ('mysql', 'performance_schema', 'sys', 'information_schema') 
+    echo "select TABLE_SCHEMA, ENGINE , count(*)
+    from information_schema.tables
+    where TABLE_TYPE like 'Base table'
+    AND ENGINE <> 'InnoDB'
+    and TABLE_SCHEMA NOT IN ('mysql', 'performance_schema', 'sys', 'information_schema')
     GROUP BY TABLE_SCHEMA, ENGINE;
 " |mysql -v
 }
