@@ -7,7 +7,7 @@
 lRC=0
 
 title1 "PROVISIONNING DOCKER PORTAINER"
-systemctl start docker
+sudo systemctl start docker
 
 docker volume create portainer_data
 
