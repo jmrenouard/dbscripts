@@ -1,14 +1,12 @@
 #!/bin/bash
 
-#!/bin/bash
-
 _DIR="$(dirname "$(readlink -f "$0")")"
 source $_DIR/utils.sh
 
 
 rl()
 {
-    [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+    [ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh
     chsh -s /bin/bash root
 }
 
