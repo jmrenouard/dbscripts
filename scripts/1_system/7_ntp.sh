@@ -44,8 +44,11 @@ cmd "date"
 
 cmd "ntpstat"
 
-cmd "ntpq -p"
-
+if [ "$VERSION_ID" = "8" ]; then
+	cmd "chronyc sources"
+else 
+	cmd "ntpq -p"
+fi
 # Attente de résolution :)
 # sleep 3s
 #ntpstat
