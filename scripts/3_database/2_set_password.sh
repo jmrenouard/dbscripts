@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 lRC=0
 DATADIR="/var/lib/mysql"
