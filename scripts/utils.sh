@@ -771,3 +771,9 @@ lUpdateScript()
     chown -R root.root /opt/local/bin
     chmod -R 755 /opt/local/bin
 }
+
+UTILS_IS_LOADED="1"
+if [ "$UTILS_MYSQL_IS_LOADED" != "1" ]; then
+    [ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh
+    [ -f "$_DIR/utils.mysql.sh" ] && source $_DIR/utils.mysql.sh
+fi

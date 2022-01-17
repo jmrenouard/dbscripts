@@ -1013,7 +1013,7 @@ vupdateScript()
 	title2 "TRANSFERT utils.sh TO $lsrv"
 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.sh root 755
 	title2 "TRANSFERT mysql.utils.sh TO $lsrv"
- 	vssh_copy $lsrv $_DIR/scripts/utils.sh /etc/profile.d/utils.mysql.sh root 755
+ 	vssh_copy $lsrv $_DIR/scripts/utils.mysql.sh /etc/profile.d/utils.mysql.sh root 755
         title2 "TRANSFERT bin scripts TO $lsrv"
 	vssh_copy $lsrv $_DIR/scripts/bin/ /opt/local/bin root 755
     footer "UPDATE SCRIPTS"

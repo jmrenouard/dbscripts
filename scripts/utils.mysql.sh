@@ -1,8 +1,10 @@
 #!/bin/bash
 
 _DIR="$(dirname "$(readlink -f "$0")")"
-source $_DIR/utils.sh
-
+if [ "$UTILS_IS_LOADED" != "1" ]; then
+    [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
+    [ -f "$_DIR/utils.sh" ] && source $_DIR/utils.sh
+fi
 
 rl()
 {
@@ -495,3 +497,5 @@ get_replication_status()
 }
 
 alias use='mysql'
+
+UTILS_MYSQL_IS_LOADED="1"
