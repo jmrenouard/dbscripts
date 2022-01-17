@@ -42,13 +42,14 @@ cmd "timedatectl status"
 
 cmd "date"
 
-cmd "ntpstat"
-
 if [ "$VERSION_ID" = "8" ]; then
 	cmd "chronyc sources"
 else 
 	cmd "ntpq -p"
 fi
+
+sleep 3s
+cmd "ntpstat"
 # Attente de résolution :)
 # sleep 3s
 #ntpstat
