@@ -439,10 +439,10 @@ cmd()
     local tcmd="$1"
     local descr=${2:-"$tcmd"}
     if [ -z "$2" ]; then
-        title1 "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+        title1 "RUNNING COMMAND: $(trim_len 60 $tcmd)"
     else
         title1 "$descr"
-        info "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+        info "RUNNING COMMAND: $(trim_len 60 $tcmd)"
         sep1
     fi
     $tcmd
@@ -462,21 +462,21 @@ info_cmd()
     local cRC=0
     local tcmd="$1"
     if [ -z "$2" ]; then
-        title1 "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+        title1 "RUNNING COMMAND: $(trim_len 60 $tcmd)"
     else
         title1 "$descr"
-        info "RUNNING COMMAND: $(trim_len 25 $tcmd)"
+        info "RUNNING COMMAND: $(trim_len 60 $tcmd)"
         sep1
     fi
     eval "$tcmd 2>&1" | while read -r line;do
-      info ">> $(trim_len 40 $line)"
+      info ">> $(trim_len 60 $line)"
     done
     cRC=$?
     info "RETURN CODE: $cRC"
     if [ $cRC -eq 0 ]; then
-        ok "$(trim_len 25 $tcmd)"
+        ok "$(trim_len 60 $tcmd)"
     else
-        error "$(trim_len 25 $tcmd)"
+        error "$(trim_len 60 $tcmd)"
     fi
     sep1
     return $cRC
