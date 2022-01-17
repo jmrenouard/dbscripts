@@ -6,12 +6,6 @@ if [ "$UTILS_IS_LOADED" != "1" ]; then
     [ -f "$_DIR/utils.sh" ] && source $_DIR/utils.sh
 fi
 
-rl()
-{
-    [ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh
-    chsh -s /bin/bash root
-}
-
 tlog()
 {
     tail_error_log

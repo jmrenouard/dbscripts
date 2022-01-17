@@ -509,9 +509,10 @@ set_val()
     eval "${var}='$*'"
 }
 
-
 rl()
 {
+    unset UTILS_MYSQL_IS_LOADED
+    unset UTILS_IS_LOADED
     [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
     chsh -s /bin/bash root
 }
