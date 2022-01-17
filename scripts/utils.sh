@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 if [ "$0" != "-bash" -a "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" -a "$0" != "-su" ]; then
     _DIR="$(dirname "$(readlink -f "$0")")"
     _NAME="$(basename "$(readlink -f "$0")")"
@@ -14,6 +15,7 @@ else
     _DIR="$(readlink -f ".")"
     _NAME="INLINE SHELL"
 fi
+set +x
 [ -f '/etc/os-release' ] && source /etc/os-release
 export LC_ALL="C"
 HA_SOCKET=/tmp/admin.sock
