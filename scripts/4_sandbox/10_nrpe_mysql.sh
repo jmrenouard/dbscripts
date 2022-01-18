@@ -49,10 +49,8 @@ qcache-hitrate
 qcache-lowmem-prunes
 keycache-hitrate
 cluster-ndbd-running  
-sql"                               
+sql"
 
-set -x
-set +x
 chmod 755 ./plugins-scripts/check_mysql_health  
 
 echo "command[disk]=/usr/lib64/nagios/plugins/check_disk -w80 -c95
@@ -72,6 +70,7 @@ for mode in $modes; do
     echo "command[mysql-$mode]=/opt/local/bin/check_mysql_health  --mode $mode --user nrpe --password nrpe">>/etc/nrpe.d/mysql.cfg 
 done
 systemctl restart nrpe 
+usermod -G mysql nrpe
 echo "----------------------------------------------------"
 for mode in $modes; do
     echo "CHECK NRPE: mysql-$mode"
