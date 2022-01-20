@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#_DIR="$(dirname "$(readlink -f "$0")")"
-if [ "$UTILS_IS_LOADED" != "1" ]; then
-    [ -f "/etc/profile.d/utils.sh" ] && source /etc/profile.d/utils.sh
-    [ -f "$_DIR/utils.sh" ] && source $_DIR/utils.sh
-fi
-
 tlog()
 {
     tail_error_log

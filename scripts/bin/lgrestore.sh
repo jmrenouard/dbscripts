@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
 
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+load_lib()
+{
+    libname="$1"
+    if [ -z "$libname" -o "$libname" = "main" ];then 
+        libname="utils.sh"
+    else 
+        libname="utils.$1.sh"
+    fi
+    _DIR="$(dirname "$(readlink -f "$0")")"
+    if [ -f "$_DIR/$libname" ]; then
+        source $_DIR/$libname
+    else
+        if [ -f '/etc/profile.d/$libname' ]; then
+            source /etc/profile.d/$libname
+        else 
+            echo "No $libname found"
+            exit 127
+        fi
+    fi
+}
+load_lib main
+load_lib mysql
+
 
 BCK_DIR=/data/backups/logical
 #GZIP_CMD="cat"

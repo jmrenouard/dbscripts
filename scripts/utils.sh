@@ -13,6 +13,7 @@ if [ "$0" != "-bash" -a "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-ba
 else
     _DIR="$(readlink -f ".")"
     _NAME="INLINE SHELL"
+    IS_SHELL_CONTEXT=1
 fi
 [ -f '/etc/os-release' ] && source /etc/os-release
 export LC_ALL="C"
@@ -774,7 +775,3 @@ lUpdateScript()
 }
 
 UTILS_IS_LOADED="1"
-if [ "$UTILS_MYSQL_IS_LOADED" != "1" ]; then
-    [ -f "/etc/profile.d/utils.mysql.sh" ] && source /etc/profile.d/utils.mysql.sh
-    [ -f "$_DIR/utils.mysql.sh" ] && source $_DIR/utils.mysql.sh
-fi
