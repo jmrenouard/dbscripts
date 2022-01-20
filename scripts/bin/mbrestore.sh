@@ -51,7 +51,7 @@ if [ -z "$DUMP_FILE" ]; then
 fi
 
 if [ ! -f "$DUMP_FILE" ]; then
-	warn "$DUMP_FILE doeasnt exist"
+	warn "$DUMP_FILE doesnt exist"
 	lRC=127
 fi
 
