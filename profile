@@ -1021,15 +1021,13 @@ vupdateScript()
 
 local_updateScript()
 {
-    banner "UPDATE SCRIPTS"
+    banner "LOCAL UPDATE SCRIPTS"
     mkdir -p /opt/local/bin
-    title2 "TRANSFERT utils.sh TO /etc/profile.d"
-    cp -v $_DIR/scripts/utils.sh /etc/profile.d/utils.sh
-    chown root: /etc/profile.d/utils.sh
-    chmod 755 /etc/profile.d/utils.sh
+    title2 "TRANSFERT utils.*.sh TO /opt/local/bin"
+    cp -v $_DIR/scripts/utils*.sh /opt/local/bin
     title2 "TRANSFERT bin scripts TO /opt/local"
     cp -R $_DIR/scripts/bin /opt/local
     chown -R root: /opt/local/bin
     chmod -R 755 /opt/local/bin
-    footer "UPDATE SCRIPTS"
+    footer "LOCAL UPDATE SCRIPTS"
 }
