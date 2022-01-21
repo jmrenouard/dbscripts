@@ -155,6 +155,10 @@ sha256sum $BCK_FILE > ${BCK_FILE}.sha256sum
 info "Liste fichier backup"
 ls -lsh $BCK_DIR
 
+info "BACKUP DIRECTORY: $BCK_DIR"
+info "BACKUP FILE NAME: $(basename $BCK_FILE)"
+info "BACKUP FILE SUM : $(basename $BCK_FILE.sha256sum)"
+info "BACKUP FILE SIZE: $(du -sh $BCK_FILE| awk '{print $1}')"
 info "FINAL CODE RETOUR: $lRC"
 footer "LOGICAL BACKUP"
 exit $lRC
