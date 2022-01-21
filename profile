@@ -1024,9 +1024,11 @@ local_updateScript()
     banner "LOCAL UPDATE SCRIPTS"
     mkdir -p /opt/local/bin
     title2 "TRANSFERT utils.*.sh TO /opt/local/bin"
-    cp -v $_DIR/scripts/utils*.sh /opt/local/bin
+    rsync -av $_DIR/scripts/utils*.sh /opt/local/bin
+    
     title2 "TRANSFERT bin scripts TO /opt/local"
-    cp -R $_DIR/scripts/bin /opt/local
+    rsync -av $_DIR/scripts/bin /opt/local
+    
     chown -R root: /opt/local/bin
     chmod -R 755 /opt/local/bin
     footer "LOCAL UPDATE SCRIPTS"
