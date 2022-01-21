@@ -1,0 +1,89 @@
+hyu1278-act-newu
+	st01_vissage_boitier
+	st02_vissage_boitier_manuel
+	st03_etancheite
+	st04_vissage_actionneur
+	st05_calibration
+	st08_soudure_rot_kcc
+
+hyu1278-act-newu_efi
+	Result
+	Setup
+	mlx90365
+	user
+
+hyu1309-act-theta3
+	st01_vissage_boitier
+	st02_vissage_boitier_manuel
+	st03_etancheite
+	st04_vissage_actionneur
+	st05_calibration
+	st06_vissage_collecteur
+	st08_soudure_rot_kcc
+	st11_soudure_rot_pipette_radia
+	st12_soudure_rot_pipette_oil
+	st13_soudure_rot_pipette_heater
+	st20_soudure_us_insert_collecteur
+	st21_soudure_rot_collecteur
+	st22_etancheite_collecteur
+
+hyu1309-act-theta3_efi
+	Result
+	Setup
+	mlx90365
+	user
+
+hyu1312-act-nu
+	Ref_Composants
+	st01_vissage_boitier
+	st02_vissage_boitier_manuel
+	st03_etancheite
+	st04_vissage_actionneur
+	st05_calibration
+	st08_soudure_rot_kcc
+	st11_soudure_rot_pipette_radia
+	st12_soudure_rot_pipette_heater
+	st13_soudure_rot_pipette_atf
+hyu1312-act-nu_efi
+	Result
+	Setup
+	mlx90365
+	user
+production
+	Datas_Scan
+	Machines
+
+hyu1312-act-nu_efi
+hyu1309-act-theta3_efi
+hyu1278-act-newu_efi
+production
+
+hyu1278-act-newu
+hyu1309-act-theta3
+hyu1312-act-nu
+
+
+
+Tables avec des clés primaires
+----------------------------------------------------------
+production
+	Datas_Scan
+	Machines
+hyu1278-act-newu_efi
+	Result
+	Setup
+hyu1309-act-theta3_efi
+	Result
+	Setup
+hyu1312-act-nu_efi
+	Result
+	Setup
+
+hyu1278-act-newu
+hyu1309-act-theta3
+hyu1312-act-nu
+
+hyu1278-act-newu_efi
+hyu1309-act-theta3_efi
+hyu1312-act-nu_efi
+	users: Il ne faut pas importer tous les utilisateurs de chaque archive
