@@ -57,16 +57,16 @@ if [ "$1" = "-l" -o "$1" = "--list" ]; then
 fi
 
 if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
-    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
-    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/lgbackup.sh" | tee /etc/cron.d/lgbackup
-    chmod 644 /etc/cron.d/lgbackup
-    cat /etc/cron.d/lgbackup
+    [ -f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
+    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/mbbackup.sh" | tee /etc/cron.d/mbbackup
+    chmod 644 /etc/cron.d/mbbackup
+    #cat /etc/cron.d/mbbackup
     systemctl restart cron
     exit 0
 fi
 
 if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
-    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
+    [-f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
     systemctl restart cron
     exit 0
 fi
