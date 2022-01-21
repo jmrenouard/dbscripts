@@ -57,6 +57,26 @@ if  [ -n "$1" -a -f "/etc/lgconfig_$TARGET_CONFIG.sh" ]; then
     info "LOADING CONFIG FROM /etc/lgconfig_$TARGET_CONFIG.sh"
     source /etc/lgconfig_$TARGET_CONFIG.sh
 fi
+if [ "$1" = "-l" -o "$1" = "--list" ]; then
+    ls -lsht $BCK_DIR
+    exit 0
+fi
+
+
+if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
+    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
+    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/lgbackup.sh" | tee /etc/cron.d/lgbackup
+    chmod 644 /etc/cron.d/lgbackup
+    cat /etc/cron.d/lgbackup
+    systemctl restart cron
+    exit 0
+fi
+
+if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
+    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
+    systemctl restart cron
+    exit 0
+fi
 
 info "CHECKING MYSQL STATUS"
 my_status

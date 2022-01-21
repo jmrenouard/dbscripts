@@ -130,7 +130,6 @@ if [ $lRC -eq 0 ]; then
     lRC=$?
     [ $lRC -eq 0 ] && ok "RESTORE OK"
     cmd "db_list"
-    cmd "db_tables"
 fi
 
 info "FINAL CODE RETOUR: $lRC"

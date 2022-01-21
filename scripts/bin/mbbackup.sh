@@ -51,6 +51,26 @@ if  [ -n "$1" -a -f "/etc/mbconfig_$TARGET_CONFIG.sh" ]; then
     source /etc/mbconfig_$TARGET_CONFIG.sh
 fi
 
+if [ "$1" = "-l" -o "$1" = "--list" ]; then
+    ls -lsht $BCK_DIR
+    exit 0
+fi
+
+if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
+    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
+    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/lgbackup.sh" | tee /etc/cron.d/lgbackup
+    chmod 644 /etc/cron.d/lgbackup
+    cat /etc/cron.d/lgbackup
+    systemctl restart cron
+    exit 0
+fi
+
+if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
+    [-f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
+    systemctl restart cron
+    exit 0
+fi
+
 [ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
 
 info "Backup mariabackup dans le fichier $(basename $BCK_FILE)"
