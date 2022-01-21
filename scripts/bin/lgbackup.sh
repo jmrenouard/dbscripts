@@ -53,9 +53,9 @@ if [ -f "/etc/lgconfig.sh" ]; then
     info "LOADING CONFIG FROM /etc/lgconfig.sh"
     source /etc/lgconfig.sh
 fi
-if  [ -n "$1" -a -f "/etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh"
-    source /etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh
+if  [ -n "$1" -a -f "/etc/lgconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/lgconfig_$TARGET_CONFIG.sh"
+    source /etc/lgconfig_$TARGET_CONFIG.sh
 fi
 
 info "CHECKING MYSQL STATUS"

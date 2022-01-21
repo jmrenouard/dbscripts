@@ -30,15 +30,27 @@ GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
 
-BACK_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
-BACK_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+if [ -f "/root/.my.cnf" ]; then
+	BACK_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+	BACK_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+fi
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
 LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
 
-[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
+
+
 lRC=0
 
 banner "MARIABACKUP BACKUP DB"
+if [ -f "/etc/mbconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mbconfig.sh"
+    source /etc/mbconfig.sh
+fi
+if  [ -n "$1" -a -f "/etc/mbconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mbconfig_$TARGET_CONFIG.sh"
+    source /etc/mbconfig_$TARGET_CONFIG.sh
+fi
+
 [ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
 
 info "Backup mariabackup dans le fichier $(basename $BCK_FILE)"
