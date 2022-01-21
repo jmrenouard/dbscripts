@@ -49,9 +49,9 @@ lRC=0
 
 banner "LOGICAL BACKUP"
 
-if [ -f "/etc/mybackupbdd/lgconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mybackupbdd/lgconfig.sh"
-    source /etc/mybackupbdd/lgconfig.sh
+if [ -f "/etc/lgconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/lgconfig.sh"
+    source /etc/lgconfig.sh
 fi
 if  [ -n "$1" -a -f "/etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh" ]; then
     info "LOADING CONFIG FROM /etc/mybackupbdd/lgconfig_$TARGET_CONFIG.sh"
