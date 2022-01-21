@@ -4,7 +4,7 @@
 [ -f '/etc/os-release' ] && source /etc/os-release
 
 lRC=0
-
+myrootmy1
 banner "BEGIN SCRIPT: $_NAME"
 
 if [ "$ID" = "ubuntu" ]; then

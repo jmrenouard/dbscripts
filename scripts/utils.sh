@@ -622,22 +622,9 @@ gunt() {
     sort | uniq | \
     xargs -n 1 $*
 }
-
-gam() {
-    git status | \
-    grep 'modified:' | \
-    cut -d: -f2- | \
-    sort | uniq | \
-    xargs -n 1 git add
-}
-
-gad() {
-    git status | \
-    grep 'deleted:' | \
-    cut -d: -f2- | \
-    sort | uniq | \
-    xargs -n 1 git rm -f
-}
+alias gad='git status | grep deleted:  | cut -d: -f2 | xargs -n1 git rm -f'
+alias gadd='git add'
+alias gam='git status | grep modified: | cut -d: -f2 | xargs -n 1 git add'
 
 
 check_all_nrpe_conf()
