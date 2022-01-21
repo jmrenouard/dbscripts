@@ -65,7 +65,7 @@ fi
 
 if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
     [ -f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
-    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/lgbackup.sh" | tee /etc/cron.d/lgbackup
+    echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/bin/lgbackup.sh" | tee /etc/cron.d/lgbackup
     chmod 644 /etc/cron.d/lgbackup
     #cat /etc/cron.d/lgbackup
     systemctl restart cron
