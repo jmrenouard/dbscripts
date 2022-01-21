@@ -23,15 +23,23 @@ load_lib()
 load_lib main
 load_lib mysql
 
-banner "MARIABACKUP RESTORING DB"
 BCK_DIR=/data/backups/mariabackup
 TMP_DIR=/data/backups/tmp
 DATADIR=/var/lib/mysql
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
-[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
+lRC=0
 
+banner "MARIABACKUP RESTORING DB"
+if [ -f "/etc/mbconfig.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mbconfig.sh"
+    source /etc/mbconfig.sh
+fi
+if  [ -n "$1" -a -f "/etc/mbconfig_$TARGET_CONFIG.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mbconfig_$TARGET_CONFIG.sh"
+    source /etc/mbconfig_$TARGET_CONFIG.sh
+fi
 if [ "$1" = "-l" -o "$1" = "--list" ]; then
 	ls -lsht $BCK_DIR
 	exit 0
