@@ -61,12 +61,14 @@ if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
     echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/bin/mbbackup.sh" | tee /etc/cron.d/mbbackup
     chmod 644 /etc/cron.d/mbbackup
     #cat /etc/cron.d/mbbackup
+    ls -lsh /etc/cron.d
     systemctl restart cron
     exit 0
 fi
 
 if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
     [-f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
+    ls -lsh /etc/cron.d
     systemctl restart cron
     exit 0
 fi
