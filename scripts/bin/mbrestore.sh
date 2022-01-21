@@ -118,8 +118,8 @@ ls -lsh $TMP_DIR
 if [ $lRC -eq 0 ]; then
 	#chown -R mysql.mysql $TMP_DIR/*
 	systemctl stop mariadb
-	rm -rf $DATADIR/*
-	mv ${DATADIR} /backups/sav_${DATADIR}_$(date +%Y%m%d-%H%M%S)
+	mv ${DATADIR} /backups/sav_datadir_$(date +%Y%m%d-%H%M%S)
+	#rm -rf $DATADIR/*
 	mkdir -p ${DATADIR}
 	rsync -avz $TMP_DIR/* $DATADIR/
 	chown -R mysql.mysql $DATADIR
