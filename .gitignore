@@ -4,6 +4,7 @@ vms/.vagrant/
 generated_hosts
 inventory
 .ansible.cfg
+vm-vagrant/id_rsa*
 vms/__pycache__/
 linode/__pycache__
 linode/__pycache__/*
@@ -22,3 +23,14 @@ python/chromedriver.exe
 python/selenium/**
 python/linkedin.ini
 *.bak
+vm-vagrant/privatekey.ppk
+vm-vagrant/add_user.yml
+vm-vagrant/install_packages.yml
+vm-vagrant/inventory
+vm-vagrant/bashrc
+vm-vagrant/ansible.cfg
+vm-vagrant/log/*
+vm-vagrant/puttyreg.reg
+vm-vagrant/.vagrant
+vm-vagrant/cache/*
+description.json
