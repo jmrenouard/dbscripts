@@ -21,7 +21,7 @@ reload:
 destroy: halt
 	$(VGT) destroy --force
 
-cleanup: destroy
+cleanup:
 	rm -rf Vagrantfile puttyreg.reg id_rsa* privatekey.ppk bashrc .vagrant ansible.cfg inventory log cache
 
 installvbguest:
@@ -60,6 +60,6 @@ install_dep:
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bachrc generate_vagrantfile
 
 loadmod:
-	sudo /sbin/vboxconfig
 	sudo modprobe vboxdrv
 	sudo modprobe vboxnetadp
+	sudo /sbin/vboxconfig
