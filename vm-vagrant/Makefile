@@ -1,4 +1,6 @@
+VGT=vagrant
 VGT=vagrant.exe
+
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
 up:
@@ -56,3 +58,8 @@ install_dep:
 	apt -y install puttygen
 
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bachrc generate_vagrantfile
+
+loadmod:
+	sudo /sbin/vboxconfig
+	sudo modprobe vboxdrv
+	sudo modprobe vboxnetadp
