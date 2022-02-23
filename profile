@@ -268,13 +268,13 @@ footer()
     return $lRC
 }
 
-pgGetVal()
+getVal()
 {
 	local value=$1
 	echo $(eval "echo \$${value}")
 }
 
-pgSetVal()
+setVal()
 {
 	local var=$1
 	shift
