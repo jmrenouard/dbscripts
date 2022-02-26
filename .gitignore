@@ -33,6 +33,5 @@ vm-vagrant/log/*
 vm-vagrant/puttyreg.reg
 vm-vagrant/.vagrant
 vm-vagrant/Vagrantfile
-vm-vagrant/bashrc
 vm-vagrant/cache/*
 description.json
