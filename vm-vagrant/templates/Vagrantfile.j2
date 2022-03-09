@@ -25,9 +25,10 @@ Vagrant.configure("2") do |config|
     config.vm.define "{{ vm }}" do |{{ vm }}|
       {{ vm }}.vm.box = "{{ Vms[vm]['distro'] }}"
       {{ vm }}.vm.hostname = '{{ vm }}.vm'
-      {{ vm }}.vm.network "private_network", :type => 'static', :adapter => 2, ip: "{{ Vms[vm]['ip_private'] }}", use_dhcp_assigned_default_route: true
-      {% if Vms[vm]['public_dhcp_ip']==1 %}{{ vm }}.vm.network "public_network", type: "dhcp", bridge: {{ NetInter }}{% endif %}
       {{ vm }}.hostmanager.enabled = true
+      {% if Vms[vm]['public_dhcp_ip']==1 %}{{ vm }}.vm.network "public_network", type: "dhcp", bridge: {{ NetInter }}{% endif %}
+      {% if Vms[vm]['ip_private'] is defined %}{{ vm }}.vm.network "private_network", :type => 'static', :adapter => 2, ip: "{{ Vms[vm]['ip_private'] }}", use_dhcp_assigned_default_route: true{% endif %}
+      {% if Vms[vm]['ip_private2'] is defined %}{{ vm }}.vm.network "private_network", :type => 'static', :adapter => 3, ip: "{{ Vms[vm]['ip_private2'] }}", use_dhcp_assigned_default_route: true{% endif %}
       {{ vm }}.hostmanager.manage_host = false
       {{ vm }}.hostmanager.manage_guest = true
       {{ vm }}.hostmanager.ignore_private_ip = false
@@ -40,6 +41,8 @@ Vagrant.configure("2") do |config|
          vb.memory = {{ Vms[vm]['ram'] }}
          vb.cpus = {{ Vms[vm]['nbcpu'] }}
          vb.customize ["modifyvm", :id, "--groups", "/{{Group}}/{{LabName}}/{{ Vms[vm]['prefix'] }}"]
+         {% if Vms[vm]['ip_private'] is defined %}vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]{% endif %}
+         {% if Vms[vm]['ip_private2'] is defined %}vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]{% endif %}
       end
       {% if Vms[vm]['provision_script'] != '' %}{{ vm['name'] }}.vm.provision "shell", path: "{{ Vms[vm]['provision_script']}}" {% endif %}
       {{ vm }}.vm.provision :hostmanager
