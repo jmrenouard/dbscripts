@@ -331,12 +331,18 @@ greset()
 }
 
 alias h=history
-rl()
+reload()
 {
 	cd ${_DIR}
 	source ${_DIR}/profile
 }
+alias rl=reload
 
+load_env()
+{
+    local venv=$1
+    source $HOME/$venv/bin/activate
+}
 # ansible
 export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
 export ANSIBLE_STDOUT_CALLBACK="minimal"
