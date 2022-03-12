@@ -18,6 +18,9 @@ export app_vms="app1"
 #export all_vms="app1,mgt1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"
 export all_vms="app1,proxy1,proxy2,dbsrv1,dbsrv2,dbsrv3"
 
+##########################################
+# Functions display and tests
+##########################################
 is() {
     if [ "$1" == "--help" ]; then
         cat << EOF
@@ -185,11 +188,6 @@ EOF
 
     return 1
 }
-sanitize_md()
-{
-    sed -r -i "s/\x1B\[([0-9];)?([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g;s/\[0(;33|33|;32|)m//g"  $*
-}
-
 
 now() {
     # echo "$(date "+%F %T %Z")"
@@ -281,7 +279,168 @@ setVal()
 	eval "${var}='$*'"
 }
 
+##########################################
+# Functions UTILITIES 
+##########################################
 
+
+ff()
+{
+find . -iname "$1"
+}
+
+yamlval()
+{
+        time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
+}
+
+ltrim()
+{
+        perl -i -pe 's/[\t ]+$//g' $1
+}
+
+
+randpw()
+{
+    if [ ! -f "/usr/bin/pwgen" ]; then
+            echo "yum -y install pwgen"
+            return 1
+    fi
+    pwgen -c -n  -y -s -v  12 1
+    return $?
+}
+
+sanitize_md()
+{
+    sed -r -i "s/\x1B\[([0-9];)?([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g;s/\[0(;33|33|;32|)m//g"  $*
+}
+
+
+load_venv()
+{
+    tenv=${1:-"ansible"}
+    export _DIR=$HOME/$tenv
+    source $_DIR/bin/activate
+}
+
+alias load_env=load_venv
+# some more ls aliases
+alias la='ls -A'
+alias l='ls -CF'
+alias s=sudo
+alias ll='ls -lsh'
+alias h=history
+
+reload()
+{
+    cd ${_DIR}
+    source ${_DIR}/profile
+}
+
+alias rl=reload
+
+
+ppkill()
+{
+
+    for pid in $(ps -edf | grep "$1" | awk '{print $2}'); do
+        ps -edf | grep " $pid "| grep -v grep 
+        echo "KILLING PROCESS: $pid"
+        sudo kill -9 $pid
+        echo "---------------------------"
+    done
+}
+##########################################
+# Functions SSH & NETWORK
+##########################################
+alias sssh='sudo ssh -l root'
+alias rsh='ssh -l root'
+alias srsync="sudo rsync  -e 'ssh -l root'"
+alias pass='pwgen -1 18'
+
+
+
+test_ping_hosts()
+{
+    #set -x
+    local pattern=${1:-"qa-"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        ping -f -i 0.2 -c3 -W1 $line &>/dev/null
+        if [ $? -eq 0 ]; then 
+             echo "[OK] (LOCAL)$line: ICMP"
+        else 
+            echo "[FAIL] (LOCAL)$line: ICMP"
+        fi
+    done
+}
+
+test_ssh_hostname_hosts()
+{
+    local pattern=${1:-'qa-'}
+    #set +x
+    lst_hst=$(grep $pattern /etc/hosts | awk '{print $2}')
+    for line in $lst_hst; do 
+        #ssh -q -o "ConnectTimeout=4s" $bastion ping -f -i 0.2 -c3 -W1 $line &>/dev/null
+        rhst=$(ssh -q -o "ConnectTimeout=2s" $line "hostname" 2>&1) 
+        
+        if [ "$line" == "$rhst" ]; then 
+             ok "$line: SSH HOSTNAME"
+        else 
+            fail "$line: SSH HOSTNAME"
+        fi
+    done
+}
+
+test_tcp_hosts()
+{
+    local pattern=${1:-'qa-'}
+    local port=${2:-"22"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        nc -z -v -w1 $line $port &>/dev/null
+        if [ $? -eq 0 ]; then 
+             ok "$line: $port/TCP"
+        else 
+            fail "$line: $port/TCP"
+        fi
+    done
+}
+
+test_ssh_tcp_hosts()
+{
+    local bastion=${1:-'localhost'}
+    local pattern=${2:-'qa-'}
+    local port=${3:-"22"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        ssh -q -o "ConnectTimeout=4s" $bastion "nc -z -v -w1 $line $port &>/dev/null"
+        if [ $? -eq 0 ]; then 
+             ok "(SSH/$bastion)$line: ICMP"
+        else 
+            fail "(SSH/$bastion)$line: ICMP"
+        fi
+    done
+}
+
+synchronize_dir()
+{
+    local src_host=$1
+    local src_rep=$2
+    local dest_host=$3
+    local dest_rep=${4:-"$2"}
+    local src_user=root
+    local dest_user=root
+
+    echo "* Copie $src_host:$src_rep => $dest_host:$dest_rep"
+    date
+    ssh ${src_user}@${src_host} "cd ${src_rep};tar -cvzf - ." | ssh ${dest_user}@${dest_host} "mkdir -p ${dest_rep};cd ${dest_rep};tar -xvzf -"
+    date
+    ssh ${dest_user}@${dest_host} chown -R postgres. $dest_rep
+}
+#echo "synchronize_dir alipgflif01 /backups/export_07082019 alipgslir05 /backups/test_07082019"
+
+get_ips_v4()
+{
+    ip a| grep 'inet ' | grep -v -E '(127.0)'| awk '{print $2}'| cut -d/ -f1
+}
 ##
 # cpall mariadb.repo  /etc/yum.repos.d
 # execall "yum -y install MariaDB-server MariaDB-client"
@@ -309,15 +468,9 @@ setVal()
 # execall "sh /tmp/changeWsrepConfig.sh"
 
 
-alias sssh='sudo ssh -l root'
-alias rsh='ssh -l root'
-alias srsync="sudo rsync  -e 'ssh -l root'"
-alias pass='pwgen -1 18'
-
-alias s=sudo
-alias sssh='sudo ssh -l root'
-alias srsync="sudo rsync  -e 'ssh -l root'"
-
+##########################################
+# Functions GIT
+##########################################
 alias gst="git status"
 alias ga="git add"
 alias gam="git status | grep modified: | cut -d: -f2 | xargs -n 1 git add"
@@ -330,20 +483,67 @@ greset()
 	git pull
 }
 
-alias h=history
-reload()
-{
-	cd ${_DIR}
-	source ${_DIR}/profile
-}
-alias rl=reload
 
-load_env()
+alias | grep -q gcm && unalias gcm
+gcm()
 {
-    local venv=$1
-    source $HOME/$venv/bin/activate
+        git commit -m "$@"
 }
-# ansible
+alias mdcleanup="perl -i -pe 's/\[\d;\d{2}m//g;s/\[0m//g;s/\[\?2004h//g'"
+alias rl=reload
+alias gst="git status"
+alias ga="git add"
+alias gam="git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add"
+alias gad="git status | grep '(supprim.*|deleted):  | cut -d: -f2 | xargs -n1 git rm -f"
+
+gpull_dir()
+{
+    local verb=${1:-"pull"}
+    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do 
+        if [ ! -d "$rep/.git" ]; then
+            title1 "$rep NOT .git REPO"
+            continue
+        fi
+        title1 $rep PULLING CHANGES
+        ( 
+            cd $rep
+            git config pull.rebase false 
+            git $verb
+        )
+    done
+}
+alias | grep -q gcm && unalias gcm
+gcm()
+{
+        git commit -m "$@"
+}
+
+
+##########################################
+# Functions SLACK
+##########################################
+SLACK_USERNAME="Jean-Marie RENOUARD"
+SLACK_URL_dba="https://hooks.slack.com/services/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"
+SLACK_URL_ops="https://hooks.slack.com/services/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"
+SLACK_URL_prod_live="https://hooks.slack.com/services/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"
+slack_send()
+{
+    local chann=$1
+    shift
+    local msg="$*"
+    curl -X POST -H 'Content-type: application/json' --data "{\"as_user\": true, \"username\": \"$SLACK_USERNAME\", \"text\":\"$msg\"}" $(getVal "SLACK_URL_$chann")
+}
+alias slack_send_ops='slack_send ops'
+alias slack_send_dba='slack_send dba'
+alias slack_send_prod='slack_send prod_live'
+
+##############################################################################################################
+# ANSIBLE CODE
+##############################################################################################################
+##########################################
+# Functions ANSIBLE
+##########################################
+
 export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
 export ANSIBLE_STDOUT_CALLBACK="minimal"
 export ANSIBLE_EXTRA_OPTIONS=""
@@ -367,60 +567,27 @@ alias aptsk="time ansible-playbook --list-tasks"
 
 alias anl="time ansible-lint"
 
-ff()
-{
-find . -iname "$1"
-}
-
-yamlval()
-{
-        time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
-}
-
-ltrim()
-{
-        perl -i -pe 's/[\t ]+$//g' $1
-}
-
-
-randpw()
-{
-        if [ ! -f "/usr/bin/pwgen" ]; then
-                echo "yum -y install pwgen"
-                return 1
-        fi
-        pwgen -c -n  -y -s -v  12 1
-        return $?
-}
-
-alias | grep -q gcm && unalias gcm
-gcm()
-{
-        git commit -m "$@"
-}
-
-
 asetdebug()
 {
-	export ANSIBLE_STDOUT_CALLBACK="debug"
-	export ANSIBLE_EXTRA_OPTIONS="--verbose"
+    export ANSIBLE_STDOUT_CALLBACK="debug"
+    export ANSIBLE_EXTRA_OPTIONS="--verbose"
 }
 
 asetoneline()
 {
-	export ANSIBLE_STDOUT_CALLBACK="oneline"
-	export ANSIBLE_EXTRA_OPTIONS=""
+    export ANSIBLE_STDOUT_CALLBACK="oneline"
+    export ANSIBLE_EXTRA_OPTIONS=""
 }
 
 asetquiet()
 {
-	export ANSIBLE_STDOUT_CALLBACK="dense"
-	export ANSIBLE_EXTRA_OPTIONS=""
+    export ANSIBLE_STDOUT_CALLBACK="dense"
+    export ANSIBLE_EXTRA_OPTIONS=""
 }
 asetnormal()
 {
-	export ANSIBLE_STDOUT_CALLBACK="minimal"
-	export ANSIBLE_EXTRA_OPTIONS=""
+    export ANSIBLE_STDOUT_CALLBACK="minimal"
+    export ANSIBLE_EXTRA_OPTIONS=""
 }
 
 
@@ -478,28 +645,165 @@ aucmd()
     ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh;$*"
 }
 
-
-synchronize_dir()
+unalias ap 2>/dev/null
+ap()
 {
-	local src_host=$1
-	local src_rep=$2
-	local dest_host=$3
-	local dest_rep=${4:-"$2"}
-	local src_user=root
-	local dest_user=root
-
-	echo "* Copie $src_host:$src_rep => $dest_host:$dest_rep"
-	date
-	ssh ${src_user}@${src_host} "cd ${src_rep};tar -cvzf - ." | ssh ${dest_user}@${dest_host} "mkdir -p ${dest_rep};cd ${dest_rep};tar -xvzf -"
-	date
-	ssh ${dest_user}@${dest_host} chown -R postgres. $dest_rep
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        time ansible-playbook -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*
+        return $?
+    fi
+    time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*
 }
 
-#echo "synchronize_dir alipgflif01 /backups/export_07082019 alipgslir05 /backups/test_07082019"
+unalias apv 2>/dev/null
+apv()
+{
+    ANSIBLE_EXTRA_OPTION="$ANSIBLE_EXTRA_OPTION -vv" 
+    ap -vv $*
+}
 
-##############################################################################################################
-# ANSIBLE CODE
-##############################################################################################################
+unalias apd 2>/dev/null
+apd()
+{
+    ANSIBLE_EXTRA_OPTION="$ANSIBLE_EXTRA_OPTION --verbose --step" 
+    ap $* 
+}
+
+update_aroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    rm -rf roles/*
+    ansible-galaxy install -r ./requirements.yml --force
+}
+
+update_aroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    rm -rf roles/*
+    ansible-galaxy install -r ./requirements.yml --force
+    ls -ls roles/
+}
+alias get_jtemplate="find . -type f -iname '*.j2'"
+
+update_alroles()
+{
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    needed_roles=$(grep src requirements.yml | rev | cut -d/ -f1 | cut -d. -f 2 | rev)
+    rm -rf roles/*
+    for role in $needed_roles; do
+        (
+        cd ./roles
+        role_path=$(readlink -f ../../$role) 
+        if [ -d "$role_path" ]; then 
+            ln -sf $role_path
+        else 
+            fail "ROLE $role($role_path) IS MISSING IN LOCAL"
+        fi   
+        )
+    done 
+    ls -ls roles/
+}
+
+load_ainventory()
+{
+    for inv in $1 $(pwd)/inventory $HOME/GIT_REPOS/inventory-infra-b2c/$1/hosts; do
+        if [ -f "$1" -o -d "$1" ]; then
+            export ANSIBLE_INVENTORY=$(readlink -f $inv)
+            echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+            return 0
+        fi
+    done  
+    echo 'ERROR: inventory MISSING'
+    return 127
+}
+
+load_aconfig()
+{
+    for cfg in $1 $(pwd)/ansible.cfg; do
+        if [ -f "$cfg" ]; then
+            export ANSIBLE_CONFIG=$(readlink -f $cfg)
+            echo "ANSIBLE_CONFIG: $ANSIBLE_CONFIG"
+            return 0
+        fi
+    done
+    echo 'ERROR: ansible.cfg MISSING'
+    return 127
+}
+
+get_aconfig()
+{
+    echo "ANSIBLE_CONFIG: $ANSIBLE_CONFIG"
+    echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+}
+
+dump_aconfig()
+{
+    if [ -f "$ANSIBLE_INVENTORY" ]; then
+        title1 "INVENTORY: $ANSIBLE_INVENTORY"
+        cat $ANSIBLE_INVENTORY
+    fi
+    if [ -d "$ANSIBLE_INVENTORY" ]; then
+        title1 "DIR INVENTORY: $ANSIBLE_INVENTORY"
+        [ -f "$ANSIBLE_INVENTORY/hosts" ] && cat $ANSIBLE_INVENTORY/hosts
+        [ -f "$ANSIBLE_INVENTORY/inventory" ] && cat $ANSIBLE_INVENTORY/inventory
+    fi
+    sep2
+    if [ -f "$ANSIBLE_CONFIG" ]; then
+        title1 "CONFIG: $ANSIBLE_CONFIG"
+        cat $ANSIBLE_CONFIG
+    else 
+        error "ANSIBLE_CONFIG MISSING !!!!"
+    fi
+}
+
+alint_dir()
+{
+    local rdir=${1:-"."}
+    title2 "ANSIBLE LINT $rdir"
+    (
+        cd $rdir 
+        export ANSIBLE_CONFIG=$rdir/ansible.cfg
+        ansible-lint -v .
+    )
+}
+
+alint_dirs()
+{
+    local rdir=${1:-"."}
+    for d in $rdir/*; do
+        [ -d "$d" ] || continue
+        [ -d "$d/tasks" -o -f "$d/playbook.yaml" -o -f "$d/playbook.yml" ] || continue
+        alint_dir $d
+    done
+}
+
+mirror_ansible_collection()
+{
+        set -x
+        if [ ! -d "$HOME/GIT_REPOS/ansible/community.general" ]; then 
+            mkdir -p $HOME/GIT_REPOS/ansible/
+        fi
+        cd $HOME/GIT_REPOS/ansible
+        git pull https://github.com/ansible-collections/community.general.git
+        git checkout -b 4.5.0
+        cd $HOME/GIT_REPOS/community.general
+        rsynv -av --exclude=.git $HOME/GIT_REPOS/ansible/community.general/ .
+        git status
+}
+
 genAnsibleCfg()
 {
 	local pkey=${1:-"$HOME/.conf/id_rsa"}
