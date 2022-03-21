@@ -1,0 +1,39 @@
+---
+  - name: "Install GOSS"
+    hosts: "all"
+    gather_facts: false
+    vars:
+      - BASE_URL: "https://github.com/aelsabbahy/goss/releases/download/v"
+      - GOSS_VERSION: "0.3.16"
+      - GOSS_BINARY_NAME: "goss-linux-amd64"
+      - GOSS_BINARY_URL: "{{ BASE_URL }}{{ GOSS_VERSION }}/{{ GOSS_BINARY_NAME }}"
+      - GOSS_CHECKSUM_URL: "{{ BASE_URL }}{{ GOSS_VERSION }}/{{ GOSS_BINARY_NAME }}.sha256"
+      - GOSS_CONF_DIR: "/etc/goss"
+    tasks:
+      - name: "Install GOSS from URL"
+        get_url:
+          url: "{{ GOSS_BINARY_URL }}"
+          dest: "/usr/bin/goss"
+          owner: root
+          group: root
+          mode: 755
+          checksum: "sha256:{{ GOSS_CHECKSUM_URL }}"
+      - name: "Create Configuration directory {{ GOSS_CONF_DIR }}"
+        file:
+          path: "{{ GOSS_CONF_DIR }}"
+          state: directory
+          owner: "root"
+          group: "root"
+          mode: 755
+      - name: "Check GOSS Binary execution"
+        command:
+          cmd: "/usr/bin/goss --version"
+        register: OUTPUT_GOSS
+        tags:
+          - check
+      - name: "Check GOSS Binary Output"
+        debug:
+          msg: "OUTPUT: {{ OUTPUT_GOSS.stdout }}"
+        when: OUTPUT_GOSS.stdout == 'goss version v' + GOSS_VERSION
+        tags:
+          - check

@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
+if [ "$0" != "-/bin/bash" -a "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 	_DIR="$(dirname "$(readlink -f "$0")")"
 else
 	_DIR="$(readlink -f ".")"
 fi
-[ "$(pwd)" = "$HOME" ] && export _DIR="$HOME/dbscripts/"
+[ "$(pwd)" = "$HOME" -o ! -f "./profile" ] && export _DIR="$HOME/dbscripts/"
 
 export VMS_DIR="$(readlink -f ".")/vms"
 [ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vms"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
-[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$HOME/dbscripts/vms/id_rsa"
+[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$_DIR/vms/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
 export db_vms="dbsrv1,dbsrv2,dbsrv3"
@@ -333,7 +333,7 @@ alias h=history
 
 reload()
 {
-    cd ${_DIR}
+    #cd ${_DIR}
     source ${_DIR}/profile
 }
 
@@ -547,8 +547,12 @@ alias slack_send_prod='slack_send prod_live'
 export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
 export ANSIBLE_STDOUT_CALLBACK="minimal"
 export ANSIBLE_EXTRA_OPTIONS=""
+
 export ANSIBLE_INVENTORY=${_DIR}/inventory
+[ -f "./inventory" ] && export ANSIBLE_INVENTORY=$(readlink -f "./inventory")
+
 export ANSIBLE_CONFIG=${_DIR}/.ansible.cfg
+[ -f "./ansible.cfg" ] && export ANSIBLE_CONFIG=$(readlink -f "./ansible.cfg")
 
 alias an="time ansible -f $(nproc)"
 alias anh="time ansible --list-hosts"
@@ -590,6 +594,8 @@ asetnormal()
     export ANSIBLE_EXTRA_OPTIONS=""
 }
 
+
+alias aping="ansible -v -mping"
 
 acp()
 {
@@ -649,24 +655,26 @@ unalias ap 2>/dev/null
 ap()
 {
     if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "CMD: time ansible-playbook -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*"
         time ansible-playbook -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*
         return $?
     fi
+    echo "CMD: time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*"
     time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*
 }
 
 unalias apv 2>/dev/null
 apv()
 {
-    ANSIBLE_EXTRA_OPTION="$ANSIBLE_EXTRA_OPTION -vv" 
-    ap -vv $*
+    ANSIBLE_EXTRA_OPTIONS="--verbose" 
+    ap $*
 }
 
 unalias apd 2>/dev/null
 apd()
 {
-    ANSIBLE_EXTRA_OPTION="$ANSIBLE_EXTRA_OPTION --verbose --step" 
-    ap $* 
+    ANSIBLE_EXTRA_OPTIONS="--verbose --step" 
+    ap $*
 }
 
 update_aroles()
@@ -820,7 +828,7 @@ genAnsibleCfg()
 
 	echo "[defaults]
 system_warnings=False
-command_warnings=False
+#command_warnings=False
 remote_user=root
 private_key_file=$pkey
 inventory =${_DIR}/inventory
@@ -940,9 +948,10 @@ lchangeHostname()
 
 lssh()
 {
-    NAME=$1
+    local NAME=$1
+    local PRIVKEY=${2:-"$DEFAULT_PRIVATE_KEY"}
     shift
-    ssh -i ${PUBKEY%.*}  -o "StrictHostKeyChecking=no" root@$(lgetLinodePublicIp $NAME) "$*"
+    ssh -i ${PRIVKEY}  -o "StrictHostKeyChecking=no" root@$(lgetLinodePublicIp $NAME) "$*"
 }
 
 lgetLinodeId()
@@ -975,6 +984,7 @@ ldelete()
 
 lgenInventory()
 {
+    local ANSIBLE_INVENTORY="${1:-"./inventory"}"
 	for tag in $($LINODEC tags list --text |grep -v label); do
 		[ $(llist --text --tags $tag | wc -l) -eq 1 ] && continue
 		echo "[$tag]"
@@ -985,10 +995,44 @@ lgenInventory()
 		done
 		echo
 	done > $ANSIBLE_INVENTORY
-
+    echo "
+[local]
+127.0.0.1 ansible_connection=local">>$ANSIBLE_INVENTORY
 	cat $ANSIBLE_INVENTORY
 }
 
+lgenAnsibleConfig()
+{
+    local ANSIBLE_CONFIG="${1:-"./ansible.cfg"}"
+    echo "[defaults]
+#deprecation_warnings=False
+#command_warnings=False
+#ansible_warnings=False
+forks=$(nproc)
+fact_caching=jsonfile
+fact_caching_connection=./cache
+fact_caching_timeout = 7200
+host_key_checking = False
+timeout=15
+log_path = ./logs/ansible.log
+
+bin_ansible_callbacks=True
+callbacks_enabled = timer, yaml, json, profile_tasks, profile_roles, counter_enabled
+stdout_callback=debug
+#stdout_callback=dense
+junit_output_dir=./output
+output_dir=./logs
+private_key_file=${DEFAULT_PRIVATE_KEY}
+remote_user = root
+
+[inventory]
+cache=True
+#enable_plugins = advanced_host_list, constructed, yaml
+
+"> $ANSIBLE_CONFIG
+    (cd $(dirname $ANSIBLE_CONFIG);mkdir -p logs cache output)
+    #cat $ANSIBLE_CONFIG
+}
 lgenHosts()
 {
 	prefix=$1
@@ -1019,24 +1063,26 @@ lcleanHosts()
 	sed -i '/## START_LINODE_HOSTS/,/## END_LINODE_HOSTS/d' /etc/hosts
 }
 
-lsetupHosts()
-{
-	#lgenInventory
-	lcleanHosts
-	lgenHosts
-	cat ${_DIR}/generated_hosts | tee -a /etc/hosts
-}
-
 lgenAlias()
 {
-	local PUBKEY=${1:-"$DEFAULT_PRIVATE_KEY"}
+	local PRIVKEY=${1:-"$DEFAULT_PRIVATE_KEY"}
 	[ -f "$PRIVKEY" ] || PRIVKEY=$HOME/.ssh/id_rsa
-    PUBKEY=$(readlink -f $PUBKEY)
+    PRIVKEY=$(readlink -f $PRIVKEY)
 	for srv in $(llist --text | grep -Ev '(label|ipv4)' | awk '{ print $2 ";" $7 ";" $8}'); do
 		lname=$(echo "$srv"| tr ';' ' ' |awk '{print $1}')
 		lippub=$(echo "$srv"| tr ';' ' ' |awk '{print $2}')
 		alias ssh_$lname="ssh -o 'StrictHostKeyChecking=no' -X -i $PRIVKEY root@$lippub"
 	done
+    cat ./generated_hosts | tee -a /etc/hosts
+}
+
+lsetupHosts()
+{
+    lgenAConfig
+    lgenInventory
+    lcleanHosts
+    lgenHosts
+    lgenAlias
 }
 
 lcopy()
