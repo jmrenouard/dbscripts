@@ -9,7 +9,7 @@
   "Vms": {
     "node0": {
       "enabled": 1,
-      "distro": "centos/stream8",
+      "distro": "ubuntu/jammy64",
       "prefix": "mysql",
       "provision_script": "",
       "ip_private": "192.168.56.100",
@@ -19,7 +19,7 @@
       "ram": 1024
       },
     "node1": {
-      "distro": "centos/stream8",
+      "distro": "ubuntu/jammy64",
       "prefix": "mysql",
       "provision_script": "",
       "ip_private": "192.168.56.101",
@@ -29,52 +29,9 @@
       "ram": 1024,
       "enabled": 1
       },
-    "node2": {
-      "distro": "centos/stream8",
-      "prefix": "mysql",
-      "provision_script": "",
-      "ip_private": "192.168.56.102",
-      "ip_private2": "192.168.57.103",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 1
-      },
-    "node3": {
-      "distro": "centos/stream8",
-      "prefix": "mysql",
-      "provision_script": "",
-      "ip_private": "192.168.56.103",
-      "ip_private2": "192.168.57.103",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 0
-      },
-    "node4": {
-      "distro": "centos/stream8",
-      "prefix": "mysql",
-      "provision_script": "",
-      "ip_private": "192.168.56.104",
-      "ip_private2": "192.168.57.104",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 0
-      },
-    "node5": {
-      "distro": "centos/stream8",
-      "prefix": "mysql",
-      "provision_script": "",
-      "ip_private": "192.168.56.105",
-      "ip_private2": "192.168.57.105",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 0
-      },
+
     "loadb0": {
-      "distro": "centos/stream8",
+      "distro": "ubuntu/jammy64",
       "prefix": "loadbalancer",
       "provision_script": "",
       "ip_private": "192.168.56.110",
@@ -83,17 +40,6 @@
       "nbcpu": 1,
       "ram": 1024,
       "enabled": 1
-      },
-    "loadb1": {
-      "distro": "centos/stream8",
-      "prefix": "loadbalancer",
-      "provision_script": "",
-      "ip_private": "192.168.56.111",
-      "ip_private2": "192.168.57.111",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 0
       }
   }
 }
