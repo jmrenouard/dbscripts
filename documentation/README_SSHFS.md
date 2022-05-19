@@ -36,11 +36,13 @@
 
 ### Commandes d'installation des paquets SSHFS serveur ** Ubuntu 20**
     
-    ssh root@c
+    `` bash
+    ssh root@176.58.120.128
     # source sshfs_utils.sh
 
     # setup_ubuntu_sshfs_server
     ...
+    ``
 
 ### Commandes d'installation des paquets SSHFS client  ** Ubuntu 18 ou 20**
     
