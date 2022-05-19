@@ -42,7 +42,7 @@ ssh root@176.58.120.128
 
 # setup_ubuntu_sshfs_server
 ...
-```
+```bash
 
 ### Commandes d'installation des paquets SSHFS client  ** Ubuntu 18 ou 20**
     
