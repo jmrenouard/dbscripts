@@ -35,3 +35,4 @@ vm-vagrant/.vagrant
 vm-vagrant/Vagrantfile
 vm-vagrant/cache/*
 description.json
+documentation/Articles

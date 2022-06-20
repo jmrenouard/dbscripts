@@ -56,7 +56,7 @@ lcreate()
 	true
 	while [ $? -eq 0 ]; do
 		echo -n ".."
-		sleep 2s
+ 		sleep 2s
 		$LINODEC linodes list --text | grep $NAME | grep -qE '(booting|provisioning)'
 	done
 	echo
