@@ -260,9 +260,8 @@ setVal()
 }
 
 ##########################################
-# Functions UTILITIES 
+# Functions UTILITIES
 ##########################################
-
 
 ff()
 {
@@ -271,14 +270,13 @@ find . -iname "$1"
 
 yamlval()
 {
-        time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
+    time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
 }
 
 ltrim()
 {
         perl -i -pe 's/[\t ]+$//g' $1
 }
-
 
 randpw()
 {
@@ -294,7 +292,6 @@ sanitize_md()
 {
     sed -r -i "s/\x1B\[([0-9];)?([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g;s/\[0(;33|33|;32|)m//g"  $*
 }
-
 
 load_venv()
 {
