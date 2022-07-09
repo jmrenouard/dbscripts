@@ -38,3 +38,5 @@ description.json
 documentation/Articles.ipynb_checkpoints/
 */.ipynb_checkpoints/
 .ipynb_checkpoints
+**/.env
+**/out.*
