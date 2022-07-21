@@ -35,4 +35,8 @@ vm-vagrant/.vagrant
 vm-vagrant/Vagrantfile
 vm-vagrant/cache/*
 description.json
-documentation/Articles
+documentation/Articles.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+.ipynb_checkpoints
+**/.env
+**/out.*
