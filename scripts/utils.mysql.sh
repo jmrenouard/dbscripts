@@ -32,7 +32,12 @@ raw_mysql()
 
 db_list()
 {
-   raw_mysql 'show databases'
+   raw_mysql 'show databases' | sort
+}
+
+db_user_list()
+{
+   db_list | grep -vE '(mysql|sys|information_schema|performance_schema)'
 }
 
 db_users()
@@ -48,11 +53,17 @@ db_tables()
 db_count()
 {
     for tbl in $(db_tables ${1:-"mysql"}); do
-        echo -ne "$tbl\t"
+        echo -ne "${1:-"mysql"}\t$tbl\t"
         raw_mysql "select count(*) from ${1:-"mysql"}.$tbl"
     done | sort -nr -k2 | column -t
 }
 
+db_countall()
+{
+    for db in $(db_list| sort); do
+        db_count $db
+    done
+}
 db_fast_count()
 {
  	# BAsed on innodb stat
