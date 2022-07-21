@@ -72,6 +72,131 @@ db_fast_count()
  	raw_mysql "select table_name, table_rows from information_schema.tables where table_schema='${1:-"mysql"}' order by 2 DESC;" |column -t
 
 }
+
+dmysql()
+{
+    local DOCKER_ID=$1
+    shift
+    docker exec -it $DOCKER_ID mysql $*
+}
+
+drawmysql()
+{
+    local DOCKER_ID=$1
+    shift
+    docker exec -it $DOCKER_ID mysql -Nrs "$*"
+}
+
+dbash()
+{
+    docker exec -it ${DOCKER_ID:"$1"} /bin/bash
+}
+
+duserdbs()
+{
+    local DOCKER_ID=$1
+    echo "SELECT DISTINCT(TABLE_SCHEMA)
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA NOT IN ('performance_schema', 'sys',
+    'mysql', 'information_schema', 'innodb')" | \
+    docker exec -i $DOCKER_ID mysql -Nrs | sort
+}
+
+dalltables()
+{
+    local DOCKER_ID=$1
+    echo "SELECT CONCAT(TABLE_SCHEMA,';',TABLE_NAME)
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA NOT IN ('performance_schema', 'sys',
+    'mysql', 'information_schema', 'innodb')
+    AND TABLE_TYPE='BASE TABLE'" | \
+    docker exec -i $DOCKER_ID mysql -Nrs | sort
+}
+
+dtables()
+{
+    local DOCKER_ID=$1
+    local schema=$2
+    echo "SELECT TABLE_NAME
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = '${schema}'
+    AND TABLE_TYPE='BASE TABLE'" | \
+    docker exec -i $DOCKER_ID mysql -Nrs | sort
+}
+
+dallnottables()
+{
+    local DOCKER_ID=$1
+
+    echo "SELECT CONCAT(TABLE_SCHEMA,';',TABLE_NAME)
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA NOT IN ('performance_schema', 'sys',
+    'mysql', 'information_schema', 'innodb')
+    AND TABLE_TYPE != 'BASE TABLE'" | \
+    docker exec -i $DOCKER_ID mysql -Nrs | sort
+}
+dnottables()
+{
+    local DOCKER_ID=$1
+    local schema=$2
+
+    echo "SELECT CONCAT(TABLE_SCHEMA,';',TABLE_NAME,';',TABLE_TYPE)
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = '${schema}'
+    AND TABLE_TYPE != 'BASE TABLE'" | \
+    docker exec -i $DOCKER_ID mysql -Nrs | sort
+}
+
+dcountlines()
+{
+    local DOCKER_ID=$1
+    local schema=$2
+    local table=$3
+    echo "SELECT count(*) FROM $s.$t" | \
+    docker exec -i $DOCKER_ID mysql -Nrs
+}
+
+dump_database_list()
+{
+    local DOCKER_ID=$1
+    local outfile=${2}.dblist.csv
+    [ -f "$outfile" ] && rm -f $outfile
+    title1 "USER DATABASE LIST"
+    duserdbs $DOCKER_ID | tee $outfile
+}
+
+dump_table_list()
+{
+    local DOCKER_ID=$1
+    local outfile=${2}.tbl.csv
+    [ -f "$outfile" ] && rm -f $outfile
+    title1 "USER TABLE LIST"
+  dalltables $DOCKER_ID | tee $outfile
+}
+
+dump_non_table_list()
+{
+    local DOCKER_ID=$1
+    local outfile=${2}.nottbl.csv
+    [ -f "$outfile" ] && rm -f $outfile
+    title1 "USER NOT TABLE LIST"
+    dallnottables $DOCKER_ID| sort | tee $outfile
+}
+
+dump_table_count()
+{
+    local DOCKER_ID=$1
+    local outfile=${2}.count.csv
+    [ -f "$outfile" ] && rm -f $outfile
+     title1 "USER TABLE COUNT"
+    for s in $(duserdbs $DOCKER_ID); do
+        for t in $(dtables $DOCKER_ID $s); do
+            count=$(dcountlines $DOCKER_ID $s $t)
+            echo "$s;$t;$count"
+        done | sort -nr -k3 -t';'
+    done
+}
+
 galera_status()
 {
     title1 "WSREP STATUS"
