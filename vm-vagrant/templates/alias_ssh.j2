@@ -40,7 +40,7 @@ alias gad='git status | grep -E "(supprim|deleted)\s*:" |cut -d: -f2 | xargs -n1
 gpull_dir()
 {
     local verb=${1:-"pull"}
-    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do 
+    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do
         if [ ! -d "$rep/.git" ]; then
             title1 "$rep NOT .git REPO"
             continue
