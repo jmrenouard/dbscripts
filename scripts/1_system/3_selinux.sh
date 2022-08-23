@@ -5,12 +5,15 @@
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
-[ "$ID" = "ubuntu" ] && cmd "apt install -y policycoreutils selinux-utils selinux-basics" "INSTALL SELINUX for $ID"
+PCKMANAGER="yum"
+[ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
+
+cmd "$PCKMANAGER install -y policycoreutils selinux-utils selinux-basics" "INSTALL SELINUX for $ID"
 
 cmd "setenforce 0" "SELINUX IN PERMISSIVE MODE"
 #lRC=$(($lRC + $?))
 
-if [ -f "/etc/sysconfig/selinux" ]; then  
+if [ -f "/etc/sysconfig/selinux" ]; then
 	cmd "cat /etc/sysconfig/selinux" "CONTENT OF /etc/sysconfig/selinux"
 	title1 "REMOVING ENFORCING mode FROM /etc/sysconfig/selinux"
 	perl -i -pe 's/(SELINUX=).*/$1PERMISSIVE/g' /etc/sysconfig/selinux

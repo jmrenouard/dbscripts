@@ -1,5 +1,6 @@
 #!/bin/bash
 
+[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 banner "BEGIN SCRIPT: $_NAME"

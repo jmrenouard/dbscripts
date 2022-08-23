@@ -13,7 +13,7 @@ lRC=$(($lRC + $?))
 cmd "$PCKMANAGER -y upgrade" "UPDATE PACKAGES"
 lRC=$(($lRC + $?))
 
-cmd "$PCKMANAGER -y install firewalld net-tools" "INSTALL FIREWALLD"
+cmd "$PCKMANAGER -y install python3 perl firewalld net-tools" "INSTALL FIREWALLD"
 lRC=$(($lRC + $?))
 
 footer "END SCRIPT: $NAME"

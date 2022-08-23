@@ -28,7 +28,7 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	cmd "/sbin/iptables -A OUTPUT -p udp --dport 4444 -j ACCEPT"
 
 	cmd "iptables -L"
-else 
+else
 	cmd "timeout 10 systemctl restart firewalld"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=3306/tcp --permanent"

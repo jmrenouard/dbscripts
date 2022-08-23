@@ -25,6 +25,35 @@ alias aptsk="time ansible-playbook --list-tasks"
 
 alias anl="time ansible-lint"
 
+alias | grep -q gcm && unalias gcm
+gcm()
+{
+        git commit -m "$@"
+}
+alias mdcleanup="perl -i -pe 's/\[\d;\d{2}m//g;s/\[0m//g;s/\[\?2004h//g'"
+alias rl=reload
+alias gst="git status"
+alias ga="git add"
+alias gam="git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add"
+alias gad='git status | grep -E "(supprim|deleted)\s*:" |cut -d: -f2 | xargs -n1 git rm -f'
+
+gpull_dir()
+{
+    local verb=${1:-"pull"}
+    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do 
+        if [ ! -d "$rep/.git" ]; then
+            title1 "$rep NOT .git REPO"
+            continue
+        fi
+        title1 $rep PULLING CHANGES
+        ( 
+            cd $rep
+            git config pull.rebase false 
+            git $verb
+        )
+    done
+}
+
 ff()
 {
 find . -iname "$1"
@@ -68,7 +97,7 @@ asetnormal()
 acp()
 {
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
-    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3 recursive=true"
 
     if [ -n "$4" ]; then
         acmd $1 "chown -R $4.$4 $3"

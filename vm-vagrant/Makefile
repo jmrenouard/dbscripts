@@ -4,7 +4,7 @@ VGT=vagrant.exe
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
 up:
-	$(VGT) up 
+	$(VGT) up
 
 status:
 	$(VGT) status

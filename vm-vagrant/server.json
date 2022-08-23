@@ -1,7 +1,7 @@
 {
   "InstallType": "minimal",
-  "PrivateKey": "./privatekey.ppk",
-  "Rsa_PrivateKey": "./id_rsa_vm",
+  "PrivateKey": "/home/jmren/dbscripts/vm-vagrant/privatekey.ppk",
+  "Rsa_PrivateKey": "/home/jmren/dbscripts/vm-vagrant/id_rsa_vm",
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
@@ -9,7 +9,7 @@
   "Vms": {
     "node0": {
       "enabled": 1,
-      "distro": "ubuntu/jammy64",
+      "distro": "centos/7",
       "prefix": "mysql",
       "provision_script": "",
       "ip_private": "192.168.56.100",
@@ -19,7 +19,7 @@
       "ram": 1024
       },
     "node1": {
-      "distro": "ubuntu/jammy64",
+      "distro": "centos/7",
       "prefix": "mysql",
       "provision_script": "",
       "ip_private": "192.168.56.101",
@@ -29,13 +29,45 @@
       "ram": 1024,
       "enabled": 1
       },
-
+      "node2": {
+        "distro": "centos/7",
+        "prefix": "mysql",
+        "provision_script": "",
+        "ip_private": "192.168.56.102",
+        "ip_private2": "192.168.57.102",
+        "public_dhcp_ip": 0,
+        "nbcpu": 1,
+        "ram": 1024,
+        "enabled": 1
+        },
     "loadb0": {
-      "distro": "ubuntu/jammy64",
+      "distro": "centos/7",
       "prefix": "loadbalancer",
       "provision_script": "",
       "ip_private": "192.168.56.110",
       "ip_private2": "192.168.57.110",
+      "public_dhcp_ip": 0,
+      "nbcpu": 1,
+      "ram": 1024,
+      "enabled": 1
+      },
+      "loadb1": {
+        "distro": "centos/7",
+        "prefix": "loadbalancer",
+        "provision_script": "",
+        "ip_private": "192.168.56.111",
+        "ip_private2": "192.168.57.111",
+        "public_dhcp_ip": 0,
+        "nbcpu": 1,
+        "ram": 1024,
+        "enabled": 1
+        },
+    "app0": {
+      "distro": "centos/7",
+      "prefix": "app",
+      "provision_script": "",
+      "ip_private": "192.168.56.120",
+      "ip_private2": "192.168.57.120",
       "public_dhcp_ip": 0,
       "nbcpu": 1,
       "ram": 1024,

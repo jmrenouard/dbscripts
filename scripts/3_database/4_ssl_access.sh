@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 lRC=0
 CONF_SRV_FILE="/etc/my.cnf.d/99_minimal_ssl_config.cnf"

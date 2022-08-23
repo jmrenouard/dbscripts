@@ -1,0 +1,13 @@
+---
+  - name: "Update RedHat Like Distro"
+    hosts: "{{ target | default('all') }}"
+    gather_facts: true
+    tasks:
+      - name: "Update cache & Full system update"
+        yum:
+          name: '*'
+          state: latest
+          update_cache: true
+      - name: "Reboot After update"
+        reboot:
+          reboot_timeout: 3600

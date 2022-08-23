@@ -4,7 +4,7 @@
 source /etc/os-release
 
 lRC=0
-VERSION=${1:-"10.6"}
+VERSION=${1:-"10.8"}
 
 ##title_en: Centos MariaDB 10.5 server installation
 ##title_fr: Installation du serveur MariaDB 10.5 sur OS Centos  
@@ -47,12 +47,12 @@ cmd "yum -y install https://repo.percona.com/yum/percona-release-latest.noarch.r
 lRC=$(($lRC + $?))
 cmd "yum -y install percona-toolkit"
 lRC=$(($lRC + $?))
-
-cmd "yum -y install https://github.com/mydumper/mydumper/releases/download/v0.11.3-3/mydumper-0.11.3-3.el${VERSION_ID}.x86_64.rpm"
+cmd "yum -y install https://github.com/mydumper/mydumper/releases/download/v0.12.5-3/mydumper-0.12.5-3.el7.x86_64.rpm"
+#cmd "yum -y install https://github.com/mydumper/mydumper/releases/download/v0.11.3-3/mydumper-0.11.3-3.el${VERSION_ID}.x86_64.rpm"
 lRC=$(($lRC + $?))
 
-cmd "yum -y install https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/m/mysqlreport-3.5-24.fc34.noarch.rpm"
-lRC=$(($lRC + $?))
+#cmd "yum -y install https://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/m/mysqlreport-3.5-24.fc34.noarch.rpm"
+#lRC=$(($lRC + $?))
 
 [ -d "/opt/local" ] || cmd "mkdir -p /opt/local"
 

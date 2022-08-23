@@ -1,5 +1,5 @@
 #!/bin/bash
-
+[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 ##title_en: MariaDB 10.6 server configuration based on  CPU/RAM
@@ -65,7 +65,7 @@ cmd "ps -edf |grep [m]ariadbd"
 
 cmd "ls -ls /var/lib/mysql"
 
-cmd "journalctl -xe -o cat -u mariadb"
+cmd "journalctl -xe --no-pager -o cat -u mariadb"
 
 [ -f "/var/lib/mysql/mysqld.log" ] && cmd "tail -n 15 /var/lib/mysql/mysqld.log"
 [ -f "/var/log/mysql/mysqld.log" ] && cmd "tail -n 15 /var/log/mysql/mysqld.log"
