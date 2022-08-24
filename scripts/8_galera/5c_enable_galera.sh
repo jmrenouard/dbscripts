@@ -10,7 +10,7 @@ CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 banner "BEGIN SCRIPT: $_NAME"
 
 if [ -f "${CONF_FILE}.disabled" ]; then
-	cmd "mv ${CONF_FILE}.disabled $CONF_FILE"
+	cmd "mv -f ${CONF_FILE}.disabled $CONF_FILE"
 	cmd "systemctl restart mariadb"
 else
 	warn "${CONF_FILE}.disabled is MISSING"
