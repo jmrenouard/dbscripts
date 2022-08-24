@@ -1,14 +1,14 @@
 ---
-- name: Create Cassandra user
+- name: Create Unix user
   hosts: "{{target}}"
   vars:
-    - MUSER: "{{muser| default('')}}"
-    - MGROUP: "{{mgroup| default('')}}"
+    - MUSER: "{{ muser }}"
+    - MGROUP: "{{mgroup| default(MUSER)}}"
   gather_facts: false
   tasks:
     - name: "Add the user {{MUSER}} with a specific uid and a primary group of {{MGROUP}}"
       ansible.builtin.user:
         name: "{{MUSER}}"
-#        group: "{{MGROUP}}"
+        group: "{{MGROUP}}"
         home: "/home/{{MUSER}}"
         state: present

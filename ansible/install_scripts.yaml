@@ -1,0 +1,68 @@
+---
+- name: Create Unix user
+  hosts: "{{ target| default('all') }}"
+  vars:
+    MUSER: "{{ muser }}"
+    MGROUP: "{{ mgroup| default(MUSER) }}"
+    BASEDIR: "{{ basedir | default('../scripts') }}"
+    UTILS_FILES_DEST: "/etc/profile.d"
+    UTILS_FILES:
+        - "{{ BASEDIR }}/utils.sh"
+        - "{{ BASEDIR }}/utils.mysql.sh"
+    BIN_DIR: "{{ BASEDIR }}/bin"
+    SCRIPT_DIR: "/opt/local"
+    SCRIPT_BIN_DIR: "/opt/local/bin"
+    OWNER: "root"
+    GROUP: "root"
+    MODE: "0755"
+    
+  gather_facts: false
+  tasks:
+    - name: "Copy utilities functions"
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ UTILS_FILES_DEST }}"
+        owner: "{{ OWNER }}"
+        group: "{{ GROUP }}"
+        mode: "{{ MODE }}"
+      with_items:
+        - "{{ UTILS_FILES }}"
+      tags:
+        - copy
+
+    - name: "Create script directory"
+      ansible.builtin.file:
+        state: directory
+        path: "{{ item }}"
+        owner: "{{ OWNER }}"
+        group: "{{ GROUP }}"
+        mode: "{{ MODE }}"
+      with_items:
+        - "{{ SCRIPT_DIR }}"
+        - "{{ SCRIPT_BIN_DIR }}"
+
+      tags:
+        - copy
+
+    - name: "Copy scripts"
+      ansible.builtin.copy:
+        src: "{{ BIN_DIR }}"
+        dest: "{{ SCRIPT_DIR }}"
+        owner: "{{ OWNER }}"
+        group: "{{ GROUP }}"
+        mode: "{{ MODE }}"
+      tags:
+        - copy
+
+    - name: "Check copy"
+      shell: |
+        echo "--------------------------------"
+        ls -lsh /etc/profile.d | grep utils
+        echo "--------------------------------"
+        ls -lsh /opt/local
+        echo "--------------------------------"
+        ls -lsh /opt/local/bin
+      args:
+        executable: /bin/bash
+      tags:
+        - test

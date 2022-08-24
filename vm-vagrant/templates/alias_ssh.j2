@@ -14,9 +14,12 @@ alias anv="time ansible -f $(nproc) -v"
 alias and="time ansible -f $(nproc) -v --step"
 
 # Alias pour ansible-playbook
-alias ap="time ansible-playbook -f $(nproc)"
-alias apv="time ansible-playbook -f $(nproc) --verbose"
-alias apd="time ansible-playbook -f $(nproc) --verbose --step"
+#alias ap="time ansible-playbook -f $(nproc)"
+#alias apv="time ansible-playbook -f $(nproc) --verbose"
+#alias apd="time ansible-playbook -f $(nproc) --verbose --step"
+
+
+
 
 # Alias pour le debugging des playbooks et roles
 alias apchk="time ansible-playbook --syntax-check"
@@ -24,6 +27,84 @@ alias aphst="time ansible-playbook --list-hosts"
 alias aptsk="time ansible-playbook --list-tasks"
 
 alias anl="time ansible-lint"
+
+
+export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
+
+unalias ap 2>/dev/null
+ap()
+{
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*"
+        time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*
+        return $?
+    fi
+    echo "RUNNING: time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*"
+    time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*
+}
+
+unalias apv 2>/dev/null
+apv()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v"}" 
+    ap $*
+}
+
+unalias apd 2>/dev/null
+apd()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v --step"}" 
+    ap $*   
+}
+
+update_aroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    rm -rf roles/*
+    ansible-galaxy install -r ./requirements.yml --force
+    ls -ls roles/
+}
+alias get_jtemplate="find . -type f -iname '*.j2'"
+
+update_alroles()
+{
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    needed_roles=$(grep src requirements.yml | rev | cut -d/ -f1 | cut -d. -f 2 | rev)
+    rm -rf roles/*
+    for role in $needed_roles; do
+        (
+        cd ./roles
+        role_path=$(readlink -f ../../$role) 
+        if [ -d "$role_path" ]; then 
+            ln -sf $role_path
+        else 
+            fail "ROLE $role($role_path) IS MISSING IN LOCAL"
+        fi   
+        )
+    done 
+    ls -ls roles/
+}
+
+load_ainventory()
+{
+    for inv in $1 $(pwd)/inventory $HOME/GIT_REPOS/inventory-infra-b2c/$1/hosts; do
+        if [ -f "$1" -o -d "$1" ]; then
+            export ANSIBLE_INVENTORY=$(readlink -f $inv)
+            echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+            return 0
+        fi
+    done  
+    echo 'ERROR: inventory MISSING'
+    return 127
+}
 
 alias | grep -q gcm && unalias gcm
 gcm()

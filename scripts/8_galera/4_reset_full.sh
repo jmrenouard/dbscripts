@@ -29,7 +29,7 @@ ps -edf |grep [m]ysqld
 
 cmd "ls -ls $DATADIR"
 
-cmd "journalctl -xe -o cat -u mariadb"
+cmd "journalctl -xe --no-pager -o cat -u mariadb"
 
 cmd "tail -n 30 /var/log/mysql/mysqld.log"
 

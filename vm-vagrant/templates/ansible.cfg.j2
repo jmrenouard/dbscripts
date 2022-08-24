@@ -11,9 +11,9 @@ timeout=15
 log_path = ./log/ansible.log
 
 bin_ansible_callbacks=True
-callbacks_enabled = timer, yaml, json, profile_tasks, profile_roles, counter_enabled
+callback_enabled = timer, yaml, json, profile_tasks, profile_roles, counter_enabled
 #stdout_callback=debug
-stdout_callback=dense
+#stdout_callback=dense
 junit_output_dir=./output
 output_dir=./logs
 private_key_file={{Rsa_PrivateKey}}
@@ -22,5 +22,3 @@ remote_user = root
 [inventory]
 cache=True
 #enable_plugins = advanced_host_list, constructed, yaml
-
-

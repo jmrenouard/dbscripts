@@ -1,5 +1,5 @@
 ---
-- hosts: "{{target| default('zeppelin-servers')}}"
+- hosts: "{{target| default('mysql')}}"
   vars:
     - OUTPUT_DIR: "{{outputdir| default('result')}}"
     - SCRIPT:     "{{ script | default('scripts/export_info.py') }}"

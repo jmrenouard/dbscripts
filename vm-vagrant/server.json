@@ -39,18 +39,18 @@
         "nbcpu": 1,
         "ram": 1024,
         "enabled": 1
-        },
-    "loadb0": {
-      "distro": "centos/7",
-      "prefix": "loadbalancer",
-      "provision_script": "",
-      "ip_private": "192.168.56.110",
-      "ip_private2": "192.168.57.110",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 1
       },
+      "loadb0": {
+        "distro": "centos/7",
+        "prefix": "loadbalancer",
+        "provision_script": "",
+        "ip_private": "192.168.56.110",
+        "ip_private2": "192.168.57.110",
+        "public_dhcp_ip": 0,
+        "nbcpu": 1,
+        "ram": 1024,
+        "enabled": 1
+        },
       "loadb1": {
         "distro": "centos/7",
         "prefix": "loadbalancer",
@@ -62,16 +62,16 @@
         "ram": 1024,
         "enabled": 1
         },
-    "app0": {
-      "distro": "centos/7",
-      "prefix": "app",
-      "provision_script": "",
-      "ip_private": "192.168.56.120",
-      "ip_private2": "192.168.57.120",
-      "public_dhcp_ip": 0,
-      "nbcpu": 1,
-      "ram": 1024,
-      "enabled": 1
-      }
+      "app0": {
+        "distro": "centos/7",
+        "prefix": "app",
+        "provision_script": "",
+        "ip_private": "192.168.56.120",
+        "ip_private2": "192.168.57.120",
+        "public_dhcp_ip": 0,
+        "nbcpu": 1,
+        "ram": 1024,
+        "enabled": 1
+        }
   }
 }

@@ -40,7 +40,7 @@ generate_puttyreg:
 	echo "## Generation du registre pour Putty"
 	cat $(CONF_FILE) | j2 -f json templates/puttyreg.reg.j2 > puttyreg.reg
 
-generate_bachrc:
+generate_bashrc:
 	echo "## Generation des alias Shell"
 	cat $(CONF_FILE) | j2 -f json templates/alias_ssh.j2 > bashrc
 
