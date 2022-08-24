@@ -1,14 +1,16 @@
 ---
   - name: "Update Ubuntu Distro"
     hosts: "{{ target | default('all') }}"
-    gather_facts: true
+    UPDATE_TYPE: "{{ type|default('yes') }}"
+    gather_facts: false
     tasks:
       - name: "Update cache & Full system update"
         apt:
           update_cache: true
-          upgrade: dist
-          cache_valid_time: 3600
+          upgrade: "{{ UPDATE_TYPE }}"
           force_apt_get: true
+          autoremove: yes
+          autoclean: yes
       - name: "Reboot After upgrade"
         reboot:
           reboot_timeout: 3600
