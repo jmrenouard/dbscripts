@@ -27,6 +27,14 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	cmd "/sbin/iptables -A INPUT -p tcp --dport 4444 -j ACCEPT"
 	cmd "/sbin/iptables -A OUTPUT -p udp --dport 4444 -j ACCEPT"
 
+	info"Autoriser l'agent Zabbix"
+	cmd "/sbin/iptables -A INPUT -p tcp --dport 10050 -j ACCEPT"
+	cmd "/sbin/iptables -A OUTPUT -p udp --dport 10050 -j ACCEPT"
+
+	info"Autoriser l'agent NRPE"
+	cmd "/sbin/iptables -A INPUT -p tcp --dport 5666 -j ACCEPT"
+	cmd "/sbin/iptables -A OUTPUT -p udp --dport 5666 -j ACCEPT"
+
 	cmd "iptables -L"
 else
 	cmd "timeout 10 systemctl restart firewalld"
@@ -39,8 +47,10 @@ else
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=4568/tcp --permanent"
 	lRC=$(($lRC + $?))
-#	cmd "firewall-cmd --add-port=5555/tcp --permanent"
-#	lRC=$(($lRC + $?))
+	cmd "firewall-cmd --add-port=10050/tcp --permanent"
+	lRC=$(($lRC + $?))
+	cmd "firewall-cmd --add-port=5666/tcp --permanent"
+	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --reload"
 	cmd "firewall-cmd --list-all"
 fi

@@ -5,7 +5,7 @@
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
-  "NetInter": "eth0",
+  "NetInter": "Marvell AVASTAR Wireless-AC Network Controller",
   "Vms": {
     "node0": {
       "enabled": 1,
@@ -14,7 +14,7 @@
       "provision_script": "",
       "ip_private": "192.168.56.100",
       "ip_private2": "192.168.57.100",
-      "public_dhcp_ip": 0,
+      "public_dhcp_ip": 1,
       "nbcpu": 1,
       "ram": 1024
       },
@@ -24,7 +24,7 @@
       "provision_script": "",
       "ip_private": "192.168.56.101",
       "ip_private2": "192.168.57.101",
-      "public_dhcp_ip": 0,
+      "public_dhcp_ip": 1,
       "nbcpu": 1,
       "ram": 1024,
       "enabled": 1
@@ -35,7 +35,7 @@
         "provision_script": "",
         "ip_private": "192.168.56.102",
         "ip_private2": "192.168.57.102",
-        "public_dhcp_ip": 0,
+        "public_dhcp_ip": 1,
         "nbcpu": 1,
         "ram": 1024,
         "enabled": 1
@@ -46,7 +46,7 @@
         "provision_script": "",
         "ip_private": "192.168.56.110",
         "ip_private2": "192.168.57.110",
-        "public_dhcp_ip": 0,
+        "public_dhcp_ip": 1,
         "nbcpu": 1,
         "ram": 1024,
         "enabled": 1
@@ -57,7 +57,7 @@
         "provision_script": "",
         "ip_private": "192.168.56.111",
         "ip_private2": "192.168.57.111",
-        "public_dhcp_ip": 0,
+        "public_dhcp_ip": 1,
         "nbcpu": 1,
         "ram": 1024,
         "enabled": 1
@@ -68,7 +68,7 @@
         "provision_script": "",
         "ip_private": "192.168.56.120",
         "ip_private2": "192.168.57.120",
-        "public_dhcp_ip": 0,
+        "public_dhcp_ip": 1,
         "nbcpu": 1,
         "ram": 1024,
         "enabled": 1

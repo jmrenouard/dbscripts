@@ -196,6 +196,10 @@ aexec()
     export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
     ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -a "$*"
 }
+axec()
+{
+    aexec $*
+}
 
 auexec()
 {

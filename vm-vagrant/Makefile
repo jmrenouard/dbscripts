@@ -63,3 +63,6 @@ loadmod:
 	sudo modprobe vboxdrv
 	sudo modprobe vboxnetadp
 	sudo /sbin/vboxconfig
+
+getinet:
+	VBoxManage.exe list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n

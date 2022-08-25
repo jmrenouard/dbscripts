@@ -6,8 +6,8 @@
 lRC=0
 
 title1 "PROVISIONNING DOCKER-CE"
-dnf install -y dnf-utils device-mapper-persistent-data lvm2
-dnf -y remove docker \
+yum install -y dnf-utils device-mapper-persistent-data lvm2
+yum -y remove docker \
                   docker-client \
                   docker-client-latest \
                   docker-common \
@@ -16,8 +16,8 @@ dnf -y remove docker \
                   docker-logrotate \
                   docker-engine
 
-dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-dnf install -y docker-ce docker-ce-cli containerd.io
+yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin nc git
 
 systemctl start docker
 docker run hello-world
@@ -28,8 +28,7 @@ systemctl status docker
 systemctl start docker
 docker images
 docker run hello-world
-
-curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/v2.10.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
 chmod +x /usr/bin/docker-compose
 
 (
@@ -79,4 +78,3 @@ EndOfScript
 ) | tee /etc/profile.d/docker.sh
 
 chmod 755 /etc/profile.d/docker.sh
-
