@@ -76,6 +76,7 @@ echo "install soname 'wsrep_info';"| mysql -v
 echo "select * from information_schema.wsrep_status\G" |mysql
 echo "select * from information_schema.wsrep_membership;" | mysql
 
+cmd "tail -n 30 /var/log/mysql/mysqld.log"
 #set -x
 for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
 	[ "$private_ip" == "$srv" ] && continue

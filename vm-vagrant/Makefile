@@ -57,7 +57,7 @@ install_dep:
 	pip install j2cli ansible
 	apt -y install puttygen
 
-generate: generate_keys generate_puttyreg generate_conf_ansible generate_bachrc generate_vagrantfile
+generate: generate_keys generate_puttyreg generate_conf_ansible generate_bashrc generate_vagrantfile
 
 loadmod:
 	sudo modprobe vboxdrv
