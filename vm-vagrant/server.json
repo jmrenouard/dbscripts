@@ -1,7 +1,7 @@
 {
   "InstallType": "minimal",
-  "PrivateKey": "/home/jmren/dbscripts/vm-vagrant/privatekey.ppk",
-  "Rsa_PrivateKey": "/home/jmren/dbscripts/vm-vagrant/id_rsa_vm",
+  "PrivateKey": "/home/jrenouard/GIT_REPOS/dbscripts/vm-vagrant/privatekey.ppk",
+  "Rsa_PrivateKey": "/home/jrenouard/GIT_REPOS/dbscripts/vm-vagrant/id_rsa_vm",
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
