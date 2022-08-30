@@ -68,6 +68,6 @@ echo "select * from information_schema.wsrep_status\G" |mysql
 title2 "MEMBERS IN GALERA"
 echo "select * from information_schema.wsrep_membership;" | mysql
 
-cmd "tail -n 30 /var/log/mysql/mysql.log"
+cmd "tail -n 30 /var/log/mysql/mysqld.log"
 footer "END SCRIPT: $NAME"
 exit $lRC
