@@ -16,6 +16,7 @@ cd /container/zabbix
 
 cmd "ls -ls"
 
+cmd "systemctl start docker"
 cmd "docker-compose pull"
 
 cmd "docker-compose up -d"
