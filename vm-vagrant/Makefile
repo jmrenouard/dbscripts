@@ -62,9 +62,13 @@ generate_conf_ansible:
 	[ -d "log" ] || mkdir log
 	[ -d "cache" ] || mkdir cache
 
-install_dep:
+install_dep_deb:
 	pip install j2cli ansible
 	apt -y install puttygen
+
+install_dep_rh:
+	pip3 install j2cli ansible
+	dnf -y install puttygen
 
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bashrc generate_vagrantfile
 
