@@ -78,4 +78,4 @@ loadmod:
 	sudo /sbin/vboxconfig
 
 getinet:
-	VBoxManage.exe list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
+	$(VBOXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
