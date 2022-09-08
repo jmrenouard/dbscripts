@@ -31,7 +31,8 @@ sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.micros
 
 dnf -y install code
 
-
+dnf -y upgrade
+exit 0
 yum install cloud-utils dos2unix -y
 df
 
