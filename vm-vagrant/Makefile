@@ -68,7 +68,7 @@ install_dep_deb:
 
 install_dep_rh:
 	pip3 install j2cli ansible
-	dnf -y install puttygen
+	dnf -y install putty
 
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bashrc generate_vagrantfile
 
