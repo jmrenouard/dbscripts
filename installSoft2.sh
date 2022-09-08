@@ -17,7 +17,7 @@ yum-config-manager --add-repo  http://download.virtualbox.org/virtualbox/rpm/el/
 
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 
-dnf -y install sublime-text kernel-devel kernel-headers gcc make perl wget pigz git
+dnf -y install sublime-text kernel-devel kernel-headers gcc make perl wget pigz git make python3 python3-pip
 dnf -y install VirtualBox-6.1.x86_64
 
 dnf -y install vagrant
