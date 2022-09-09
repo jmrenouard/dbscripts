@@ -4,7 +4,7 @@
 
 lRC=0
 
-ZabbixServer=192.168.0.12
+ZabbixServer=10.0.135.43
 banner "Zabbix Agent2"
 
 cmd "rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/7/x86_64/zabbix-release-6.0-2.el7.noarch.rpm"
