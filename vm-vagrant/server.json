@@ -1,11 +1,11 @@
 {
   "InstallType": "minimal",
-  "PrivateKey": "/home/jrenouard/GIT_REPOS/dbscripts/vm-vagrant/privatekey.ppk",
-  "Rsa_PrivateKey": "/home/jrenouard/GIT_REPOS/dbscripts/vm-vagrant/id_rsa_vm",
+  "PrivateKey": "/home/dd/dbscripts/vm-vagrant/privatekey.ppk",
+  "Rsa_PrivateKey": "/home/dd/dbscripts/vm-vagrant/id_rsa_vm",
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
-  "NetInter": "Marvell AVASTAR Wireless-AC Network Controller",
+  "NetInter": "ens3",
   "Vms": {
     "node0": {
       "enabled": 1,
