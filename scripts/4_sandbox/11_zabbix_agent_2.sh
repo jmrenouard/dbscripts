@@ -16,7 +16,7 @@ cmd "yum -y install zabbix-agent2"
 cmd "systemctl stop zabbix-agent"
 cmd "systemctl disable zabbix-agent"
 
-perl -i -pe "s/^Server=(.+)$/Server=$ZabbixServer/;s/^ServerActive=/#ServerActive=/" /etc/zabbix/zabbix_agentd.conf
+perl -i -pe "s/^Server=(.+)$/Server=$ZabbixServer/;s/^ServerActive=/#ServerActive=/" /etc/zabbix/zabbix_agent2.conf
 cmd "systemctl restart zabbix-agent"
 cmd "systemctl enable zabbix-agent"
 
