@@ -1,39 +1,39 @@
-VGT=vagrant
-#VGT=vagrant.exe
-VBOXM=VBoxManage
-#VBOXM=VBoxManage.exe
+#VGT=vagrant
+VGT=vagrant.exe
+#VBOXM=VBoxManage
+VBOXM=VBoxManage.exe
 
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
 up:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) up
 
 status:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) status
 
 provision:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) provision
 
 halt:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) halt
 
 reload:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) reload
 
 destroy: halt
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) destroy --force
 
 cleanup:
 	rm -rf Vagrantfile puttyreg.reg id_rsa* privatekey.ppk bashrc .vagrant ansible.cfg inventory log cache
 
 installvbguest:
-	export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) vbguest --do install --iso $(VBGUEST_ISO)
 
 generate_keys:
@@ -62,9 +62,13 @@ generate_conf_ansible:
 	[ -d "log" ] || mkdir log
 	[ -d "cache" ] || mkdir cache
 
-install_dep:
+install_dep_deb:
 	pip install j2cli ansible
 	apt -y install puttygen
+
+install_dep_rh:
+	pip3 install j2cli ansible
+	dnf -y install putty
 
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bashrc generate_vagrantfile
 
@@ -74,4 +78,4 @@ loadmod:
 	sudo /sbin/vboxconfig
 
 getinet:
-	VBoxManage.exe list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
+	$(VBOXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
