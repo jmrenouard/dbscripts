@@ -5,7 +5,8 @@
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
-  "NetInter": "Marvell AVASTAR Wireless-AC Network Controller",
+  //"NetInter": "Marvell AVASTAR Wireless-AC Network Controller",
+  "NetInter": "wlp0s20f3",
   "Vms": {
     "node0": {
       "enabled": 1,
