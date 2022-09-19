@@ -39,10 +39,10 @@ cmd "chown zabbix. /var/lib/zabbix/.my.cnf"
 
 echo "DROP USER IF EXISTS 'zabbix_admin'@'localhost';
 create user 'zabbix_admin'@'localhost' IDENTIFIED BY '$zabbix_password';
-GRANT USAGE ON *.* TO 'zabbix_admin'@'localhost' IDENTIFIED BY '$zabbix_password';
+GRANT ALL ON *.* TO 'zabbix_admin'@'localhost' IDENTIFIED BY '$zabbix_password';
 DROP USER IF EXISTS 'zabbix_admin'@'%';
 create user 'zabbix_admin'@'%' IDENTIFIED BY '$zabbix_password';
-GRANT USAGE ON *.* TO 'zabbix_admin'@'%' IDENTIFIED BY '$zabbix_password';
+GRANt ALL ON *.* TO 'zabbix_admin'@'%' IDENTIFIED BY '$zabbix_password';
 FLUSH PRIVILEGES;" | mysql -fv
 
 sudo -u zabbix mysqladmin status
