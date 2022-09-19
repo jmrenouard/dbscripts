@@ -340,7 +340,11 @@ wsrep_local_state_uuid
 wsrep_node_address
 wsrep_node_incoming_address
 wsrep_node_name
-wsrep_ready"
+wsrep_ready
+wsrep_evs_delayed
+wsrep_evs_evict_list
+wsrep_evs_repl_latency
+wsrep_evs_state"
 
 (
 echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
@@ -353,7 +357,6 @@ for param in $parameters; do
 done
 )|column -t
 }
-
 
 get_non_innodb_table_count()
 {
