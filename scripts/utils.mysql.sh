@@ -319,11 +319,11 @@ set_geocluster_config()
 }
 set_localcluster_config()
 {
-    echo "wsrep_provider_options = 'evs.keepalive_period = PT3S';
-    wsrep_provider_options = 'evs.inactive_check_period = PT10S';
-    wsrep_provider_options = 'evs.suspect_timeout = PT30S';
-    wsrep_provider_options = 'evs.inactive_timeout = PT1M';
-    wsrep_provider_options = 'evs.install_timeout = PT1M';" | \
+    echo "wsrep_provider_options = 'evs.keepalive_period = PT1S';
+    wsrep_provider_options = 'evs.inactive_check_period = PT0.5S';
+    wsrep_provider_options = 'evs.suspect_timeout = PT5S';
+    wsrep_provider_options = 'evs.inactive_timeout = PT15S';
+    wsrep_provider_options = 'evs.install_timeout = PT7.5S';" | \
     $SSH_CMD mysql -f
 }
 
