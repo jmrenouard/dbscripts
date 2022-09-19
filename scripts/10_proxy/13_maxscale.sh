@@ -7,6 +7,7 @@ source /etc/os-release
 
 lRC=0
 VERSION=${1:-"10.8"}
+rpm_url="https://dlm.mariadb.com/2468261/MaxScale/22.08.1/centos/7Server/x86_64/maxscale-22.08.1-1.rhel.7.x86_64.rpm"
 
 lRC=0
 
@@ -26,6 +27,7 @@ gpgcheck=1" > /etc/yum.repos.d/mariadb_${VERSION}.repo
 
 cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
+cmd "yum -y install $rpm_url"
 
 footer "END SCRIPT: $NAME"
 exit $lRC
