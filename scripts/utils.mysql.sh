@@ -298,8 +298,33 @@ global_status()
 
 provider_var()
 {
+
+    if [ -n "$1" ]; then
+        $SSH_CMD mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
+        perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t | grep -E "$1"
+        return 0
+    fi
     $SSH_CMD mysql -Nrs -e "show global variables like 'wsrep_provider_options'" | \
-    perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t
+    perl -pe 's/wsrep_provider_options//g;s/; /\n/g;s/ = /\t/g'| sort | column -t 
+}
+
+set_geocluster_config()
+{
+    echo "wsrep_provider_options = 'evs.keepalive_period = PT3S';
+    wsrep_provider_options = 'evs.inactive_check_period = PT10S';
+    wsrep_provider_options = 'evs.suspect_timeout = PT30S';
+    wsrep_provider_options = 'evs.inactive_timeout = PT1M';
+    wsrep_provider_options = 'evs.install_timeout = PT1M';" | \
+    $SSH_CMD mysql -f
+}
+set_localcluster_config()
+{
+    echo "wsrep_provider_options = 'evs.keepalive_period = PT1S';
+    wsrep_provider_options = 'evs.inactive_check_period = PT0.5S';
+    wsrep_provider_options = 'evs.suspect_timeout = PT5S';
+    wsrep_provider_options = 'evs.inactive_timeout = PT15S';
+    wsrep_provider_options = 'evs.install_timeout = PT7.5S';" | \
+    $SSH_CMD mysql -f
 }
 
 galera_is_enabled()
