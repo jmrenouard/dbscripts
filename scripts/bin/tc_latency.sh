@@ -11,9 +11,11 @@ if [ "$1" = "install" ]; then
 	exit $?
 fi
 
-( 
-	set -x
-	tc qdisc add dev $inter root netem delay ${latms}ms; 
-	sleep ${durs}s; 
-	tc qdisc del dev $inter root
-) &
+set -x
+tc qdisc add dev $inter root netem delay ${latms}ms
+if [ "durs" -eq @ ]; then
+	sleep ${durs}s
+else
+	read n
+fi
+tc qdisc del dev $inter root
