@@ -27,6 +27,7 @@ openssl rsa -in server-key.pem -out server-key.pem
 # Certificat SSL pour le serveur
 openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 
+
 # Génération des clés pour le client
 openssl req -newkey rsa:2048 -days 365000 -nodes -keyout client-key.pem -out client-req.pem
 openssl rsa -in client-key.pem -out client-key.pem
@@ -55,7 +56,7 @@ ssl-key=/etc/mysql/ssl/client-key.pem
 /etc/mysql/mariadb.conf.d/50-mysql-clients.cnf
 tar czf client_certificates.tgz ca-cert.pem client-cert.pem client-key.pem
 
-systemctl restart mariadb
+mysql -v -e "FLUSH SSL"
 
 footer "END SCRIPT: $NAME"
 exit $lRC
