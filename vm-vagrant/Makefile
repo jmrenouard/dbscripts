@@ -68,7 +68,7 @@ install_dep_deb:
 
 install_dep_rh:
 	pip3 install j2cli ansible
-	dnf -y install putty
+	dnf -y install putty elfutils-libelf-devel
 
 generate: generate_keys generate_puttyreg generate_conf_ansible generate_bashrc generate_vagrantfile
 
@@ -78,4 +78,4 @@ loadmod:
 	sudo /sbin/vboxconfig
 
 getinet:
-	$(VBOXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
+	$(VBcode Ma	OXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
