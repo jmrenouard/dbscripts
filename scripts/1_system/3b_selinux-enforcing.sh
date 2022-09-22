@@ -8,7 +8,7 @@ banner "BEGIN SCRIPT: $_NAME"
 if [ "$ID" = "ubuntu" ]; then
 	cmd "apt install -y policycoreutils selinux-utils selinux-basics" "INSTALL SELINUX for $ID"
 else
-	cmd "yum -y install policycoreutils-python-utils" "INSTALL SELINUX UTILITIES for $ID"
+	cmd "yum -y install policycoreutils-python  libsemanage-python" "INSTALL SELINUX UTILITIES for $ID"
 fi
 cmd "setenforce 1" "SELINUX IN ENFORCING MODE"
 #lRC=$(($lRC + $?))

@@ -34,6 +34,7 @@ vm-vagrant/puttyreg.reg
 vm-vagrant/.vagrant
 vm-vagrant/Vagrantfile
 vm-vagrant/cache/*
+vm-vagrant/*.log
 description.json
 documentation/Articles.ipynb_checkpoints/
 */.ipynb_checkpoints/

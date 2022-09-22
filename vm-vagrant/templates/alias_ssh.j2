@@ -50,6 +50,12 @@ apv()
     ap $*
 }
 
+aping()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v"}" 
+    ansible -v -mping $*
+}
+
 unalias apd 2>/dev/null
 apd()
 {
