@@ -60,3 +60,5 @@ mysql -v -e "FLUSH SSL"
 
 footer "END SCRIPT: $NAME"
 exit $lRC
+
+# AL
