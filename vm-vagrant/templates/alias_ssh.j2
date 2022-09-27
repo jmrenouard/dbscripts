@@ -56,11 +56,21 @@ aping()
     ansible -v -mping $*
 }
 
+afetch()
+{
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3"
+}
+
+afetchflat()
+{
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3/{{ inventory_hostname }}/$(basename $2) flat=yes"
+}
+
 unalias apd 2>/dev/null
 apd()
 {
     ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v --step"}" 
-    ap $*   
+    ap $*  
 }
 
 update_aroles()
@@ -240,7 +250,7 @@ aucmd()
 }
 
 
-source $HOME/fabricenv/bin/activate
+[ -f "$HOME/fabricenv/bin/activate" ] && source $HOME/fabricenv/bin/activate
 alias ansible=$(which ansible)
 alias ansible-playbook=$(which ansible-playbook)
 alias ansible-galaxy=$(which ansible-galaxy)
