@@ -15,13 +15,13 @@ def get_conn(schema='mysql'):
         user=getenv("user"),
         password=getenv("password")
     )
-    
+
 def fetch_table_data(table_name):
     # The connect() constructor creates a connection to the MySQL server and returns a MySQLConnection object.
     cnx =get_conn()
 
     cursor = cnx.cursor()
-    sql=f"select * from {table_name}"
+    sql=f"select * from {table_name} LIMIT 16384"
     print(f"Running: {sql}")
     cursor.execute(sql)
 
@@ -48,6 +48,20 @@ def fetch_table_list(schema):
 
     return result
 
+def fetch_schema_list():
+    cnx =get_conn()
+    cursor = cnx.cursor()
+    sql='show databases'
+    print(f"Running: {sql}")
+    cursor.execute(sql)
+
+    result=[row[0] for row in cursor.fetchall()]
+    pprint(result)
+    # Closing connection
+    cnx.close()
+
+    return result
+
 def open_sheet(sheet_name):
     return xlsxwriter.Workbook(sheet_name + '.xlsx')
 
@@ -57,10 +71,14 @@ def close_sheet(sheet):
 
 def export(sheet, table_name):
     # Create an new Excel file and add a worksheet.
-    worksheet=table_name
-    if len(worksheet)>30:
-        worksheet=re.sub('')
-    worksheet = sheet.add_worksheet(table_name)
+    sheetname=table_name
+    pprint(sheetname)
+    if len(sheetname)>29:
+        sheetname=table_name.split('.')[1]
+        if len(sheetname)>30:
+            sheetname=table_name[0:31]
+    pprint(sheetname)
+    worksheet = sheet.add_worksheet(sheetname)
 
     # Create style for cells
     header_cell_format = sheet.add_format({'bold': True, 'border': True, 'bg_color': 'yellow'})
@@ -93,19 +111,26 @@ def export(sheet, table_name):
 
 def export_all(sheet, schema_name):
     for table in fetch_table_list(schema_name):
-        export(sheet, f"{schema_name}.{table}")
+        if schema_name != "information_schema" and table != "FILES":
+            export(sheet, f"{schema_name}.{table}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--schema", type=str, help="target schema")
     parser.add_argument("--table", type=str, help="target table")
-    parser.add_argument("--result", type=str, help="target sheetname")
+    parser.add_argument("--result", type=str, help="target sheetname", default="output")
     args = parser.parse_args()
 
     sheet=open_sheet(args.result)
     if args.table is not None:
         export(sheet, f"{args.schema}.{args.table}")
     else:
-        for sch in args.schema.split(','):
-            export_all(sheet, schema_name=sch)
+        if args.schema is not None:
+            print(f"Exporting schema: {args.schema}")
+            for sch in args.schema.split(','):
+                export_all(sheet, schema_name=sch)
+        else:
+            for sch in fetch_schema_list():
+                print(f"Exporting schema: {sch}")
+                export_all(sheet, schema_name=sch)
     close_sheet(sheet)

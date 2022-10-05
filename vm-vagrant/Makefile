@@ -1,6 +1,6 @@
 VGT=vagrant
-#VGT=vagrant.exe
 VBOXM=VBoxManage
+#VGT=vagrant.exe
 #VBOXM=VBoxManage.exe
 
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
@@ -78,4 +78,4 @@ loadmod:
 	sudo /sbin/vboxconfig
 
 getinet:
-	$(VBcode Ma	OXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n
+	$(VBOXM) list bridgedifs| grep -E '^Name:'| perl -pe 's/Name:\s+//g' |sort -n

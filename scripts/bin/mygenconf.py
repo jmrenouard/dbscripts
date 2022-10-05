@@ -77,8 +77,8 @@ def output_my_cnf(_metaconf):
     innodb-defragment			   = 1
 
     # DePRECATED IN MARIADB 10.5
-    # innodb-log-files-in-group      = 2
-
+    # innodb-log-files-in-group    = 2
+    ignore-db-dir                  =lost+found
     innodb-log-file-size           = {innodb_log_file_size}
     innodb-flush-log-at-trx-commit = 1
     innodb-file-per-table          = 1
