@@ -1,7 +1,7 @@
-VGT=vagrant
-VBOXM=VBoxManage
-#VGT=vagrant.exe
-#VBOXM=VBoxManage.exe
+#VGT=vagrant
+#VBOXM=VBoxManage
+VGT=vagrant.exe
+VBOXM=VBoxManage.exe
 
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
