@@ -2,15 +2,14 @@
 
 ## Update Centos Like OS ##
 
-```
+```bash
 $ sudo yum -y update
 ...
 ```
 
-
 ## Download dbscripts ##
 
-```
+```bash
 $ git clone https://github.com/jmrenouard/dbscripts.git
 Cloning into 'dbscripts'...
 remote: Enumerating objects: 1638, done.
@@ -21,20 +20,18 @@ Receiving objects: 100% (1638/1638), 375.57 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (1076/1076), done.
 ```
 
-
 ## Starting installSoft.sh ##
 
-```
+```bash
 $ cd dbscripts
 $ sudo sh ./installSoft.sh
 Loaded plugins: fastestmirror
 ...
 ```
 
-
 ## Checking installSoft.sh ##
 
-```
+```bash
 $ sudo sh ./installSoft.sh check
 sublime-text-3211-1.x86_64
 IderaSQLdmforMySQL-8.9.2-0.x86_64
@@ -42,10 +39,9 @@ vagrant-2.2.13-1.x86_64
 VirtualBox-6.1-6.1.22_144080_el7-1.x86_64
 ```
 
-
 ## Installing vagrant plugins ##
 
-```
+```bash
 $ cd vms
 $ sudo sh init_vagrant.sh
 Installing the 'vagrant-vbguest' plugin. This can take a few minutes...
@@ -77,7 +73,7 @@ Resolving Dependencies
 
 ## Check Vagrant installed plugins ##
 
-```
+```bash
 $ sudo sh init_vagrant.sh check
 vagrant-hostmanager (1.8.9, global)
 vagrant-persistent-storage (0.0.49, global)
@@ -86,17 +82,16 @@ vagrant-vbguest (0.29.0, global)
 
 ## Build and start exercics VMs ##
 
-```
+```bash
 $ sudo sh start.sh
 vagrant-hostmanager (1.8.9, global)
 vagrant-persistent-storage (0.0.49, global)
 vagrant-vbguest (0.29.0, global)
 ```
 
-
 ## Generate SSH config file ##
 
-```
+```bash
 mkdir -p $HOME/.conf
 cp id_rsa $HOME/.conf
 chmod 600  $HOME/.conf/id_rsa

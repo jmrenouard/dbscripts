@@ -63,7 +63,7 @@ afetch()
 
 afetchflat()
 {
-    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3/{{ inventory_hostname }}/$(basename $2) flat=yes"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3/{{ '{{' }} inventory_hostname {{ '}}' }}/$(basename $2) flat=yes"
 }
 
 unalias apd 2>/dev/null
