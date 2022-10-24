@@ -6,7 +6,23 @@ import os
 import logging
 from logdecorator import log_on_start, log_on_end, log_on_error, log_exception
 import pprint
+from functools import wraps
+import json
 
+def restricted(func):
+    """Restrict usage of func to allowed users only and replies if necessary"""
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        logging.info("Message: %s", update)
+        username = update.effective_user.username
+        if username not in os.getenv('ALLOW_USERS').split(','):
+            logging.warning(f"WARNING: Unauthorized access denied for {username}")
+            update.message.reply_text('User disallowed.')
+            return  # quit function
+        return func(update, context, *args, **kwargs)
+    return wrapped
+
+@restricted
 @log_on_end(logging.INFO, "call /start")
 def start(update, context):
     update.message.reply_text("""
@@ -18,21 +34,26 @@ Les commandes disponibles sont :
 - /linkedin pour obtenir son profil Linkedin
     """)
 
+@restricted
 @log_on_end(logging.INFO, "Call /site")
 def site(update, context):
     update.message.reply_text('https://www.commentcoder.com')
     logging.info("ARGS: " + pprint.pformat(context.args))
     logging.info("USER: " + pprint.pformat(context.user_data))
     logging.info("BOT: " + pprint.pformat(context.bot_data))
+    logging.info("UPDATE: " + pprint.pformat(update))
 
+@restricted
 @log_on_end(logging.INFO, "Call /youtube")
 def youtube(update, context):
     update.message.reply_text('https://www.youtube.com/channel/UCEztUC2WwKEDkVl9c6oUoTw')
 
+@restricted
 @log_on_end(logging.INFO, "Call /linkedin")
 def linkedin(update, context):
     update.message.reply_text('https://www.linkedin.com/in/thomascollart')
 
+@restricted
 @log_on_end(logging.INFO, "Call /unknown")
 def pas_compris(update, context):
     update.message.reply_text( f"Je n\'ai pas compris votre message: {update.message.text}" )
@@ -55,14 +76,12 @@ def main():
     # Pour avoir accès au dispatcher plus facilement
     dp = updater.dispatcher
 
-
-    userFilter=Filters.user(username="@jmrenouard2") | Filters.user(username="@jmrenouard")
     # On ajoute des gestionnaires de commandes
     # On donne a CommandHandler la commande textuelle et une fonction associée
     dp.add_handler(CommandHandler("start", callback=start, pass_args=True, pass_user_data=True))
     dp.add_handler(CommandHandler("help", callback=site, pass_args=True, pass_user_data=True))
     dp.add_handler(CommandHandler("site", callback=site, pass_args=True, pass_user_data=True))
-    dp.add_handler(CommandHandler("youtube", callback=youtube, pass_args=True, pass_user_data=True, filters=userFilter))
+    dp.add_handler(CommandHandler("youtube", callback=youtube, pass_args=True, pass_user_data=True))
     dp.add_handler(CommandHandler("linkedin", callback=linkedin, pass_args=True, pass_user_data=True))
 
     # Pour gérer les autres messages qui ne sont pas des commandes
