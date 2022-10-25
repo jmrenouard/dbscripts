@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 import os
 import logging
-from logdecorator import log_on_start, log_on_end, log_on_error, log_exception
+from logdecorator import log_on_start
 import pprint
 from functools import wraps
 import json
@@ -23,7 +23,7 @@ def restricted(func):
     return wrapped
 
 @restricted
-@log_on_end(logging.INFO, "call /start")
+@log_on_start(logging.INFO, "call /start")
 def start(update, context):
     update.message.reply_text("""
 Bienvenue sur le bot officiel de tcollart.
@@ -35,7 +35,7 @@ Les commandes disponibles sont :
     """)
 
 @restricted
-@log_on_end(logging.INFO, "Call /site")
+@log_on_start(logging.INFO, "Call /site")
 def site(update, context):
     update.message.reply_text('https://www.commentcoder.com')
     logging.info("ARGS: " + pprint.pformat(context.args))
@@ -44,17 +44,17 @@ def site(update, context):
     logging.info("UPDATE: " + pprint.pformat(update))
 
 @restricted
-@log_on_end(logging.INFO, "Call /youtube")
+@log_on_start(logging.INFO, "Call /youtube")
 def youtube(update, context):
     update.message.reply_text('https://www.youtube.com/channel/UCEztUC2WwKEDkVl9c6oUoTw')
 
 @restricted
-@log_on_end(logging.INFO, "Call /linkedin")
+@log_on_start(logging.INFO, "Call /linkedin")
 def linkedin(update, context):
     update.message.reply_text('https://www.linkedin.com/in/thomascollart')
 
 @restricted
-@log_on_end(logging.INFO, "Call /unknown")
+@log_on_start(logging.INFO, "Call /unknown")
 def pas_compris(update, context):
     update.message.reply_text( f"Je n\'ai pas compris votre message: {update.message.text}" )
 
@@ -69,29 +69,33 @@ def main():
 
     load_dotenv()
     TOKEN = os.getenv('TOKEN')
-    
+
     # La classe Updater permet de lire en continu ce qu'il se passe sur le channel
     updater = Updater(TOKEN, use_context=True)
 
     # Pour avoir accès au dispatcher plus facilement
     dp = updater.dispatcher
 
-    # On ajoute des gestionnaires de commandes
-    # On donne a CommandHandler la commande textuelle et une fonction associée
-    dp.add_handler(CommandHandler("start", callback=start, pass_args=True, pass_user_data=True))
-    dp.add_handler(CommandHandler("help", callback=site, pass_args=True, pass_user_data=True))
-    dp.add_handler(CommandHandler("site", callback=site, pass_args=True, pass_user_data=True))
-    dp.add_handler(CommandHandler("youtube", callback=youtube, pass_args=True, pass_user_data=True))
-    dp.add_handler(CommandHandler("linkedin", callback=linkedin, pass_args=True, pass_user_data=True))
+    # Définition des liens et des réponses
+    config= {
+        "start": start,
+        "help": help,
+        "site": site,
+        "youtube": youtube,
+        "linkedin": linkedin,
+        "error": error
+    }
 
-    # Pour gérer les autres messages qui ne sont pas des commandes
+    for command in config.keys():
+        logging.info("Adding %s command", command)
+        dp.add_handler(CommandHandler(command, callback=config[command], pass_args=True, pass_user_data=True))
+
+x    # Pour gérer les autres messages qui ne sont pas des commandes
     dp.add_handler(MessageHandler(Filters.text, pas_compris))
 
-    dp.add_error_handler(error)
-    # Sert à lancer le bot
+    dp.add_error_handler(config['error'])
+    
     updater.start_polling()
-
-    # Pour arrêter le bot proprement avec CTRL+C
     updater.idle()
 
 
