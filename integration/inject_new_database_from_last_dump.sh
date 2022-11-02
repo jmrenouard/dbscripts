@@ -9,6 +9,9 @@ prefix=$(echo $dump_dir| cut -d_ -f1)_
 
 for dbname in $(db_list | grep -E "^$prefix");do
 	target_dbname=$(echo $dbname| cut -d_ -f2-)
-	info "DUMPING SCHEMA FROM ${dbname} TO $target_dbname"
-	mysqldump --no-data --add-drop-database --add-drop-table --routines --events --triggers --databases ${dbname} | sed -E "s/${dbname}/$target_dbname/g" | $raw_mysql -f
+	for prefix in ARCHIVE_2017_ ARCHIVE_2018_ ARCHIVE_2019_ ARCHIVE_2020_ ARCHIVE_2021_ ARCHIVE_2022_ ARCHIVE_2023_ ARCHIVE_2024_; do
+		info "DUMPING SCHEMA FROM ${dbname} TO $prefix$target_dbname"
+	
+		mysqldump --no-data --add-drop-database --add-drop-table --routines --events --triggers --databases ${dbname} | sed -E "s/${dbname}/$prefix$target_dbname/g" | $raw_mysql -f
+	done
 done

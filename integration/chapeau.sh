@@ -1,10 +1,14 @@
 #!/bin/bash
 
-rm -f ${0}.log
+rm -f "${0}.log"
 
 (
-source ./utils.sh 
+source ./utils.sh
 source ./env_info.sh
+
+DROP_DB=0
+INJECT_DB=0
+INJECT_SCHEMA=1
 
 #--------------------
 # CLEANUP
@@ -13,26 +17,28 @@ source ./env_info.sh
 # LES BASES DE DONN2ES DUMP SONT PREFIXES PAR Dump20*
 # ON VIRE TOUTES LES BASES NON SYSTEME
 #db_user_list | grep -E '^Dump20'
-for dbname in $(db_user_list); do
-	echo "DROP DATABASE IF EXISTS \"$dbname\";" 
+[ "$DROP_DB" = "1" ] && for dbname in $(db_user_list); do
+	echo "DROP DATABASE IF EXISTS \"$dbname\";"
 done| sed -e 's/\"/`/g'| $raw_mysql -v
 
 # LISTER LES BASES RESTANTES (IL N Y A QUE LA BASES SYSTEME)
 db_list
+pauseenter
 
 #--------------------
 # INJECTION DES EXPORTS DANS LES BASES DE DUMP
 #--------------------
 # INJECTION DES DONNEES DES EXPORTS DUMP DANS LES BASES SPECIFIQUES A CHAQUE REPERTOIRE DE DUMP 
-for dump_dir in $(ls -1 . | grep -E '^Dump20' ); do
+[ "$INJECT_DB" = "1" ] && for dump_dir in $(ls -1 | grep -E '^Dump20' ); do
 	title1 "INJECTION DATABSE & DATA INTO SEPARATED DB FOR $dump_dir"
 	info "time bash inject_dump_separated_dbs.sh $dump_dir"
-	time bash inject_dump_separated_dbs.sh $dump_dir
+	time bash inject_dump_separated_dbs.sh "$dump_dir"
 	pauseenter
 done
 
 #INJECT SCHEMAS (CONTAINING PRODUCTION AND EFI DATABASES SCHEMAS)
-time bash ./inject_all_schemas.sh $DEFAULT_SCHEMA_SQL_FILE
+[ "$INJECT_SCHEMA" = "1" ] && time bash ./inject_all_schemas.sh $DEFAULT_SCHEMA_SQL_FILE
+exit 0
 
 
 #--------------------
@@ -41,7 +47,7 @@ time bash ./inject_all_schemas.sh $DEFAULT_SCHEMA_SQL_FILE
 # NOUS AVONS CONSTATE Qu'il N'y a pas les routines et les vues
 # NOUS REINJECTONS LES SCHEMAS DEPUIS L EXPORT COMPLET DES SCHEMAS DES BASES DE DONNN2ES DU DERNIER DUMP CONNUES (Dump20211123_***)
 title1 "INJECTION SCHEMAS DATABASES FINALES DEPUIS LE SCHEMAS DU DERNIER DUMP"
-time bash ./inject_new_database_from_last_dump.sh 
+[ "$INJECT_SCHEMA" = "1" ] && time bash ./inject_new_database_from_last_dump.sh
 pauseenter
 
 #exit 0

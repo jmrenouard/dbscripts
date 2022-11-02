@@ -54,9 +54,21 @@ def linkedin(update, context):
     update.message.reply_text('https://www.linkedin.com/in/thomascollart')
 
 @restricted
+@log_on_start(logging.INFO, "Call /id")
+def whoami(update, context):
+    logging.info("MSG: " + pprint.pformat(update.message.from_user))
+    msg=f"""# {update.message.from_user.first_name} {update.message.from_user.last_name}
+# ID: {update.message.from_user.id}
+# EST UN ROBOT : {update.message.from_user.is_bot}
+    """
+    #logger.info(f"REPLY: {msg}")
+    update.message.reply_text( msg )
+
+@restricted
 @log_on_start(logging.INFO, "Call /unknown")
 def pas_compris(update, context):
     update.message.reply_text( f"Je n\'ai pas compris votre message: {update.message.text}" )
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -83,6 +95,8 @@ def main():
         "site": site,
         "youtube": youtube,
         "linkedin": linkedin,
+        "id": whoami,
+        "whoami": whoami,
         "error": error
     }
 
@@ -90,11 +104,11 @@ def main():
         logging.info("Adding %s command", command)
         dp.add_handler(CommandHandler(command, callback=config[command], pass_args=True, pass_user_data=True))
 
-x    # Pour gérer les autres messages qui ne sont pas des commandes
+    # Pour gérer les autres messages qui ne sont pas des commandes
     dp.add_handler(MessageHandler(Filters.text, pas_compris))
 
     dp.add_error_handler(config['error'])
-    
+
     updater.start_polling()
     updater.idle()
 

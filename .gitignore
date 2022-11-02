@@ -41,3 +41,8 @@ documentation/Articles.ipynb_checkpoints/
 .ipynb_checkpoints
 **/.env
 **/out.*
+integration/Dumps DB/
+integration/Dump*
+integration/chapeau.sh.log
+integration/counts/
+integration/failback

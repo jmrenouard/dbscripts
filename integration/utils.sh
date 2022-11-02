@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #GLOBAL VAR
-raw_mysql="mysql -Nrs"
-mysql_force="mysql -f"
+raw_mysql="$(which mysql) -Nrs"
+mysql_force="$(which mysql) -f"
 
 
 pauseenter()
