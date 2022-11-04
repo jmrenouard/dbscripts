@@ -17,5 +17,5 @@ source ./utils.sh
 # NOUS AVONS CONSTATE Qu'il N'y a pas les routines et les vues
 # NOUS REINJECTONS LES SCHEMAS DEPUIS L EXPORT COMPLET DES SCHEMAS DES BASES DE DONNN2ES DU DERNIER DUMP CONNUES (Dump20211123_***)
 title1 "INJECTION SCHEMAS DATABASES FINALES DEPUIS LE DERNIERS DUMPS"
-time bash ./inject_new_database_from_last_dump.sh 
+time bash ./inject_new_database_from_last_dump.sh
 pauseenter

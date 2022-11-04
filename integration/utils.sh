@@ -172,3 +172,15 @@ db_inject_data()
     db_count $TDB
     sep2
 }
+
+get_db_list_from_dir()
+{
+    for d in $*; do
+    ls -1 $d
+done  | cut -d_ -f1 | sort | uniq | grep -vE '(production|sys)'
+}
+
+get_database_names()
+{
+	ls -1 $1 |grep -vE '^sys_' | cut -d_ -f 1 | sort | uniq
+}

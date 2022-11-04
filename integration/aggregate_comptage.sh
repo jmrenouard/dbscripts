@@ -4,8 +4,8 @@ source ./utils.sh
 source ./env_info.sh 
 count_dir=${1:-"counts"}
 
-rm -f $count_dir/result_*
-for cpatt in $( ls -1 counts|perl -pe 's/_Dump\d{8}//g;s/^count//s'|sort|uniq); do
+rm -f $count_dir/result*
+for cpatt in $( ls -1 counts|perl -pe 's/count_(Dump-\d{4}-\d{2}|ARCHIVE_\d{4})//g'|sort|uniq); do
 	title1 "AGGREGATE FILES FOR $cpatt"
 	output_file="$(echo $count_dir/result$cpatt|sed 's/\.txt/\.tsv/g')"
 	info "OUTPUT FILE: "
@@ -21,30 +21,28 @@ for cpatt in $( ls -1 counts|perl -pe 's/_Dump\d{8}//g;s/^count//s'|sort|uniq); 
 	for f in $lst_cfile; do
 		echo -ne "$(echo $f| sed -e 's/count_//g;s/.txt//g')\t"
 	done
-	echo -e "total_dump\tdiff_dump_final\ttotal"
+	echo -e "total_archive\ttotal_dump\tdiff_arch_dump"
 
 	for tbname in $lst_tables; do
-		big_total=0
-		dump_total=0
-		final_total=0
+		total_archive=0
+		total_dump=0
 		echo -ne "$tbname\t"
 		for f in $lst_cfile; do
 			val=$(grep -E "^$tbname\s" $count_dir/$f | awk '{print $2}')
 			if [ -n "$val" ]; then
 				echo -ne "$val\t"
-				big_total=$(($big_total+$val))
 				echo $f | grep -q 'Dump'
 				if [ $? -eq 0 ];then
-					dump_total=$(($dump_total+$val))
+					total_dump=$(($total_dump+$val))
 				else
-					final_total=$(($final_total+$val))
+					total_archive=$(($total_archive+$val))
 				fi
 
 			else
 				echo -ne "-\t"
 			fi
 		done
-		echo -ne "${dump_total}\t$(($dump_total - $final_total))\t${big_total}\n"
+		echo -ne "${total_archive}\t${total_dump}\t$(($total_archive-$total_dump))\n"
 	done
 	) > $output_file
 	cat $output_file | column -t
