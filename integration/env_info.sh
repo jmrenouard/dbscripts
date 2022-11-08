@@ -23,3 +23,4 @@ DEFAULT_DUMP_DB_PREFIX="Dump20211123-"
 LAST_DUMP_DIR="Dump20221022_backup_mysql_8.0.20"
 export NOPAUSE=0
 export DOIT=1
+BACKUP_DIR=./backups

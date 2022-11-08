@@ -6,13 +6,15 @@ rm -f "${0}.log"
 source ./utils.sh
 source ./env_info.sh
 
-DROP_DB=0
+DROP_DB=1
 INJECT_DB=0
 INJECT_SCHEMA=0
 INJECT_ARCHIVE_DATA=0
 COUNT_DATA=0
-AGGREGATE_RESULT=1
-
+AGGREGATE_RESULT=0
+BACKUP_DBS=0
+GEN_RESTORE_SCRIPT=1
+REINJECT_DBS=1
 export NOPAUSE=1
 #--------------------
 # CLEANUP
@@ -92,4 +94,64 @@ title1 "AGGREGATION DES RESULTATS TABLE a TABLE PAR BASE DE DONNEE FINALE"
 time bash ./aggregate_comptage.sh counts
 fi
 
+if [ "$BACKUP_DBS" = "1" ]; then
+title1 "Backup all DBs"
+
+rm -rf $BACKUP_DIR
+mkdir -p $BACKUP_DIR
+	for db in $(db_user_list); do
+		echo "* Backup $db DATABASE"
+		mysqldump \
+--add-drop-database \
+--routines \
+--skip-opt \
+--triggers \
+--add-drop-table --add-locks --create-options --disable-keys --extended-insert \
+--quick --set-charset \
+--single-transaction $db | pigz > $BACKUP_DIR/$db.sql.gz
+	done
+fi
+
+if [ "$GEN_RESTORE_SCRIPT" = "1" ]; then
+	title1 "GENERATE RESTORE SCRIPT"
+	(
+		echo "#!/bin/bash -x"
+		for db in $(ls -1  $BACKUP_DIR | grep sql.gz | cut -d. -f1); do
+			echo "echo '## $db DATABSE INJECTION'"
+			echo "echo '#########################################'"
+			echo "echo 'DROP DATABASE IF EXISTS \`$db\`; CREATE DATABASE IF NOT EXISTS \`$db\`;' | mysql -v"
+			echo "cat ./$db.sql.gz | pigz -cd | mysql $db"
+			echo "echo '$db INJECTED ....'"
+			echo "echo '#########################################'"
+		done
+	) | tee  $BACKUP_DIR/inject_all.sh
+	(
+		echo "#!/bin/bash -x"
+		for db in $(ls -1  $BACKUP_DIR |grep -i archive | grep sql.gz | cut -d. -f1); do
+			echo "echo '## $db DATABSE INJECTION'"
+			echo "echo '#########################################'"
+			echo "echo 'DROP DATABASE IF EXISTS \`$db\`; CREATE DATABASE IF NOT EXISTS \`$db\`;' | mysql -v"
+			echo "cat ./$db.sql.gz | pigz -cd | mysql $db"
+			echo "echo '$db INJECTED ....'"
+			echo "echo '#########################################'"
+		done
+	) | tee  $BACKUP_DIR/inject_archives.sh
+	(
+		echo "#!/bin/bash -x"
+		for db in $(ls -1  $BACKUP_DIR |grep -i dump | grep sql.gz | cut -d. -f1); do
+			echo "echo '## $db DATABSE INJECTION'"
+			echo "echo '#########################################'"
+			echo "echo 'DROP DATABASE IF EXISTS \`$db\`; CREATE DATABASE IF NOT EXISTS \`$db\`;' | mysql -v"
+			echo "cat ./$db.sql.gz | pigz -cd | mysql $db"
+			echo "echo '$db INJECTED ....'"
+			echo "echo '#########################################'"
+		done
+	) | tee  $BACKUP_DIR/inject_dumps.sh
+fi
+
+if [ "$REINJECT_DBS" = "1" ];then
+	( cd $BACKUP_DIR
+	bash inject_archives.sh
+	)
+fi
 ) 2>&1 | tee -a ${0}.log

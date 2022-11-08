@@ -46,3 +46,7 @@ integration/Dump*
 integration/chapeau.sh.log
 integration/counts/
 integration/failback
+integration/ARCHIVE_DATA.sql
+integration/backups/
+integration/new_data_archiver.sh.log
+integration/new_importer.sh.log
