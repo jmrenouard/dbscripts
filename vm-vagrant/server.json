@@ -64,17 +64,28 @@
         "ram": 1024,
         "enabled": 1
         },
-      "app0": {
-        "distro": "centos/7",
-        "prefix": "app",
-        "provision_script": "",
-        "ip_private": "192.168.56.120",
-        "ip_private2": "192.168.57.120",
-        "public_dhcp_ip": 1,
-        "nbcpu": 1,
-        "ram": 1024,
-        "enabled": 1
-        },
+        "app0": {
+          "distro": "centos/7",
+          "prefix": "app",
+          "provision_script": "",
+          "ip_private": "192.168.56.120",
+          "ip_private2": "192.168.57.120",
+          "public_dhcp_ip": 1,
+          "nbcpu": 1,
+          "ram": 1024,
+          "enabled": 1
+          },
+        "app1": {
+          "distro": "ubuntu/jammy64",
+          "prefix": "app1",
+          "provision_script": "",
+          "ip_private": "192.168.56.121",
+          "ip_private2": "192.168.57.121",
+          "public_dhcp_ip": 1,
+          "nbcpu": 1,
+          "ram": 1024,
+          "enabled": 1
+          },
       "docker0": {
         "distro": "centos/7",
         "prefix": "docker",
