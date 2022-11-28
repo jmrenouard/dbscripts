@@ -1,7 +1,8 @@
 ---
   - name: "Update Ubuntu Distro"
     hosts: "{{ target | default('all') }}"
-    UPDATE_TYPE: "{{ type|default('yes') }}"
+    vars:
+      - UPDATE_TYPE: "{{ type|default('yes') }}"
     gather_facts: false
     tasks:
       - name: "Update cache & Full system update"

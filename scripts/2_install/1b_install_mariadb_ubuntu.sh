@@ -22,7 +22,10 @@ lRC=$(($lRC + $?))
 cmd "apt -y install cracklib-runtime python3-cracklib sysbench tree telnet netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
 lRC=$(($lRC + $?))
 
-cmd "apt -y install percona-toolkit mycli"
+cmd "apt -y install percona-toolkit mycli net-tools"
+lRC=$(($lRC + $?))
+
+cmd "apt -y install nagios-nrpe-server nagios-nrpe-plugin centreon-plugins monitoring-plugins monitoring-plugins-contrib nagios-snmp-plugins"
 lRC=$(($lRC + $?))
 
 [ -d "/opt/local" ] || cmd "mkdir -p /opt/local"

@@ -2,38 +2,31 @@
 #VBOXM=VBoxManage
 VGT=vagrant.exe
 VBOXM=VBoxManage.exe
-
+VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
 up:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) up
 
 status:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) status
 
 provision:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) provision
 
 halt:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) halt
 
 reload:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) reload
 
 destroy: halt
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) destroy --force
 
 cleanup:
 	rm -rf Vagrantfile puttyreg.reg id_rsa* privatekey.ppk bashrc .vagrant ansible.cfg inventory log cache
 
 installvbguest:
-	export VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 	$(VGT) vbguest --do install --iso $(VBGUEST_ISO)
 
 generate_keys:

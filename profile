@@ -5,7 +5,7 @@ if [ "$0" != "-/bin/bash" -a "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 else
 	_DIR="$(readlink -f ".")"
 fi
-[ "$(pwd)" = "$HOME" -o ! -f "./profile" ] && export _DIR="$HOME/dbscripts/"
+[ "$(pwd)" = "$HOME" -o ! -f "./profile" ] && export _DIR="$HOME/GIT_REPOS/dbscripts/"
 
 export VMS_DIR="$(readlink -f ".")/vm-vagrant"
 [ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vm-vagrant"
@@ -20,5 +20,5 @@ export docker_vms="docker0,docker1,docker2"
 export all_vms="$proxy_vms,$db_vms,$app_vms"
 
 for module in utils git network slack vagrant linode vagrant;do
-    [ -f "${module}.sh" ] && source ${module}.sh
+    [ -f "${_DIR}/${module}.sh" ] && source ${_DIR}/${module}.sh
 done

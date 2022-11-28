@@ -1,7 +1,7 @@
 {
   "InstallType": "minimal",
-  "PrivateKey": "/home/jmren/dbscripts/vm-vagrant/privatekey.ppk",
-  "Rsa_PrivateKey": "/home/jmren/dbscripts/vm-vagrant/id_rsa_vm",
+  "PrivateKey": "/home/jmren/GIT_REPOS/dbscripts/vm-vagrant/privatekey.ppk",
+  "Rsa_PrivateKey": "/home/jmren/GIT_REPOS/dbscripts/vm-vagrant/id_rsa_vm",
   "SshUser": "vagrant",
   "Group": "VagrantVms",
   "LabName": "MySQL",
@@ -77,12 +77,12 @@
           },
         "app1": {
           "distro": "ubuntu/jammy64",
-          "prefix": "app1",
+          "prefix": "app",
           "provision_script": "",
           "ip_private": "192.168.56.121",
           "ip_private2": "192.168.57.121",
           "public_dhcp_ip": 1,
-          "nbcpu": 1,
+          "nbcpu": 2,
           "ram": 1024,
           "enabled": 1
           },

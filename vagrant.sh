@@ -230,3 +230,11 @@ local_updateScript()
     chmod -R 755 /opt/local/bin
     footer "LOCAL UPDATE SCRIPTS"
 }
+
+
+winalias()
+{
+    alias vagrant=vagrant.exe
+    alias VBoxManage=VBoxManage.exe
+    alias vbm=VBoxManage.exe
+}
