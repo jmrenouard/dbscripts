@@ -1,17 +1,17 @@
 ### CONFIGURATED BY Vagrantfile.j2 and j2cli
 unless Vagrant.has_plugin?("vagrant-vbguest")
   puts 'Installing vagrant-vbguest Plugin...'
-  system('vagrant.exe plugin install vagrant-vbguest')
+  system('vagrant plugin install vagrant-vbguest')
 end
 
 unless Vagrant.has_plugin?("vagrant-hostmanager")
   puts 'Installing vagrant-hostmanager Plugin...'
-  system('vagrant.exe plugin install vagrant-hostmanager')
+  system('vagrant plugin install vagrant-hostmanager')
 end
 
 unless Vagrant.has_plugin?("vagrant-ansible-local")
   puts 'Installing vagrant-ansible-local Plugin...'
-  system('vagrant.exe plugin install vagrant-ansible-local')
+  system('vagrant plugin install vagrant-ansible-local')
 end
 
 Vagrant.configure("2") do |config|
