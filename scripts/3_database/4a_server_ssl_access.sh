@@ -4,7 +4,9 @@
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 lRC=0
-CONF_SRV_FILE="/etc/my.cnf.d/99_minimal_ssl_config.cnf"
+[ -d "/etc/my.cnf.d/" ] && CONF_SRV_FILE="/etc/my.cnf.d/99_minimal_ssl_config.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_SRV_FILE="/etc/mysql/conf.d/99_minimal_ssl_config.cnf"
+[ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_SRV_FILE="/etc/mysql/mariadb.d/99_minimal_ssl_config.cnf"
 
 banner "BEGIN SCRIPT: $_NAME"
 

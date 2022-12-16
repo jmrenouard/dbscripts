@@ -1,17 +1,14 @@
 ### CONFIGURATED BY Vagrantfile.j2 and j2cli
 unless Vagrant.has_plugin?("vagrant-vbguest")
   puts 'Installing vagrant-vbguest Plugin...'
-  system('vagrant plugin install vagrant-vbguest')
+  #system('vagrant plugin install vagrant-vbguest')
+  system('vagrant.exe plugin install vagrant-vbguest')
 end
 
 unless Vagrant.has_plugin?("vagrant-hostmanager")
   puts 'Installing vagrant-hostmanager Plugin...'
-  system('vagrant plugin install vagrant-hostmanager')
-end
-
-unless Vagrant.has_plugin?("vagrant-ansible-local")
-  puts 'Installing vagrant-ansible-local Plugin...'
-  system('vagrant plugin install vagrant-ansible-local')
+  #system('vagrant plugin install vagrant-hostmanager')
+  system('vagrant.exe plugin install vagrant-hostmanager')
 end
 
 Vagrant.configure("2") do |config|
@@ -20,15 +17,16 @@ Vagrant.configure("2") do |config|
     config.hostmanager.manage_guest = true
     config.vm.synced_folder '.', '/vagrant', disabled: true
     config.vbguest.auto_update = false
+    config.vm.boot_timeout = 600
 {% for vm in Vms %}{% if Vms[vm]['enabled'] == 1 %}
     ### CONFIG {{ vm }} VM GENERATED
     config.vm.define "{{ vm }}" do |{{ vm }}|
       {{ vm }}.vm.box = "{{ Vms[vm]['distro'] }}"
       {{ vm }}.vm.hostname = '{{ vm }}.vm'
       {{ vm }}.hostmanager.enabled = true
-      {% if Vms[vm]['ip_private'] is defined %}{{ vm }}.vm.network "private_network", :type => 'static', :adapter => 2, ip: "{{ Vms[vm]['ip_private'] }}", :use_dhcp_assigned_default_route => true{% endif %}
-      {% if Vms[vm]['ip_private2'] is defined %}{{ vm }}.vm.network "private_network", :type => 'static', :adapter => 3, ip: "{{ Vms[vm]['ip_private2'] }}", :use_dhcp_assigned_default_route => true{% endif %}
-      {% if Vms[vm]['public_dhcp_ip']==1 %}{{ vm }}.vm.network "public_network", :type => 'dhcp', :adapter => 4, :bridge => "{{ NetInter }}", :use_dhcp_assigned_default_route => true{% endif %}
+      {% if Vms[vm]['ip_private'] is defined %}{{ vm }}.vm.network "private_network", type: 'static', adapter: 2, ip: "{{ Vms[vm]['ip_private'] }}", use_dhcp_assigned_default_route: true{% endif %}
+      {% if Vms[vm]['ip_private2'] is defined %}{{ vm }}.vm.network "private_network", type: 'static', adapter: 3, ip: "{{ Vms[vm]['ip_private2'] }}", use_dhcp_assigned_default_route: true{% endif %}
+      {% if Vms[vm]['public_dhcp_ip']==1 %}{{ vm }}.vm.network "public_network", type: 'dhcp', adapter: 4{% if NetInter is defined %}, bridge: "{{ NetInter }}"{% endif %}, use_dhcp_assigned_default_route: true{% endif %}
       {{ vm }}.hostmanager.manage_host = false
       {{ vm }}.hostmanager.manage_guest = true
       {{ vm }}.hostmanager.ignore_private_ip = false
@@ -40,7 +38,8 @@ Vagrant.configure("2") do |config|
          vb.gui = false
          vb.memory = {{ Vms[vm]['ram'] }}
          vb.cpus = {{ Vms[vm]['nbcpu'] }}
-         vb.customize ["modifyvm", :id, "--groups", "/{{Group}}/{{LabName}}/{{ Vms[vm]['prefix'] }}"]
+         vb.customize [ "modifyvm", :id, "--ioapic", "on" ]
+         vb.customize [ "modifyvm", :id, "--groups", "/{{Group}}/{{LabName}}/{{ Vms[vm]['prefix'] }}" ]
          {% if Vms[vm]['ip_private'] is defined %}vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]{% endif %}
          {% if Vms[vm]['ip_private2'] is defined %}vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]{% endif %}
          {% if Vms[vm]['public_dhcp_ip']==1 %}vb.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]{% endif %}

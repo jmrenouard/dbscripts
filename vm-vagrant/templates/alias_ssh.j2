@@ -70,7 +70,7 @@ unalias apd 2>/dev/null
 apd()
 {
     ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v --step"}" 
-    ap $*  
+    ap $*
 }
 
 update_aroles()
@@ -98,14 +98,14 @@ update_alroles()
     for role in $needed_roles; do
         (
         cd ./roles
-        role_path=$(readlink -f ../../$role) 
-        if [ -d "$role_path" ]; then 
+        role_path=$(readlink -f ../../$role)
+        if [ -d "$role_path" ]; then
             ln -sf $role_path
-        else 
+        else
             fail "ROLE $role($role_path) IS MISSING IN LOCAL"
-        fi   
+        fi
         )
-    done 
+    done
     ls -ls roles/
 }
 
@@ -117,7 +117,7 @@ load_ainventory()
             echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
             return 0
         fi
-    done  
+    done
     echo 'ERROR: inventory MISSING'
     return 127
 }
@@ -143,9 +143,9 @@ gpull_dir()
             continue
         fi
         title1 $rep PULLING CHANGES
-        ( 
+        (
             cd $rep
-            git config pull.rebase false 
+            git config pull.rebase false
             git $verb
         )
     done
@@ -250,7 +250,7 @@ aucmd()
 }
 
 
-[ -f "$HOME/fabricenv/bin/activate" ] && source $HOME/fabricenv/bin/activate
+#[ -f "$HOME/fabricenv/bin/activate" ] && source $HOME/fabricenv/bin/activate
 alias ansible=$(which ansible)
 alias ansible-playbook=$(which ansible-playbook)
 alias ansible-galaxy=$(which ansible-galaxy)

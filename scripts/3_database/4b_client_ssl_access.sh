@@ -4,7 +4,9 @@
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 lRC=0
-CONF_CLI_FILE="/etc/my.cnf.d/50-mysql_ssl_clients.cnf"
+[ -d "/etc/my.cnf.d/" ] && CONF_CLI_FILE="/etc/my.cnf.d/50-mysql_ssl_clients.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_CLI_FILE="/etc/mysql/conf.d/50-mysql_ssl_clients.cnf"
+[ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_CLI_FILE="/etc/mysql/mariadb.d/50-mysql_ssl_clients.cnf"
 
 banner "BEGIN SCRIPT: $_NAME"
 

@@ -11,6 +11,7 @@ lRC=0
 DATADIR="/var/lib/mysql"
 [ -d "/etc/my.cnf.d/" ] && CONF_FILE="/etc/my.cnf.d/99_minimal_config.cnf"
 [ -d "/etc/mysql/conf.d/" ] && CONF_FILE="/etc/mysql/conf.d/99_minimal_config.cnf"
+[ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/99_minimal_config.cnf"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 #server_id=$(ip a| grep '192' |grep inet|awk '{print $2}'| cut -d/ -f1 | cut -d. -f4)
 

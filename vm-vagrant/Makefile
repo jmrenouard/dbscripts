@@ -1,13 +1,21 @@
 VGT=vagrant
 VBOXM=VBoxManage
-#VGT=vagrant.exe
-#VBOXM=VBoxManage.exe
+ifeq ($(shell $(which vagrant)),)
+	VGT=vagrant.exe
+	VBOXM=VBoxManage.exe
+endif
 VAGRANT_DEFAULT_PROVIDER="VirtualBox"
 VBGUEST_ISO="C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso"
 CONF_FILE=./server.json
 up:
 	$(VGT) up
 
+pup:
+	$(VGT) up app1 loadb1 node1 node2 node3
+
+debug:
+	echo $(OS)
+	echo $(shell $(which vagrant.exe)
 status:
 	$(VGT) status
 
@@ -23,7 +31,7 @@ reload:
 destroy: halt
 	$(VGT) destroy --force
 
-cleanup:
+cleanup: destroy
 	rm -rf Vagrantfile puttyreg.reg id_rsa* privatekey.ppk bashrc .vagrant ansible.cfg inventory log cache
 
 installvbguest:

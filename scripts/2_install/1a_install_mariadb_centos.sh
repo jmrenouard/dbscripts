@@ -37,7 +37,7 @@ lRC=$(($lRC + $?))
 
 cmd "yum -y install MariaDB-server galera-4 MariaDB-client MariaDB-shared MariaDB-backup MariaDB-common"
 
-cmd "yum -y install python3 mylvmbackup MariaDB-cracklib-password-check MariaDB-connect-engine"
+cmd "yum -y install pv python3 mylvmbackup MariaDB-cracklib-password-check MariaDB-connect-engine"
 lRC=$(($lRC + $?))
 
 cmd "yum -y install cracklib cracklib-dicts tree socat sysbench jemalloc rsync nmap lsof net-tools perl-DBI nc mariadb-server-utils pigz perl-DBD-MySQL git pwgen"

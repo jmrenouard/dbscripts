@@ -3,6 +3,7 @@
     hosts: "{{ target | default('all') }}"
     vars:
       - UPDATE_TYPE: "{{ type|default('yes') }}"
+      - FORCE_REBOOT: "{{ reboot| default('no')}}"
     gather_facts: false
     tasks:
       - name: "Update cache & Full system update"
@@ -12,6 +13,12 @@
           force_apt_get: true
           autoremove: yes
           autoclean: yes
+      - name: "/bin/bash by default"
+        shell: |
+          echo "dash dash/sh boolean false" | debconf-set-selections
+          DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
+
       - name: "Reboot After upgrade"
         reboot:
           reboot_timeout: 3600
+        when: FORCE_REBOOT=='yes'

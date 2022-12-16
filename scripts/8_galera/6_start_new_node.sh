@@ -3,11 +3,16 @@
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
+[ -d "/etc/my.cnf.d/" ] && CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="/etc/mysql/conf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/999_galera_settings.cnf"
+
 DATADIR=/var/lib/mysql/
 cluster_name="generic"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
 node_name=$(hostname -s)
 private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1| head -n 1)
+[ -z "$private_ip" ] && private_ip=$my_private_ipv4
 node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 sst_user=galera
 sst_password=kee2iesh1Ohk1puph8
@@ -23,6 +28,10 @@ banner "BEGIN SCRIPT: $_NAME"
 
 cmd "rm -f $CONF_FILE"
 
+
+[ -f "/usr/lib/galera/libgalera_smm.so" ] && GALERA_LIB=/usr/lib/galera/libgalera_smm.so
+[ -f "/usr/lib64/galera-4/libgalera_smm.so" ] && GALERA_LIB=/usr/lib64/galera-4/libgalera_smm.so
+
 info "SETUP $(basename $CONF_FILE) FILE INTO $(dirname $CONF_FILE)"
 
 (
@@ -33,11 +42,11 @@ default-storage-engine=innodb
 innodb-autoinc-lock-mode=2
 innodb-flush-log-at-trx-commit = 2
 
-sync-binlog = 0
+sync-binlog=0
 innodb-force-primary-key=1
 
 wsrep-on=on
-wsrep-provider=/usr/lib64/galera-4/libgalera_smm.so
+wsrep-provider=$GALERA_LIB
 wsrep-slave-threads=$(( $(nproc) * 4 ))
 wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
@@ -52,6 +61,7 @@ wsrep-cluster-address=gcomm://${node_addresses}
 #wsrep-cluster-address=gcomm://
 
 wsrep-sst-method=mariabackup
+wsrep_sst_receive_address=${private_ip}
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh

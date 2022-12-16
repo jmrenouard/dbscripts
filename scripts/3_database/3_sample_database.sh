@@ -14,8 +14,13 @@ cmd "git clone https://github.com/datacharmer/test_db.git"
 
 cd /opt/local/test_db
 
+title2 "CREATE DATABASE employees"
+
+bash /opt/local/bin/create_database.sh employees employees employees employees
+
 title2 "Inject DATABASE employees"
 #mysql  < ./employees.sql
+
 perl -ne '/DROP DATABASE/ or /CREATE DATABASE/ or /USE employees/ or print' ./employees.sql | mysql employees
 cmd "db_tables employees"
 
