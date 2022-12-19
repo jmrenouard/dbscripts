@@ -13,6 +13,7 @@ lRC=0
 
 banner "BEGIN SCRIPT: $_NAME"
 
+if [ "$ID" != "ubuntu" ]; then
 cmd 'rm -f /etc/yum.repos.d/mariadb_*.repo'
 
 info "SETUP mariadb_${VERSION}.repo FILE"
@@ -28,25 +29,38 @@ gpgcheck=1" > /etc/yum.repos.d/mariadb_${VERSION}.repo
 cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
 cmd "yum -y install $rpm_url"
+else
+     cmd "apt -y install wget"
+     cmd "wget https://dlm.mariadb.com/2700577/MaxScale/22.08.3/packages/ubuntu/jammy/x86_64/maxscale-22.08.3-1.ubuntu.jammy.x86_64.deb"
+     cmd "apt -y install maxscale-22.08.3-1.ubuntu.jammy.x86_64.deb"
+fi
 
-echo "create user 'maxscale'@'192.168.%' identified by 'maxscale';
-grant select on mysql.user to 'myuser'@'192.168.%';
+cmd "firewall-cmd --add-port=4006/tcp --permanent"
+cmd "firewall-cmd --add-port=4008/tcp --permanent"
+cmd "firewall-cmd --reload"
+
+MYSQL_IP_FILTERS="192.168.%,172.21.%,172.20.%"
+
+for MYSQL_IP_FILTER in $(echo $MYSQL_IP_FILTERS| tr ',' ' '); do
+echo "create user 'maxscale'@'$MYSQL_IP_FILTER' identified by 'maxscale';
+grant select on mysql.user to 'myuser'@'$MYSQL_IP_FILTER';
 GRANT SHOW DATABASES ON *.*
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.columns_priv
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.db
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.proxies_priv
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.procs_priv
-     TO 'mxs'@'192.168.%';
+     TO 'mxs'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.roles_mapping
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.tables_priv
-     TO 'maxscale'@'192.168.%';
+     TO 'maxscale'@'$MYSQL_IP_FILTER';
 GRANT SELECT ON mysql.user
-     TO 'maxscale'@'192.168.%';"
+     TO 'maxscale'@'$MYSQL_IP_FILTER';"
+done
 
 echo "
 # Globals
