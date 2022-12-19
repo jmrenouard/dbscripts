@@ -61,6 +61,7 @@ wsrep-cluster-address=gcomm://${node_addresses}
 #wsrep-cluster-address=gcomm://
 
 wsrep-sst-method=mariabackup
+
 wsrep_sst_receive_address=${private_ip}
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
