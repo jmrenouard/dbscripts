@@ -50,3 +50,4 @@ integration/ARCHIVE_DATA.sql
 integration/backups/
 integration/new_data_archiver.sh.log
 integration/new_importer.sh.log
+rust/target/

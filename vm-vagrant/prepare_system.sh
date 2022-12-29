@@ -64,3 +64,12 @@ if [ -z "$1" ] || [ "$1" = "galera" ]; then
     echo "## Bootstrap node3 into Galera cluster"
     aexec node3 ../scripts/8_galera/6_start_new_node.sh
 fi
+
+if [ -z "$1" ] || [ "$1" = "maxscale" ]; then
+    echo "## install maxscale on loadb1"
+    aexec loadb1 ../scripts/10_proxy/13_maxscale.sh
+
+    echo "## Install Mysql client on loadb1"
+    aexec loadb1 ../scripts/2_install/1c_install_mariadb_client_ubuntu.sh
+
+fi

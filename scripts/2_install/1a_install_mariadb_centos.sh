@@ -27,6 +27,8 @@ gpgcheck=1" > /etc/yum.repos.d/mariadb_${VERSION}.repo
 
 cmd "cat /etc/yum.repos.d/mariadb_${VERSION}.repo"
 
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash
+
 if [ "$force" = "1" ]; then
 	cmd "yum -y remove mysql-server mariadb-server"
 	lRC=$(($lRC + $?))
