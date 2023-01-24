@@ -26,11 +26,11 @@ if [ ! -f "ca-cert.pem" ]; then
 fi
 
 # Génération des clés pour le serveur
-openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem
-openssl rsa -in server-key.pem -out server-key.pem
+[ -f "server-req.pem" ] || openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem
+[ -f "server-key.pem" ] ||openssl rsa -in server-key.pem -out server-key.pem
 
 # Certificat SSL pour le serveur
-openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+[ -f "server-cert.pem" ] || openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
 
 chown -Rv mysql:root /etc/mysql/ssl/
 
