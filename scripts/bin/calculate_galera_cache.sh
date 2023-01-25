@@ -10,14 +10,14 @@ bytesToHumanReadable() {
     echo "$i$d ${S[$s]}"
 }
 
-innodb_written_avt=$(mysql -Nrs -e "show global status like 'inndodb_written_data'" | awk '{print $2}')
+innodb_written_avt=$(mysql -Nrs -e "show global status like 'inndodb_data_written'" | awk '{print $2}')
 received_avt=$(mysql -Nrs -e "show global status like 'wsrep_received_bytes'" | awk '{print $2}')
 replicated_avt=$(mysql -Nrs -e "show global status like 'wsrep_replicated_bytes'"| awk '{print $2}')
 echo "REC: $received_avt - REP: $replicated_avt"
 
 sleep 60s
 
-innodb_written_apr=$(mysql -Nrs -e "show global status like 'inndodb_written_data'" | awk '{print $2}')
+innodb_written_apr=$(mysql -Nrs -e "show global status like 'inndodb_data_written'" | awk '{print $2}')
 received_apr=$(mysql -Nrs -e "show global status like 'wsrep_received_bytes'" | awk '{print $2}')
 replicated_apr=$(mysql -Nrs -e "show global status like 'wsrep_replicated_bytes'"| awk '{print $2}')
 echo "REC: $received_apr - REP: $replicated_apr"
