@@ -4,6 +4,9 @@
 
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
+[ -d "/etc/my.cnf.d/" ] && CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="/etc/mysql/conf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/999_galera_settings.cnf"
 
 [ -f "/etc/sysconfig/mariadbscript" ] && source /etc/sysconfig/mariadbscript
 

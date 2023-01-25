@@ -225,7 +225,7 @@ node_cluster_state()
 {
     node=$1
     param=$2
-    ssh -q $node "source /etc/profile.d/utils.sh;my_cluster_state" | grep $param | awk '{print $2}'
+    ssh -q $node "source /etc/profile.d/utils.sh;source /etc/profile.d/utils.mysql.sh;my_cluster_state" | grep $param | awk '{print $2}'
 }
 
 binlog_sql_xhours()

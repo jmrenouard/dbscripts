@@ -52,7 +52,7 @@ wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
 #wsrep_provider_options='cert.log_conflicts=yes';
 #wsrep_log_conflicts=ON
-#wsrep_provider_options='gcs.fc_mimit=1024';
+#wsrep_provider_options='gcs.fc_limit=1024';
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
