@@ -35,6 +35,10 @@ if [ -f /etc/sysconfig/clustercheck ]; then
         . /etc/sysconfig/clustercheck
 fi
 
+if [ -f /etc/default/clustercheck ]; then
+        . /etc/default/clustercheck
+fi
+
 MYSQL_USERNAME="${MYSQL_USERNAME:=-clustercheckuser}"
 MYSQL_PASSWORD="${MYSQL_PASSWORD-clustercheckpassword!}"
 ERR_FILE="${ERR_FILE:-/dev/null}"
@@ -113,4 +117,3 @@ echo -en "\r\n"
 echo -en "Percona XtraDB Cluster Node is not synced.\r\n"
 sleep 0.1
 exit 1
-

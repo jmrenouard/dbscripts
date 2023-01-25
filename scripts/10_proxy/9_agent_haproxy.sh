@@ -11,11 +11,18 @@ galera_password=ohGh7boh7eeg6shuph
 
 banner "BEGIN SCRIPT: $_NAME"
 
-cmd 'yum -y install xinetd'
+PCKMANAGER="yum"
+[ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
 
-echo "MYSQL_USERNAME='${galera_user}'
+cmd "$PCKMANAGER -y install xinetd"
+
+[ -d "/etc/sysconfig" ] && echo "MYSQL_USERNAME='${galera_user}'
 MYSQL_PASSWORD='${galera_password}'
 AVAILABLE_WHEN_DONOR=1" > /etc/sysconfig/clustercheck
+
+[ -d "/etc/default" ] && echo "MYSQL_USERNAME='${galera_user}'
+MYSQL_PASSWORD='${galera_password}'
+AVAILABLE_WHEN_DONOR=1" > /etc/default/clustercheck
 
 sed -i  "/mysqlchk/d" /etc/services
 echo "mysqlchk 9200/tcp" >> /etc/services
