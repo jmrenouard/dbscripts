@@ -12,7 +12,7 @@ find /etc/apt/sources.list.d -type f -iname '*mariadb*.list' -exec rm -f {} \;
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash
 
-cmd "apt -y install pv python3 mariadb-client mylvmbackup mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect"
+cmd "apt -y install pv python3 mariadb-client mylvmbackup mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect galera-arbitrator-4"
 lRC=$(($lRC + $?))
 
 cmd "apt -y install cracklib-runtime python3-cracklib sysbench tree telnet netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
