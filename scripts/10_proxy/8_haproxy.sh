@@ -17,9 +17,11 @@ source /etc/os-release
 PCKMANAGER="yum"
 [ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
 
-cmd "$PCKMANAGER -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
+cmd "$PCKMANAGER -y update"
+#cmd "$PCKMANAGER -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
 
-cmd "$PCKMANAGER -y install haproxy socat keepalived"
+cmd "$PCKMANAGER -y install haproxy"
+cmd "$PCKMANAGER -y install socat keepalived"
 
 cmd "setenforce 0"
 
