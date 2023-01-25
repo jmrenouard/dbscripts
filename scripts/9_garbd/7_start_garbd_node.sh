@@ -3,7 +3,7 @@
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 
 lRC=0
-CONF_FILE="/etc/sysconfig/garb"
+CONF_FILE="/etc/default/garb"
 
 cluster_name="gendarmerie"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
