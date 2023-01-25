@@ -4,6 +4,7 @@
 
 lRC=0
 CONF_FILE="/etc/sysconfig/garb"
+CONF_FILE="/etc/default/garb"
 
 cluster_name="gendarmerie"
 server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
@@ -39,7 +40,7 @@ GALERA_GROUP='${cluster_name}'
 # GALERA_OPTIONS='base_port=4567'
 
 # Log file for garbd. Optional, by default logs to syslog
-LOG_FILE='/tmp/garb.log'
+LOG_FILE='/var/log/mysql/garb.log'
 "
 ) | tee -a $CONF_FILE
 
