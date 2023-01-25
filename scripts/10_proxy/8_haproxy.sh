@@ -14,9 +14,12 @@ node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 [ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
 source /etc/os-release
 
-cmd "yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
+PCKMANAGER="yum"
+[ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
 
-cmd "yum -y install haproxy socat keepalived"
+cmd "$PCKMANAGER -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${VERSION_ID}.noarch.rpm"
+
+cmd "$PCKMANAGER -y install haproxy socat keepalived"
 
 cmd "setenforce 0"
 
