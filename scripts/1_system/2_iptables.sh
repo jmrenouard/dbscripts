@@ -34,6 +34,8 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	info"Autoriser l'agent NRPE"
 	cmd "/sbin/iptables -A INPUT -p tcp --dport 5666 -j ACCEPT"
 	cmd "/sbin/iptables -A OUTPUT -p udp --dport 5666 -j ACCEPT"
+	cmd "/sbin/iptables -A INPUT -p tcp --dport 9200 -j ACCEPT"
+	cmd "/sbin/iptables -A OUTPUT -p udp --dport 9200 -j ACCEPT"
 
 	cmd "iptables -L"
 else
@@ -52,6 +54,8 @@ else
 	cmd "firewall-cmd --add-port=10050/tcp --permanent"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=5666/tcp --permanent"
+	lRC=$(($lRC + $?))
+	cmd "firewall-cmd --add-port=9200/tcp --permanent"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --reload"
 	cmd "firewall-cmd --list-all"

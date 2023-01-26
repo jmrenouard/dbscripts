@@ -27,7 +27,6 @@ AVAILABLE_WHEN_DONOR=1" > /etc/default/clustercheck
 sed -i  "/mysqlchk/d" /etc/services
 echo "mysqlchk 9200/tcp" >> /etc/services
 
-dos2unix /opt/local/bin/clustercheck
 
 echo "
 # default: on
