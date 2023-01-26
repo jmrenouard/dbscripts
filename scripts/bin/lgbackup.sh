@@ -26,7 +26,7 @@ load_lib()
     if [ -f "$_DIR/$libname" ]; then
         source $_DIR/$libname
     else
-        if [ -f '/etc/profile.d/$libname' ]; then
+        if [ -f "/etc/profile.d/$libname" ]; then
             source /etc/profile.d/$libname
         else 
             echo "No $libname found"

@@ -5,6 +5,10 @@ tlog()
     tail_error_log
 }
 
+change_user_ssl()
+{
+    db_users | perl -pe 's/(.+)\s+(.+)/ALTER USER "$1"@"$2" REQUIRE SSL;/g; s/\s+/ /gs;s/ \"/"/g;s/;/;\n/g;s/^\s//g'
+}
 ## Code MariaDB
 my_status()
 {

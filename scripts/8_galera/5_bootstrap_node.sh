@@ -53,11 +53,8 @@ innodb-force-primary-key=1
 wsrep-on=on
 wsrep-provider=$GALERA_LIB
 wsrep-slave-threads=$(( $(nproc) * 4 ))
-wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
-wsrep_provider_options='cert.log_conflicts=yes';
 wsrep_log_conflicts=ON
-wsrep_provider_options='gcs.fc_limit=254;gcs.fc_factor=0.8';
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
@@ -72,16 +69,25 @@ wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
 
-wsrep_log_conflicts=1
+# Provider options
+wsrep-provider-options='gcache.size=512M'
+wsrep_provider_options='cert.log_conflicts=yes';
+wsrep_provider_options='gcs.fc_factor=0.8'
+wsrep_provider_options='gcs.fc_limit=254'
+wsrep_provider_options='socket.ssl_cipher=AES128-SHA'
+wsrep_provider_options='socket.ssl_cert=/etc/mysql/ssl/server-cert.pem'
+wsrep_provider_options='socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem'
+wsrep_provider_options='socket.ssl_key=/etc/mysql/ssl/server-key.pem'
 
-[sst]
-streamfmt=xbstream
+
+#[sst]
+#streamfmt=mbstream
+compressor='pigz'
+decompressor='pigz -dc'
 
 [mariabackup]
-parallel=8
-#compress
-#compressthreads=8
-
+parallel=$(nproc)
+"
 ) | tee -a $CONF_FILE
 
 
