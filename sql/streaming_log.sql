@@ -2,7 +2,7 @@
 
 show session variables like '%_trx_%';
 
-set session wsrep_trx_fragment_size=1;
+set session wsrep_trx_fragment_size=5;
 set session wsrep_trx_fragment_unit='rows';
 show session variables like '%_trx_%';
 

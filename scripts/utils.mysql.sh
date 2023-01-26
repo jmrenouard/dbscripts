@@ -417,6 +417,10 @@ force_primary_view()
     fi
 }
 
+change_users_ssl()
+{
+    
+}
 diff_schema()
 {
     node1=$1
