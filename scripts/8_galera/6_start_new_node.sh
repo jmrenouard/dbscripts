@@ -69,13 +69,10 @@ wsrep-provider-options='gcache.size=512M'
 wsrep_provider_options='cert.log_conflicts=yes';
 wsrep_provider_options='gcs.fc_factor=0.8'
 wsrep_provider_options='gcs.fc_limit=254'
+wsrep_provider_options='socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem'
 wsrep_provider_options='socket.ssl_cipher=AES128-SHA'
-wsrep_provider_options='socket.ssl_cert=/etc/mysql/ssl/server-cert.pem'
-wsrep_provider_options='socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem'
-wsrep_provider_options='socket.ssl_key=/etc/mysql/ssl/server-key.pem'
 
-
-#[sst]
+[sst]
 #streamfmt=mbstream
 compressor='pigz'
 decompressor='pigz -dc'
