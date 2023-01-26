@@ -417,9 +417,8 @@ force_primary_view()
     fi
 }
 
-change_users_ssl()
-{
-    
+change_user_ssl() {
+    db_users
 }
 diff_schema()
 {
