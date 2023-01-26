@@ -71,7 +71,7 @@ wsrep_provider_options='gcs.fc_factor=0.8'
 wsrep_provider_options='gcs.fc_limit=254'
 wsrep_provider_options='socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem'
 wsrep_provider_options='socket.ssl_cipher=AES128-SHA'
-wsrep_debug=ON
+wsrep_debug=on
 
 [sst]
 #streamfmt=mbstream
