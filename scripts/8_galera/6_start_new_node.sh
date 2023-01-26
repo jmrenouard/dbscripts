@@ -40,7 +40,7 @@ echo "# Minimal Galera configuration - created $(date)
 binlog-format=ROW
 default-storage-engine=innodb
 innodb-autoinc-lock-mode=2
-innodb-flush-log-at-trx-commit = 2
+innodb-flush-log-at-trx-commit = 0
 
 sync-binlog=0
 innodb-force-primary-key=1
@@ -50,9 +50,9 @@ wsrep-provider=$GALERA_LIB
 wsrep-slave-threads=$(( $(nproc) * 4 ))
 wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
-#wsrep_provider_options='cert.log_conflicts=yes';
-#wsrep_log_conflicts=ON
-#wsrep_provider_options='gcs.fc_limit=1024';
+wsrep_provider_options='cert.log_conflicts=yes';
+wsrep_log_conflicts=ON
+wsrep_provider_options='gcs.fc_limit=1024;gcs.fc_factor=0.8';
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
@@ -66,6 +66,17 @@ wsrep_sst_receive_address=${private_ip}
 wsrep-sst-auth=${sst_user}:${sst_password}
 #wsrep-notify-cmd=/opt/local/bin/table_wsrep_notif.sh
 wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
+
+wsrep_log_conflicts=1
+
+[sst]
+streamfmt=xbstream
+
+[mariabackup]
+parallel=8
+compress
+compressthreads=8
+
 "
 ) | tee -a $CONF_FILE
 
