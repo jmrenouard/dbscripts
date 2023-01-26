@@ -57,7 +57,7 @@ wsrep-provider-options='gcache.size=512M;gcache.page_size=512M'
 
 wsrep_provider_options='cert.log_conflicts=yes';
 wsrep_log_conflicts=ON
-wsrep_provider_options='gcs.fc_limit=1024;gcs.fc_factor=0.8';
+wsrep_provider_options='gcs.fc_limit=254;gcs.fc_factor=0.8';
 
 wsrep-cluster-name=${cluster_name}
 wsrep-node-name=${node_name}
@@ -79,16 +79,9 @@ streamfmt=xbstream
 
 [mariabackup]
 parallel=8
-compress
-compressthreads=8
+#compress
+#compressthreads=8
 
-wsrep_provider_options="socket.ssl_key=/etc/mysql/ssl/server-key.pem"
-wsrep_provider_options="socket.ssl_cert=/etc/mysql/ssl/server-cert.pem"
-wsrep_provider_options="socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem"
-wsrep_provider_options="socket.checksum=2"
-wsrep_provider_options="socket.ssl_cipher=AES128-SHA"
-
-"
 ) | tee -a $CONF_FILE
 
 
