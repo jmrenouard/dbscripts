@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"

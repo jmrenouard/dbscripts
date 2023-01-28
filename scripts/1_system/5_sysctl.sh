@@ -4,6 +4,7 @@ lRC=0
 CONF_FILE=/etc/sysctl.d/99-mariadb.conf
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 banner "BEGIN SCRIPT: $_NAME"
 

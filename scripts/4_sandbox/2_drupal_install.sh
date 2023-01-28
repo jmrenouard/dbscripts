@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 DRUPAL_VERSION="8.9.9"
 lRC=0

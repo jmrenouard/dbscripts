@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 lRC=0
 VERSION=10.5
