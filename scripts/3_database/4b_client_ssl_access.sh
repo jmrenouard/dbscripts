@@ -2,6 +2,7 @@
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 lRC=0
 [ -d "/etc/my.cnf.d/" ] && CONF_CLI_FILE="/etc/my.cnf.d/50-mysql_ssl_clients.cnf"
@@ -15,7 +16,7 @@ cd /etc/mysql/ssl
 
 if [ ! -f "ca-key.pem" ]; then
     # CA Key
-    openssl genrsa 4096 > ca-key.pem
+    openssl genrsa 2048 > ca-key.pem
 fi
 
 if [ ! -f "ca-cert.pem" ]; then

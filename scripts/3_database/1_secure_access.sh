@@ -2,6 +2,7 @@
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 lRC=0
 TMP_SCRIPT=$(mktemp)

@@ -1,6 +1,7 @@
 #!/bin/bash
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 [ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
+[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
 
 ##title_en: MariaDB 10.6 server configuration based on  CPU/RAM
 ##title_fr: Configuration du serveur MariaDB 10.5 basée sur la RAM et CPU
