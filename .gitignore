@@ -52,6 +52,7 @@ integration/new_data_archiver.sh.log
 integration/new_importer.sh.log
 rust/target/
 python/rain/pexels
+python/rain/videvo
 python/rain/__pycache__
 **/certs/
 *.pem
