@@ -57,3 +57,10 @@ python/rain/__pycache__
 **/certs/
 *.pem
 *.cert
+python/rain/*.mp4
+python/rain/*.jpg
+python/rain/*.log
+python/rain/*.png
+python/rain/*.mbtree
+python/rain/client*.json
+python/rain/*.storage
