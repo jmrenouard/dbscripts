@@ -40,6 +40,7 @@ cmd "semanage port -a -t mysqld_port_t -p tcp 4568"
 semanage port -l| grep mysql
 
 cmd 'semanage fcontext -a -t mysqld_db_t "/data(/.*)?"'
+cmd "restorecon -Rv /data"
 info "CMD: semanage boolean -l| grep mysql"
 semanage fcontext -l| grep mysql
 

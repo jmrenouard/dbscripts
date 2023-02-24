@@ -64,3 +64,8 @@ python/rain/*.png
 python/rain/*.mbtree
 python/rain/client*.json
 python/rain/*.storage
+terraform/.terraform/**
+terraform/*/*.tfstate
+terraform/*/*.backup
+terraform/*/.terraform
+
