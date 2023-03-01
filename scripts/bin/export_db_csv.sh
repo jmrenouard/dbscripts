@@ -15,6 +15,7 @@ for t in $(db_tables "$DB"); do
 	echo "* Exporting $DB.$t"
 	time $MYSQL  -e "select * from $t;" "$DB"| sed "s/'/\'/;s/\t/\",\"/g;s/^/\"/;s/$/\"/;s/\n//g" > "${RES_DIR}/${t}.csv"
     head -n 3 "${RES_DIR}/${t}.csv"
+    perl -pe 's/\"\,\"/"\t"/g' "${RES_DIR}/${t}.csv" > "${RES_DIR}/${t}.tsv"
 done
 tar czvf "$(basename "$RES_DIR").tar.gz" "$RES_DIR"
 
