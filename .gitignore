@@ -68,4 +68,7 @@ terraform/.terraform/**
 terraform/*/*.tfstate
 terraform/*/*.backup
 terraform/*/.terraform
-
+**/.vscode/*
+.vscode/*
+**/*.img
+**/*.lock.hcl
