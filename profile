@@ -22,3 +22,7 @@ export all_vms="$proxy_vms,$db_vms,$app_vms"
 for module in utils git network slack vagrant linode vagrant;do
     [ -f "${_DIR}/${module}.sh" ] && source ${_DIR}/${module}.sh
 done
+
+if [ -d "/usr/local/go/bin" ]; then
+export PATH=$PATH:/usr/local/go/bin
+fi
