@@ -1,0 +1,49 @@
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/jammy64"
+    #config.hostmanager.enabled = true
+    #config.hostmanager.manage_host = true
+    #config.hostmanager.manage_guest = true
+    #config.vm.network "public_network", type: 'dhcp', adapter: 4, bridge: "Surface Ethernet Adapter", use_dhcp_assigned_default_route: true
+    config.vm.network "public_network", type: 'dhcp', adapter: 4, bridge: "Surface Ethernet Adapter #2", use_dhcp_assigned_default_route: true
+      
+    config.vm.provider :virtualbox do |v|
+      v.gui = false
+      v.memory = 1280
+      v.cpus = 2
+      v.name = "big"
+      v.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+      
+    end
+  
+    # Currently "ubuntu/jammy64" on VirtualBox requires `type: "virtualbox"`
+    # to make synced folder works.
+    config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+    config.vm.synced_folder "C:/Users/jmren/SHARE", "/share", type: "virtualbox"
+    config.vm.synced_folder "E:/Lightpath", "/usbdisk", type: "virtualbox"
+  
+    # Add Google Chrome repository
+    config.vm.provision :shell, inline: "wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub|sudo apt-key add -"
+    config.vm.provision :shell, inline: "sudo sh -c 'echo \"deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main\" > /etc/apt/sources.list.d/google.list'"
+  
+    # Update repositories
+    config.vm.provision :shell, inline: "sudo apt update -y"
+  
+    # Upgrade installed packages
+    config.vm.provision :shell, inline: "sudo apt upgrade -y"
+  
+    # Add desktop environment
+    #config.vm.provision :shell, inline: "sudo apt remove -y --no-install-recommends ubuntu-desktop"
+    #config.vm.provision :shell, inline: "sudo apt install -y --no-install-recommends virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11"
+    # Add `vagrant` to Administrator
+    config.vm.provision :shell, inline: "sudo usermod -a -G sudo vagrant"
+  
+    # Add Google Chrome
+    #config.vm.provision :shell, inline: "sudo apt remove -y google-chrome-stable"
+  
+    config.vm.provision :shell, inline: "sudo loadkeys fr"
+  
+    # config.vm.provision :shell, inline: "sudo setxkbmap fr"
+  
+    # Restart
+    #config.vm.provision :shell, inline: "sudo shutdown -r now"
+  end

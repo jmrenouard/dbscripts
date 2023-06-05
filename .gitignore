@@ -35,6 +35,9 @@ vm-vagrant/.vagrant
 vm-vagrant/Vagrantfile
 vm-vagrant/cache/*
 vm-vagrant/*.log
+big-vms/.vagrant
+big-vms/id_rsa*
+big-vms/privatekey*
 description.json
 documentation/Articles.ipynb_checkpoints/
 */.ipynb_checkpoints/
