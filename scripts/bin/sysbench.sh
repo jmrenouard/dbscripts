@@ -54,7 +54,7 @@ run_load()
 
 simple_run_docker()
 {
-	gen_opts="--db-driver=mysql --mysql-user=sbtest --mysql_password=waephei8eihoh2Id --mysql-db=sbtest --mysql-host=192.168.68.56 --threads=2 --time=120 --report-interval=2 --tables=5 --table-size=100000 /usr/share/sysbench/oltp_read_write.lua"
+	gen_opts="--db-driver=mysql --mysql-user=sbtest --mysql_password=waephei8eihoh2Id --mysql-db=sbtest --mysql-host=192.168.68.57 --threads=5 --time=120 --report-interval=2 --tables=5 --table-size=100000 /usr/share/sysbench/oltp_read_write.lua"
 	set -x
 	for port in 3307 3308; do
 	  sysbench --mysql-port=$port $gen_opts cleanup

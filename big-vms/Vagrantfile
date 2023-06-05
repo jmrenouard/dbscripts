@@ -8,8 +8,8 @@ Vagrant.configure("2") do |config|
       
     config.vm.provider :virtualbox do |v|
       v.gui = false
-      v.memory = 2048
-      v.cpus = 3
+      v.memory = 2548
+      v.cpus = 4
       v.name = "big"
       v.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
       
