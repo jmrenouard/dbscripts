@@ -4,8 +4,10 @@ Vagrant.configure("2") do |config|
     #config.hostmanager.manage_host = true
     #config.hostmanager.manage_guest = true
     #config.vm.network "public_network", type: 'dhcp', adapter: 4, bridge: "Surface Ethernet Adapter", use_dhcp_assigned_default_route: true
-    config.vm.network "public_network", type: 'dhcp', adapter: 4, bridge: "Surface Ethernet Adapter #2", use_dhcp_assigned_default_route: true
-      
+    #config.vm.network "public_network", type: 'dhcp', adapter: 4, bridge: "Surface Ethernet Adapter #2", use_dhcp_assigned_default_route: true
+    config.vm.network "forwarded_port", guest: 9000, host: 9000
+    config.vm.network "forwarded_port", guest: 3307, host: 3307
+    config.vm.network "forwarded_port", guest: 3308, host: 3308
     config.vm.provider :virtualbox do |v|
       v.gui = false
       v.memory = 2548
