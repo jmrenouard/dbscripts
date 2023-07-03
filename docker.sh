@@ -18,7 +18,6 @@ alias dcl="docker-compose logs"
 
 # Quickly run the docker exec command like this: 'dex container-name bash'
 alias dex="docker exec -it"
-
 # 'docker ps' displays the currently running containers
 alias dps="docker ps"
 
@@ -58,4 +57,9 @@ alias drunp="docker run -d --restart=always --name "
 dfrom()
 {
     docker ps -a | grep -E "$1" | awk '{print $1}'
+}
+
+dbash()
+{
+    docker exec -it $(dfrom $1) bash
 }
