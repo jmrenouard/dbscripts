@@ -112,7 +112,7 @@ PROXY_FROM_CACHE=$(get_proxy_from_cache "$DEST_ADDR")
 TARGET_PROXY=""
 [ -n "$PROXY_FROM_CACHE" ] && TARGET_PROXY="$PROXY_FROM_CACHE"
 
-if [ "$TARGET_PROXY" = "" ]; then
+if [ "$TARGET_PROXY" = "" || "$TARGET_PROXY" = "DIRECT" ]; then
     if test_direct_connection "$DEST_IP"; then
         #echo "Direct connection to $DEST_IP is possible"
         exec nc $DEST_IP $DEST_PORT
