@@ -71,6 +71,7 @@ find_proxy() {
     PROXIES_LIST=$(get_proxies_list)
     if [ -n "$PROXIES_LIST" ]; then
         for proxy_ip in $PROXIES_LIST; do
+            [ "$DEST_IP" = "$proxy_ip" ] && continue
             if test_proxy_connection "$DEST_IP" "$proxy_ip"; then
                 echo "$proxy_ip"
                 echo "$DEST_IP $proxy_ip" >> "$PROXY_CACHE"
@@ -104,27 +105,33 @@ if [ "$1" = "update" ]; then
     exit 0
 fi
 
+# Rétrieve Destination Ip
 DEST_IP=$(get_host_ip "$DEST_ADDR")
 
+# try to find address DNS in proxies.lst.cache
 PROXY_FROM_CACHE=$(get_proxy_from_cache "$DEST_ADDR")
+
+# same with IP if no dns entry found in cache
+#try to find address DNS in proxies.lst.cache
 [ -z "$PROXY_FROM_CACHE" ] && PROXY_FROM_CACHE=$(get_proxy_from_cache "$DEST_IP")
 
 TARGET_PROXY=""
 [ -n "$PROXY_FROM_CACHE" ] && TARGET_PROXY="$PROXY_FROM_CACHE"
 
-if [ "$TARGET_PROXY" = "" || "$TARGET_PROXY" = "DIRECT" ]; then
+# test direct access if no proxy found in cache
+if [ "$TARGET_PROXY" = "" ]; then
     if test_direct_connection "$DEST_IP"; then
         #echo "Direct connection to $DEST_IP is possible"
         exec nc $DEST_IP $DEST_PORT
         exit 0
     fi
 fi
-
+# try to find proxy
 [ -z "$TARGET_PROXY" ] && TARGET_PROXY=$(find_proxy "$DEST_IP" "$DEST_ADDR")
 
 if [ -z "$TARGET_PROXY" ]; then
     echo "No proxy found for $DEST_ADDR"
     exit 1
 fi
-#echo "SUCCESS: Found good proxy $TARGET_PROXY for $DEST_ADDR($DEST_IP)"
+
 exec ssh -q -F /dev/null -W $DEST_IP:$DEST_PORT -o UserKnownHostsFile=/dev/null -o ConnectTimeout=$SSH_TIMEOUT -o "StrictHostKeyChecking=no" $DEST_USER@$TARGET_PROXY
