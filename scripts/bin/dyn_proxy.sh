@@ -70,6 +70,8 @@ find_proxy() {
     local DEST_ADDR=$2
     PROXIES_LIST=$(get_proxies_list)
     if [ -n "$PROXIES_LIST" ]; then
+
+    
         for proxy_ip in $PROXIES_LIST; do
             if test_proxy_connection "$DEST_IP" "$proxy_ip"; then
                 echo "$proxy_ip"
@@ -93,7 +95,6 @@ if [ "$1" = "testproxies" ]; then
     done
     exit 0
 fi
-
 
 if [ "$1" = "update" ]; then
     for hst in $(grep -E ".aws$" /etc/hosts | awk '{print $2}') $(grep -E "\saws" /etc/hosts | awk '{print $2}'); do 
