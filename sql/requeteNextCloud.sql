@@ -1,5 +1,5 @@
 OPTIMIZE TABLE oc_filecache;
-SELECT USER FROM oc_files_trash WHERE USER LIKE '%renater.fr' GROUP BY USER;
+SELECT USER FROM oc_files_trash WHERE USER LIKE '%lightpath.fr' GROUP BY USER;
 SELECT COUNT(*) FROM oc_files_trash;
 SELECT COUNT(*) FROM oc_filecache f WHERE path LIKE '%trashbin%' ;
 
