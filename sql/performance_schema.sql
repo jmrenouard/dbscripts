@@ -179,6 +179,7 @@ SELECT * FROM performance_schema.events_statements_history
  -- Verrou InnoDB
  SELECT lock_trx_id, lock_mode, lock_type, lock_table, lock_index FROM information_schema.innodb_locks;
 
+--transactions longues
 SELECT trx_id, trx_state, trx_started, trx_wait_started, trx_mysql_thread_id, trx_query, trx_tables_in_use, trx_tables_locked, trx_lock_structs, trx_rows_locked, trx_rows_modified
   FROM information_schema.innodb_trx
  ORDER BY trx_started, trx_wait_started;
