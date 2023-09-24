@@ -27,7 +27,7 @@ WHERE
 ORDER BY table_name , column_name;
 
 SELECT 
-table_name, TABLE_COMMENT
+table_name, TABLE_vimCOMMENT
 FROM
     information_schema.tables
 WHERE table_schema = 'sakila';
