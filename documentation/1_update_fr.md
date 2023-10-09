@@ -1,5 +1,6 @@
 # Opération Standard : Mise à jour du système
 
+[TOC]
 ## Table des matières
 - [Objectifs du document](#objectifs-du-document)
 - [Procédure de mise à jourpour les OS de type Red Hat](#procédure-de-mise-à-jourpour-les-os-de-type-red-hat)

@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset="utf-8">
+		<title>HTML Page</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css">
+		<style>
+		body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    //background-color: #f4f4f4;
+    color: #333;
+    padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 20px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: solid 1px #e1e1e1;
+}
+h1 {
+	background-color: #f4f4f4;
+	border-left: 10px solid #3498db;
+	margin: 20px 10px;
+  padding: 10px 20px;
+	}
+body {
+    counter-reset: chapter 1 section 0;
+}
+
+h2 {
+    counter-reset: slide 0;
+    counter-increment: section;
+}
+h3 {
+    counter-increment: slide;
+}
+
+h2:before {
+    content:  counter(section) " - ";
+}
+h3:before {
+    content: counter(section) "." counter(slide) " - ";
+}
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p {
+    margin: 10px 0;
+}
+
+blockquote {
+    //background-color: #fff;
+		background-color: #f4f4f4;
+    border-left: 10px solid #3498db;
+    margin: 20px 10px;
+    padding: 10px 20px;
+    font-style: italic;
+}
+
+code {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 2px 4px;
+    font-family: 'Courier New', monospace;
+}
+
+pre {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+pre code {
+    border: none;
+    background-color: transparent;
+}
+
+ul, ol {
+    padding-left: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    margin: 20px 0;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Standard Operations: Update System</h1>
+<h2>Main document target</h2>
+<blockquote>
+<p>Update system packages to insure hight security level</p>
+</blockquote>
+<h2>Main update Procedure for Red Hat Family OS</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Description</th>
+<th>User</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Update package information</td>
+<td>root</td>
+<td># yum clean all</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Download and install all new package avalaible</td>
+<td>root</td>
+<td># yum -y update</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Check return code</td>
+<td>root</td>
+<td>echo $? (0)</td>
+</tr>
+</tbody>
+</table>
+<h2>Main update Procedure for Debian Family OS</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Description</th>
+<th>User</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Update package information</td>
+<td>root</td>
+<td># apt update</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Download and install all new package avalaible</td>
+<td>root</td>
+<td># apt upgrade -y</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Check return code</td>
+<td>root</td>
+<td>echo $? (0)</td>
+</tr>
+</tbody>
+</table>
+<h2>Scripted and remote update procedure</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Description</th>
+<th>User</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Load utilities functions</td>
+<td>root</td>
+<td># source profile</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Execute generic script remotly</td>
+<td>root</td>
+<td># vssh_exec dbsrv1 scripts/1_system/1_update.sh</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Check return code</td>
+<td>root</td>
+<td>echo $? (0)</td>
+</tr>
+</tbody>
+</table>
+<h2>Update Procedure example for Red Hat Family OS</h2>
+<pre><code class="lang-bash"># yum clean all
+...
+...
+# echo $?
+0
+
+# yum -y update
+...
+# echo $?
+0
+</code></pre>
+<h2>Update Procedure example for Debian Family OS</h2>
+<pre><code class="lang-bash"># apt update
+...
+...
+# echo $?
+0
+
+# apt upgrade -y
+...
+# echo $?
+0
+</code></pre>
+<h2>Update Procedure example remotely</h2>
+<pre><code class="lang-bash"># vssh_exec dbsrv1 scripts/1_system/1_update.sh
+2021-05-25 19:16:57 CEST(DESKTOP-JPKE7F3) RUNNING SCRIPT 1_update.sh ON dbsrv1(192.168.33.191) SERVER
+2021-05-25 19:16:57 CEST(DESKTOP-JPKE7F3) _____________________________________________________________________________
+2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:55 UTC(dbsrv1) START: BEGIN SCRIPT: INLINE SHELL
+2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:55 UTC(dbsrv1) INFO:  run as root@dbsrv1
+2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:55 UTC(dbsrv1) UPDATE PACKAGE LIST
+2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:55 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y update
+2021-05-25 17:16:55 UTC(dbsrv1) -----------------------------------------------------------------------------
+Last metadata expiration check: 1:29:30 ago on Tue 25 May 2021 03:47:26 PM UTC.
+Dependencies resolved.
+Nothing to do.
+Complete!
+2021-05-25 17:16:57 UTC(dbsrv1) INFO: RETURN CODE: 0
+2021-05-25 17:16:57 UTC(dbsrv1) INFO: [SUCCESS]  UPDATE PACKAGE LIST  [SUCCESS]
+2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:57 UTC(dbsrv1) UPDATE PACKAGES
+2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:57 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y upgrade
+2021-05-25 17:16:57 UTC(dbsrv1) -----------------------------------------------------------------------------
+Last metadata expiration check: 1:29:31 ago on Tue 25 May 2021 03:47:26 PM UTC.
+Dependencies resolved.
+Nothing to do.
+Complete!
+2021-05-25 17:16:58 UTC(dbsrv1) INFO: RETURN CODE: 0
+2021-05-25 17:16:58 UTC(dbsrv1) INFO: [SUCCESS]  UPDATE PACKAGES  [SUCCESS]
+2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:58 UTC(dbsrv1) INSTALL FIREWALLD
+2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:58 UTC(dbsrv1) INFO: RUNNING COMMAND: yum -y install firewalld
+2021-05-25 17:16:58 UTC(dbsrv1) -----------------------------------------------------------------------------
+Last metadata expiration check: 1:29:32 ago on Tue 25 May 2021 03:47:26 PM UTC.
+Package firewalld-0.8.2-2.el8.noarch is already installed.
+Dependencies resolved.
+Nothing to do.
+Complete!
+2021-05-25 17:16:59 UTC(dbsrv1) INFO: RETURN CODE: 0
+2021-05-25 17:16:59 UTC(dbsrv1) INFO: [SUCCESS]  INSTALL FIREWALLD  [SUCCESS]
+2021-05-25 17:16:59 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:59 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 17:16:59 UTC(dbsrv1) END: END SCRIPT: CentOS Linux ENDED SUCCESSFULLY
+2021-05-25 17:16:59 UTC(dbsrv1) -----------------------------------------------------------------------------
+2021-05-25 19:17:01 CEST(DESKTOP-JPKE7F3) -----------------------------------------------------------------------------
+2021-05-25 19:17:01 CEST(DESKTOP-JPKE7F3) END: RUNNING SCRIPT 1_update.sh ON dbsrv1(192.168.33.191) SERVER ENDED SUCCESSFULLY
+2021-05-25 19:17:01 CEST(DESKTOP-JPKE7F3) -----------------------------------------------------------------------------
+
+# echo $?
+0
+
+</code></pre>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+		// Select the first h1 element
+    var firstH1 = document.querySelector('h1');
+
+    if (firstH1) {
+        document.title = firstH1.innerHTML
+
+				// Create a new div element
+        var newDiv = document.createElement('div');
+        newDiv.id = 'table-of-contents';
+				newDiv.innerHTML = '<h2>Table of Contents</h2>';
+        firstH1.parentNode.insertBefore(newDiv, firstH1.nextSibling);
+    }
+		document.getElementById('table-of-contents');
+    var toc = document.getElementById('table-of-contents');
+    var headings = document.querySelectorAll('h2, h3, h4, h5, h6');
+
+    var tocList = document.createElement('ol');
+
+    headings.forEach(function(heading, index) {
+        var anchor = "toc-" + index;
+        var listItem = document.createElement('li');
+        var link = document.createElement('a');
+        heading.id = anchor;
+        link.href = "#" + anchor;
+        link.innerText = heading.innerText;
+
+        listItem.appendChild(link);
+
+        if (heading.tagName === 'H2') {
+            var subList = document.createElement('ul');
+            listItem.appendChild(subList);
+            tocList.appendChild(listItem);
+        } else if (heading.tagName === 'H3') {
+            var lastListItem = tocList.lastChild;
+            if (lastListItem) {
+                var subList = lastListItem.querySelector('ul');
+                if (subList) {
+                    subList.appendChild(listItem);
+                }
+            }
+        } else {
+            tocList.appendChild(listItem);
+        }
+    });
+
+    toc.appendChild(tocList);
+});
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+<script src="https://superal.github.io/canvas2image/canvas2image.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+</body>
