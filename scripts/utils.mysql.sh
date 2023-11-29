@@ -27,10 +27,10 @@ raw_mysql()
 {
     local lDB=${DB:-"mysql"}
     if [ -z "$SSH_CMD" ];then
-        mysql -Nrs -e "$*" $lDB
+        mysql -Nrs ${MYSQL_OPTION:-""} -e "$*" $lDB
         return $?
     fi
-    echo "$*" |$SSH_CMD mysql -Nrs $lDB
+    echo "$*" |$SSH_CMD mysql ${MYSQL_OPTION:-""} -Nrs $lDB
     return $?
 }
 
