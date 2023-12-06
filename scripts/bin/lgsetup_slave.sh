@@ -36,13 +36,14 @@ CHANGE MASTER TO
 MASTER_HOST='$master_pivate_ipv4',
 MASTER_USER='$ruser',
 MASTER_PASSWORD='$pass',
-MASTER_PORT=3306;
+MASTER_PORT=3306
+MASTER_USE_GTID=slave_pos;
 
 STOP SLAVE;"  | mysql -v
 
 title2 "SYNCHRONIZING LOGICAL DATA FROM $master"
 cd $datadir
-BACKUP_CMD="mysqldump --all-databases --master-data=1 --flush-logs --add-drop-database --routines --skip-opt --triggers --events --add-drop-table --add-locks --create-options --disable-keys --extended-insert --quick --set-charset --single-transaction"
+BACKUP_CMD="mysqldump --all-databases --master-data=1 --flush-logs --add-drop-database --routines --skip-opt --triggers --events --add-drop-table --add-locks --create-options --disable-keys --extended-insert --quick --set-charset --single-transaction | perl -pe 's/-- SET GLOBAL gtid_slave_pos/SET GLOBAL gtid_slave_pos /g'"
 
 if [ "$COMPRESS" = "1" ]; then
 	ssh -q $master_pivate_ipv4 "$BACKUP_CMD | pigz" | pigz -cd | mysql -f

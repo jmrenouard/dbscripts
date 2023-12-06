@@ -41,6 +41,7 @@ ls -ls
 
 rfile=$(awk '{print $1}' xtrabackup_binlog_info)
 posrfile=$(awk '{print $2}' xtrabackup_binlog_info)
+rgtid=$(awk '{print $3}' xtrabackup_binlog_info)
 title2 "RETRIEVING REPLICATION POSITION $rfile($posrfile)"
 title2 "ADDING REPLICATION CONFIG"
 
@@ -60,6 +61,7 @@ STOP SLAVE;
 -- RESET  slave
 RESET SLAVE;
 
+SET GLOBAL gtid_slave_pos='$rgtid'; 
 -- setup slave
 CHANGE MASTER TO
 MASTER_HOST='$master_pivate_ipv4',
@@ -67,7 +69,8 @@ MASTER_USER='$ruser',
 MASTER_PASSWORD='$pass',
 MASTER_PORT=3306,
 MASTER_LOG_FILE='$rfile',
-MASTER_LOG_POS=$posrfile;
+MASTER_LOG_POS=$posrfile,
+MASTER_USE_GTID = slave_pos;
 
 -- Start slave
 START SLAVE;
