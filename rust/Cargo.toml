@@ -1,13 +1,15 @@
 [package]
-name = "rust"
-version = "0.1.0"
+name = "myuser"
+version = "0.0.1"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-mysql = "*"
-
+colored = "2.1.0"
+dotenv = "0.15.0"
+fern = { version = "0.6.2", features = ["colored", "chrono"] }
+humantime = "2.1.0"
+log = "0.4.20"
+mysql = "24.0.0"
 [[bin]]
-name = "mysql_user"
-path = "main.rs"
+name = "myuser"
+path = "src/main.rs"
