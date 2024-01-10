@@ -55,7 +55,7 @@ fi
 
 apt update
 apt install -y code virtualbox-7.0 vagrant sublime-text google-chrome-stable default-jdk dbeaver-ce
-apt -y install kernel-devel kernel-headers gcc make perl wget pigz git make python3 python3-pip nc dos2unix
+apt -y install kernel-devel kernel-headers gcc make perl wget pigz git make python3 python3-pip nc dos2unix dkms
 apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 systemctl enable docker

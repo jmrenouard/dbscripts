@@ -79,7 +79,7 @@ sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.
 echo '---------------------------------------------------'
 echo "6° Install some utlities"
 echo '---------------------------------------------------'
-sudo dnf -y install rsync lftp socat htop python3 time git telnet perl
+sudo apt -y install rsync lftp socat htop python3 time git telnet perl
 
 echo '---------------------------------------------------'
 echo "7° Change SSHD behaviour password authentication  and root connexion allowed"
@@ -98,8 +98,7 @@ sudo systemctl reload sshd
 echo '---------------------------------------------------'
 echo "8° update distro"
 echo '---------------------------------------------------'
-sudo dnf -y update || true
-sudo dnf -y clean all || true
+sudo apt -y update || true
 echo "">$HOME/.bash_history
 echo "" | sudo tee /root/.bash_history
 
