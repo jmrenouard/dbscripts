@@ -27,11 +27,26 @@ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable
 
 curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/dbeaver.gpg
 echo "deb https://dbeaver.io/debs/dbeaver-ce /" | sudo tee /etc/apt/sources.list.d/dbeaver.list
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt update
 apt install -y code virtualbox-7.0 vagrant sublime-text google-chrome-stable default-jdk dbeaver-ce
 apt -y install kernel-devel kernel-headers gcc make perl wget pigz git make python3 python3-pip nc dos2unix
+apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+systemctl enable docker
+systemctl start docker
+
+usermod -aG docker $USER
+
 apt upgrade -y
+
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+
 df -Ph
 
 exit 0
