@@ -28,10 +28,10 @@ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable
 curl -fsSL https://dbeaver.io/debs/dbeaver.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/dbeaver.gpg
 echo "deb https://dbeaver.io/debs/dbeaver-ce /" | sudo tee /etc/apt/sources.list.d/dbeaver.list
 
+apt update
 apt install -y code virtualbox-7.0 vagrant sublime-text google-chrome-stable default-jdk dbeaver-ce
 apt -y install kernel-devel kernel-headers gcc make perl wget pigz git make python3 python3-pip nc dos2unix
-
-dnf -y upgrade
+apt upgrade -y
 df -Ph
 
 exit 0
