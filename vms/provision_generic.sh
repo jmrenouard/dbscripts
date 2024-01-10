@@ -39,8 +39,8 @@ $GLOBAL_PUBLIC_KEY"
 echo '---------------------------------------------------'
 echo "1° Setup default password"
 echo '---------------------------------------------------'
-echo "$DEFAULT_PASSWORD" | sudo passwd --stdin root
-echo "$DEFAULT_PASSWORD" | sudo passwd --stdin vagrant
+#echo "$DEFAULT_PASSWORD" | sudo passwd --stdin root
+#echo "$DEFAULT_PASSWORD" | sudo passwd --stdin vagrant
 
 echo '---------------------------------------------------'
 echo "2° Setup private ssh key for $(whoami) user"
@@ -69,12 +69,12 @@ sudo chown -R root.root  /root/.ssh
 sudo mkdir -p /var/tmp2
 sudo chmod -R 777 /var/tmp2
 
-echo '---------------------------------------------------'
-echo "5° Install EPEL REPOSITORY"
-echo '---------------------------------------------------'
- ps -edf | grep '[y]um'| awk '{ print $2}' | xargs -n 10 sudo kill -9
+#echo '---------------------------------------------------'
+#echo "5° Install EPEL REPOSITORY"
+#echo '---------------------------------------------------'
+#ps -edf | grep '[y]um'| awk '{ print $2}' | xargs -n 10 sudo kill -9
 
-sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+#sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
 echo '---------------------------------------------------'
 echo "6° Install some utlities"
