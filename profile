@@ -10,7 +10,7 @@ fi
 export VMS_DIR="$(readlink -f ".")/vm-vagrant"
 [ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vm-vagrant"
 [ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vm-vagrant"
-[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$_DIR/vms/id_rsa_vm"
+[ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$_DIR/vms/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
 export db_vms="dbsrv1,dbsrv2,dbsrv3"
