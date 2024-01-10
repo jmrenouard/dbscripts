@@ -5,11 +5,11 @@ if [ "$0" != "-/bin/bash" -a "$0" != "/bin/bash" -a "$0" != "-bash" ]; then
 else
 	_DIR="$(readlink -f ".")"
 fi
-[ "$(pwd)" = "$HOME" -o ! -f "./profile" ] && export _DIR="$HOME/GIT_REPOS/dbscripts/"
+[ "$(pwd)" = "$HOME" -o ! -f "./profile" ] && export _DIR="$HOME/GIT_REPOS/dbscripts"
 
-export VMS_DIR="$(readlink -f ".")/vm-vagrant"
-[ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vm-vagrant"
-[ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vm-vagrant"
+export VMS_DIR="$(readlink -f ".")/vms"
+[ -d "${_DIR}/../vms" ] && export VMS_DIR="${_DIR}/../vms"
+[ -d "${_DIR}/vms" ] && export VMS_DIR="${_DIR}/vms"
 [ -z "$DEFAULT_PRIVATE_KEY" ] && export DEFAULT_PRIVATE_KEY="$_DIR/vms/id_rsa"
 
 export proxy_vms="proxy1,proxy2"
