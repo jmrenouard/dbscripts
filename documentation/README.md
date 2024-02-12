@@ -1,0 +1,15 @@
+# List of Standard Operation Sheet
+ *  [ Centos MariaDB 10.5 server installation](./1a_install_mariadb_centos.md)
+ *  [ Update or install management scripts](./1bis_deploy_scripts.md)
+ *  [ Update System](./1_update.md)
+ *  [ Setup firewall on Linux with firewalld or iptables](./2_firewall.md)
+ *  [ MariaDB 10.5 server configuration based on  CPU/RAM](./3_config_start.md)
+ *  [ Galera Cluster bootstrap](./5_bootstrap_node.md)
+ *  [ Adding a new member into a galera Cluster](./6_start_new_node.md)
+# Liste des procédures opérationnelles standards
+ *  [ Installation du serveur MariaDB 10.5 sur OS Centos](./1a_install_mariadb_centos_fr.md)
+ *  [ Mise à jour du système](./1_update_fr.md)
+ *  [ Configuration du firawall avec firewalld ou iptables](./2_firewall_fr.md)
+ *  [ Configuration du serveur MariaDB 10.5 basée sur la RAM et CPU](./3_config_start_fr.md)
+ *  [ Initialisation du cluster Galera](./5_bootstrap_node_fr.md)
+ *  [ Initialisation d un nouveau membre dans le cluster Galera](./6_start_new_node_fr.md)

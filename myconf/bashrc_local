@@ -1,0 +1,1231 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+#case $- in
+#    *i*) ;;
+#     *) return;;
+#esac
+source "$HOME/.cargo/env"
+
+export PATH=$HOME/bin:$PATH:$HOME/.local/bin
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=100000
+HISTFILESIZE=200000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+#if [ "$color_prompt" = yes ]; then
+#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+#else
+#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+#fi
+#unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    #alias grep='grep --color=auto'
+    #alias fgrep='fgrep --color=auto'
+    #alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+#alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'
+alias s=sudo
+alias ll='ls -lsh'
+alias s=sudo
+alias h=history
+rlh()
+{
+    history -a
+    history -c
+    history -r
+}
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+#unalias killtunnel
+killtunnel()
+{
+    netstat -ltpn 2>/dev/null| grep ssh| awk '{print $NF}'| cut -d/ -f1 | sort | uniq| xargs -n 1 kill
+}
+alias listtunnel="netstat -ltpn 2>/dev/null| grep ssh| grep 127.0.0.1"
+
+for srv in $(awk '{ print $2}' /etc/hosts | grep jmrenouard.fr); do
+    eval "alias $srv='ssh $srv'"
+    aname=$(echo $srv| cut -d. -f1)
+    saname=$(echo $aname |perl -pe 's/jmrenouard.fr//g;s/-ec2//g')
+    eval "alias $aname='ssh $srv'"
+    eval "alias $saname='ssh $srv'"
+    
+done
+
+for srv in $(awk '{ print $2}' /etc/hosts | grep .local| cut -d. -f1| sort |uniq); do
+    aname=$(echo $srv)
+    eval "alias $aname='ssh $srv'"
+done
+
+for srv in $(awk '{ print $2}' /etc/hosts | grep -E '\.aws$'| sort |uniq); do
+    aname=$(echo $srv)
+    eval "alias $aname='ssh $srv'"
+done
+
+sanitize_md()
+{
+    sed -r -i "s/\x1B\[([0-9];)?([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g;s/\[0(;33|33|;32|;20|)m//g"  $*
+}
+
+now() {
+    # echo "$(date "+%F %T %Z")"
+    [ "$NO_LOG_DATE" = "1" ] || echo "$(date "+%F %T %Z")($(hostname -s)) "
+}
+
+error() {
+    local lRC=$?
+    echo "$(now)ERROR: $*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)ERROR: $*">>$TEE_LOG_FILE
+    return $lRC
+}
+
+die() {
+    error $*
+    exit 1
+}
+
+info() {
+    [ "$quiet" != "yes" ] && echo "$(now)INFO: $*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)INFO: $*">>$TEE_LOG_FILE
+    return 0
+}
+
+ok()
+{
+    info "$* [SUCCESS]"
+    return $?
+}
+fail()
+{
+    error "$* [FAILURE]"
+    return $?
+}
+
+warn() {
+    local lRC=$?
+    echo "$(now)WARNING: $*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)WARNING: $*">>$TEE_LOG_FILE
+    return $lRC
+}
+
+warning()
+{
+    warn "$*"
+}
+sep1()
+{
+    echo "$(now)-----------------------------------------------------------------------------" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)-----------------------------------------------------------------------------" >>$TEE_LOG_FILE
+}
+sep2()
+{
+    echo "$(now)_____________________________________________________________________________" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)_____________________________________________________________________________" >>$TEE_LOG_FILE
+}
+title1() {
+    sep1
+    echo "$(now)$*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)$*">>$TEE_LOG_FILE
+    sep1
+}
+
+title2()
+{
+    echo "$(now)$*" 1>&2
+    [ -n "$TEE_LOG_FILE" ] && echo "$(now)$*">>$TEE_LOG_FILE
+    sep2
+}
+banner()
+{
+    title1 "START: $*"
+}
+
+footer()
+{
+    local lRC=${lRC:-"$?"}
+
+    [ $lRC -eq 0 ] && title1 "END: $* ENDED SUCCESSFULLY"
+    [ $lRC -eq 0 ] || title1 "END: $* ENDED WITH WARNING OR ERROR ($lRC)"
+    return $lRC
+}
+
+getVal()
+{
+    local value=$1
+    echo $(eval "echo \$${value}")
+}
+
+setVal()
+{
+    local var=$1
+    shift
+    eval "${var}='$*'"
+}
+
+get_ips_v4()
+{
+    ip a| grep 'inet ' | grep -v -E '(127.0)'| awk '{print $2}'| cut -d/ -f1
+}
+
+load_venv()
+{
+    tenv=${1:-"ansible"}
+    export _DIR=$HOME/$tenv
+    source $_DIR/bin/activate
+}
+alias load_env=load_venv
+
+reload()
+{
+    cd $HOME
+    source .bashrc
+    cd -
+}
+alias | grep -q gcm && unalias gcm
+gcm()
+{
+        git commit -m "$@"
+}
+alias mdcleanup="perl -i -pe 's/\[\d;\d{2}m//g;s/\[0m//g;s/\[\?2004h//g'"
+alias rl=reload
+alias gst="git status"
+alias ga="git add"
+alias gam="git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add"
+alias gad='git status | grep -E "(supprim|deleted)\s*:" |cut -d: -f2 | xargs -n1 git rm -f'
+alias gpul='git pull'
+alias gpus='git push'
+alias gsw='git switch'
+gpull_dir()
+{
+    local verb=${1:-"pull"}
+    for rep in ${2:-"$BASE_GIT"}/*; do 
+        if [ ! -d "$rep/.git" ]; then
+            #title1 "$rep NOT .git REPO"
+            continue
+        fi
+        title1 $rep PULLING CHANGES
+        ( 
+            cd $rep
+            git config pull.rebase false
+            git $verb
+        )
+    done
+}
+
+
+alias an="time ansible -f $(nproc)"
+alias anh="time ansible --list-hosts"
+alias anv="time ansible -f $(nproc) -v"
+alias and="time ansible -f $(nproc) -v --step"
+alias aping="time ansible -mping"
+
+alias apc="time ansible-playbook --check"
+
+# Alias pour le debugging des playbooks et roles
+alias apschk="time ansible-playbook --syntax-check"
+alias apchk="time ansible-playbook --check"
+alias aphst="time ansible-playbook --list-hosts"
+alias aptsk="time ansible-playbook --list-tasks"
+
+alias anl="time ansible-lint"
+
+export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
+
+unalias ap 2>/dev/null
+ap()
+{
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*"
+        time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*
+        return $?
+    fi
+    echo "RUNNING: time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*"
+    time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*
+}
+
+unalias apv 2>/dev/null
+apv()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v"}"
+    ap $*
+}
+
+unalias apd 2>/dev/null
+apd()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v --step"}"
+    ap $*
+}
+
+update_aroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    [ -d "./roles" ] || mkdir ./roles
+    [ -d "./collections" ] || mkdir ./collections
+    
+    REQ_FILE=""
+    [ -f "./requirements.yml" ] && REQ_FILE="./requirements.yml"
+    [ -f "./requirements.yaml" ] && REQ_FILE="./requirements.yaml"
+    [ -f "./requirements.txt" ] && REQ_FILE="./requirements.txt"
+    [ -f "./requirements" ] && REQ_FILE="./requirements"
+    
+    if [ -z "$REQ_FILE" -o ! -f "$REQ_FILE" ]; then
+        fail "NO REQ_FILE FILE found ..."
+        return 127
+    fi
+    rm -rf roles/*
+    ansible-galaxy install -r $REQ_FILE --force
+    ls -ls roles/
+}
+alias get_jtemplate="find . -type f -iname '*.j2'"
+
+update_alroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    [ -d "./roles" ] || mkdir ./roles
+    [ -d "./collections" ] || mkdir ./collections
+    
+    REQ_FILE=""
+    [ -f "./requirements.yml" ] && REQ_FILE="./requirements.yml"
+    [ -f "./requirements.yaml" ] && REQ_FILE="./requirements.yaml"
+    [ -f "./requirements.txt" ] && REQ_FILE="./requirements.txt"
+    [ -f "./requirements" ] && REQ_FILE="./requirements"
+    
+    if [ -z "$REQ_FILE" -o ! -f "$REQ_FILE" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    needed_roles=$(grep src $REQ_FILE | rev | cut -d/ -f1 | cut -d. -f 2 | rev)
+    rm -rf roles/*
+    for role in $needed_roles; do
+        (
+        cd ./roles
+        role_path=$(readlink -f ../../$role) 
+        if [ -d "$role_path" ]; then 
+            ln -sf $role_path
+        else 
+            fail "ROLE $role($role_path) IS MISSING IN LOCAL"
+        fi   
+        )
+    done 
+    ls -ls roles/
+}
+
+load_ainventory()
+{
+    for inv in $1 $(pwd)/inventory $BASE_GIT/inventory-infra-b2c/$1/hosts; do
+        if [ -f "$1" -o -d "$1" ]; then
+            export ANSIBLE_INVENTORY=$(readlink -f $inv)
+            echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+            return 0
+        fi
+    done  
+    echo 'ERROR: inventory MISSING'
+    return 127
+}
+
+
+[ -d "$BASE_GIT/inventory-infra-b2c" ] && for inv in $1 $BASE_GIT/inventory-infra-b2c/*; do
+    if [ ! -d "$inv" -o "$inv" = "script" ]; then
+        continue
+    fi
+    if [ -f "$inv/hosts" ]; then
+        eval "alias inventory_$(basename $inv)='export ANSIBLE_INVENTORY=$inv/hosts'"
+        continue
+    fi
+    if [ -f "$inv/hosts.ini" ]; then
+        eval "alias inventory_$(basename $inv)='export ANSIBLE_INVENTORY=$inv/hosts.ini'"
+        continue
+    fi
+    if [ -f "$inv/hosts.yaml" ]; then
+        eval "alias inventory_$(basename $inv)='export ANSIBLE_INVENTORY=$inv/hosts.yaml'"
+        continue
+    fi
+    if [ -f "$inv/hosts.yml" ]; then
+        eval "alias inventory_$(basename $inv)='export ANSIBLE_INVENTORY=$inv/hosts.yml'"
+        continue
+    fi
+    eval "alias inventory_$(basename $inv)='export ANSIBLE_INVENTORY=$inv'"
+done
+
+load_aconfig()
+{
+    for cfg in $1 $(pwd)/ansible.cfg; do
+        if [ -f "$cfg" ]; then
+            export ANSIBLE_CONFIG=$(readlink -f $cfg)
+            echo "ANSIBLE_CONFIG: $ANSIBLE_CONFIG"
+            return 0
+        fi
+    done
+    echo 'ERROR: ansible.cfg MISSING'
+    return 127
+}
+
+get_aconfig()
+{
+    echo "ANSIBLE_CONFIG: $ANSIBLE_CONFIG"
+    echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+}
+
+dump_aconfig()
+{
+    if [ -f "$ANSIBLE_INVENTORY" ]; then
+        title1 "INVENTORY: $ANSIBLE_INVENTORY"
+        cat $ANSIBLE_INVENTORY
+    fi
+    if [ -d "$ANSIBLE_INVENTORY" ]; then
+        title1 "DIR INVENTORY: $ANSIBLE_INVENTORY"
+        [ -f "$ANSIBLE_INVENTORY/hosts" ] && cat $ANSIBLE_INVENTORY/hosts
+        [ -f "$ANSIBLE_INVENTORY/inventory" ] && cat $ANSIBLE_INVENTORY/inventory
+    fi
+    sep2
+    if [ -f "$ANSIBLE_CONFIG" ]; then
+        title1 "CONFIG: $ANSIBLE_CONFIG"
+        cat $ANSIBLE_CONFIG
+    else 
+        error "ANSIBLE_CONFIG MISSING !!!!"
+    fi
+}
+
+alint_dir()
+{
+    local rdir=${1:-"."}
+    title2 "ANSIBLE LINT $rdir"
+    (
+        cd $rdir 
+        export ANSIBLE_CONFIG=$rdir/ansible.cfg
+        ansible-lint -v .
+    )
+}
+
+alint_dirs()
+{
+    local rdir=${1:-"."}
+    for d in $rdir/*; do
+        [ -d "$d" ] || continue
+        [ -d "$d/tasks" -o -f "$d/playbook.yaml" -o -f "$d/playbook.yml" ] || continue
+        alint_dir $d
+    done
+}
+ff()
+{
+find . -type f -iname "$1"
+}
+
+
+yamlval()
+{
+        time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
+}
+
+ltrim()
+{
+        perl -i -pe 's/[\t ]+$//g' $1
+}
+
+randpw()
+{
+        if [ ! -f "/usr/bin/pwgen" ]; then
+                echo "yum -y install pwgen"
+                return 1
+        fi
+        pwgen -c -n  -y -s -v  12 1
+        return $?
+}
+
+asetdebug()
+{
+    export ANSIBLE_STDOUT_CALLBACK="debug"
+    #export ANSIBLE_EXTRA_OPTIONS="--verbose"
+}
+
+asetoneline()
+{
+    export ANSIBLE_STDOUT_CALLBACK="oneline"
+    export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+asetquiet()
+{
+    export ANSIBLE_STDOUT_CALLBACK="dense"
+    export ANSIBLE_EXTRA_OPTIONS=""
+}
+asetnormal()
+{
+    export ANSIBLE_STDOUT_CALLBACK="minimal"
+    export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+
+acp()
+{
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f ${MAXPROC:-"$(nproc)"} ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3"
+
+    if [ -n "$4" ]; then
+        acmd $1 "chown -R $4.$4 $3"
+    fi
+    if [ -n "$5" ]; then
+        acmd $1 "chmod -R $5 $3"
+    fi
+}
+
+ascp()
+{
+    local target=$1
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible -f $(nproc) -b -K ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mcopy -a 'src=$2 dest=$3'"
+        time ansible -f $(nproc) -b ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mcopy -a "src=$2 dest=$3"
+        return $?
+    fi
+    ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3"
+
+    if [ -n "$4" ]; then
+        ascmd $1 "chown -R $4.$4 $3"
+    fi
+    if [ -n "$5" ]; then
+        ascmd $1 "chmod -R $5 $3"
+    fi
+}
+
+aexec()
+{
+    local target=$1
+    shift
+    local script=$1
+
+    interpreter=$(head -n1 $script|cut -d! -f2)
+    echo "RUNNING: time ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mcopy -a 'dest=/var/tmp mode=0755 src=$script'"
+    time ansible -f ${MAXPROC:-"$(nproc)"} ${ANSIBLE_EXTRA_OPTIONS} $target -mcopy -a "dest=/var/tmp mode=0755 src=$script"
+
+    ascmd $target "$interpreter /var/tmp/$(basename $script) $*"
+}
+
+asexec()
+{
+    local target=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible -f $(nproc) -b -K ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mscript -a '$*'"
+        time ansible -f $(nproc) -b ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mscript -a "$*"
+        return $?
+    fi
+    ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -a "$*"
+}
+
+auexec()
+{
+    local target=$1
+    shift
+    local user=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f ${MAXPROC:-"$(nproc)"} ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=$user -a "$*"
+}
+
+acmd()
+{
+    local target=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f ${MAXPROC:-"$(nproc)"} ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "$*"
+}
+
+ascmd()
+{
+    local target=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mshell -a '$*'"
+        time ansible -f ${MAXPROC:-"$(nproc)"} -b ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mshell -a "$*"
+        return $?
+    fi
+    ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "$*"   
+}
+
+aucmd()
+{
+    local target=$1
+    shift
+    local user=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
+    echo "stdout_calback: $ANSIBLE_STDOUT_CALLBACK"
+    echo "ANSIBLE_EXTRA_OPTIONS: $ANSIBLE_EXTRA_OPTIONS"
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible -f ${MAXPROC:-"$(nproc)"} -b --become-user=$user -vvv -K ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mshell -a '$*'"
+        time ansible -f ${MAXPROC:-"$(nproc)"} -b --become-user=$user ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mshell -a "$*"
+        return $?
+    fi
+    echo "RUNNING: time ansible -f ${MAXPROC:-"$(nproc)"} -K ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a '$*'"
+    time ansible -f ${MAXPROC:-"$(nproc)"} -K ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "$*"
+}
+
+asfetch()
+{
+    local target=$1
+    shift
+    local src=$1
+    shift
+    local dest=$1
+    shift
+    local flat=${1:-"false"}
+    [ "$flat" == "true" ] && dest="${dest}/{{ inventory_hostname }}-$(basename ${src})"
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mfetch -a 'src=$src dest=${dst} flat=$flat'"
+        time ansible -f ${MAXPROC:-"$(nproc)"} -b ${ANSIBLE_EXTRA_OPTIONS} -e '@password.yml' --vault-password-file=vault.txt $target -mfetch -a "src=$src dest=${dest} flat=$flat"
+        return $?
+    fi
+    ansible -f ${MAXPROC:-"$(nproc)"} -b -K ${ANSIBLE_EXTRA_OPTIONS} $target -mfetch -a "src=$src dest=${dest} flat=$flat"
+}
+
+test_ping_hosts()
+{
+    #set -x
+    local pattern=${1:-"qa-"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        ping -f -i 0.2 -c3 -W1 $line &>/dev/null
+        if [ $? -eq 0 ]; then 
+             echo "[OK] (LOCAL)$line: ICMP"
+        else 
+            echo "[FAIL] (LOCAL)$line: ICMP"
+        fi
+    done
+}
+
+mirror_ansible_collection()
+{
+        set -x
+        if [ ! -d "$BASE_GIT/ansible/community.general" ]; then 
+            mkdir -p $BASE_GIT/ansible/
+        fi
+        cd $BASE_GIT/ansible
+        git pull https://github.com/ansible-collections/community.general.git
+        git checkout -b 4.5.0
+        cd $BASE_GIT/community.general
+        rsynv -av --exclude=.git $BASE_GIT/ansible/community.general/ .
+        git status
+}
+
+test_ssh_hostname_hosts()
+{
+    local pattern=${1:-'qa-'}
+    #set +x
+    lst_hst=$(grep $pattern /etc/hosts | awk '{print $2}')
+    for line in $lst_hst; do 
+        #ssh -q -o "ConnectTimeout=4s" $bastion ping -f -i 0.2 -c3 -W1 $line &>/dev/null
+        rhst=$(ssh -q -o "ConnectTimeout=2s" $line "hostname" 2>&1) 
+        
+        if [ "$line" == "$rhst" ]; then 
+             ok "$line: SSH HOSTNAME"
+        else 
+            fail "$line: SSH HOSTNAME"
+        fi
+    done
+}
+
+test_tcp_hosts()
+{
+    local pattern=${1:-'qa-'}
+    local port=${2:-"22"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        nc -z -v -w1 $line $port &>/dev/null
+        if [ $? -eq 0 ]; then 
+             ok "$line: $port/TCP"
+        else 
+            fail "$line: $port/TCP"
+        fi
+    done
+}
+
+test_ssh_tcp_hosts()
+{
+    local bastion=${1:-'localhost'}
+    local pattern=${2:-'qa-'}
+    local port=${3:-"22"}
+    grep $pattern /etc/hosts | awk '{print $2}' | while read -r line; do 
+        ssh -q -o "ConnectTimeout=4s" $bastion "nc -z -v -w1 $line $port &>/dev/null"
+        if [ $? -eq 0 ]; then 
+             ok "(SSH/$bastion)$line: ICMP"
+        else 
+            fail "(SSH/$bastion)$line: ICMP"
+        fi
+    done
+}
+slack_send()
+{
+    local chann=$1
+    shift
+    local msg="$*"
+    curl -X POST -H 'Content-type: application/json' --data "{\"as_user\": true, \"username\": \"$SLACK_USERNAME\", \"text\":\"$msg\"}" $(getVal "SLACK_URL_$chann")
+}
+
+slack_send_url()
+{
+    local url=$1
+    shift
+    local msg="$*"
+    curl -X POST -H 'Content-type: application/json' --data "{\"as_user\": true, \"username\": \"$SLACK_USERNAME\", \"text\":\"$msg\"}" $url
+}
+
+ppkill()
+{
+
+    for pid in $(ps -edf | grep "$1" | awk '{print $2}'); do
+        ps -edf | grep " $pid "| grep -v grep 
+        echo "KILLING PROCESS: $pid"
+        sudo kill -9 $pid
+        echo "---------------------------"
+    done
+}
+
+sexec()
+{
+    local tgt=$1
+    shift
+    local script=$1
+    local bscript=$(basename $script)
+    local inter=$(head -n 1 $script | perl -pe 's/^#\!\s*//g')
+    shift
+    local tmpdir=${1:-"/var/tmp"}
+    shift
+    
+    rsync -az $script $tgt:$tmpdir
+    [ $? -ne 0 ] && return 127
+    ssh  $tgt "set -x;(cd $tmpdir;$inter $bscript $*)"
+    lRC=$?
+    ssh  $tgt "ls -lsh $tmpdir"
+    echo "EXIT CODE: $lRC"
+    return $lRC
+}
+
+
+generate_md_mysql()
+{
+    cd $BASE_GIT/playbook-mysql
+    asetdebug
+    inventory_prd
+    apv run_script.yaml -e 'target=data.jmrenouard.fr' \
+    -e 'outputdir=mysql_schema' \
+    -e 'script=scripts/export_info.py' \
+    -e 'params="generateMdPage"' $*
+}
+generate_md_cassandra()
+{
+    cd $BASE_GIT/playbook-dse
+    asetdebug
+    
+    apv run_script.yaml -e 'target=data.jmrenouard.fr' \
+    -e 'outputdir=cassandra_schema' \
+    -e 'script=scripts/export_info.py' \
+    -e 'params="generateMdPage"' $*
+}
+
+eval "$(direnv hook bash)"
+
+export PATH=$PATH:$HOME/.local/cqlsh/bin:/usr/local/go/bin
+
+
+# Ajout pour afficher branche git
+parse_git_branch() {
+	  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+  }
+export PS1="\u@\h \[\e[32m\]\w \[\e[91m\]\$(parse_git_branch)\[\e[00m\]$ " 
+. "$HOME/.cargo/env"
+
+
+oat()
+{
+    local account=$1
+    grep -qE "^${account}:" $HOME/.secret
+    [ $? -ne 0 ] && return 127
+    skey=$(grep -E "^${account}:" $HOME/.secret | cut -d: -f2)
+    oathtool --totp -b $skey | xclip -selection clipboard
+    oathtool --totp -b $skey 
+}
+
+gpw()
+{
+    local account=$1
+    grep -qE "^${account}:" $HOME/.secret
+    [ $? -ne 0 ] && return 127
+    grep -E "^${account}:" $HOME/.secret | cut -d: -f2 | xclip -selection clipboard
+}
+
+autosecret()
+{
+    local cur opts
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts=$(grep -E "^[^#]" $HOME/.secret | cut -d: -f1)
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+
+complete -F autosecret oat
+complete -F autosecret gpw
+PATH="/home/jrenouard/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/jrenouard/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/jrenouard/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/jrenouard/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/jrenouard/perl5"; export PERL_MM_OPT;
+
+eval $(ssh-agent -s); for sshk in $HOME/.ssh/id_rsa*; do echo "$sshk" | grep -q .pub || ssh-add $sshk;done
+
+complete -W "\`grep -oE '^[a-zA-Z0-9_.-]+:([^=]|$)' $BASE_GIT/iac-sandbox-okd/makefile/Makefile | sed 's/[^a-zA-Z0-9_.-]*$//'\`" aws_make
+alias aws_make="make -f $BASE_GIT/iac-sandbox-okd/makefile/Makefile"
+
+sap() 
+{
+    if [ -z "$1" ];then
+        echo "Current profile: $AWS_PROFILE"
+        return 0
+    fi 
+    export AWS_PROFILE=$1
+    sap
+}
+_sap_completions()
+{
+  if [ "${#COMP_WORDS[@]}" != "2" ]; then
+    return
+  fi
+
+  COMPREPLY=($(compgen -W "$(grep '\[' $HOME/.aws/config |grep -v '#' | awk '{print $2}' | tr ']' ' '| xargs -n1)" -- "${COMP_WORDS[1]}"))
+}
+
+complete -F _sap_completions sap
+
+fec2()
+{
+    local pattern=${1:-"qa-"}
+    grep -E "$pattern" /etc/hosts | awk '{print $2}' | xargs -n 1 | grep -E '\.aws$'
+}
+fec2p()
+{
+    local pattern=${1:-"qa-"}
+    grep -E "$pattern" /etc/hosts  | grep -E '\.aws$'
+}
+alias rlb="source $HOME/.bashrc"
+
+export BASE_GIT=${BASE_GIT:-"$HOME/GIT_REPOS"}
+
+lst_env()
+{
+    [ -d "$BASE_GIT/inventory-infra-b2c" ] && \
+    (
+        cd $BASE_GIT/inventory-infra-b2c/
+        find . -type f -iname 'hosts.ini' | sed 's/^\.\///g' | sed 's/\/hosts.ini//g' | sort
+    )
+}
+create_mysql_user()
+{
+    local env=$1
+    local login=$2
+    local email=${3:-"jmrenouard@gmail.com"}
+    local profile=${4:-"read_only"}
+
+    if [ -z "$env" -o -z "$login" ]; then
+        echo "USAGE: create_mysql_user <env> <login> <email> <profile>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-mysql/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-mysql
+    echo "ap create_user_mysql_shell.yml -e 'muser=$login' -e 'email=$email' -e 'target=mysql-servers' -e 'profile=$profile'"
+    ap create_user_mysql_shell.yml -e "muser=$login" -e "email=$email" -e 'target=mysql-servers' -e "profile=$profile"
+}
+
+grant_mysql_user()
+{
+    local env=$1
+    local login=$2
+    local email=${3:-"jmrenouard@gmail.com"}
+    local profile=${4:-"read_only"}
+    local db=${5:-"iot_manager"}
+    if [ -z "$env" -o -z "$login" ]; then
+        echo "USAGE: grant_mysql_user <env> <login> <email> <profile> <db>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-mysql/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-mysql
+    echo "ap grant_user_mysql_shell.yml -e 'muser=$login' -e 'email=$email' -e 'target=mysql-servers' -e 'profile=$profile' -e 'database=$db'"
+    ap grant_user_mysql_shell.yml -e "muser=$login" -e "email=$email" -e 'target=mysql-servers' -e "profile=$profile" -e 'database=$db'
+}
+create_mysql_user_csv()
+{
+    local f=$1
+
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f FILE DOESNT EXIST"
+        return 127
+    fi
+
+    while IFS=, read -r env login email profile db
+    do
+        echo "$env" | grep -E '^\s*#'
+        [ $? -eq 0 ] && continue
+        printf 'create_mysql_user %s %s %s %s %s\n' "$env" "$login" "$email" "$profile"
+        #if [ "$FORCE" != "yes" ]; then
+        #  ask_yes_or_no "Execute creation ?"
+         # [ $? -ne 0 ] && continue
+        #fi
+        create_mysql_user $env $login $email $profile $db
+        [ $? -ne 0 ] && return 1
+        #return 0
+    done <"$f"
+}
+
+grant_mysql_user_csv()
+{
+        local f=$1
+
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f FILE DOESNT EXIST"
+        return 127
+    fi
+
+    while IFS=, read -r env login email profile db
+    do
+        echo "$env" | grep -E '^\s*#'
+        [ $? -eq 0 ] && continue
+
+        printf 'grant_mysql_user %s %s %s %s %s\n' "$env" "$login" "$email" "$profile" "$db"
+        #return 1
+        #if [ "$FORCE" != "yes" ]; then
+        #  ask_yes_or_no "Execute creation ?"
+        # [ $? -ne 0 ] && continue
+        #fi
+        grant_mysql_user $env $login $email $profile $db
+        [ $? -ne 0 ] && return 1
+        #return 0
+    done <"$f"
+}
+set_mysql_cred()
+{
+    local env=$1
+    
+    if [ -z "$env"  ]; then
+        echo "USAGE: set_mysql_cred <env>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-mysql/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-mysql
+    echo "apv set_cred_mysql.yml"
+    apv set_cred_mysql.yml
+}
+
+create_dse_user()
+{
+    local env=$1
+    local login=$2
+    local email=${3:-"jmrenouard@gmail.com"}
+    local profile=${4:-"read_only"}
+
+    if [ -z "$env" -o -z "$login"  ]; then
+        echo "USAGE: create_dse_user <env> <login> <email> <profile>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-mysql/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-dse
+    echo "ap create_user_cassandra_shell.yml -e 'muser=$login' -e 'email=$email' -e 'target=dse-servers' -e 'profile=$profile'"
+    ap create_user_cassandra_shell.yml -e "muser=$login" -e "email="$email" -e 'target=dse-servers' -e "profile=$profile
+}
+create_dse_user_csv()
+{
+    local f=$1
+
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f FILE DOESNT EXIST"
+        return 127
+    fi
+
+    while IFS=, read -r env login email profile 
+    do
+        printf 'create_dse_user %s %s %s %s\n' "$env" "$login" "$email" "$profile"
+        [ "$2" == "go" ] && create_dse_user $env $login $email $profile
+    done <"$f"
+}
+
+function ask_yes_or_no() {
+    read -p "$1 ([y]es or [n]o): "
+    case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
+        y|Y|yes) echo "yes";return 0 ;;
+        *)     echo "no"; return 1;;
+    esac
+    return 1
+}
+
+set_dse_cred()
+{
+    local env=$1
+    
+    if [ -z "$env" ]; then
+        echo "USAGE: set_dse_cred <env>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-dse/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-dse
+    echo "apv set_cred_dse.yml"
+    apv set_cred_dse.yml
+}
+
+dse_list_snapshots()
+{
+    local env=$1
+    local tag=${2:-"list"}
+    local limit=${3:-"200"}
+    local pattern=${4:-".*"}
+    if [ -z "$env" ]; then
+        echo "USAGE: dse_list_snapshots <env>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+    
+    export ANSIBLE_STDOUT_CALLBACK="debug"
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-dse/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-dse
+    echo "apv info_snapshots.yml -t $tag -e limit=$limit -e pattern=$pattern"
+    apv info_snapshots.yml -t $tag -e limit=$limit -e pattern=$pattern
+}
+
+dse_clean_snapshots()
+{
+    local env=$1
+    local limit=${2:-"10"}
+    local pattern=${3:-"truncated-.*-monthly_elec_consumption"}
+    if [ -z "$env" ]; then
+        echo "USAGE: dse_list_snapshots <env>"
+        return 127
+    fi
+
+    if [ ! -f "$BASE_GIT/inventory-infra-b2c/$env/hosts.ini"  ]; then
+        echo "ERROR: $env ENVIRONMENT DOESNT EXIST"
+        return 127
+    fi
+
+    export ANSIBLE_STDOUT_CALLBACK="debug"
+    export ANSIBLE_CONFIG=$BASE_GIT/toolbox-dse/ansible.cfg
+    export ANSIBLE_INVENTORY=$BASE_GIT/inventory-infra-b2c/$env/hosts.ini
+    cd $BASE_GIT/toolbox-dse
+    echo "apv cleanup_snapshots.yml  -t snap -e limit=$limit -e pattern=$pattern"
+    apv cleanup_snapshots.yml -t snap -e limit=$limit -e pattern=$pattern
+}
+complete -W "$(lst_env)" dse_clean_snapshots
+
+complete -W "$(lst_env)" dse_list_snapshots
+complete -W "$(lst_env)" set_dse_cred
+complete -W "$(lst_env)" set_mysql_cred
+complete -W "$(lst_env)" create_dse_user
+complete -W "$(lst_env)" create_mysql_user
+
+set_brightness()
+{
+    xrandr | grep connected | awk '{print $1}' | xargs  -I{} xrandr --output {} --brightness ${1:-"1"}
+}
+
+net_forward()
+{
+    sudo sysctl -w net.ipv4.ip_forward=1
+    sudo sysctl -w net.ipv4.ip_forward=1
+}
+
+clean_snap()
+{
+    LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}' |
+     while read snapname revision; do
+         sudo snap remove "$snapname" --revision="$revision"
+     done
+}
+
+update_all_snaps() 
+{
+    snap list| grep -v Name| awk '{print $1}' | xargs -n1 sudo snap refresh
+}
+
+
+get_certs()
+{
+    local srv=$1
+		local pass=$2
+		local key=$3
+    rcert=$HOME/Documents/certifs
+    [ -d "$rcert" ] || mkdir -p $rcert
+    [ -d "$rcert/liste/" ] || mkdir -p $rcert/liste/
+    liste=${rcert}/liste
+    /bin/bash -c "/bin/scp -i $key -r $srv:/conf/acme/ /tmp/; mv /tmp/acme/* $liste" > /dev/null
+    if [ "$1" != "" ]; then
+        rm -f ${rcert}/cert-*.zip
+        nom=${rcert}/cert-$(echo $1 | sed 's/\*//g').zip
+        echo $nom
+        if [ $(ls ${liste}/*${1}* 2>/dev/null | wc -l) -ne 0 ]; then
+            zip -9 --password $pass $nom ${liste}/*${1}*
+        else
+            echo 'Erreur de masque'
+        fi
+    fi
+
+    return
+}
+
+export HOSTNAME="$(hostname)"
+alias vi=nvim
+alias vim=nvim
+# to simplify life, install xclip and append the following lines to your .bashrc
+alias "cx=xclip" # copy to X clipboard (register *)
+alias "cxs=xclip -selection clipboard" # copy to system wide clipboard (register +)
+alias "vx=xclip -o" # output copied content (paste)
+alias "vxs=xclip -o -selection clipboard" # paste from system wide clipboard (equivalent to `v -selection clipboard`)
+alias ubashrc="rsync -av ~/GIT_REPOS/dbscripts/myconf/bashrc_local ~;reload"
+# examples:
+# copy to X:
+# go to the same directory in terminal 2 as in terminal 1
+# Terminal 1:
+# pwd | c
+# Terminal 2:
+# cd `v`
+
+# copy to system clipboard:
+# cat file1 | cs
+# Then simply ctrl+(shift)+V to paste to X windows
+# paste from systen clipboard on command line:
+# vs > file1copy
+#
+#activate-global-python-argcomplete

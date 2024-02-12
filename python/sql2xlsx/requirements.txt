@@ -1,0 +1,10 @@
+python-dotenv
+python-dotenv[cli]
+pymysql
+mysql-connector-python
+pugsql
+openpyxl
+jinja2
+flask
+Flask-MySQLdb
+pyyaml

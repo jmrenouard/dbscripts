@@ -1,0 +1,256 @@
+{% for vm in Vms %}
+alias {{ vm }}="ssh -i {{Rsa_PrivateKey}} {{SshUser}}@{{ Vms[vm]['ip_private'] }}"
+alias {{ vm }}_root="ssh -i {{Rsa_PrivateKey}} root@{{ Vms[vm]['ip_private'] }}"
+{% endfor %}
+
+export ANSIBLE_CONFIG=$(pwd)/ansible.cfg
+export ANSIBLE_STDOUT_CALLBACK="minimal"
+export ANSIBLE_EXTRA_OPTIONS=""
+export ANSIBLE_INVENTORY=$(pwd)/inventory
+
+alias an="time ansible -f $(nproc)"
+alias anh="time ansible --list-hosts"
+alias anv="time ansible -f $(nproc) -v"
+alias and="time ansible -f $(nproc) -v --step"
+
+# Alias pour ansible-playbook
+#alias ap="time ansible-playbook -f $(nproc)"
+#alias apv="time ansible-playbook -f $(nproc) --verbose"
+#alias apd="time ansible-playbook -f $(nproc) --verbose --step"
+
+
+
+
+# Alias pour le debugging des playbooks et roles
+alias apchk="time ansible-playbook --syntax-check"
+alias aphst="time ansible-playbook --list-hosts"
+alias aptsk="time ansible-playbook --list-tasks"
+
+alias anl="time ansible-lint"
+
+
+export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
+
+unalias ap 2>/dev/null
+ap()
+{
+    if [ -f "./vault.txt" -a -f "./password.yml" ]; then
+        echo "RUNNING: time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*"
+        time ansible-playbook ${ANSIBLE_EXTRA_OPTIONS} -f $(nproc) -e '@password.yml' --vault-password-file=vault.txt $*
+        return $?
+    fi
+    echo "RUNNING: time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*"
+    time ansible-playbook -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $*
+}
+
+unalias apv 2>/dev/null
+apv()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v"}" 
+    ap $*
+}
+
+aping()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v"}" 
+    ansible -v -mping $*
+}
+
+afetch()
+{
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3"
+}
+
+afetchflat()
+{
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mfetch -a "src=$2 dest=$3/{{ '{{' }} inventory_hostname {{ '}}' }}/$(basename $2) flat=yes"
+}
+
+unalias apd 2>/dev/null
+apd()
+{
+    ANSIBLE_EXTRA_OPTIONS="${ANSIBLE_EXTRA_OPTIONS:-"-v --step"}" 
+    ap $*
+}
+
+update_aroles()
+{
+    [ -d "./log" ] || mkdir ./log
+    [ -d "./cache" ] || mkdir ./cache
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    rm -rf roles/*
+    ansible-galaxy install -r ./requirements.yml --force
+    ls -ls roles/
+}
+alias get_jtemplate="find . -type f -iname '*.j2'"
+
+update_alroles()
+{
+    if [ ! -f "./requirements.yml" ]; then
+        fail "NO ./requirements.yml FILE"
+        return 127
+    fi
+    needed_roles=$(grep src requirements.yml | rev | cut -d/ -f1 | cut -d. -f 2 | rev)
+    rm -rf roles/*
+    for role in $needed_roles; do
+        (
+        cd ./roles
+        role_path=$(readlink -f ../../$role)
+        if [ -d "$role_path" ]; then
+            ln -sf $role_path
+        else
+            fail "ROLE $role($role_path) IS MISSING IN LOCAL"
+        fi
+        )
+    done
+    ls -ls roles/
+}
+
+load_ainventory()
+{
+    for inv in $1 $(pwd)/inventory $HOME/GIT_REPOS/inventory-infra-b2c/$1/hosts; do
+        if [ -f "$1" -o -d "$1" ]; then
+            export ANSIBLE_INVENTORY=$(readlink -f $inv)
+            echo "ANSIBLE_INVENTORY: $ANSIBLE_INVENTORY"
+            return 0
+        fi
+    done
+    echo 'ERROR: inventory MISSING'
+    return 127
+}
+
+alias | grep -q gcm && unalias gcm
+gcm()
+{
+        git commit -m "$@"
+}
+alias mdcleanup="perl -i -pe 's/\[\d;\d{2}m//g;s/\[0m//g;s/\[\?2004h//g'"
+alias rl=reload
+alias gst="git status"
+alias ga="git add"
+alias gam="git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add"
+alias gad='git status | grep -E "(supprim|deleted)\s*:" |cut -d: -f2 | xargs -n1 git rm -f'
+
+gpull_dir()
+{
+    local verb=${1:-"pull"}
+    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do
+        if [ ! -d "$rep/.git" ]; then
+            title1 "$rep NOT .git REPO"
+            continue
+        fi
+        title1 $rep PULLING CHANGES
+        (
+            cd $rep
+            git config pull.rebase false
+            git $verb
+        )
+    done
+}
+
+ff()
+{
+find . -iname "$1"
+}
+
+yamlval()
+{
+        time python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < $1
+}
+
+ltrim()
+{
+        perl -i -pe 's/[\t ]+$//g' $1
+}
+
+
+asetdebug()
+{
+	export ANSIBLE_STDOUT_CALLBACK="debug"
+	export ANSIBLE_EXTRA_OPTIONS="--verbose"
+}
+
+asetoneline()
+{
+	export ANSIBLE_STDOUT_CALLBACK="oneline"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+asetquiet()
+{
+	export ANSIBLE_STDOUT_CALLBACK="dense"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+asetnormal()
+{
+	export ANSIBLE_STDOUT_CALLBACK="minimal"
+	export ANSIBLE_EXTRA_OPTIONS=""
+}
+
+
+acp()
+{
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $1 -mcopy -a "src=$2 dest=$3 recursive=true"
+
+    if [ -n "$4" ]; then
+        acmd $1 "chown -R $4.$4 $3"
+    fi
+    if [ -n "$5" ]; then
+        acmd $1 "chmod -R $5 $3"
+    fi
+}
+
+aexec()
+{
+    local target=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -a "$*"
+}
+axec()
+{
+    aexec $*
+}
+
+auexec()
+{
+    local target=$1
+    shift
+    local user=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mscript -b --become-user=$user -a "$*"
+}
+
+acmd()
+{
+    local target=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"oneline"}
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -a "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh;$*"
+}
+
+aucmd()
+{
+    local target=$1
+    shift
+    local user=$1
+    shift
+
+    export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK:-"debug"}
+    echo "stdout_calback: $ANSIBLE_STDOUT_CALLBACK"
+    ansible -f $(nproc) ${ANSIBLE_EXTRA_OPTIONS} $target -mshell -b --become-user=$user -a "[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh;$*"
+}
+
+
+#[ -f "$HOME/fabricenv/bin/activate" ] && source $HOME/fabricenv/bin/activate
+alias ansible=$(which ansible)
+alias ansible-playbook=$(which ansible-playbook)
+alias ansible-galaxy=$(which ansible-galaxy)

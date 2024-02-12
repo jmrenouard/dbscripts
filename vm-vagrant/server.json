@@ -1,0 +1,124 @@
+{
+  "InstallType": "minimal",
+  "PrivateKey": "privatekey.ppk",
+  "Rsa_PrivateKey": "./id_rsa_vm",
+  "SshUser": "vagrant",
+  "Group": "VagrantVms",
+  "LabName": "MySQL",
+  "NetInterAlter": "wlp0s20f3",
+  "NetInterAlter2": "eth0",
+  "NetInterALter3": "Marvell AVASTAR Wireless-AC Network Controller",
+  "NetInter": "Surface Ethernet Adapter",
+  "Vms": {
+    "node1": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "mysql",
+      "provision_script": "",
+      "ip_private": "172.20.1.101",
+      "ip_private2": "172.21.1.101",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 1
+    },
+    "node2": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "mysql",
+      "provision_script": "",
+      "ip_private": "172.20.1.102",
+      "ip_private2": "172.21.1.102",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 1
+    },
+    "node3": {
+      "enabled": 1,
+      "distro": "generic/ubuntu2204",
+      "prefix": "mysql",
+      "provision_script": "",
+      "ip_private": "172.20.1.103",
+      "ip_private2": "172.21.1.103",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024
+    },
+    "loadb1": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "loadbalancer",
+      "provision_script": "",
+      "ip_private": "172.20.1.104",
+      "ip_private2": "172.21.1.104",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 2
+    },
+    "loadb2": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "loadbalancer",
+      "provision_script": "",
+      "ip_private": "172.20.1.105",
+      "ip_private2": "172.21.1.105",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    },
+    "app1": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "app",
+      "provision_script": "",
+      "ip_private": "172.20.1.106",
+      "ip_private2": "172.21.1.106",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    },
+    "app2": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "app",
+      "provision_script": "",
+      "ip_private": "172.20.1.107",
+      "ip_private2": "172.21.1.107",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    },
+    "docker1": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "docker",
+      "provision_script": "",
+      "ip_private": "172.20.1.108",
+      "ip_private2": "172.21.1.108",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    },
+    "docker2": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "docker",
+      "provision_script": "",
+      "ip_private": "172.20.1.109",
+      "ip_private2": "172.21.1.109",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    },
+    "docker3": {
+      "distro": "generic/ubuntu2204",
+      "prefix": "docker",
+      "provision_script": "",
+      "ip_private": "172.20.1.110",
+      "ip_private2": "172.21.1.110",
+      "public_dhcp_ip": 1,
+      "nbcpu": 2,
+      "ram": 1024,
+      "enabled": 0
+    }
+  }
+}

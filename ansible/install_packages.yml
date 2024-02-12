@@ -1,0 +1,13 @@
+---
+- name: Create Cassandra user
+  hosts: "{{target}}"
+  gather_facts: false
+  tasks:
+    - name: "Install the latest version of some packages"
+      ansible.builtin.package:
+        name:
+          - net-tools
+          - htop
+          - pigz
+          - socat
+        state: latest

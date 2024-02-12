@@ -1,0 +1,96 @@
+---
+- hosts: "{{target| default('mysql')}}"
+  vars:
+    - OUTPUT_DIR: "{{outputdir| default('result')}}"
+    - SCRIPT:     "{{ script | default('scripts/export_info.py') }}"
+    - TMP_DIR:    "{{ tmpdir | default('/var/tmp/generic') }}"
+    - HTTP_PROXY: "{{http_proxy | default('http://myproxy.local:3128')}}"
+    - MAX_TIME:   "{{ max_time | default('180') }}"
+    - PARAMS:     "{{ params| default('') }}"
+    - INSTALL_DEP: "{{ dependencies | default('False') }}"
+
+  gather_facts: no
+  become_user: root
+  become: yes
+  tasks:
+    - name: "Local Cleanup"
+      shell: |
+        #rm -rf {{ OUTPUT_DIR }}
+        mkdir -p {{ OUTPUT_DIR }}
+      delegate_to: localhost
+      run_once: true
+      become: false
+      tags:
+        - clean
+    - name: "Install Dependencies"
+      shell: |
+        export http_proxy="{{ HTTP_PROXY }}"
+        export https_proxy="{{ HTTP_PROXY }}"
+        yum -y install python36-mysql
+        pip3 install --user fire sh py-markdown-table python-dotenv coloredlogs mysql-connector-python
+        mkdir -p {{ TMP_DIR }}
+      args:
+        executable: /bin/bash
+      when: INSTALL_DEP == 'True'
+      tags:
+        - dependencies
+    - name: "Clean {{ TMP_DIR }} remotely"
+      shell: |
+        mkdir -p  {{ TMP_DIR }}
+        rm -rf {{ TMP_DIR }}/*
+      args:
+        executable: /bin/bash
+
+    - name: "Copy script {{SCRIPT}}"
+      copy:
+        src: "{{SCRIPT}}"
+        dest: "{{ TMP_DIR }}/.."
+        mode: 0755
+      tags:
+        - copy
+    - name: "Execute {{ SCRIPT }} remotely"
+      shell: |
+        #set -x
+        INTER=$(head -n 1 {{ TMP_DIR }}/../$(basename {{ SCRIPT }}) | perl -pe 's/^#\!\s*//g')
+        OUTFILE="{{ TMP_DIR }}/$(basename {{ SCRIPT }}|perl -pe 's/\..+$//g')_$(echo "{{ PARAMS }}").out"
+        echo "INIT OUTFILE: $OUTFILE"
+        OUTFILE="$( echo $OUTFILE | perl -pe 's/-+/_/g;s/\s+/_/g;s/^_+$//g;s/_+(\.out)/$1/g;s/_$//g;s/_{2,}/_/g')"
+        echo "ECXECUTE {{ TMP_DIR }}/../$(basename {{ SCRIPT }})"
+        echo "INTERETER: $INTER"
+        echo "MAX TIME: {{ MAX_TIME }}s"
+        echo "OUTFILE: $OUTFILE"
+        #exit 0
+        timeout {{ MAX_TIME }}s $INTER {{ TMP_DIR }}/../$(basename {{ SCRIPT }}) {{ PARAMS }} 2>&1 | \
+        tee $OUTFILE
+      tags:
+        - exec
+
+    - name: "Collect file list"
+      shell: "(cd {{ TMP_DIR }}; find . -maxdepth 1 -type f) | cut -d'/' -f2"
+      register: files_to_fetch
+      tags:
+        - fetch
+
+    - name: ansible copy result from remote to local.
+      fetch:
+        src: "{{ TMP_DIR }}/{{ item }}"
+        dest: "{{ OUTPUT_DIR }}/"
+        validate_checksum: no
+        fail_on_missing: no
+      with_items: "{{ files_to_fetch.stdout_lines }}"
+      tags:
+        - fetch
+    - name: "Local Cleanup"
+      shell: |
+        for out in $(find {{ OUTPUT_DIR }} -type f); do
+          echo "=============BEGIN=============="
+          echo "$out"
+          echo "=============CONTENT============"
+          cat $out
+          echo "=============END================"
+        done
+      delegate_to: localhost
+      run_once: true
+      become: false
+      tags:
+        - clean

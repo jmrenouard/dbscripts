@@ -1,0 +1,16 @@
+---
+  - name: "Update Ubuntu Distro"
+    hosts: "{{ target | default('all') }}"
+    gather_facts: true
+    tasks:
+      - name: "Reboot Before Distribution upgrade"
+        reboot:
+          reboot_timeout: 3600
+
+      - name: "Distibution Release upgrade"
+        ansible.builtin.command:
+          cmd: "do-release-upgrade -f DistUpgradeViewNonInteractive"
+      
+      - name: "Reboot After Distribution upgrade"
+        reboot:
+          reboot_timeout: 3600

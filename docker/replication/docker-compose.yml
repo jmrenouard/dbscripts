@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  mysql-primary:
+    build:
+      context: .
+      dockerfile: Dockerfile.primary
+    environment:
+      - MYSQL_ROOT_PASSWORD=masterpassword
+      - SERVER_ID=1
+      - REPLICATION_USER=replica
+      - REPLICATION_PASSWORD=replica2024
+
+  mysql-replica2:
+    build:
+      context: .
+      dockerfile: Dockerfile.replica
+    environment:
+      - MYSQL_ROOT_PASSWORD=slavepassword
+      - SERVER_ID=2
+      - REPLICATION_USER=replica
+      - REPLICATION_PASSWORD=replica2024
+    depends_on:
+      - mysql-primary
+
+  mysql-replica3:
+    build:
+      context: .
+      dockerfile: Dockerfile.replica
+    environment:
+      - MYSQL_ROOT_PASSWORD=slavepassword
+      - SERVER_ID=2
+      - REPLICATION_USER=replica
+      - REPLICATION_PASSWORD=replica2024
+    depends_on:
+      - mysql-primary
