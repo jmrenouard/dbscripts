@@ -761,4 +761,63 @@ lUpdateScript()
     chmod -R 755 /opt/local/bin
 }
 
+test_ping()
+{
+    #source ansible/source
+    for srv in $(list_svg_srv); do
+        ping -c2 -W4 $srv &>/dev/null
+
+        if [ $? -ne 0 ];then
+            echo -e "$srv\t[FAIL]"
+        fi
+        [ "$1" == "quiet" ] && echo -e "$srv\t[ OK ]"
+    done
+}
+
+
+test_tcp_port()
+{
+    #source ansible/source
+    for srv in $(list_svg_srv); do
+        nc -w3 $srv $1 &>/dev/null
+
+        if [ $? -ne 0 ];then
+            echo -e "$srv\t[FAIL]"
+        fi
+        [ "$2" == "quiet" ] && echo -e "$srv\t[ OK ]"
+    done
+}
+
+test_remote_tcp_port()
+{
+    #source ansible/source
+    tgt=backup.vm.local
+    port=${1:-"111"}
+    for srv in $(list_svg_srv); do
+        ssh -q $srv "hostname;nc -v -w1 $tgt $1" #&>/dev/null
+
+        if [ $? -ne 0 ];then
+            echo -e "$srv\t[FAIL]"
+            continue
+        fi
+        [ "$2" == "quiet" ] && echo -e "$srv\t[ OK ]"
+    done
+}
+
+test_remote_udp_port()
+{
+    #source ansible/source
+    tgt=backup.vm.local
+    port=${1:-"111"}
+    for srv in $(list_svg_srv); do
+        ssh $srv "nc -vv -u -w3 $tgt $1" #&>/dev/null
+
+        if [ $? -ne 0 ];then
+            echo -e "$srv\t[FAIL]"
+            continue
+        fi
+        [ "$2" == "quiet" ] && echo -e "$srv\t[ OK ]"
+    done
+}
+
 UTILS_IS_LOADED="1"

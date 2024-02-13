@@ -21,6 +21,7 @@ AWS_SECRET_ACCESS
 AWS_ACCESS_KEY
 AWS.*KEY
 AKIA
+(contra|alice|tarif|acquisition|abonnement|facturation|compte|client|service|offre|forfait|tarif)
 (datanumia|edelia|reanater|isocel|galec|orange|sfr|bouygues|numericable|vodafone|telecom)
 
 (prod_|prd[-_]|[-_]home[-_]|[-_]ec2[-_])"
@@ -31,7 +32,7 @@ for ptn in $PATTERN_LIST; do
 	
 	echo "Pattern: $ptn"
 	echo "-----------------------------------"
-	grep -rEn "$ptn"
+	grep -rEin "$ptn"
 	lRC=$(($lRC + $?))
 
 done
@@ -48,4 +49,4 @@ find $_DIR -type f -iname ".*schema.*.sql.*"
 lRC=$(($lRC + $?))
 
 echo "lRC: $lRC"
-) | grep -v 'myconf/checkSecrets.sh'
+) | grep -vE '(myconf/checkSecrets.sh|.git/)'
