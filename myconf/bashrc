@@ -167,7 +167,6 @@ fi
 export ARCHFLAGS="-arch x86_64"
 
 # ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id_z51"
 
 # Set personal aliases, overriding those provided by oh-my-bash libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-bash
@@ -178,5 +177,7 @@ export SSH_KEY_PATH="~/.ssh/rsa_id_z51"
 alias bashconfig="mate ~/.bashrc"
 alias ohmybash="mate ~/.oh-my-bash"
 
-[ -f "$HOME/bashrc_local" ] && source "$HOME/bashrc_local"
+for bscript in $HOME/myconf/bashrc_*; do
+	[ -f "$bscript" ] && source "$bscript"
+done
 export PATH="/snap/bin:$PATH"
