@@ -83,7 +83,7 @@ synchronize_dir()
     date
     ssh ${dest_user}@${dest_host} chown -R postgres. $dest_rep
 }
-#echo "synchronize_dir alipgflif01 /backups/export_07082019 alipgslir05 /backups/test_07082019"
+#echo "synchronize_dir souceHost /backups/export_07082019 targetHost /backups/test_07082019"
 
 get_ips_v4()
 {
@@ -103,15 +103,14 @@ get_ips_v4()
 # execall "yum -y install ntpdate"
 # execall "ntpdate -vqd fr.pool.ntp.org"
 
-# 919  cpall changeIdserver.sh /tmp
-#  920  execall "cat /etc/my.cnf.d/60_server.cnf"
-#  921  execall "sh /tmp/changeIdserver.sh"
-#  922  execall "cat /etc/my.cnf.d/60_server.cnf"
-#  923  execall "systemctl restart mariadb"
+# cpall changeIdserver.sh /tmp
+# execall "cat /etc/my.cnf.d/60_server.cnf"
+# execall "sh /tmp/changeIdserver.sh"
+# execall "cat /etc/my.cnf.d/60_server.cnf"
+# execall "systemctl restart mariadb"
 
 # execall "setenforce  0"
 # execall "cat /tmp/security.sql | mysql"
 # cpall 61_galera.cnf  /etc/my.cnf.d/
 # cpall changeWsrepConfig.sh /tmp
 # execall "sh /tmp/changeWsrepConfig.sh"
-

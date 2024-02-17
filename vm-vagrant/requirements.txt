@@ -1,3 +1,0 @@
-ansible
-j2cli
-j2cli[yaml]

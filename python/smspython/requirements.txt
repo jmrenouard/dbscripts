@@ -1,4 +1,0 @@
-requests==2.19.0
-python-dotenv
-python-dotenv[cli]
-pyairmore

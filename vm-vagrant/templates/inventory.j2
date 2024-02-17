@@ -1,7 +1,0 @@
-{% set ns = namespace(foo=false) %}{% set ns.current_prefix='' %}{% for vm in Vms %}{% if Vms[vm]['enabled'] == 1 %}{% if Vms[vm].prefix != ns.current_prefix %}[{{Vms[vm].prefix}}]
-{% set ns.current_prefix=Vms[vm].prefix %}{% endif %}{{vm}} ansible_host={{Vms[vm]['ip_private']}}
-{% endif %}{% endfor %}
-
-[pi]
-raspberry1 ansible_host='192.168.68.50' ansible_user='pi'
-raspberry2 ansible_host='192.168.68.53' ansible_user='pi'
