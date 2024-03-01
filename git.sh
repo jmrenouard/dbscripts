@@ -25,12 +25,12 @@ alias rl=reload
 alias gst="git status"
 alias ga="git add"
 alias gam="git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add"
-alias gad="git status | grep '(supprim.*|deleted):  | cut -d: -f2 | xargs -n1 git rm -f"
+alias gad="git status | grep '(supprim.*|deleted):'  | cut -d: -f2 | xargs -n1 git rm -f"
 
-gpull_dir()
+gpull()
 {
     local verb=${1:-"pull"}
-    for rep in ${2:-"/home/jrenouard/GIT_REPOS"}/*; do 
+    for rep in ${2:-"$HOME/GIT_REPOS"}/*; do 
         if [ ! -d "$rep/.git" ]; then
             title1 "$rep NOT .git REPO"
             continue
@@ -48,3 +48,4 @@ gcm()
 {
         git commit -m "$@"
 }
+
