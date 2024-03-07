@@ -74,7 +74,7 @@ def output_my_cnf(_metaconf):
     table-open-cache               = 128
     # INNODB #
     innodb-flush-method            = O_DIRECT
-    innodb-defragment			   = 1
+    innodb-defragment              = 1
 
     # DePRECATED IN MARIADB 10.5
     # innodb-log-files-in-group    = 2
@@ -109,6 +109,9 @@ def output_my_cnf(_metaconf):
     max-digest-length=2048
     performance-schema-max-digest-length=2018
 
+    tcp_keepalive_time=120
+    tcp_keepalive_interval=4
+		tcp_keepalive_probes=20
     """.format(**mycnf_make(_metaconf))))
 
 #    [mysql]

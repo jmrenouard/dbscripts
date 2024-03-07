@@ -11,9 +11,13 @@ banner "BEGIN SCRIPT: $_NAME"
 info "RELOADING SYSCTL CONFIGURATION ..."
 
 #sunrpc.tcp_slot_table_entries = 128
-echo "fs.aio-max-nr = 1048576
+echo "fs.aio-max-nr=1048576
 fs.nr_open=1048576
-vm.swappiness = 10" > $CONF_FILE
+vm.swappiness=10
+net.ipv4.tcp_keepalive_time=120
+net.ipv4.tcp_keepalive_probes=4
+net.ipv4.tcp_keepalive_intvl=20
+" > $CONF_FILE
 
 cmd "cat $CONF_FILE"
 

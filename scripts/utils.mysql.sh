@@ -417,6 +417,11 @@ force_primary_view()
     fi
 }
 
+kill_mprocess()
+{
+	mysql -Nrs -e 'show processlist' |grep -i ${1:-"sleep"}|cut -f1|xargs -n 1 -I {} mysql -e "kill {}"
+}
+
 change_user_ssl() {
     db_users
 }
