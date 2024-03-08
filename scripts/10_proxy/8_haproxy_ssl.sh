@@ -25,6 +25,54 @@ cmd "$PCKMANAGER -y install socat keepalived"
 
 cmd "setenforce 0"
 
+CERT_DIR=${1:-"/etc/haproxy/ssl"}
+CRT_INFO=${2:-"ST=FR/C=FR/L=Rennes/O=Lightpath/OU=DSI"}
+
+CRT_CA_INFO="/CN=$(hostname -s)-CASERVER/$CRT_INFO/"
+CRT_SERVER_INFO="/CN=$(hostname -s)/$CRT_INFO/"
+
+[ -d "$CERT_DIR" ] || mkdir -p $CERT_DIR
+
+cd $CERT_DIR
+
+if [ ! -f "ca-key.pem" ]; then
+    # CA Key
+    info "CMD: openssl genrsa 2048"
+    openssl genrsa 2048 > ca-key.pem
+fi
+
+if [ ! -f "ca-cert.pem" ]; then
+    #CA Certificate
+    info "CMD: openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem -subj $CRT_CA_INFO"
+    openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem -subj "$CRT_CA_INFO"
+fi
+
+# Génération des clés pour le serveur
+if [ ! -f "server-req.pem" ]; then
+    info "CMD: openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem -subj $CRT_SERVER_INFO"
+    openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem -subj $CRT_SERVER_INFO
+fi
+
+if [ -f "server-key.pem" ];then
+    info "CMD: openssl rsa -in server-key.pem -out server-key.pem"
+    openssl rsa -in server-key.pem -out server-key.pem
+fi
+# Certificat SSL pour le serveur
+if [ ! -f "server-cert.pem" ]; then
+    info "CMD: openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem"
+    openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+fi
+#chmod -Rv 700 *
+
+# Vérification
+info "CMD: openssl verify -verbose -CAfile ca-cert.pem server-cert.pem"
+openssl verify -verbose -CAfile ca-cert.pem server-cert.pem
+if [ $? -ne 0 ]; then
+    error "ERROR: SSL CERTIFICATE NOT VALID"
+    footer "END SCRIPT: $NAME"
+    exit 1
+fi
+
 cmd "rm -f $CONF_FILE"
 (
 echo "global
@@ -47,7 +95,7 @@ listen galera_cluster_backend
         mode tcp
         option tcpka
         timeout client 1m
-        bind *:3306
+        bind *:3306 ssl crt /etc/haproxy/ssl/server-cert.pem
         balance leastconn
         # balance source
         # balance roundrobin
@@ -62,7 +110,7 @@ done
 
 echo "
 frontend stats
-        bind *:3310
+        bind *:3310  ssl crt /etc/haproxy/ssl/server-key.pem
         mode http
         log global
         maxconn 10
@@ -82,6 +130,8 @@ cmd "chmod 644 $CONF_FILE"
 
 cmd "systemctl enable haproxy"
 cmd "systemctl restart haproxy"
+
+
 
 firewall-cmd --add-port=3310/tcp --permanent
 firewall-cmd --add-port=3306/tcp --permanent
