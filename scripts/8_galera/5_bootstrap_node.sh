@@ -6,7 +6,7 @@
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 [ -d "/etc/my.cnf.d/" ] && CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
-[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="/etc/mysql/conf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="//mysqetcl/conf.d/999_galera_settings.cnf"
 [ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/999_galera_settings.cnf"
 
 DATADIR=/var/lib/mysql/
@@ -74,9 +74,9 @@ wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
 
 # Provider options
 #wsrep_provider_options='socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem'
-#wsrep_provider_options='socket.ssl_cipher=AES128-SHA'
-#wsrep-provider-options='gcache.size=512M';cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254'
-wsrep-provider-options='gcache.size=512M;cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254;socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem;socket.ssl_cipher=AES128-SHA'
+wsrep_provider_options='socket.ssl_cipher=AES128-SHA'
+wsrep-provider-options='gcache.size=512M';cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254'
+#wsrep-provider-options='gcache.size=512M;cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254;socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem;socket.ssl_cipher=AES128-SHA'
 
 #wsrep_debug=1
 
