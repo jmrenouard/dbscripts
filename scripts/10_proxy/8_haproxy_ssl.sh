@@ -67,7 +67,7 @@ listen galera_cluster_backend
         mode tcp
         option tcpka
         timeout client 1m
-        bind *:3306 ssl crt /etc/haproxy/ssl/server-cert.pem
+        bind *:3306 #ssl crt /etc/haproxy/ssl/server-cert.pem
         balance leastconn
         # balance source
         # balance roundrobin
