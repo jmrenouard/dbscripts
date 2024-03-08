@@ -33,7 +33,7 @@ CRT_SERVER_INFO="/CN=$(hostname -s)/$CRT_INFO/"
 
 
 [ -d "$CERT_DIR" ] || mkdir -p $CERT_DIR
-rm -rf ${CERT_DIR}/*
+rm -f ${CERT_DIR}/*
 
 cd $CERT_DIR
 
@@ -45,14 +45,14 @@ fi
 
 
 if [ ! -f "ca-key.csr" ]; then
-	openssl req -new -key ca-key.pem -out ca-key.csr
+	cmd "openssl req -new -key ca-key.pem -out ca-key.csr"
 fi 
 
 if [ ! -f "ca-server.crt" ]; then
-	openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt
+	cmd "openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt"
 fi
 
-cat ca-key.pem ca-server.crt >> server-cert.pem
+cmd "cat ca-key.pem ca-server.crt | tee server-cert.pem"
 
 cmd "rm -f $CONF_FILE"
 (
