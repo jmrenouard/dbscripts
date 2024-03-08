@@ -111,7 +111,7 @@ def output_my_cnf(_metaconf):
 
     tcp_keepalive_time=120
     tcp_keepalive_interval=4
-		tcp_keepalive_probes=20
+    tcp_keepalive_probes=20
     """.format(**mycnf_make(_metaconf))))
 
 #    [mysql]

@@ -7,6 +7,10 @@ source /etc/os-release
 
 lRC=0
 VERSION=${1:-"10.11"}
+##title_en: Ubuntu MariaDB 10.11 server installation
+##title_fr: Installation du serveur MariaDB 10.11 sur OS Ubuntu  
+##goals_en: Package software installation for MariaDB / Related tools installation / Last security packages installation
+##goals_fr: Installation des packages logiciels pour MariaDB / Installation des logiciels tiers relatif aux bases de données / Installation des dernières versions logicielles
 
 banner "BEGIN SCRIPT: $_NAME"
 
