@@ -32,9 +32,9 @@ fi
 title2 "CONFIG PROXY SQL"
 	echo "DELETE FROM mysql_servers;
 
-INSERT INTO mysql_servers(hostgroup_id,hostname,port) VALUES (0,'192.168.56.191',3306);
-INSERT INTO mysql_servers(hostgroup_id,hostname,port) VALUES (0,'192.168.56.192',3306);
-INSERT INTO mysql_servers(hostgroup_id,hostname,port) VALUES (1,'192.168.56.193',3306);
+INSERT INTO mysql_servers(hostgroup_id,hostname,port, use_ssl) VALUES (0,'192.168.56.191',3306, 1);
+INSERT INTO mysql_servers(hostgroup_id,hostname,port, use_ssl) VALUES (0,'192.168.56.192',3306, 1);
+INSERT INTO mysql_servers(hostgroup_id,hostname,port, use_ssl) VALUES (1,'192.168.56.193',3306, 1);
 
 LOAD MYSQL SERVERS TO RUNTIME;
 DELETE FROM mysql_galera_hostgroups;
@@ -71,7 +71,9 @@ LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 select hostgroup_id, hostname, port, gtid_port, status, weight from runtime_mysql_servers;
 
-CREATE USER 'stnduser'@'%' IDENTIFIED BY 'stnduser';
+DROP USER 
+CREATE USER 'stnduser'@'%' ;
+CREATE USER 'stnduser'@'%' IDENTIFIED BY 'stnduser1234!';
 GRANT ALL PRIVILEGES ON *.* TO 'stnduser'@'%';
 
 SHOW CREATE TABLE mysql_users\G
@@ -81,7 +83,7 @@ VALUES ('stnduser','stnduser',0);
 
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
-" | mysql -f -P6032 -uadmin -padmin -h127.0.0.1
+" | mysql -vf -P6032 -uadmin -padmin -h127.0.0.1
 
 footer "END SCRIPT: $NAME"
 exit $lRC
