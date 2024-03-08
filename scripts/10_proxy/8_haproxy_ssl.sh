@@ -89,7 +89,7 @@ done
 
 echo "
 frontend stats
-        bind *:3310  ssl crt /etc/haproxy/ssl/server-key.pem
+        bind *:3310  ssl crt /etc/haproxy/ssl/server-cert.pem
         mode http
         log global
         maxconn 10
