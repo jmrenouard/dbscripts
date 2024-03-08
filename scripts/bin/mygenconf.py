@@ -109,9 +109,10 @@ def output_my_cnf(_metaconf):
     max-digest-length=2048
     performance-schema-max-digest-length=2018
 
-    tcp_keepalive_time=120
-    tcp_keepalive_interval=4
-    tcp_keepalive_probes=20
+    tcp-keepalive-time=120
+    tcp-keepalive-interval=4
+    tcp-keepalive-probes=20
+    proxy-protocol-networks=::1, localhost, 192.168.56.182, 192.168.56.181
     """.format(**mycnf_make(_metaconf))))
 
 #    [mysql]
