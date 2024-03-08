@@ -31,7 +31,9 @@ CRT_INFO=${2:-"ST=FR/C=FR/L=Rennes/O=Lightpath/OU=DSI"}
 CRT_CA_INFO="/CN=$(hostname -s)-CASERVER/$CRT_INFO/"
 CRT_SERVER_INFO="/CN=$(hostname -s)/$CRT_INFO/"
 
+
 [ -d "$CERT_DIR" ] || mkdir -p $CERT_DIR
+rm -rf ${CERT_DIR}/*
 
 cd $CERT_DIR
 
