@@ -77,8 +77,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'stnduser'@'%';
 
 SHOW CREATE TABLE mysql_users\G
 
+DELETE FROM mysql_users;
 INSERT INTO mysql_users(username,password,default_hostgroup) 
-VALUES ('stnduser','stnduser',0);
+VALUES ('stnduser','stnduser1234!',0);
 
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
