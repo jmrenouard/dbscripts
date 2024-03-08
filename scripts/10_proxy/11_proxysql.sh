@@ -71,8 +71,7 @@ LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 select hostgroup_id, hostname, port, gtid_port, status, weight from runtime_mysql_servers;
 
-DROP USER 
-CREATE USER 'stnduser'@'%' ;
+DROP USER  'stnduser'@'%' ;
 CREATE USER 'stnduser'@'%' IDENTIFIED BY 'stnduser1234!';
 GRANT ALL PRIVILEGES ON *.* TO 'stnduser'@'%';
 
