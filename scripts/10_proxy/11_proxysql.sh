@@ -39,20 +39,31 @@ INSERT INTO mysql_servers(hostgroup_id,hostname,port) VALUES (1,'192.168.56.193'
 LOAD MYSQL SERVERS TO RUNTIME;
 DELETE FROM mysql_galera_hostgroups;
 
-INSERT INTO mysql_galera_hostgroups (writer_hostgroup, backup_writer_hostgroup, reader_hostgroup, offline_hostgroup, active, max_writers, writer_is_also_reader, max_transactions_behind, comment) VALUES (0, 2, 1, 4, 1, 1, 1, 100, NULL);
+INSERT INTO mysql_galera_hostgroups (writer_hostgroup, backup_writer_hostgroup, 
+reader_hostgroup, offline_hostgroup, active, max_writers, writer_is_also_reader, 
+max_transactions_behind, comment) 
+VALUES (0, 2, 1, 4, 1, 1, 1, 100, NULL);
 
 update mysql_galera_hostgroups set max_writers=2;
 LOAD MYSQL SERVERS TO RUNTIME;
 
-UPDATE global_variables SET variable_value='monitor' WHERE variable_name='mysql-monitor_username';
-UPDATE global_variables SET variable_value='monitor1234!' WHERE variable_name='mysql-monitor_password';
-UPDATE global_variables SET variable_value='2000' WHERE variable_name IN ('mysql-monitor_connect_interval','mysql-monitor_ping_interval','mysql-monitor_read_only_interval');
+UPDATE global_variables SET variable_value='monitor' 
+WHERE variable_name='mysql-monitor_username';
+
+UPDATE global_variables SET variable_value='monitor1234!' 
+WHERE variable_name='mysql-monitor_password';
+
+UPDATE global_variables SET variable_value='2000' 
+WHERE variable_name IN ('mysql-monitor_connect_interval','mysql-monitor_ping_interval',
+'mysql-monitor_read_only_interval');
+
 SELECT * FROM global_variables WHERE variable_name LIKE 'mysql-monitor_%';
+
 LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 
-SELECT * FROM monitor.mysql_server_connect_log ORDER BY time_start_us DESC LIMIT 3;
-SELECT * FROM monitor.mysql_server_ping_log ORDER BY time_start_us DESC LIMIT 3;
+-- SELECT * FROM monitor.mysql_server_connect_log ORDER BY time_start_us DESC LIMIT 3;
+-- SELECT * FROM monitor.mysql_server_ping_log ORDER BY time_start_us DESC LIMIT 3;
 
 select * from mysql_servers\G
 select * from mysql_galera_hostgroups\G
@@ -62,11 +73,15 @@ select hostgroup_id, hostname, port, gtid_port, status, weight from runtime_mysq
 
 CREATE USER 'stnduser'@'%' IDENTIFIED BY 'stnduser';
 GRANT ALL PRIVILEGES ON *.* TO 'stnduser'@'%';
+
 SHOW CREATE TABLE mysql_users\G
-INSERT INTO mysql_users(username,password,default_hostgroup) VALUES ('stnduser','stnduser',0);
+
+INSERT INTO mysql_users(username,password,default_hostgroup) 
+VALUES ('stnduser','stnduser',0);
+
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
-" | mysql -P6032 -uadmin -padmin -h127.0.0.1
+" | mysql -f -P6032 -uadmin -padmin -h127.0.0.1
 
 footer "END SCRIPT: $NAME"
 exit $lRC
