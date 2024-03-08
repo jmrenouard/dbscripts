@@ -9,7 +9,7 @@ banner "BEGIN SCRIPT: $_NAME"
 
 if [ "$ID" = "ubuntu" ]; then
         cmd "wget https://github.com/sysown/proxysql/releases/download/v2.6.0/proxysql_2.6.0-ubuntu22_amd64.deb"
-				cmd "apt -y install proxysql_2.6.0-ubuntu22_amd64.deb"
+				cmd "dpkg -i proxysql_2.6.0-ubuntu22_amd64.deb"
 else 
         cmd "yum -y install https://github.com/sysown/proxysql/releases/download/v2.6.0/proxysql-2.6.0-1-centos7.x86_64.rpm"
 fi
