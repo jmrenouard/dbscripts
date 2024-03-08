@@ -41,37 +41,16 @@ if [ ! -f "ca-key.pem" ]; then
     openssl genrsa 2048 > ca-key.pem
 fi
 
-if [ ! -f "ca-cert.pem" ]; then
-    #CA Certificate
-    info "CMD: openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem -subj $CRT_CA_INFO"
-    openssl req -new -x509 -nodes -days 365000 -key ca-key.pem -out ca-cert.pem -subj "$CRT_CA_INFO"
+
+if [ ! -f "ca-key.csr" ]; then
+	openssl req -new -key ca-key.pem -out ca-key.csr
+fi 
+
+if [ ! -f "ca-server.crt" ]; then
+	openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt
 fi
 
-# Génération des clés pour le serveur
-if [ ! -f "server-req.pem" ]; then
-    info "CMD: openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem -subj $CRT_SERVER_INFO"
-    openssl req -newkey rsa:2048 -days 365000 -nodes -keyout server-key.pem -out server-req.pem -subj $CRT_SERVER_INFO
-fi
-
-if [ -f "server-key.pem" ];then
-    info "CMD: openssl rsa -in server-key.pem -out server-key.pem"
-    openssl rsa -in server-key.pem -out server-key.pem
-fi
-# Certificat SSL pour le serveur
-if [ ! -f "server-cert.pem" ]; then
-    info "CMD: openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem"
-    openssl x509 -req -in server-req.pem -days 365000 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
-fi
-#chmod -Rv 700 *
-
-# Vérification
-info "CMD: openssl verify -verbose -CAfile ca-cert.pem server-cert.pem"
-openssl verify -verbose -CAfile ca-cert.pem server-cert.pem
-if [ $? -ne 0 ]; then
-    error "ERROR: SSL CERTIFICATE NOT VALID"
-    footer "END SCRIPT: $NAME"
-    exit 1
-fi
+cat ca-key.pem ca-server.crt >> server-cert.pem
 
 cmd "rm -f $CONF_FILE"
 (
