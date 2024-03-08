@@ -16,11 +16,13 @@ fi
 cmd "systemctl enable haproxy"
 cmd "systemctl restart haproxy"
 
-firewall-cmd --add-port=6033/tcp --permanent
-firewall-cmd --add-port=6032/tcp --permanent
-firewall-cmd --add-port=6080/tcp --permanent
-firewall-cmd --reload
-
+which firewall-cmd &>/dev/null
+if [ $? -eq 0 ]; then
+	firewall-cmd --add-port=6033/tcp --permanent
+	firewall-cmd --add-port=6032/tcp --permanent
+	firewall-cmd --add-port=6080/tcp --permanent
+	firewall-cmd --reload
+fi
 
 footer "END SCRIPT: $NAME"
 exit $lRC
