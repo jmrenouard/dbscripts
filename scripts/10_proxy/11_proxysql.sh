@@ -14,8 +14,10 @@ else
         cmd "yum -y install https://github.com/sysown/proxysql/releases/download/v2.6.0/proxysql-2.6.0-1-centos7.x86_64.rpm"
 fi
 
-cmd "systemctl enable haproxy"
-cmd "systemctl restart haproxy"
+cmd "systemctl disable haproxy"
+cmd "systemctl stop haproxy"
+cmd "systemctl enable proxysql"
+cmd "systemctl start proxysql"
 
 which firewall-cmd &>/dev/null
 if [ $? -eq 0 ]; then
