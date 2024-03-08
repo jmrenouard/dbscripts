@@ -23,7 +23,7 @@ cmd "$PCKMANAGER -y update"
 cmd "$PCKMANAGER -y install haproxy"
 cmd "$PCKMANAGER -y install socat keepalived"
 
-cmd "setenforce 0"
+[ "$ID" = "ubuntu" -o "$ID" = "debian" ] || cmd "setenforce 0"
 
 CERT_DIR=${1:-"/etc/haproxy/ssl"}
 CRT_INFO=${2:-"ST=FR/C=FR/L=Rennes/O=Lightpath/OU=DSI"}
@@ -37,21 +37,9 @@ rm -f ${CERT_DIR}/*
 
 cd $CERT_DIR
 
-if [ ! -f "ca-key.pem" ]; then
-    # CA Key
-    info "CMD: openssl genrsa 2048"
-    openssl genrsa 2048 > ca-key.pem
-fi
-
-
-if [ ! -f "ca-key.csr" ]; then
-	cmd "openssl req -new -key ca-key.pem -out ca-key.csr"
-fi 
-
-if [ ! -f "ca-server.crt" ]; then
-	cmd "openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt"
-fi
-
+cmd "openssl genrsa 2048 | tee ca-key.pem"
+cmd "openssl req -new -key ca-key.pem -out ca-key.csr"
+cmd "openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt"
 cmd "cat ca-key.pem ca-server.crt | tee server-cert.pem"
 
 cmd "rm -f $CONF_FILE"
