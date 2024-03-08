@@ -39,7 +39,8 @@ cd $CERT_DIR
 
 set -x
 openssl genrsa 2048 | tee ca-key.pem
-openssl req -new -key ca-key.pem -out ca-key.csr
+openssl req -new -key ca-key.pem -out ca-key.csr  -subj "$CRT_SERVER_INFO"
+
 openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt
 cat ca-key.pem ca-server.crt | tee server-cert.pem
 set +x
