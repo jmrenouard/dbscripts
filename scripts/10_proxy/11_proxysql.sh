@@ -83,6 +83,14 @@ VALUES ('stnduser','stnduser1234!',0);
 
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
+
+-- Activate Web interface
+SET admin-web_enabled='true';
+SET admin-admin_credentials='admin:dangerzone1234';
+SET admin-stats_credentials='admin:dangerzone1234';
+
+LOAD ADMIN VARIABLES TO RUNTIME;
+
 " | mysql -vf -P6032 -uadmin -padmin -h127.0.0.1
 
 footer "END SCRIPT: $NAME"
