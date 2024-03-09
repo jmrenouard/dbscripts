@@ -25,7 +25,11 @@ lRC=$(($lRC + $?))
 cmd "apt -y install cracklib-runtime python3-cracklib sysbench tree telnet netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
 lRC=$(($lRC + $?))
 
-cmd "apt -y install percona-toolkit mycli net-tools"
+cmd "apt -y install mycli net-tools"
+lRC=$(($lRC + $?))
+
+wget https://downloads.percona.com/downloads/percona-toolkit/3.5.7/binary/debian/jammy/x86_64/percona-toolkit_3.5.7-1.jammy_amd64.deb
+cmd "dpkg -i percona-toolkit_3.5.7-1.jammy_amd64.deb"
 lRC=$(($lRC + $?))
 
 cmd "apt -y install nagios-nrpe-server nagios-nrpe-plugin centreon-plugins monitoring-plugins monitoring-plugins-contrib nagios-snmp-plugins"
