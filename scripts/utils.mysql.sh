@@ -492,7 +492,7 @@ galera_members()
 galera_member_ip()
 {
 		node=$1
-		$SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME='$node';" information_schema | cut -d: -f1
+		$SSH_CMD mysql -Nrs -e "SELECT ADDRESS FROM information_schema.wsrep_membership WHERE NAME='$node';" information_schema | cut -d: -f1
 }
 galera_member_status()
 {
