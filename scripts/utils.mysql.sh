@@ -486,7 +486,7 @@ return $lRC
 
 galera_members()
 {
-    $SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
+    $SSH_CMD mysql -Nrs -e "SELECT ADDRESS FROM information_schema.wsrep_membership WHERE NAME<>'garb';" information_schema| cut -d: -f1
 }
 
 galera_member_status()
