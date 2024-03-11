@@ -229,9 +229,14 @@ sort | column -t
 
 global_variable_or_status()
 {
-    node=$1
-    param=$2
-		mysql -Nrs -h $(galera_member_ip $node) -e "show global status like '$param';show global variables like '$param'" | grep -v wsrep_provider_options
+    if [ $# -eq 2 ]; then	
+			node=$1
+			param=$2
+			mysql -Nrs -h $(galera_member_ip $node) -e "show global status like '$param';show global variables like '$param'" | grep -v wsrep_provider_options | awk '{print $2}'
+		else
+			param=$1
+			mysql -Nrs -e "show global status like '$param';show global variables like '$param'" | grep -v wsrep_provider_options | awk '{print $2}'
+		fi
 }
 
 binlog_sql_xhours()
@@ -522,7 +527,7 @@ echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for param in $parameters; do
     echo -en "$param\t"
     for node in $(galera_members); do
-        echo -en "$(node_cluster_state $node $param)\t"
+        echo -en "$(global_variable_or_status $node $param)\t"
     done
     echo
 done
