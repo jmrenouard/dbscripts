@@ -268,8 +268,12 @@ get_mariadb_root_password()
 
 perform_select()
 {
-    for i in $(seq 1 1000); do mysql -e 'select 1'; echo $i; sleep ${1:-"0.5"}s; done
+    for i in $(seq 1 ${1:-"1000"}); do mysql -e 'select 1'; echo $i; sleep ${2:-"1"}s; done
+}
 
+perform_report_host()
+{
+    for i in $(seq 1 ${1:-"1000"}); do mysql -e 'select @report_host'; echo $i; sleep ${2:-"1"}s; done
 }
 
 perform_ms()
@@ -347,45 +351,7 @@ get_cert_conflits()
     grep -a -A10 -E 'WSREP.*cluster confli' /var/log/mysql/mysqld.log | grep -a -E 'WSREP: cluster conflic|SQL'
 }
 
-galera_members()
-{
-    $SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
-}
 
-galera_member_status()
-{
-#    true
-    parameters="auto_increment_increment
-auto_increment_offset
-wsrep_cluster_conf_id
-wsrep_cluster_name
-wsrep_cluster_size
-wsrep_cluster_state_uuid
-wsrep_cluster_status
-wsrep_connected
-wsrep_last_committed
-wsrep_local_state_comment
-wsrep_local_state_uuid
-wsrep_node_address
-wsrep_node_incoming_address
-wsrep_node_name
-wsrep_ready
-wsrep_evs_delayed
-wsrep_evs_evict_list
-wsrep_evs_repl_latency
-wsrep_evs_state"
-
-(
-echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
-for param in $parameters; do
-    echo -en "$param\t"
-    for node in $(galera_members); do
-        echo -en "$(node_cluster_state $node $param)\t"
-    done
-    echo
-done
-)|column -t
-}
 
 get_non_innodb_table_count()
 {
@@ -425,6 +391,7 @@ kill_mprocess()
 change_user_ssl() {
     db_users
 }
+
 diff_schema()
 {
     node1=$1
@@ -517,6 +484,44 @@ rm -f /tmp/file1.sql /tmp/file2.sql
 return $lRC
 }
 
+galera_members()
+{
+    $SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';"
+}
+
+galera_member_status()
+{
+#    true
+    parameters="server_id
+report_host
+auto_increment_increment
+auto_increment_offset
+wsrep_cluster_conf_id
+wsrep_cluster_name
+wsrep_cluster_size
+wsrep_cluster_state_uuid
+wsrep_cluster_status
+wsrep_connected
+wsrep_last_committed
+wsrep_local_state_comment
+wsrep_local_state_uuid
+wsrep_node_address
+wsrep_node_incoming_address
+wsrep_node_name
+wsrep_ready"
+
+(
+echo -e "PARAMETER\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
+for param in $parameters; do
+    echo -en "$param\t"
+    for node in $(galera_members); do
+        echo -en "$(node_cluster_state $node $param)\t"
+    done
+    echo
+done
+)|column -t
+}
+
 galera_member_count_tables()
 {
     db=$1
@@ -525,7 +530,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(ssh -q $node "mysql -Nrs -e 'SELECT count(*) from $db.$tbl'")\t"
+        echo -en "$(mysql -Nrs -h $node -e 'SELECT count(*) from $db.$tbl')\t"
     done
     echo
 done
@@ -540,7 +545,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(ssh -q $node "mysql -Nrs -e 'select table_rows from information_schema.tables where table_schema=\"$db\" and table_name=\"$tbl\"'")\t"
+        echo -en "$(mysql -Nrs -h $node -e 'select table_rows from information_schema.tables where table_schema=\"$db\" and table_name=\"$tbl\"')\t"
     done
     echo
 done
@@ -555,7 +560,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(ssh -q $node "mysql -Nrs -e 'CHECKSUM TABLE ${db}.${tbl}'"| awk '{print $2}')\t"
+        echo -en "$(mysql -Nrs -h $node -e "CHECKSUM TABLE ${db}.${tbl}"| awk '{print $2}')\t"
     done
     echo
 done
