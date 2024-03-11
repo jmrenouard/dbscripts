@@ -7,7 +7,7 @@
 banner "BEGIN SCRIPT: $_NAME"
 
 #cmd "create_database.sh employees employees employees_rw employees_ro"
-cmd "create_database.sh employees employees employees_rw employees_ro"
+cmd "create_database.sh employees "
 
 
 cd /opt/local
@@ -17,7 +17,7 @@ cd /opt/local/test_db
 
 title2 "CREATE DATABASE employees"
 
-bash /opt/local/bin/create_database.sh employees employees employees employees
+bash /opt/local/bin/create_database.sh employees 
 
 title2 "Inject DATABASE employees"
 #mysql  < ./employees.sql

@@ -1,11 +1,12 @@
 #!/bin/bash
 
 DB=$1
-PASSWD_OWNER="${2:-"$(pwgen -1 18)"}"
-PASSWD_RW="${3:-"$(pwgen -1 18)"}"
-PASSWD_RO="${4:-"$(pwgen -1 18)"}"
+PASSWD_OWNER="${2:-"$(pwgen -1 32)"}"
+PASSWD_RW="${3:-"$(pwgen -1 32)"}"
+PASSWD_RO="${4:-"$(pwgen -1 32)"}"
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 banner "CREATING DATABASE: $DB"
 mysql -v -e "CREATE DATABASE IF NOT EXISTS $DB;"

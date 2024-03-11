@@ -37,13 +37,21 @@ rm -f ${CERT_DIR}/*
 
 cd $CERT_DIR
 
-set -x
-openssl genrsa 2048 | tee ca-key.pem
-openssl req -new -key ca-key.pem -out ca-key.csr  -subj "$CRT_SERVER_INFO"
+if [ ! -f "ca-key.pem" ]; then
+	openssl genrsa 2048 | tee ca-key.pem
+fi 
 
-openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt
-cat ca-key.pem ca-server.crt | tee server-cert.pem
-set +x
+if [ ! -f "ca-key.csr" ]; then
+	openssl req -new -key ca-key.pem -out ca-key.csr  -subj "$CRT_SERVER_INFO"
+fi
+
+if [ ! -f "ca-server.crt" ]; then
+	openssl x509 -req -days 365 -in ca-key.csr -signkey ca-key.pem -out ca-server.crt
+fi	
+
+if [ ! -f "server-key.pem" ]; then 
+	cat ca-key.pem ca-server.crt | tee server-cert.pem
+fi
 
 cmd "rm -f $CONF_FILE"
 (

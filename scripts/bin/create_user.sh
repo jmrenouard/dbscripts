@@ -3,11 +3,13 @@
 USER=${1:-""}
 DB=${2:-'*'}
 TYPE=${3:-"ro"}
-PASSWD="${4:-"$(pwgen -1 18)"}"
+PASSWD="${4:-"$(pwgen -1 32)"}"
 
 TMP_FILE=$(mktemp)
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
+
 banner "CREATING USER $USER - DB: $DB - PROFILE: $TYPE"
 
 echo "-- CREATE USER SQL COMMANDS
