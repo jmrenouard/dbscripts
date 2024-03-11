@@ -486,9 +486,14 @@ return $lRC
 
 galera_members()
 {
-    $SSH_CMD mysql -Nrs -e "SELECT ADDRESS FROM information_schema.wsrep_membership WHERE NAME<>'garb';" information_schema| cut -d: -f1
+    $SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME<>'garb';" information_schema
 }
 
+galera_member_ip()
+{
+		node=$1
+		$SSH_CMD mysql -Nrs -e "SELECT NAME FROM information_schema.wsrep_membership WHERE NAME='$node';" information_schema | cut -d: -f1
+}
 galera_member_status()
 {
 #    true
@@ -530,7 +535,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e "SELECT count(*) from $db.$tbl" $db)\t"
+        echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "SELECT count(*) from $db.$tbl" $db)\t"
     done
     echo
 done
@@ -545,7 +550,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e "SELECT table_rows FROM information_schema.tables WHERE table_schema='$db' AND table_name='$tbl'" $db)\t"
+        echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "SELECT table_rows FROM information_schema.tables WHERE table_schema='$db' AND table_name='$tbl'" $db)\t"
     done
     echo
 done
@@ -560,7 +565,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e "CHECKSUM TABLE ${db}.${tbl}" $db| awk '{print $2}')\t"
+        echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "CHECKSUM TABLE ${db}.${tbl}" $db| awk '{print $2}')\t"
     done
     echo
 done
