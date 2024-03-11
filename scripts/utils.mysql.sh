@@ -530,7 +530,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e 'SELECT count(*) from $db.$tbl')\t"
+        echo -en "$(mysql -Nrs -h $node -e 'SELECT count(*) from $db.$tbl' $db)\t"
     done
     echo
 done
@@ -545,7 +545,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e 'select table_rows from information_schema.tables where table_schema=\"$db\" and table_name=\"$tbl\"')\t"
+        echo -en "$(mysql -Nrs -h $node -e 'select table_rows from information_schema.tables where table_schema=\"$db\" and table_name=\"$tbl\"' $db)\t"
     done
     echo
 done
@@ -560,7 +560,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e "CHECKSUM TABLE ${db}.${tbl}"| awk '{print $2}')\t"
+        echo -en "$(mysql -Nrs -h $node -e "CHECKSUM TABLE ${db}.${tbl}" $db| awk '{print $2}')\t"
     done
     echo
 done
