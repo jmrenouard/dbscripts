@@ -16,8 +16,11 @@ banner "BEGIN SCRIPT: $_NAME"
 
 find /etc/apt/sources.list.d -type f -iname '*mariadb*.list' -exec rm -f {} \;
 
+cmd "apt -y --fix-broken install"
+
 #curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup > ./mariadb_repo_setup
 #bash ./mariadb_repo_setup --mariadb-server-version="mariadb-${VERSION}"
+
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-${VERSION}" 
 cmd "apt -y install pv python3 mariadb-client mylvmbackup mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect galera-arbitrator-4"
 lRC=$(($lRC + $?))
