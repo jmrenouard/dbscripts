@@ -221,15 +221,17 @@ my_cluster_state() {
 $SSH_CMD mysql -e "show status like '%wsrep%'"
 $SSH_CMD mysql -e "show variables like 'auto%'"
 $SSH_CMD mysql -e "show variables like 'wsrep_%'"
+$SSH_CMD mysql -e "show variables like 'report_host'"
+$SSH_CMD mysql -e "show variables like 'server_id'"
 ) |grep -v wsrep_provider_options| grep -E '(wsrep_last_committed|wsrep_node|wsrep_flow|wsresp_cluster_a|cluster_status|connected|ready|state_comment|cluster_size|state_uuid|conf|wsrep_cluster_name|auto_)'| \
 sort | column -t
 }
 
-node_cluster_state()
+global_variable_or_status()
 {
     node=$1
     param=$2
-    ssh -q $node "source /etc/profile.d/utils.sh;source /etc/profile.d/utils.mysql.sh;my_cluster_state" | grep $param | awk '{print $2}'
+		mysql -Nrs -h $(galera_member_ip $node) -e "show global status like '$param';show global variables like '$param'" | grep -v wsrep_provider_options
 }
 
 binlog_sql_xhours()
