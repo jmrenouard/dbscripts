@@ -46,7 +46,7 @@ db_user_list()
 
 db_users()
 {
-    raw_mysql 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
+  raw_mysql 'select user, host from mysql.user' mysql| sort -k${1:-"1"} | column -t
 }
 
 db_tables()
@@ -59,7 +59,7 @@ db_count()
     for tbl in $(db_tables ${1:-"mysql"}); do
         echo -ne "${1:-"mysql"}\t$tbl\t"
         raw_mysql "select count(*) from ${1:-"mysql"}.$tbl"
-    done | sort -nr -k2 | column -t
+    done | sort -nr -k3 | column -t
 }
 
 db_countall()
