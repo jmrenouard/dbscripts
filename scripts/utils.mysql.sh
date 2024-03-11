@@ -538,7 +538,7 @@ for tbl in $(db_tables $db); do
         echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "SELECT count(*) from $db.$tbl" $db)\t"
     done
     echo
-done
+done | sort -nr -k2
 )|column -t
 }
 
@@ -550,10 +550,10 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "SELECT table_rows FROM information_schema.tables WHERE table_schema='$db' AND table_name='$tbl'" $db)\t"
+        echo -en "$(mysql -Nrs -h $(galera_member_ip $node) -e "SELECT table_rows FROM information_schema.tables WHERE TABLE_TYPE=4BASE TABLE' AND table_schema='$db' AND table_name='$tbl'" $db)\t"
     done
     echo
-done
+done | sort -nr -k2
 )|column -t
 }
 
