@@ -530,7 +530,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e 'SELECT count(*) from $db.$tbl' $db)\t"
+        echo -en "$(mysql -Nrs -h $node -e "SELECT count(*) from $db.$tbl" $db)\t"
     done
     echo
 done
@@ -545,7 +545,7 @@ echo -e "TABLE\t$(galera_members |xargs | perl -pe 's/\s+/\t/g')"
 for tbl in $(db_tables $db); do
     echo -en "$tbl\t"
     for node in $(galera_members); do
-        echo -en "$(mysql -Nrs -h $node -e 'select table_rows from information_schema.tables where table_schema=\"$db\" and table_name=\"$tbl\"' $db)\t"
+        echo -en "$(mysql -Nrs -h $node -e "SELECT table_rows FROM information_schema.tables WHERE table_schema='$db' AND table_name='$tbl'" $db)\t"
     done
     echo
 done
@@ -567,7 +567,6 @@ done
 )|column -t
 }
 
-
 add_password_history()
 {
     local history_file=$HOME/.pass_mariadb
@@ -576,6 +575,7 @@ add_password_history()
 
     echo -e "$(date)\t$1\t$2" >> $history_file
 }
+
 check_mariadb_password()
 {
     [ "$3" != "silent" ] && info "check cmd: mysql -Nrs -h$my_private_ipv4 -u $1 -p$2 -e 'select 1'"
