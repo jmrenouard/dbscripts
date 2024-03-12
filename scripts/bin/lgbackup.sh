@@ -154,13 +154,13 @@ if [ $lRC -eq 0 ]; then
 else
     error "mysqldump BACKUP error FIN FICHIER: Dump completed"
 fi
-set -o pipefail
 
 if [ "$logbinopt" != "OFF" ]; then
     info "POSITION LOGBIN DANS $(basename $BCK_FILE)"
     zcat $BCK_FILE | head -n 40 | grep -E 'CHANGE MASTER'
     lRC=$(($lRC + $?))
 fi
+set -o pipefail
 
 if [ $lRC -eq 0 -a -n "$KEEP_LAST_N_BACKUPS" ]; then
     info "KEEP LAST $KEEP_LAST_N_BACKUPS BACKUPS"
