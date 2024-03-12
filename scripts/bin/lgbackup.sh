@@ -146,6 +146,7 @@ if [ "$LOCAL_BACKUP" = "1" ]; then
 fi
 
 info "Fin du fichier $(basename $BCK_FILE)"
+set +o pipefail
 zcat $BCK_FILE | tail -n 5 | grep "Dump completed"
 lRC=$(($lRC + $?))
 if [ $lRC -eq 0 ]; then
@@ -153,6 +154,7 @@ if [ $lRC -eq 0 ]; then
 else
     error "mysqldump BACKUP error FIN FICHIER: Dump completed"
 fi
+set -o pipefail
 
 if [ "$logbinopt" != "OFF" ]; then
     info "POSITION LOGBIN DANS $(basename $BCK_FILE)"
