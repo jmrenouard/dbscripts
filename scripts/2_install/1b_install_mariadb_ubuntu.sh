@@ -18,21 +18,26 @@ find /etc/apt/sources.list.d -type f -iname '*mariadb*.list' -exec rm -f {} \;
 
 cmd "apt -y --fix-broken install"
 
-#curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup > ./mariadb_repo_setup
-#bash ./mariadb_repo_setup --mariadb-server-version="mariadb-${VERSION}"
+cmd "apt -y install pv python3 cracklib-runtime python3-cracklib python3-pip"
+lRC=$(($lRC + $?))
+
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-${VERSION}" 
-cmd "apt -y install pv python3 mariadb-client mylvmbackup mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect galera-arbitrator-4"
+cmd "apt -y install mariadb-client mylvmbackup mariadb-backup mariadb-server mariadb-plugin-cracklib-password-check mariadb-plugin-connect galera-arbitrator-4"
 lRC=$(($lRC + $?))
 
-cmd "apt -y install cracklib-runtime python3-cracklib sysbench tree telnet netcat-openbsd netcat libjemalloc2 libdbi-perl libdbd-mysql-perl rsync nmap lsof pigz git pwgen"
+cmd "apt -y install sysbench tree telnet netcat-openbsd netcat libjemalloc2 rsync nmap lsof pigz git pwgen net-tools"
 lRC=$(($lRC + $?))
 
-cmd "apt -y install mycli net-tools"
+cmd "apt -y install mycli libdbi-perl libdbd-mysql-perl"
 lRC=$(($lRC + $?))
 
 wget https://downloads.percona.com/downloads/percona-toolkit/3.5.7/binary/debian/jammy/x86_64/percona-toolkit_3.5.7-1.jammy_amd64.deb
 cmd "dpkg -i percona-toolkit_3.5.7-1.jammy_amd64.deb"
+lRC=$(($lRC + $?))
+
+wget https://github.com/mydumper/mydumper/releases/download/v0.16.1-1/mydumper_0.16.1-1.jammy_amd64.deb
+cmd "dpkg -i mydumper_0.16.1-1.jammy_amd64.deb"
 lRC=$(($lRC + $?))
 
 cmd "apt -y install nagios-nrpe-server nagios-nrpe-plugin centreon-plugins monitoring-plugins monitoring-plugins-contrib nagios-snmp-plugins"
