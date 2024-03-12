@@ -26,7 +26,16 @@ load_lib mysql
 DBNAME="$1"
 [ -z "$DBNAME" ] && die "NO DATABASE NAME AS PARAMETER"
 
-BCK_DIR=/data/backups/mydumper/$DBNAME
+TABLE="${2:-"ALL"}"
+FORMAT="${3:-"SQL"}"
+
+TABLE_TARGET=""
+for tbl in $(echo $TABLE| tr ',' ' '); do
+    TABLE_TARGET="${TABLE_TARGET}${DBNAME}.${tbl},"
+done
+TABLE_TARGET=$(echo $TABLE_TARGET| sed -E 's/,$//')
+BCK_DIR=/data/backups/mydumper/$DBNAME-$(echo $TABLE|tr ',' '-')
+TABLE=$TABLE_TARGET
 GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
@@ -59,6 +68,14 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
 fi
 [ -d "$BCK_TARGET" ] || mkdir -p $BCK_TARGET
 
+table_target="-T $TABLE"
+if [ "$TABLE" == "ALL" -o "$TABLE" == "all" ]; then
+    table_target=""
+fi
+output_format=""
+if [ "$FORMAT" == "CSV" -o "$FORMAT" == "csv" ]; then
+    output_format="--csv"
+fi
 info "Backup logique mydumper dans le repertoire $BCK_TARGET"
 title1 "Command: time mydumper \
   --database=$DBNAME \
@@ -71,8 +88,10 @@ title1 "Command: time mydumper \
   --verbose 3 \
   --compress \
   --build-empty-files \
+  --socket $(global_variables socket) \
   --threads=${nbproc:-"$(nproc)"} \
-  --compress-protocol"
+  --compress-protocol \
+  $output_format $table_target"
 
 time mydumper \
   --database=$DBNAME \
@@ -86,7 +105,9 @@ time mydumper \
   --compress \
   --build-empty-files \
   --threads=${nbproc:-"$(nproc)"} \
-  --compress-protocol
+  --socket $(global_variables socket) \
+  --compress-protocol \
+  $output_format $table_target
  lRC=$?
 
 if [ $lRC -eq 0 ]; then

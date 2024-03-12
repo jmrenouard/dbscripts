@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 [ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+[ -f '/etc/profile.d/utils.mysql.sh' ] && source /etc/profile.d/utils.mysql.sh
 
 banner "RESTORING DB WITH MYLOADER"
 BCK_DIR=/data/backups/mydumper
@@ -26,12 +27,15 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
     echo -e "\t* Drop Galera Cache /var/lib/mysql/galera.cache"
     echo -e "\t* Restart MariaDB or MySQL (systemctl restart mysql)"
     echo -e "\t* Restart restore script $0 $*"
-    exit 1
+    #exit 1
 fi
 
-sourcedb=$1
-dumpdir=$2
-targetdb=$3
+sourcedb="$1"
+shift
+dumpdir="$1"
+shift
+targetdb="$1"
+shift
 
 if [ -z "$sourcedb" ]; then
 	title2 "SELECTING SOURCE DATABASE"
@@ -70,11 +74,13 @@ if [ -z "$dumpdir" ]; then
     fi
     break
     done
+    dumpdir=$BCK_DIR/$sourcedb/$dumpdir
 fi
-info "DATABASE EXTRACTION DIR IS $BCK_DIR/$sourcedb/$dumpdir"
-if [ ! -d "$BCK_DIR/$sourcedb/$dumpdir" ]; then
-    die "$BCK_DIR/$sourcedb/$dumpdir doesnt exist"
+info "DATABASE EXTRACTION DIR IS $dumpdir"
+if [ ! -d "$dumpdir" ]; then
+    die "$dumpdir doesnt exist"
 fi
+
 
 if [ -z "$targetdb" ]; then
 	ask_yes_or_no "Restore on $sourcedb database "
@@ -90,26 +96,29 @@ info "TARGET DATABASE IS $sourcedb"
 
 
 title1 "Command: time myloader \
---directory $BCK_DIR/$sourcedb/$dumpdir \
+--directory $dumpdir \
 --verbose=3  \
 --threads=$(nproc) \
 --overwrite-tables \
 --database $targetdb \
---source-db=$sourcedb \
---purge-mode DROP"
+--source-db $sourcedb \
+--socket $(global_variables socket) \
+--purge-mode DROP $*"
 
 time myloader \
---directory $BCK_DIR/$sourcedb/$dumpdir \
+--directory $dumpdir \
 --verbose=3  \
 --threads=$(nproc) \
 --overwrite-tables \
 --database $targetdb \
---source-db=$sourcedb \
---purge-mode DROP
+--source-db $sourcedb \
+--socket $(global_variables socket) \
+--purge-mode DROP $*
+
 lRC=$?
 [ $lRC -eq 0 ] && ok "RESTORE OK"
 cmd "db_list"
-cmd "db_tables"
+cmd "db_tables $targetdb"
 
 info "FINAL CODE RETOUR: $lRC"
 footer "RESTORING DB WITH MYLOADER"
