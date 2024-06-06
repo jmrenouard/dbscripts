@@ -11,4 +11,41 @@ echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stab
 # Updates the list of available packages
 sudo apt-get update
 
-sudo apt-get install grafana
+PCK_LIST="grafana
+prometheus
+prometheus-node-exporter
+prometheus-alertmanager
+prometheus-pushgateway
+prometheus-process-exporter
+net-tools
+jq
+curl
+vim
+wget
+htop
+nload
+nmap
+git
+unzip
+zip
+python3
+python3-pip
+python3-venv
+python3-prometheus-client
+pigz
+pv
+sysstat
+bind9-dnsutils"
+
+for pck in $PCK_LIST; do
+	echo " * Installing $pck"
+	echo "-----------------------------------"
+	sudo apt-get install $pck -y
+	
+	echo "-----------------------------------"
+done
+
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+sudo systemctl enable prometheus-server
+sudo systemctl start prometheus-server
