@@ -5,8 +5,7 @@ arch="${ARCH:-"linux-amd64"}"
 bin_dir="${BIN_DIR:-/usr/local/bin}"
 
 mkdir -p /usr/local/bin
-wget "https://github.com/google/cadvisor/releases/download/v${version}/cadvisor-v${version}-${arch} \
--O ${bin_dir}/cadvisor
+curl -L -o ${bin_dir}/cadvisor "https://github.com/google/cadvisor/releases/download/v${version}/cadvisor-v${version}-${arch}"
 
 chown root:staff $bin_dir/*
 chmod 755 $bin_dir/*
@@ -29,8 +28,11 @@ ExecStart=/usr/local/bin/cadvisor --port 9202
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daæon-reload
+systemctl daeon-reload
 systemctl enable cadvisor.service
 systemctl start cadvisor.service
 
 echo "SUCCESS! Installation succeeded!"
+sleep 2s
+curl http://localhost:9202/metrics | wc -l
+
