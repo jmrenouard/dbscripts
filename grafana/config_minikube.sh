@@ -41,14 +41,14 @@ generate_minikube_hosts()
 
 #
 #   - job_name: minikube
-#    file_sd_configs:
-#     - files:
-#        - /etc/prometheus/file_sd/*.yaml
-#    relabel_configs:
-#      - source_labels: [__address__]
-#        target_label: instance
-#        regex: (.*):.*
-#        replacement: $1
+#     file_sd_configs:
+#       - files:
+#         - /etc/prometheus/file_sd/*.yaml
+#     relabel_configs:
+#       - source_labels: [__address__]
+#         target_label: instance
+#         regex: (.*):.*
+#         replacement: $1
 
 generate_node_exporter_minikube()
 {

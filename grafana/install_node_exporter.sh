@@ -7,8 +7,7 @@ bin_dir="${BIN_DIR:-/usr/local/bin}"
 #wget "https://github.com/prometheus/node_exporter/releases/download/v$version/node_exporter-$version.$arch.tar.gz" \
 #    -O /tmp/node_exporter.tar.gz \
 
-curl -L o /tmp/node_exporter.tar.gz \
-https://github.com/prometheus/node_exporter/releases/download/v$version/node_exporter-$version.$arch.tar.gz
+curl -L -o /tmp/node_exporter.tar.gz https://github.com/prometheus/node_exporter/releases/download/v$version/node_exporter-$version.$arch.tar.gz
 
 mkdir -p /usr/local/bin
 mkdir -p /tmp/node_exporter
@@ -39,7 +38,7 @@ ExecStart=/usr/local/bin/node_exporter
 [Install]
 WantedBy=multi-user.target
 EOF
-
+systemctl daemon-reload
 systemctl enable node_exporter.service
 systemctl start node_exporter.service
 
@@ -47,3 +46,4 @@ echo "SUCCESS! Installation succeeded!"
 
 sleep 2s
 curl http://localhost:9100/metrics | wc -l
+

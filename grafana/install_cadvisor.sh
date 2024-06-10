@@ -28,7 +28,7 @@ ExecStart=/usr/local/bin/cadvisor --port 9202
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daeon-reload
+systemctl daemon-reload
 systemctl enable cadvisor.service
 systemctl start cadvisor.service
 
