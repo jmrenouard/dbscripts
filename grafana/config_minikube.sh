@@ -38,3 +38,24 @@ generate_minikube_hosts()
         echo "$(minikube ip -n "$mh") $mh"
     done
 }
+
+generate_node_exporter_minikube()
+{
+    mkdir -p /etc/prometheus/file_sd/
+echo "- targets:
+  - 'minikube:9100'
+  labels:
+   minikubenode: '1'
+   hostname: 'minikube'
+"| sudo tee -a /etc/prometheus/file_sd/minikubs-m0$i.yaml
+
+    for i in 2 3 4 5; do 
+echo "- targets:
+  - 'minikube-m0$i:9100'
+  labels:
+   minikubenode: '$i'
+   hostname: 'minikube-m0$i'
+"| sudo tee -a /etc/prometheus/file_sd/minikubs-m0$i.yaml; 
+done
+
+}
