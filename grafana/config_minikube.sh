@@ -19,9 +19,9 @@ add_minikube_bridged_network()
     minikube start
 }
 
-alias kubctl="minikube kubectl"
+alias kubectl="minikube kubectl --"
 alias mcp="minikube cp"
-alias mssh="minikube cssh"
+alias mssh="minikube ssh"
 
 alias gst='git status'
 alias gcm='git commit -m'

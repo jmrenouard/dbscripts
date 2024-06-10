@@ -47,5 +47,5 @@ done
 
 sudo systemctl enable grafana-server
 sudo systemctl start grafana-server
-sudo systemctl enable prometheus-server
-sudo systemctl start prometheus-server
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
