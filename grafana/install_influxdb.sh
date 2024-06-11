@@ -31,8 +31,16 @@ influx setup \
   -n LOCAL \
   -u http://localhost:8086 \
   -p admin:password123 \
-  -o my-org
-"
+  -o my-org \
+  --token oliviertoken \
+  --force
+
+influx auth create \
+  --all-access \
+  --host http://localhost:8086 \
+  --org my-org \
+  --token "LOCAL"
+
 influx bucket create --name get-started
 influx bucket list
 
@@ -64,7 +72,17 @@ home,room=Kitchen temp=23.3,hum=36.9,co=18i 1641060000
 home,room=Living\ Room temp=22.5,hum=36.3,co=14i 1641063600
 home,room=Kitchen temp=23.1,hum=36.6,co=22i 1641063600
 home,room=Living\ Room temp=22.2,hum=36.4,co=17i 1641067200
-home,room=Kitchen temp=22.7,hum=36.5,co=26i 1641067200
+home,room=Kitchen temp=22.7,hum=36.5,co=26i 1641067200"
 
 
 SELECT co,hum,temp,room FROM "get-started".autogen.home WHERE time >= '2022-01-01T08:00:00Z' AND time <= '2022-01-01T20:00:00Z'
+
+SELECT co,hum,temp,room FROM "olivier".autogen.home WHERE time >= $__timeFrom AND time <= $__timeTo
+
+for m in $(seq 1 3600); do
+influx  write \
+  --bucket olivier \
+  --precision s "
+home,room=Living\ Room temp=$(($m %50)),hum=$(($m %100)),co=0i $(date +%s -d "$m min ago")"
+echo "iter: $m"
+done

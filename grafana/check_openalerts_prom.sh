@@ -25,6 +25,8 @@ alert_count=$(echo $alerts | jq '. | length')
 echo "alertmanager_active_alerts $alert_count" >> $OUTPUT_FILE
 
 # Ajouter des métriques pour chaque alerte
+echo "# HELP alertmanager_alerts_info Information about active alerts in Alertmanager" >> $OUTPUT_FILE
+echo "# TYPE alertmanager_alerts_info gauge" >> $OUTPUT_FILE
 for row in $(echo "${alerts}" | jq -r '.[] | @base64'); do
     _jq() {
         echo ${row} | base64 --decode | jq -r ${1}
@@ -34,7 +36,5 @@ for row in $(echo "${alerts}" | jq -r '.[] | @base64'); do
     severity=$(_jq '.labels.severity')
     instance=$(_jq '.labels.instance')
 
-    echo "# HELP alertmanager_alerts_info Information about active alerts in Alertmanager" >> $OUTPUT_FILE
-    echo "# TYPE alertmanager_alerts_info gauge" >> $OUTPUT_FILE
     echo "alertmanager_alerts_info{alertname=\"$alert_name\",severity=\"$severity\",instance=\"$instance\"} 1" >> $OUTPUT_FILE
 done
