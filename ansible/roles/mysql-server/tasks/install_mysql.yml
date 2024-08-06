@@ -1,0 +1,32 @@
+# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+- name: "[PACKAGE] Install package"
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - python3-pymysql
+    - python3-mysqldb
+    - python3-mysql.connector
+    - python3-pip
+    - mysql-client
+    - mysql-server
+    - percona-xtrabackup
+    - percona-toolkit
+    - libmysqlclient-dev
+    - sysbench
+    - tree
+    - telnet
+    - netcat-openbsd
+    - libjemalloc2 
+    - rsync
+    - nmap 
+    - lsof 
+    - pigz 
+    - git 
+    - pwgen 
+    - net-tools
+    - centreon-plugins
+    - monitoring-plugins-basic
+    - monitoring-plugins-contrib
+    - nagios-nrpe-server
+    - nagios-nrpe-plugin

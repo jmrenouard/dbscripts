@@ -1,0 +1,19 @@
+- name: "[RUNDECK] Install GPG Key"
+  shell: |
+    curl -L https://packages.rundeck.com/pagerduty/rundeck/gpgkey | apt-key add -
+
+- name: "[RUNDECK] Add Rundeck Repository"
+  apt_repository:
+    repo: "deb https://packages.rundeck.com/pagerduty/rundeck/any/ any main"
+    state: present
+
+- name: "[RUNDECK] Install Rundeck"
+  apt:
+    name: rundeck
+    state: latest
+
+- name: "[RUNDECK] Start Rundeck"
+  service:
+    name: rundeckd
+    state: started
+    enabled: yes

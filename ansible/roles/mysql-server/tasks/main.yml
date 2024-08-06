@@ -1,0 +1,7 @@
+# Tasks for mysql-server
+---
+- name: "Set systctl parameters"
+  include_tasks: system.yml
+
+- name: "Install MySQL Server"
+  include_tasks: install_mysql.yml

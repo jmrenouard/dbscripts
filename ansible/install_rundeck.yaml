@@ -1,0 +1,8 @@
+---
+  - name: "Install Rundeck"
+    hosts: "{{ target | default('admin-vm') }}"
+    become: true
+    gather_facts: false
+    roles:
+      - { role: mysql-server, tags: mysql }
+      - { role: rundeck, tags: rundeck }

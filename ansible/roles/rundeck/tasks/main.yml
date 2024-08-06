@@ -1,0 +1,6 @@
+# Tasks for rundeck
+- name: "Install OpenJdk Server"
+  include_tasks: install_openjdk.yml
+
+- name: "Install Rundeck Server"
+  include_tasks: install_rundeck.yml

@@ -1,0 +1,8 @@
+# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+- name: "[PACKAGE] Install package JDK/JRE"
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - openjdk-11-jdk
+    - openjdk-11-jre-headless

@@ -1,0 +1,14 @@
+---
+- name: Ajouter plusieurs entrées dans /etc/hosts
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Ajouter des entrées dans /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item }}"
+        state: present
+        backup: yes
+        create: yes
+      loop:
+        - "192.168.68.2 admin-vm.local"
