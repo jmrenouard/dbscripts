@@ -23,11 +23,35 @@ server_audit_file_rotate_now=ON
 server_audit_file_rotate_size=1000000
 server_audit_file_rotations=5
 server_audit_events=CONNECT,QUERY_DDL,QUERY_DCL
+server_audit_file_path=audit.log;
 " | tee /etc/my.cnf.d/91_audit_plugin.cnf
 
-title2 "RESTARTING MARIADB SERVER"
-cmd "systemctl restart mariadb"
-lRC=$(($lRC + $?))
+edcho "
+SET GLOBAL server_audit_logging=ON;
+SET GLOBAL server_audit_output_type=file;
+SET GLOBAL server_audit_file_path=audit.log;
+SET GLOBAL server_audit_output_type=file;
+SET GLOBAL server_audit_file_rotate_now=ON;
+SET GLOBAL server_audit_file_rotate_size=1000000;
+SET GLOBAL server_audit_file_rotations=5;
+
+# version communautaire uniquement
+SET GLOBAL server_audit_events='CONNECT,QUERY_DDL,QUERY_DCL';
+" | mysql -v -f
+
+# Version enterprise
+# https://mariadb.com/docs/server/security/audit/enterprise-audit/
+#<timestamp>,<serverhost>,<username>,<host>,<connectionid>,<queryid>,<operation>,<database>,<object>,<retcode>
+#echo "INSERT INTO mysql.server_audit_filters (filtername, rule)   
+#VALUES ('reporting',      
+#JSON_COMPACT( '{ \"connect_event\": [ \"CONNECT\", \"DISCONNECT\" ],
+#\"table_event\":[ 
+#\"WRITE\", \"CREATE\", \"DROP\", \"RENAME\", \"ALTER\" ] }'));" | mysql -v -f
+#SET GLOBAL server_audit_reload_filters=ON;
+
+#title2 "RESTARTING MARIADB SERVER"
+#cmd "systemctl restart mariadb"
+#lRC=$(($lRC + $?))
 
 title2 "INSTALLING SERVER AUDIT PLUGIN"
 mysql  -v -e "INSTALL SONAME 'server_audit';"

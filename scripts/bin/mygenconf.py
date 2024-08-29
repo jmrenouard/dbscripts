@@ -107,7 +107,7 @@ def output_my_cnf(_metaconf):
     performance-schema-consumer-events-waits-history-long=ON
     performance-schema-instrument='%=ON'
     max-digest-length=2048
-    performance-schema-max-digest-length=2018
+    performance-schema-max-digest-length=2048
 
     tcp-keepalive-time=120
     tcp-keepalive-interval=4

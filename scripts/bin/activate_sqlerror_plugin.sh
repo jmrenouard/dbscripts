@@ -8,8 +8,8 @@ banner "BEGIN SCRIPT: $_NAME"
 title2 "CREATE CONFIG FILE FOR SQL ERROR"
 echo "[mariadb]
 plugin_load_add = sql_errlog
-sql_error_log_file=/var/log/mariadb/sql_error.log
-sql_error_log=ON
+sql_error_log_filename=/var/log/mariadb/sql_error.log
+#sql_error_log=ON
 sql_error_log_rotate=1
 sql_error_log_rotations=5
 sql_error_log_size_limit=$((5 * 1024 * 1024))
