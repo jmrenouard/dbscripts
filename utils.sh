@@ -143,7 +143,7 @@ alias h=history
 reload()
 {
     #cd ${_DIR}
-    source ${VMS_DIR}/profile
+    source ${VMS_DIR}/../profile
 }
 alias rl='reload'
 alias rl=reload
