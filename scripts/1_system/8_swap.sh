@@ -35,7 +35,9 @@ lRC=$(($lRC + $?))
 info "REMOVE OLD SWAP FILE ENTRY FROM /etc/fstab"
 
 echo "$swapfile none swap sw 0 0" >> /etc/fstab
-cmd "grep '$swapfile' /etc/fstab" "ADD NEW SWAP FILE ENTRY TO /etc/fstab"
+info "ADD NEW SWAP FILE ENTRY TO /etc/fstab"
+
+grep "$swapfile" /etc/fstab
 lRC=$(($lRC + $?))
 
 cmd "swapon --show" "SHOW SWAP STATUS"
