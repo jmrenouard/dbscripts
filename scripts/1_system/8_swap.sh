@@ -11,6 +11,10 @@ swapitemsize=2M
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
 
+swapoff $swapfile ||true 
+
+cmd "rm -f $swapfile" "REMOVE OLD SWAP FILE"
+
 cmd "fallocate -l $swapsize $swapfile" "CREATE $swapfile SWAP FILE OF $swapsize"
 lRC=$(($lRC + $?))
 
