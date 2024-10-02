@@ -5,6 +5,8 @@
 
 swapfile="/swapfile"
 swapsize="2G"
+swapcount=1024
+swapitemsize=2M
 
 lRC=0
 banner "BEGIN SCRIPT: $_NAME"
@@ -12,7 +14,7 @@ banner "BEGIN SCRIPT: $_NAME"
 cmd "fallocate -l $swapsize $swapfile" "CREATE $swapfile SWAP FILE OF $swapsize"
 lRC=$(($lRC + $?))
 
-cmd "dd if=/dev/zero of=$swapfile bs=$swapsize count=1" "ZEROING $swapfile SWAP FILE OF $swapsize"
+cmd "dd if=/dev/zero of=$swapfile bs=$swapitemsize count=$swapcount" "ZEROING $swapfile SWAP FILE OF $swapsize"
 lRC=$(($lRC + $?))
 
 cmd "chmod 600 $swapfile" "SET PERMISSIONS FOR SWAP FILE"
