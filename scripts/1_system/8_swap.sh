@@ -29,7 +29,8 @@ lRC=$(($lRC + $?))
 cmd "sed -i "#$swapfile#d" /etc/fstab" "REMOVE OLD SWAP FILE ENTRY FROM /etc/fstab"
 lRC=$(($lRC + $?))
 
-cmd "echo '$swapfile none swap sw 0 0' >> /etc/fstab" "ADD NEW SWAP FILE ENTRY TO /etc/fstab"
+echo '$swapfile none swap sw 0 0' >> /etc/fstab
+cmd "grep $swapfile /etc/fstab" "ADD NEW SWAP FILE ENTRY TO /etc/fstab"
 lRC=$(($lRC + $?))
 
 cmd "swapon --show" "SHOW SWAP STATUS"
