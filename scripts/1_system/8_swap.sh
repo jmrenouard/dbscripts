@@ -30,7 +30,7 @@ lRC=$(($lRC + $?))
 cmd "swapon $swapfile" "ENABLE SWAP FILE"
 lRC=$(($lRC + $?))
 
-perl -i -pe "/swapfile/d" /etc/fstab
+sed -i "/swapfile/d" /etc/fstab
 lRC=$(($lRC + $?))
 info "REMOVE OLD SWAP FILE ENTRY FROM /etc/fstab"
 
