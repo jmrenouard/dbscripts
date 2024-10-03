@@ -32,12 +32,13 @@ lRC=$(($lRC + $?))
 cmd "apt -y install mycli libdbi-perl libdbd-mysql-perl"
 lRC=$(($lRC + $?))
 
-wget https://downloads.percona.com/downloads/percona-toolkit/3.5.7/binary/debian/jammy/x86_64/percona-toolkit_3.5.7-1.jammy_amd64.deb
-cmd "dpkg -i percona-toolkit_3.5.7-1.jammy_amd64.deb"
+wget https://downloads.percona.com/downloads/percona-toolkit/3.6.0/binary/debian/jammy/x86_64/percona-toolkit_3.6.0-1.jammy_amd64.deb
+cmd "dpkg -i percona-toolkit_3.6.0-1.jammy_amd64.deb"
 lRC=$(($lRC + $?))
 
-wget https://github.com/mydumper/mydumper/releases/download/v0.16.1-1/mydumper_0.16.1-1.jammy_amd64.deb
-cmd "dpkg -i mydumper_0.16.1-1.jammy_amd64.deb"
+wget https://github.com/mydumper/mydumper/releases/download/v0.16.7-5/mydumper_0.16.7-5.jammy_amd64.deb
+
+cmd "dpkg -i mydumper_0.16.7-5.jammy_amd64.deb"
 lRC=$(($lRC + $?))
 
 cmd "apt -y install nagios-nrpe-server nagios-nrpe-plugin centreon-plugins monitoring-plugins monitoring-plugins-contrib nagios-snmp-plugins"

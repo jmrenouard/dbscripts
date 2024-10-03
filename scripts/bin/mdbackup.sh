@@ -35,7 +35,7 @@ for tbl in $(echo $TABLE| tr ',' ' '); do
 done
 TABLE_TARGET=$(echo $TABLE_TARGET| sed -E 's/,$//')
 BCK_DIR=/data/backups/mydumper/$DBNAME-$(echo $TABLE|tr ',' '-')
-TABLE=$TABLE_TARGET
+#TABLE=$TABLE_TARGET
 GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
