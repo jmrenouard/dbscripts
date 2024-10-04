@@ -14,6 +14,7 @@ banner "BEGIN SCRIPT: $_NAME"
 PCKMANAGER="yum"
 [ "$ID" = "ubuntu" -o "$ID" = "debian" ] && PCKMANAGER="apt"
 
+cmd "$PCKMANAGER -y --fix-broken install"
 cmd "$PCKMANAGER -y install xinetd"
 
 [ -d "/etc/sysconfig" ] && echo "MYSQL_USERNAME='${galera_user}'
@@ -38,6 +39,7 @@ service mysqlchk
 	socket_type = stream
 	port = 9200
 	wait = no
+	instances = 10
 	user = mysql
 	server = /opt/local/bin/clustercheck
 	log_on_failure += USERID

@@ -47,7 +47,7 @@ binlog-format=ROW
 default-storage-engine=innodb
 
 innodb-autoinc-lock-mode=2
-innodb-flush-log-at-trx-commit = 0
+innodb-flush-log-at-trx-commit = 1
 innodb_locks_unsafe_for_binlog = 1
 innodb-force-primary-key=1
 

@@ -43,7 +43,7 @@ binlog-format=ROW
 default-storage-engine=innodb
 
 innodb-autoinc-lock-mode=2
-innodb-flush-log-at-trx-commit = 0
+innodb-flush-log-at-trx-commit = 1
 innodb_locks_unsafe_for_binlog = 1
 innodb-force-primary-key=1
 
@@ -70,7 +70,7 @@ wsrep-notify-cmd=/opt/local/bin/file_wsrep_notif.sh
 
 #[mariadb]
 # Provider options
-wsrep-provider-options='gcache.size=512M;cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254'
+wsrep-provider-options='gcache.size=1024M;cert.log_conflicts=yes;gcs.fc_factor=0.8;gcs.fc_limit=254'
 #;socket.ssl_cert=/etc/mysql/ssl/server-cert.pem;socket.ssl_ca=/etc/mysql/ssl/ca-cert.pem;socket.ssl_key=/etc/mysql/ssl/server-key.pem;socket.ssl_cipher=AES128-SHA'
 #wsrep_debug=1
 
