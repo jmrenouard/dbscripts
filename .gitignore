@@ -87,3 +87,5 @@ documentation/untitled1
 integration/ListeTables.txt
 integration/schemas_25112021.sql
 oracle/*.sql
+docker/*.cnf
+docker/*.bashrc
