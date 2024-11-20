@@ -18,101 +18,98 @@ get_subdirectories() {
   local aws_profile=$1
   local bucket_url=$2
   local path_prefix=$3
-  aws s3 ls ${bucket_url}/${path_prefix} --profile ${aws_profile} | grep 'PRE' | awk '{print $2}'
+  path_prefix=$(echo $path_prefix | perl -pe 's#/$##g')
+  aws --profile ${aws_profile} s3 ls ${bucket_url}/${path_prefix}/ | grep 'PRE' | awk '{print $2}'
 }
 
-# Function to list all sub-subdirectories
-list_all_subsubdirs() {
+# Function to list all subdirectories (non-recursive)
+list_all_subdirs() {
   local aws_profile=$1
   local bucket_url=$2
   local path_prefix=$3
+  path_prefix=$(echo $path_prefix | perl -pe 's#/$##g')
 
   local subdirectories=$(get_subdirectories "$aws_profile" "$bucket_url" "$path_prefix")
-  for subdir in $subdirectories; do
-    echo "All sub-subdirectories in ${bucket_url}/${path_prefix}${subdir}:"
-    get_subdirectories "$aws_profile" "$bucket_url" "${path_prefix}${subdir}"
-  done
+  echo "All subdirectories in ${bucket_url}/${path_prefix}:"
+  echo "$subdirectories" | sort -n
 }
 
-# Function to list sub-subdirectories to be deleted
-list_subsubdirs_to_delete() {
+# Function to list subdirectories to be deleted (non-recursive)
+list_subdirs_to_delete() {
+  local aws_profile=$1
+  local bucket_url=$2
+  local path_prefix=$3
+  local num_to_keep=${4:-10}
+  path_prefix=$(echo $path_prefix | perl -pe 's#/$##g')
+
+  local subdirectories=$(get_subdirectories "$aws_profile" "$bucket_url" "$path_prefix" | sort)
+  local total_subdirs=$(echo "$subdirectories" | wc -l)
+  local num_to_delete=$((total_subdirs - num_to_keep))
+  if [ "$num_to_delete" -gt 0 ]; then
+    local subdirs_to_delete=$(echo "$subdirectories" | head -n $num_to_delete)
+    echo "Subdirectories to delete in ${bucket_url}/${path_prefix}:"
+    echo "$subdirs_to_delete"
+  else
+    echo "Nothing to delete in ${bucket_url}/${path_prefix}"
+  fi
+}
+
+# Function to delete subdirectories (non-recursive)
+delete_subdirs() {
   local aws_profile=$1
   local bucket_url=$2
   local path_prefix=$3
   local num_to_keep=$4
+  path_prefix=$(echo $path_prefix | perl -pe 's#/$##g')
 
-  local subdirectories=$(get_subdirectories "$aws_profile" "$bucket_url" "$path_prefix")
-  for subdir in $subdirectories; do
-    local subsubdirs=$(get_subdirectories "$aws_profile" "$bucket_url" "${path_prefix}${subdir}" | sort)
-    local total_subsubdirs=$(echo "$subsubdirs" | wc -l)
-    local num_to_delete=$((total_subsubdirs - num_to_keep))
+  local subdirectories=$(get_subdirectories "$aws_profile" "$bucket_url" "$path_prefix" | sort)
+  local total_subdirs=$(echo "$subdirectories" | wc -l)
+  local num_to_delete=$((total_subdirs - num_to_keep))
 
-    if [ "$num_to_delete" -gt 0 ]; then
-      local subsubdirs_to_delete=$(echo "$subsubdirs" | head -n $num_to_delete)
-      echo "Sub-subdirectories to delete in ${bucket_url}/${path_prefix}${subdir}:"
-      echo "$subsubdirs_to_delete"
-    else
-      echo "Nothing to delete in subdirectory: $subdir"
-    fi
-  done
-}
-
-# Function to delete sub-subdirectories
-delete_subsubdirs() {
-  local aws_profile=$1
-  local bucket_url=$2
-  local path_prefix=$3
-  local num_to_keep=$4
-
-  local subdirectories=$(get_subdirectories "$aws_profile" "$bucket_url" "$path_prefix")
-  for subdir in $subdirectories; do
-    local subsubdirs=$(get_subdirectories "$aws_profile" "$bucket_url" "${path_prefix}${subdir}" | sort)
-    local total_subsubdirs=$(echo "$subsubdirs" | wc -l)
-    local num_to_delete=$((total_subsubdirs - num_to_keep))
-
-    if [ "$num_to_delete" -gt 0 ]; then
-      local subsubdirs_to_delete=$(echo "$subsubdirs" | head -n $num_to_delete)
-      for dir_to_delete in $subsubdirs_to_delete; do
-        echo "Deleting subdirectory: ${bucket_url}/${path_prefix}${subdir}${dir_to_delete}"
-        aws s3 rm --recursive ${bucket_url}/${path_prefix}${subdir}${dir_to_delete} --profile ${aws_profile}
-      done
-    else
-      echo "Nothing to delete in subdirectory: $subdir"
-    fi
-  done
+  if [ "$num_to_delete" -gt 0 ]; then
+    local subdirs_to_delete=$(echo "$subdirectories" | head -n $num_to_delete)
+    for dir_to_delete in $subdirs_to_delete; do
+      echo "Deleting subdirectory: ${bucket_url}/${path_prefix}/${dir_to_delete}"
+      aws --profile ${aws_profile} s3 rm --recursive ${bucket_url}/${path_prefix}/${dir_to_delete}
+    done
+  else
+    echo "Nothing to delete in ${bucket_url}/${path_prefix}"
+  fi
 }
 
 # Function to handle command line arguments
 usage() {
-  echo "Usage: $0 -p <aws_profile> -b <bucket_url> -t <path> -n <num_to_keep> -a <action>"
-  echo "Actions: list_all, list_to_delete, delete"
+  echo "Usage: $0 -p <aws_profile> -b <bucket_url> -t <path> [-n <num_to_keep>] [-a <action>]"
+  echo "Actions: list_all (default), list_to_delete, delete"
   exit 1
 }
 
-while getopts ":p:b:t:n:a:" opt; do
+num_to_keep=10
+action="list_all"
+while getopts ":p:b:t:n::a::" opt; do
   case $opt in
     p) aws_profile="$OPTARG";;
     b) bucket_url="$OPTARG";;
     t) path_prefix="$OPTARG";;
-    n) num_to_keep="$OPTARG";;
-    a) action="$OPTARG";;
+    n) num_to_keep="${OPTARG:-10}";;
+    a) action="${OPTARG:-list_all}";;
     *) usage;;
   esac
 done
 
 # Verify that all parameters are passed
-if [ -z "$aws_profile" ] || [ -z "$bucket_url" ] || [ -z "$path_prefix" ] || [ -z "$num_to_keep" ] || [ -z "$action" ]; then
+if [ -z "$aws_profile" ] || [ -z "$bucket_url" ] || [ -z "$path_prefix" ]; then
   usage
 fi
 
 # Call the appropriate function based on the action
 case $action in
   list_all)
-    list_all_subsubdirs "$aws_profile" "$bucket_url" "$path_prefix";;
+    list_all_subdirs "$aws_profile" "$bucket_url" "$path_prefix";;
   list_to_delete)
-    list_subsubdirs_to_delete "$aws_profile" "$bucket_url" "$path_prefix" "$num_to_keep";;
+    list_subdirs_to_delete "$aws_profile" "$bucket_url" "$path_prefix" "$num_to_keep";;
   delete)
-    delete_subsubdirs "$aws_profile" "$bucket_url" "$path_prefix" "$num_to_keep";;
+    delete_subdirs "$aws_profile" "$bucket_url" "$path_prefix" "$num_to_keep";;
   *)
     echo "Invalid action: $action"
     usage
