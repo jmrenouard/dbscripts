@@ -30,17 +30,26 @@ set -e
 #   -u ou --replication-user : Utilisateur de réplication MySQL
 #   -P ou --replication-password : Mot de passe de l'utilisateur de réplication
 #   -b ou --backup-path : Chemin de stockage du fichier tar de sauvegarde (optionnel, par défaut : /tmp/mysql_backup.tar.gz)
+#   -t ou --backup-tool : Outil de sauvegarde à utiliser (xtrabackup ou mariabackup, par défaut : xtrabackup)
 #   -d ou --data-dir : Chemin vers le répertoire de données MySQL (optionnel, par défaut : /var/lib/mysql)
 
-# Exemple : ./script.sh -h primary_host_ip -u replica_user -P replica_password -b /chemin/vers/backup.tar.gz -d /chemin/vers/data_dir
+# Exemple : ./script.sh -h primary_host_ip -u replica_user -P replica_password -b /chemin/vers/backup.tar.gz -d /chemin/vers/data_dir -t xtrabackup
 
 # Gestion des arguments
+# Ajout de l'argument pour spécifier l'outil de sauvegarde (xtrabackup ou mariabackup)
+BACKUP_TOOL="xtrabackup"
 # Ajout de l'argument pour spécifier le chemin de stockage du fichier tar de backup
 TAR_BACKUP_PATH="/tmp/mysql_backup.tar.gz"
 # Ajout de l'argument pour spécifier le chemin vers le répertoire de données
 MYSQL_DATA_DIR="/var/lib/mysql"
 
 while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -t|--backup-tool)
+            BACKUP_TOOL="$2"
+            shift # past argument
+            shift # past value
+            ;;
     case $1 in
         -d|--data-dir)
             MYSQL_DATA_DIR="$2"
@@ -76,8 +85,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Vérification des variables requises
-if [ -z "$PRIMARY_HOST" ] || [ -z "$REPLICATION_USER" ] || [ -z "$REPLICATION_PASSWORD" ]; then
-    echo "Erreur : Vous devez spécifier les arguments --primary-host (-h), --replication-user (-u) et --replication-password (-P)."
+if [ -z "$PRIMARY_HOST" ] || [ -z "$REPLICATION_USER" ] || [ -z "$REPLICATION_PASSWORD" ] || [ -z "$BACKUP_TOOL" ]; then
+    echo "Erreur : Vous devez spécifier les arguments --primary-host (-h), --replication-user (-u), --replication-password (-P) et --backup-tool (-t)."
     exit 1
 fi
 
@@ -85,7 +94,7 @@ echo "Étape 1 : Création de la sauvegarde complète du serveur primaire..."
 # Étape 1 : Créer une sauvegarde complète du serveur primaire en utilisant Percona XtraBackup
 # Objectif : Capturer l'état actuel des données du serveur primaire pour les restaurer sur le replica
 ssh $PRIMARY_HOST \
-    "xtrabackup --backup --target-dir=$BACKUP_DIR"
+    "$BACKUP_TOOL --backup --target-dir=$BACKUP_DIR"
 if [ $? -ne 0 ]; then
     echo "Erreur lors de la création de la sauvegarde sur le serveur primaire."
     exit 1
@@ -135,7 +144,7 @@ fi
 echo "Étape 6 : Application des logs pour rendre la sauvegarde cohérente..."
 # Étape 6 : Appliquer les logs pour rendre la sauvegarde cohérente
 # Objectif : S'assurer que les données sont prêtes à être utilisées en appliquant les journaux de transactions
-xtrabackup --prepare --target-dir=$MYSQL_DATA_DIR
+$BACKUP_TOOL --prepare --target-dir=$MYSQL_DATA_DIR
 if [ $? -ne 0 ]; then
     echo "Erreur lors de la préparation de la sauvegarde sur le serveur replica."
     exit 1

@@ -30,14 +30,22 @@ set -e
 #   -u ou --replication-user : Utilisateur de réplication MySQL
 #   -P ou --replication-password : Mot de passe de l'utilisateur de réplication
 #   -d ou --data-dir : Chemin vers le répertoire de données MySQL (optionnel, par défaut : /var/lib/mysql)
+#   -t ou --backup-tool : Outil de sauvegarde à utiliser (xtrabackup/xbstream ou mariabackup/mbstream, par défaut : xtrabackup/xbstream)
 
-# Exemple : ./script.sh -h primary_host_ip -u replica_user -P replica_password -d /chemin/vers/data_dir
+# Exemple : ./script.sh -h primary_host_ip -u replica_user -P replica_password -d /chemin/vers/data_dir -t xtrabackup/xbstream
 
 # Gestion des arguments
 # Ajout de l'argument pour spécifier le chemin vers le répertoire de données
+# Ajout de l'argument pour sélectionner l'outil de sauvegarde et de streaming (xtrabackup/xbstream ou mariabackup/mbstream)
 MYSQL_DATA_DIR="/var/lib/mysql"
 
 while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -t|--backup-tool)
+            BACKUP_TOOL="$2"
+            shift # past argument
+            shift # past value
+            ;;
     case $1 in
         -d|--data-dir)
             MYSQL_DATA_DIR="$2"
@@ -68,8 +76,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Vérification des variables requises
-if [ -z "$PRIMARY_HOST" ] || [ -z "$REPLICATION_USER" ] || [ -z "$REPLICATION_PASSWORD" ]; then
-    echo "Erreur : Vous devez spécifier les arguments --primary-host (-h), --replication-user (-u) et --replication-password (-P)."
+if [ -z "$PRIMARY_HOST" ] || [ -z "$REPLICATION_USER" ] || [ -z "$REPLICATION_PASSWORD" ] || [ -z "$BACKUP_TOOL" ]; then
+    echo "Erreur : Vous devez spécifier les arguments --primary-host (-h), --replication-user (-u), --replication-password (-P), et --backup-tool (-t)."
     exit 1
 fi
 
@@ -77,9 +85,14 @@ fi
 echo "Étape 1 : Création et streaming de la sauvegarde complète du serveur primaire..."
 # Étape 1 : Créer une sauvegarde complète du serveur primaire en utilisant Percona XtraBackup et streamer directement vers le serveur replica
 # Objectif : Capturer l'état actuel des données du serveur primaire et les transférer directement au serveur replica
-ssh $PRIMARY_HOST \
-    "xtrabackup --backup --stream=xbstream --target-dir=/tmp" | \
-    xbstream -x -C $MYSQL_DATA_DIR
+if [[ "$BACKUP_TOOL" == "xtrabackup/xbstream" ]]; then
+    ssh $PRIMARY_HOST "xtrabackup --backup --stream=xbstream --target-dir=/tmp" | xbstream -x -C $MYSQL_DATA_DIR
+elif [[ "$BACKUP_TOOL" == "mariabackup/mbstream" ]]; then
+    ssh $PRIMARY_HOST "mariabackup --backup --stream=mbstream --target-dir=/tmp" | mbstream -x -C $MYSQL_DATA_DIR
+else
+    echo "Erreur : Outil de sauvegarde non reconnu. Veuillez spécifier 'xtrabackup/xbstream' ou 'mariabackup/mbstream'."
+    exit 1
+fi
 if [ $? -ne 0 ]; then
     echo "Erreur lors de la création et du streaming de la sauvegarde sur le serveur primaire."
     exit 1
@@ -102,7 +115,6 @@ fi
 echo "Étape 4 : Nettoyage des données existantes et préparation du répertoire de données..."
 # Étape 4 : Nettoyer les données existantes sur le replica et préparer le répertoire de données
 # Objectif : Supprimer les anciennes données et créer un répertoire vide pour la restauration
-echo "Étape 4 : Sauvegarde des données existantes..."
 mv "$MYSQL_DATA_DIR"/* "$MYSQL_DATA_DIR/backup_$(date +%F_%T)" || echo "Aucune ancienne donnée trouvée."
 rm -rf "$MYSQL_DATA_DIR"/*
 mkdir -p $MYSQL_DATA_DIR
@@ -119,7 +131,7 @@ fi
 echo "Étape 6 : Application des logs pour rendre la sauvegarde cohérente..."
 # Étape 6 : Appliquer les logs pour rendre la sauvegarde cohérente
 # Objectif : S'assurer que les données sont prêtes à être utilisées en appliquant les journaux de transactions
-xtrabackup --prepare --target-dir=$MYSQL_DATA_DIR
+$BACKUP_TOOL --prepare --target-dir=$MYSQL_DATA_DIR
 if [ $? -ne 0 ]; then
     echo "Erreur lors de la préparation de la sauvegarde sur le serveur replica."
     exit 1
