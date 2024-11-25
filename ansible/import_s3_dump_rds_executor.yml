@@ -1,0 +1,144 @@
+---
+- name: Copy Grants TO RDS
+  hosts: "{{ target | default('mysql-servers')}}"
+  vars:
+    DB_NAME: "{{ dbname | d('all') }}"
+  gather_facts: false
+  tasks:
+    - name: "Generate RDS Credentials file"
+      copy:
+        content: |
+          [client]
+          host={{ rds_mysql_hostname }}
+          user={{ rds_mysql_username }}
+          password='{{ rds_mysql_password }}'
+        dest: /root/.my_rds.cnf
+      become: true
+      tags:
+        - credentials
+      delegate_to: "{{ rds_executor }}"
+    
+    - name: "Test RDS Access"
+      shell: |
+        mysql --defaults-file=/root/.my_rds.cnf -e "STATUS"
+      become: true
+      tags:
+        - credentials
+      delegate_to: "{{ rds_executor }}"
+
+    - name: "Get S3 database list"
+      shell: |
+        if [ "{{DB_NAME}}" = "all" -o -z "{{DB_NAME}}" ]; then
+          aws s3 ls s3://{{ s3_shared_bucket }} | \
+          grep -E '^\s+PRE\s'| \
+          awk '{print $2}' | \
+          cut -d/ -f1| \
+          sort
+          exit 0
+        fi
+        aws s3 ls s3://{{ s3_shared_bucket }}/{{ DB_NAME }}/dump.sql.gz &> /dev/null
+        if [ $? -ne 0 ]; then
+          echo "Dump file not found"
+          exit 1
+        fi
+        echo "{{ DB_NAME }}"
+      #become: true
+      register: s3_db_list
+      delegate_to: "{{ rds_executor }}"
+      tags:
+        - getdb
+      
+    - name: "Import S3 dump"
+      shell: |
+        echo "--------------------------"
+        echo -n "Dump {{ item }} :"
+        aws s3 ls s3://{{ s3_shared_bucket }}/{{ item }}/dump.sql.gz --human-readable
+
+        #aws s3 cp s3://{{ s3_shared_bucket }}/{{ item }}/dump.sql.gz - | pigz -cd | head -n 5
+        
+        echo "--------------------------"
+        echo "CREATE DATABASE IF NOT EXISTS {{ item }};" | \
+        mysql --defaults-file=/root/.my_rds.cnf -v
+        echo "--------------------------"
+
+        aws s3 cp s3://{{ s3_shared_bucket }}/{{ item }}/dump.sql.gz - | \
+        pigz -cd | \
+        grep -v 'CHANGE MASTER TO' | \
+        mysql --defaults-file=/root/.my_rds.cnf {{ item }} -f
+      with_items: "{{ s3_db_list.stdout_lines }}"
+      become: true
+      tags:
+        - listdb
+      delegate_to: "{{ rds_executor }}"
+
+    - name: "Check Import From S3 - Number of tables"
+      shell: |
+        echo "--------------------------"
+        echo "tables in {{ item }}:"
+        [ -f "/tmp/{{ item }}_tables.txt" ] && rm -f /tmp/{{ item }}_tables.txt
+        [ -f "/tmp/s3_{{ item }}_tables.txt" ] && rm -f /tmp/s3_{{ item }}_tables.txt
+        aws s3 cp s3://{{ s3_shared_bucket }}/{{ item }}/tables.txt - | sort > /tmp/s3_{{ item }}_tables.txt
+        mysql --defaults-file=/root/.my_rds.cnf -Nrs {{ item }} -e "SHOW TABLES;" | \
+        sort > /tmp/{{ item }}_tables.txt
+
+          echo "Diff with S3 Table list:"
+        diff --side-by-side /tmp/{{ item }}_tables.txt /tmp/s3_{{ item }}_tables.txt
+        if [ $? -ne 0 ]; then
+          echo "Tables are different"
+          exit 1
+        fi
+        echo "--------------------------"
+      with_items: "{{ s3_db_list.stdout_lines }}"
+      become: true
+      tags:
+        - listdb
+      delegate_to: "{{ rds_executor }}"
+
+    - name: "Check Import From S3 - Number of lines"
+      shell: |
+        echo "--------------------------"
+        echo "Lines per table in {{ item }}:"
+        [ -f "/tmp/{{ item }}_counts.txt" ] && rm -f /tmp/{{ item }}_counts.txt
+        [ -f "/tmp/s3_{{ item }}_counts.txt" ] && rm -f /tmp/s3_{{ item }}_counts.txt
+        aws s3 cp s3://{{ s3_shared_bucket }}/{{ item }}/counts.txt - | sort > /tmp/s3_{{ item }}_counts.txt
+        
+        SQL_QUERY=$(cat <<EOF
+          SET SESSION group_concat_max_len = 1000000;
+          
+          SELECT CONCAT(
+              'SELECT table_name, row_count FROM (',
+              GROUP_CONCAT(
+                  'SELECT "', table_name, '" AS table_name, COUNT(*) AS row_count FROM \`', table_name, '\`'
+                  SEPARATOR ' UNION ALL '
+              ),
+              ') AS all_tables ORDER BY row_count DESC;'
+          ) AS sql_query
+          FROM information_schema.tables
+          WHERE table_schema = '{{ item }}'
+            AND table_type = 'BASE TABLE'
+          ORDER BY table_name
+          INTO @dynamic_sql;
+          
+          PREPARE stmt FROM @dynamic_sql;
+          EXECUTE stmt;
+          DEALLOCATE PREPARE stmt;
+        EOF
+        )
+
+        
+        echo $SQL_QUERY | mysql --defaults-file=/root/.my_rds.cnf -Nrs {{ item }}  | \
+        sort > /tmp/{{ item }}_counts.txt
+
+        echo "Diff with S3 counts:"
+        diff --side-by-side /tmp/{{ item }}_counts.txt /tmp/s3_{{ item }}_counts.txt
+        if [ $? -ne 0 ]; then
+          echo "Table count lines are different"
+          exit 1
+        fi
+        echo "--------------------------"
+
+      with_items: "{{ s3_db_list.stdout_lines }}"
+      become: true
+      tags:
+        - listdb
+      delegate_to: "{{ rds_executor }}"
