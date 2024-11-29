@@ -38,7 +38,10 @@ set -e
 # Ajout de l'argument pour spécifier le chemin vers le répertoire de données
 # Ajout de l'argument pour sélectionner l'outil de sauvegarde et de streaming (xtrabackup/xbstream ou mariabackup/mbstream)
 MYSQL_DATA_DIR="/var/lib/mysql"
-
+REPLICATION_USER=replication
+REPLICATION_PASSWORD=$(cat $HOME/.my_replication.txt)
+BACKUP_TOOL="xtrabackup/xbstream"
+PRIMARY_HOST="prod-mysql-1.imporelec.local"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -t|--backup-tool)
@@ -46,13 +49,11 @@ while [[ "$#" -gt 0 ]]; do
             shift # past argument
             shift # past value
             ;;
-    case $1 in
         -d|--data-dir)
             MYSQL_DATA_DIR="$2"
             shift # past argument
             shift # past value
             ;;
-    case $1 in
         -h|--primary-host)
             PRIMARY_HOST="$2"
             shift # past argument
