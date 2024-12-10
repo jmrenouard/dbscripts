@@ -4,7 +4,10 @@ import string
 import os
 from docker import from_env
 import docker 
+from pathlib import Path
 
+script_dir=Path(__file__).resolve().parent
+    
 def generate_password(length=32):
     """Generate a random password."""
     chars = string.ascii_letters + string.digits + "!@#$%^&*()"
@@ -34,14 +37,17 @@ port={port}
     os.chmod(file_path, 0o600)  # Secure permissions
     print("ℹ️ ", f"Configuration file generated: {file_path}")
 
-def generate_bash_alias(env_name, port):
+def generate_bash_alias(env_name, port, password):
     """Generate a Bash alias for easy database connection and add it to mysql.bashrc."""
-    alias = f"alias {env_name}='mysql --defaults-file={env_name}.my.cnf'"
+    exporte=f"export MYSQL_DEFAULTS_FILE_{env_name}={script_dir}/{env_name}.my.cnf"
+    aliase = f'alias {env_name}="docker exec -it {env_name} mysql -uroot -p\'{password}\'"'
+    aliase2 = f'alias {env_name}dump="docker exec -it {env_name} mysqldump -uroot -p\'{password}\'"'
+    
     bashrc_path = "mysql.bashrc"
     with open(bashrc_path, 'a') as f:
-        f.write(f"\n{alias}\n")
-    print(f"Alias added to {bashrc_path}: {alias}")
-    return alias
+        f.write(f"{aliase}\n{aliase2}\n{exporte}\n\n")
+    print(f"Alias added to {bashrc_path}: {aliase}")
+    return aliase
 
 def launch_container(env_name, db_type, version, username, password, debug=False):
     version = version or 'latest'
@@ -101,7 +107,7 @@ def launch_container(env_name, db_type, version, username, password, debug=False
     if 'container' in locals() and container:
         if 'container' in locals() and container:
             create_my_cnf(env_name, username, password, port=port)
-            generate_bash_alias(env_name, port)
+            generate_bash_alias(env_name, port, password)
 
 def stop_container(env_name, debug=False):
     """Stop a Docker container."""
@@ -152,7 +158,7 @@ def remove_environment(env_name, debug=False):
                 lines = f.readlines()
             with open(bashrc_path, 'w') as f:
                 for line in lines:
-                    if f"alias {env_name}=" not in line and line.strip():
+                    if f"{env_name}" not in line and line.strip():
                         f.write(line)
             # If the bashrc file is now empty, delete it
             if os.path.getsize(bashrc_path) == 0:
