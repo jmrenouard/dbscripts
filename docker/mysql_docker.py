@@ -8,9 +8,9 @@ from pathlib import Path
 
 script_dir=Path(__file__).resolve().parent
     
-def generate_password(length=32):
+def generate_password(length=64):
     """Generate a random password."""
-    chars = string.ascii_letters + string.digits + "!@#$%^&*()"
+    chars = string.ascii_letters + string.digits
     return ''.join(random.choice(chars) for _ in range(length))
 
 def find_free_port():
@@ -38,16 +38,30 @@ port={port}
     print("ℹ️ ", f"Configuration file generated: {file_path}")
 
 def generate_bash_alias(env_name, port, password):
-    """Generate a Bash alias for easy database connection and add it to mysql.bashrc."""
-    exporte=f"export MYSQL_DEFAULTS_FILE_{env_name}={script_dir}/{env_name}.my.cnf"
-    aliase = f'alias {env_name}="docker exec -it {env_name} mysql -uroot -p\'{password}\'"'
-    aliase2 = f'alias {env_name}dump="docker exec -it {env_name} mysqldump -uroot -p\'{password}\'"'
-    
+    """Generate useful Bash aliases for a MySQL environment."""
+    exporte = f"export MYSQL_DEFAULTS_FILE_{env_name}={script_dir}/{env_name}.my.cnf"
+    aliases = [
+        f"alias {env_name}='docker exec -it {env_name} mysql -uroot -p\"{password}\"'",
+        f"alias {env_name}c='docker exec -i {env_name} mysql -uroot -p\"{password}\"'",
+        f"alias {env_name}dump='docker exec -it {env_name} mysqldump -uroot -p\"{password}\"'",
+        f"alias {env_name}flush='docker exec -it {env_name} mysql -uroot -p\"{password}\" -e \"FLUSH PRIVILEGES;\"'",
+        f"alias {env_name}dblist='docker exec -it {env_name} mysql -uroot -p\"{password}\" -e \"SHOW DATABASES;\"'",
+        f"alias {env_name}sh='docker exec -it {env_name} bash'",
+        f"alias {env_name}logs='docker logs {env_name}'",
+        f"alias {env_name}stop='docker stop {env_name}'",
+        f"alias {env_name}start='docker start {env_name}'",
+    ]
+
     bashrc_path = "mysql.bashrc"
     with open(bashrc_path, 'a') as f:
-        f.write(f"{aliase}\n{aliase2}\n{exporte}\n\n")
-    print(f"Alias added to {bashrc_path}: {aliase}")
-    return aliase
+        f.write(f"{exporte}\n")
+        for alias in aliases:
+            f.write(f"{alias}\n")
+        f.write("\n")
+
+    print(f"Aliases added to {bashrc_path}:")
+    for alias in aliases:
+        print(f"  {alias}")
 
 def launch_container(env_name, db_type, version, username, password, debug=False):
     version = version or 'latest'
