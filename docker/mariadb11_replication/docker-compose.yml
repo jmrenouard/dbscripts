@@ -1,0 +1,104 @@
+version: '3.7'
+
+services:
+  master:
+    image: ${DB_TYPE}:${DB_VERSION}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    # Le maître a un port fixe
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --relay-log=slave-relay-bin
+      --log-slave-updates
+      --max-connections=200
+    ports:
+      - "3306:3306"
+    volumes:
+      # Ici, vous pouvez lier un répertoire host pour le maître afin de conserver ses données
+      - ./master-init:/docker-entrypoint-initdb.d
+      - ./.env:/docker-entrypoint-initdb.d/.env
+      - ./data/master:/var/lib/mysql
+    networks:
+      - dbnet
+
+  slave1:
+    image: ${DB_TYPE}:${DB_VERSION}
+    depends_on:
+      - master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    command: >
+      --server-id=2
+      --report-host=slave1
+      --log-bin=mysql-bin
+      --relay-log=slave-relay-bin
+      --log-slave-updates
+      --read-only=1
+      --max-connections=200
+    volumes:
+      # Répertoire d'init commun
+      - ./slave-init:/docker-entrypoint-initdb.d
+      - ./.env:/docker-entrypoint-initdb.d/.env
+      # Volume anonyme distinct par conteneur pour les data
+      - ./data/slave1:/var/lib/mysql
+    # Port aléatoire sur l'hôte pour éviter les conflits quand on scale
+    ports:
+      - "3307:3306"
+    networks:
+      - dbnet
+
+  slave2:
+    image: ${DB_TYPE}:${DB_VERSION}
+    depends_on:
+      - master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    command: >
+      --server-id=3
+      --report-host=slave2
+      --log-bin=mysql-bin
+      --relay-log=slave-relay-bin
+      --log-slave-updates
+      --read-only=1
+      --max-connections=200
+    volumes:
+      # Répertoire d'init commun
+      - ./slave-init:/docker-entrypoint-initdb.d
+      - ./.env:/docker-entrypoint-initdb.d/.env
+      # Volume anonyme distinct par conteneur pour les data
+      - ./data/slave2:/var/lib/mysql
+    # Port aléatoire sur l'hôte pour éviter les conflits quand on scale
+    ports:
+      - "3308:3306"
+    networks:
+      - dbnet
+
+  slave3:
+    image: ${DB_TYPE}:${DB_VERSION}
+    depends_on:
+      - master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    command: >
+      --server-id=4
+      --report-host=slave3
+      --log-bin=mysql-bin
+      --relay-log=slave-relay-bin
+      --log-slave-updates
+      --read-only=1
+      --max-connections=200
+    volumes:
+      # Répertoire d'init commun
+      - ./slave-init:/docker-entrypoint-initdb.d
+      - ./.env:/docker-entrypoint-initdb.d/.env
+      # Volume anonyme distinct par conteneur pour les data
+      - ./data/slave3:/var/lib/mysql
+    # Port aléatoire sur l'hôte pour éviter les conflits quand on scale
+    ports:
+      - "3309:3306"
+    networks:
+      - dbnet
+networks:
+  dbnet:
