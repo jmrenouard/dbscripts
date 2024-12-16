@@ -89,3 +89,4 @@ integration/schemas_25112021.sql
 oracle/*.sql
 docker/*.cnf
 docker/*.bashrc
+**/data
