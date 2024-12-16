@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 set -x
+
 # Charger les variables du fichier .env
 if [ -f "/docker-entrypoint-initdb.d/.env" ]; then
     export $(grep -v '^#' /docker-entrypoint-initdb.d/.env | xargs)

@@ -2,6 +2,9 @@
 set -e
 set -x
 
+MYSQL=mariadb
+MYSQLDUMP=mariadb-dump
+
 # Charger les variables du fichier .env
 if [ -f "/docker-entrypoint-initdb.d/.env" ]; then
     export $(grep -v '^#' /docker-entrypoint-initdb.d/.env | xargs)
@@ -22,4 +25,4 @@ INSERT INTO test (data) VALUES ('Hello from master');
 CREATE USER '${REPL_USER}'@'%' IDENTIFIED BY '${REPL_PASSWORD}';
 GRANT REPLICATION SLAVE ON *.* TO '${REPL_USER}'@'%';
 FLUSH PRIVILEGES;
-" | mysql -uroot -p${ROOT_PASSWORD} -f -v
+" | $MYSQL -uroot -p${ROOT_PASSWORD} -f -v
