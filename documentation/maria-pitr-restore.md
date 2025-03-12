@@ -1,97 +1,96 @@
-# Documentation Technique - Restauration PITR avec Binlogs MariaDB
+# Technical Documentation - Point-In-Time Recovery (PITR) with MariaDB Binlogs
 
 ## 1. Introduction
-La restauration **PITR (Point-In-Time Recovery)** permet de restaurer une base de données MariaDB jusqu'à un instant précis en utilisant les **binlogs**. Cette méthode est essentielle pour récupérer des données après une suppression accidentelle ou une corruption.
+Point-In-Time Recovery (**PITR**) allows restoring a MariaDB database to a specific point in time using **binary logs (binlogs)**. This method is crucial for recovering data after accidental deletions or corruption.
 
-Ce document décrit le fonctionnement d'un script Bash permettant d'automatiser la restauration via les binlogs, ainsi que la procédure détaillée pour effectuer une restauration PITR.
+This document describes how a Bash script automates binlog-based recovery and provides a step-by-step procedure for performing a PITR operation.
 
 ---
-## 2. Fonctionnalité du script
+## 2. Script Functionality
 
-### 2.1 Objectif
-Le script **Restore Binlog GTID** permet de restaurer les événements MariaDB binlog à partir d'un **GTID donné** jusqu'à une date et heure précises.
+### 2.1 Objective
+The **Restore Binlog GTID** script restores MariaDB binlog events from a **specific GTID** up to a defined date and time.
 
-### 2.2 Étapes du script
-1. **Récupération de la position courante du GTID.**
-2. **Identification du fichier binlog contenant ce GTID.**
-3. **Sélection des fichiers binlog suivants pour la restauration.**
-4. **Exécution de `mariadb-binlog` pour rejouer les transactions jusqu'à la date spécifiée.**
+### 2.2 Script Steps
+1. **Retrieve the current GTID position.**
+2. **Identify the binlog file containing this GTID.**
+3. **Select subsequent binlog files for recovery.**
+4. **Execute `mariadb-binlog` to replay transactions up to the specified date.**
 
-### 2.3 Paramètres du script
-| Paramètre  | Description |
-|------------|-------------|
-| `$1` | Chemin du répertoire contenant les fichiers binlog |
-| `$2` | Date limite de la restauration (format YYYY-MM-DD) |
-| `$3` | Heure limite de la restauration (format HH:MM:SS) |
+### 2.3 Script Parameters
+| Parameter | Description |
+|-----------|-------------|
+| `$1` | Path to the directory containing binlog files |
+| `$2` | End date for recovery (format: YYYY-MM-DD) |
+| `$3` | End time for recovery (format: HH:MM:SS) |
 
-### 2.4 Exécution du script
+### 2.4 Script Execution
 ```bash
 ./script.sh /var/lib/mysql/binlogs 2025-03-12 09:30:00
 ```
 
 ---
-## 3. Procédure de Restauration PITR avec Binlogs MariaDB
+## 3. PITR Procedure with MariaDB Binlogs
 
-### 3.1 Prérequis
-- Disposer de la solution **CommVault** pour la restauration initiale des snapshots et des binlogs.
-- Avoir une sauvegarde complète de la base de données avant l'événement à restaurer.
-- Disposer des binlogs activés (`log_bin` doit être activé dans MariaDB).
-- Connexion à un utilisateur MariaDB avec les privilèges nécessaires.
+### 3.1 Prerequisites
+- **CommVault** must be available for restoring snapshots and binlogs.
+- A full database backup must be available before the incident.
+- Binlog must be enabled (`log_bin` must be active in MariaDB).
+- A MariaDB user with the necessary privileges is required.
 
-### 3.2 Étapes de restauration
+### 3.2 Recovery Steps
 
-#### **Étape 1 : Restaurer la base de données via un snapshot CommVault**
-Commencez par restaurer un **snapshot complet** de la base de données à une date antérieure à l'incident.
-Une fois la restauration du snapshot terminée, assurez-vous que le serveur MariaDB est opérationnel.
+#### **Step 1: Restore the Database via CommVault Snapshot**
+First, restore a **full snapshot** of the database to a point before the incident.
+Once the snapshot restoration is complete, ensure that the MariaDB server is operational.
 
-#### **Étape 2 : Restaurer les binlogs avec CommVault**
-Les fichiers binlogs nécessaires doivent être restaurés depuis CommVault dans un répertoire spécifique, défini par l'utilisateur.
-Assurez-vous que les binlogs restaurés sont complets et disponibles dans ce répertoire.
+#### **Step 2: Restore Binlogs via CommVault**
+The required binlog files must be restored from CommVault into a specific directory.
+Ensure that the restored binlogs are complete and available in the designated path.
 
-Exemple :
+Example:
 ```bash
-ls -lah /chemin/vers/binlogs-restaures/
+ls -lah /path/to/restored-binlogs/
 ```
 
-#### **Étape 3 : Identifier le dernier GTID connu**
-Si les GTIDs sont activés, notez le dernier GTID connu après la restauration du snapshot :
+#### **Step 3: Identify the Last Known GTID**
+If GTID is enabled, find the last known GTID after the snapshot restoration:
 ```sql
 SHOW VARIABLES LIKE 'gtid_current_pos';
 ```
 
-#### **Étape 4 : Localiser les fichiers binlogs à utiliser**
-Les binlogs contiennent les transactions après le dernier GTID connu. Repérez ceux qui contiennent votre GTID :
+#### **Step 4: Locate the Binlog Files to Use**
+Binlogs contain transactions after the last known GTID. Identify which binlog contains your GTID:
 ```bash
-ls -lah /chemin/vers/binlogs-restaures/
+ls -lah /path/to/restored-binlogs/
 ```
 
-#### **Étape 5 : Exécuter le script de restauration**
-Lancez la restauration jusqu'à la date et l'heure souhaitées :
+#### **Step 5: Execute the Recovery Script**
+Run the script to apply binlogs up to the target date and time:
 ```bash
-./script.sh /chemin/vers/binlogs-restaures 2025-03-12 09:30:00
+./script.sh /path/to/restored-binlogs 2025-03-12 09:30:00
 ```
-Cela appliquera tous les changements contenus dans les binlogs jusqu'à l'instant spécifié.
+This will replay all changes from the binlogs up to the specified point in time.
 
-#### **Étape 6 : Vérifier la cohérence des données**
-Après la restauration, validez que les données sont correctes :
+#### **Step 6: Verify Data Integrity**
+After recovery, check that the data is correct:
 ```sql
-SELECT * FROM table_impactee WHERE ...;
+SELECT * FROM affected_table WHERE ...;
 ```
 
-#### **Étape 7 : Redémarrer MariaDB et tester**
-Une fois la restauration terminée, redémarrez MariaDB si nécessaire :
+#### **Step 7: Restart MariaDB and Validate**
+Once the recovery is completed, restart MariaDB if necessary:
 ```bash
 systemctl restart mariadb
 ```
-Testez ensuite l’application pour valider le bon fonctionnement.
+Test the application to confirm proper functionality.
 
 ---
 ## 4. Conclusion
-L'utilisation des **snapshots CommVault** combinés aux **binlogs** permet une restauration PITR précise et efficace. Grâce à cette approche, la restauration est facilitée et assure une meilleure gestion des sauvegardes. Ce processus est crucial en cas de suppression accidentelle ou de corruption partielle des données. Il est recommandé d'automatiser ces étapes et de tester régulièrement la restauration pour garantir une récupération rapide en cas d'incident.
+Using **CommVault snapshots** combined with **MariaDB binlogs** allows precise and efficient PITR. This approach simplifies the recovery process and ensures better backup management. PITR is crucial for mitigating accidental deletions or partial data corruption. It is recommended to automate these steps and conduct regular recovery tests to ensure a fast response in case of an incident.
 
 ---
-## 5. Références
-- [Documentation officielle MariaDB sur les binlogs](https://mariadb.com/kb/en/binary-log/)
+## 5. References
+- [Official MariaDB Documentation on Binlogs](https://mariadb.com/kb/en/binary-log/)
 - [Point-in-Time Recovery Guide](https://mariadb.com/kb/en/point-in-time-recovery/)
-- [CommVault Documentation](https://documentation.commvault.com/)
-
+- [CommVault Documentation](https://documentation.commvault.com/
