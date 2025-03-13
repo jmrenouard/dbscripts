@@ -79,3 +79,5 @@ rust/**.lock
 rust/.rustc_info.json
 rust/target/** 
 rust/target/.rustc_info.json
+zig/src/.main.zig.un~
+zig/src/main.zig~
