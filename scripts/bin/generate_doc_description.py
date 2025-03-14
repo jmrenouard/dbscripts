@@ -3,7 +3,6 @@ import os
 import re
 import argparse
 from datetime import datetime
-import glob
 
 def get_markdown_title(file_path):
     """Extract title from markdown file (first # heading)"""
