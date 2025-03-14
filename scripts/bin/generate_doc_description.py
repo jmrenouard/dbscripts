@@ -130,34 +130,65 @@ def generate_illustrations_page(docs_dir="docs", output_file="Illustrations.md")
     if not os.path.exists(docs_dir):
         return f"Le répertoire '{docs_dir}' n'existe pas."
     
-    # Find all PNG files in the docs directory and its subdirectories
-    png_files = []
+    # Dictionary to store images by subdirectory
+    dir_images = {}
+    total_images = 0
+    
+    # Walk through the docs directory
     for root, _, files in os.walk(docs_dir):
+        images_in_dir = []
+        
         for file in files:
             if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
                 file_path = os.path.join(root, file)
                 relative_path = os.path.relpath(file_path, docs_dir)
-                png_files.append({
+                
+                images_in_dir.append({
                     'path': relative_path,
                     'name': os.path.splitext(os.path.basename(file_path))[0]
                 })
-    
-    # Sort by path
-    png_files.sort(key=lambda x: x['path'])
+                total_images += 1
+        
+        if images_in_dir:
+            # Get subdirectory name relative to docs_dir
+            subdir = os.path.relpath(root, docs_dir)
+            if subdir == ".":
+                subdir = "Racine"
+            
+            # Sort images by path
+            images_in_dir.sort(key=lambda x: x['path'])
+            dir_images[subdir] = images_in_dir
     
     # Generate the markdown content
     content = "# Illustrations\n\n"
+    content += f"Total: {total_images} images\n\n"
     
-    for img in png_files:
-        content += f"## {img['name']}\n\n"
-        content += f"![{img['name']}]({img['path']})\n\n"
+    # Sort subdirectories, but ensure "Racine" appears first
+    sorted_dirs = sorted(dir_images.keys())
+    if "Racine" in sorted_dirs:
+        # Remove "Racine" from its current position
+        sorted_dirs.remove("Racine")
+        # Add it to the beginning
+        sorted_dirs.insert(0, "Racine")
+    
+    # Generate a section for each subdirectory
+    for subdir in sorted_dirs:
+        images = dir_images[subdir]
+        
+        # Add section header
+        content += f"## {subdir}\n\n"
+        
+        # Add each image in the directory
+        for img in images:
+            content += f"### {img['name']}\n\n"
+            content += f"![{img['name']}]({img['path']})\n\n"
     
     # Save the file in the docs directory
     output_path = os.path.join(docs_dir, output_file)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content)
     
-    return output_path, len(png_files)
+    return output_path, total_images
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Générer une description des fichiers Markdown.')
