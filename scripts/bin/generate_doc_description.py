@@ -98,6 +98,9 @@ def generate_docs_description(docs_dir="docs", exclude_file=None, base_url=None)
     description = f"# Description des fichiers de documentation\n\n"
     description += f"Total: {total_files} fichiers markdown\n\n"
     
+    # Add table of contents
+    description += "## Table des matières\n\n"
+    
     # Sort subdirectories, but ensure "Racine" appears first
     sorted_dirs = sorted(dirs_files.keys())
     if "Racine" in sorted_dirs:
@@ -106,11 +109,20 @@ def generate_docs_description(docs_dir="docs", exclude_file=None, base_url=None)
         # Add it to the beginning
         sorted_dirs.insert(0, "Racine")
     
+    # Generate TOC entries for each subdirectory
+    for subdir in sorted_dirs:
+        # Create anchor link - lowercase, replace spaces with dashes
+        anchor = subdir.lower().replace(" ", "-")
+        description += f"- [{subdir}](#{anchor})\n"
+    
+    description += "\n"
+    
     # Generate a section for each subdirectory
     for subdir in sorted_dirs:
         markdown_files = dirs_files[subdir]
         
-        # Add section header
+        # Add section header with HTML anchor for TOC
+        description += f"<a id=\"{subdir.lower().replace(' ', '-')}\"></a>\n"
         description += f"## {subdir}\n\n"
         
         # Add table header
@@ -163,19 +175,29 @@ def generate_illustrations_page(docs_dir="docs", output_file="Illustrations.md")
     content = "# Illustrations\n\n"
     content += f"Total: {total_images} images\n\n"
     
+    # Add table of contents
+    content += "## Table des matières\n\n"
+    
     # Sort subdirectories, but ensure "Racine" appears first
     sorted_dirs = sorted(dir_images.keys())
     if "Racine" in sorted_dirs:
-        # Remove "Racine" from its current position
         sorted_dirs.remove("Racine")
-        # Add it to the beginning
         sorted_dirs.insert(0, "Racine")
+    
+    # Generate TOC entries for each subdirectory
+    for subdir in sorted_dirs:
+        # Create anchor link - lowercase, replace spaces with dashes
+        anchor = subdir.lower().replace(" ", "-")
+        content += f"- [{subdir}](#{anchor})\n"
+    
+    content += "\n"
     
     # Generate a section for each subdirectory
     for subdir in sorted_dirs:
         images = dir_images[subdir]
         
-        # Add section header
+        # Add section header with HTML anchor for TOC
+        content += f"<a id=\"{subdir.lower().replace(' ', '-')}\"></a>\n"
         content += f"## {subdir}\n\n"
         
         # Add each image in the directory
