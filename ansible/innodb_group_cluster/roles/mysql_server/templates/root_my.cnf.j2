@@ -1,0 +1,9 @@
+# roles/mysql_server/templates/root_my.cnf.j2
+# Fichier d'identifiants pour l'accès root local
+# Attention à la sécurité de ce fichier
+
+[client]
+user=root
+password="{{ mysql_root_password }}"
+# socket=/var/run/mysqld/mysqld.sock # Optionnel, utile si connexion locale uniquement
+
