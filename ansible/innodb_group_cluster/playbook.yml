@@ -1,0 +1,40 @@
+---
+# site.yml
+# Playbook principal pour déployer et configurer le cluster MySQL InnoDB
+
+- name: Préparer les serveurs de base
+  hosts: mysql_servers
+  become: yes # Exécuter les tâches en tant que root (sudo)
+  roles:
+    - role: common # Appliquer le rôle de préparation système
+
+- name: Installer MySQL Server {{ mysql_version }}
+  hosts: mysql_servers
+  become: yes
+  roles:
+    - role: mysql_server # Appliquer le rôle d'installation MySQL
+
+- name: Configurer et initialiser InnoDB Cluster
+  hosts: mysql_servers
+  become: yes
+  # serial: 1 # Décommentez pour exécuter sur un nœud à la fois (plus sûr pour l'init cluster)
+  roles:
+    - role: mysql_cluster # Appliquer le rôle de configuration du cluster
+  handlers:
+    # Définir les handlers ici s'ils ne sont pas dans roles/xxx/handlers/main.yml
+    - name: Restart mysql
+      ansible.builtin.service:
+        name: mysql
+        state: restarted
+      listen: Restart mysql # Écoute les notifications avec ce nom
+
+    - name: Restart mysql for cluster config
+      ansible.builtin.service:
+        name: mysql
+        state: restarted
+      listen: Restart mysql for cluster config # Handler spécifique si besoin
+
+    # Handler pour le rôle common (si notify est utilisé là-bas)
+    - name: Remount filesystems
+      ansible.builtin.command: mount -a
+      listen: Remount filesystems
