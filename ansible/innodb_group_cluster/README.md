@@ -17,6 +17,7 @@ The structure presented below is a widely adopted convention within the Ansible 
 
 Here is a visual representation of this recommended organization, specifically adapted for our goal of deploying a MySQL InnoDB cluster:
 
+````plaintext
 innodb_group_cluster/
 ├── 📁 inventory/
 │   └── hosts.ini           \# Defines the target servers (the WHAT) and their groups.
@@ -38,3 +39,7 @@ innodb_group_cluster/
 │       └── templates/
 │           └── innodb\_cluster.cnf.j2 \# Template for cluster directives.
 └── 📜 playbook.yml              \# Main Playbook: Orchestrates the execution of roles on the hosts.
+└── 📜 README.md             \# Project Documentation: Explanation and usage guide
+└── 📜 README_fr.md          \# French Project Documentation: Explanation and usage guide.
+
+```
