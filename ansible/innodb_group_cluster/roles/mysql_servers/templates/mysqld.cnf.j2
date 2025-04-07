@@ -1,0 +1,51 @@
+# roles/mysql_server/templates/mysqld.cnf.j2
+# Configuration de base pour MySQL Server (sera complétée par innodb_cluster.cnf)
+
+[mysqld]
+
+# --- Identification ---
+# server-id doit être unique pour chaque nœud du cluster !
+# On utilise la variable 'server_id' définie dans l'inventaire pour cet hôte.
+server-id = {{ server_id }}
+
+# --- Répertoires ---
+user = mysql
+pid-file = /var/run/mysqld/mysqld.pid
+socket = /var/run/mysqld/mysqld.sock
+port = {{ mysql_port }}
+basedir = /usr
+datadir = {{ mysql_datadir }}
+tmpdir = /tmp
+lc-messages-dir = /usr/share/mysql
+skip-external-locking
+
+# --- Réseau ---
+bind-address = 0.0.0.0 # Écouter sur toutes les interfaces (nécessaire pour le cluster)
+# max_connections = 151 # Ajuster selon les besoins
+# connect_timeout = 5
+# max_allowed_packet = 16M
+
+# --- Logs ---
+log_error = /var/log/mysql/error.log
+# slow_query_log = 1
+# slow_query_log_file = /var/log/mysql/mysql-slow.log
+# long_query_time = 2
+
+# --- Binaire Log (Requis pour la réplication/Group Replication) ---
+log-bin = mysql-bin
+binlog_format = ROW # Requis pour Group Replication
+
+# --- GTID (Requis pour Group Replication) ---
+gtid_mode = ON
+enforce_gtid_consistency = ON
+
+# --- InnoDB (Ajustez selon vos ressources) ---
+# default_storage_engine = InnoDB
+# innodb_buffer_pool_size = {{ innodb_buffer_pool_size | default('1G') }} # Valeur par défaut si non définie
+# innodb_log_file_size = {{ innodb_log_file_size | default('128M') }}
+# innodb_flush_log_at_trx_commit = 1 # ACID (plus sûr), 2 (moins sûr, plus rapide)
+# innodb_flush_method = O_DIRECT # Souvent recommandé sous Linux
+
+# --- Inclusion des configurations spécifiques ---
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/

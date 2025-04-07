@@ -16,7 +16,7 @@ La structure présentée ci-dessous est une convention largement adoptée au sei
 
 Voici donc une représentation visuelle de cette organisation recommandée, spécifiquement adaptée pour notre objectif de déploiement d'un cluster MySQL InnoDB :
 
-innodb_group_cluster/
+innodb_group_cluster/  
 ├── 📁 inventory/  
 │   └── hosts.ini           \# Définit les serveurs cibles (le QUOI) et leurs groupes.  
 ├── 📁 group\_vars/  
@@ -37,3 +37,5 @@ innodb_group_cluster/
 │       └── templates/  
 │           └── innodb\_cluster.cnf.j2 \# Modèle pour les directives du cluster.  
 └── 📜 site.yml              \# Playbook principal : Orchestre l'exécution des rôles sur les hôtes.  
+└── 📜 README.md             \# Documentation du projet : Explication et guide d'utilisation.
+```

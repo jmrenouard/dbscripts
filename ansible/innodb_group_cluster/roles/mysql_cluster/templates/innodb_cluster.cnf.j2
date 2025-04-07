@@ -1,0 +1,39 @@
+# roles/mysql_cluster/templates/innodb_cluster.cnf.j2
+# Configuration spécifique pour InnoDB Cluster / Group Replication
+
+[mysqld]
+
+# --- Group Replication Settings ---
+
+# Charger le plugin Group Replication
+plugin_load_add = 'group_replication.so'
+
+# Nom du groupe (doit être un UUID valide ou sera généré)
+# Utilisons le nom défini dans les variables pour la configuration via mysqlsh
+# group_replication_group_name = "{{ mysql_cluster_group_name }}" # mysqlsh le configure
+
+# Démarrer la réplication au boot (off: géré par mysqlsh, on: démarrage auto)
+group_replication_start_on_boot = off
+
+# Adresse locale pour la communication interne du groupe
+group_replication_local_address = "{{ ansible_default_ipv4.address }}:{{ mysql_cluster_port }}"
+
+# Adresses des membres initiaux pour rejoindre le groupe (seeds)
+# Construit dynamiquement dans les tâches, ou utilisez la variable statique
+# group_replication_group_seeds = "{{ mysql_cluster_seed_list }}" # mysqlsh le configure
+
+# Méthode d'extraction des jeux d'écritures
+transaction_write_set_extraction = XXHASH64
+
+# Ne pas tenter de bootstraper le groupe automatiquement au démarrage
+# Le bootstrap est géré par la commande dba.create_cluster() ou manuellement
+loose-group_replication_bootstrap_group = off
+
+# --- Récupération distribuée (Clonage ou Incrémentielle) ---
+# Permet aux nouveaux membres de rattraper leur retard
+group_replication_clone_threshold = 1048576 # Taille seuil pour préférer le clonage
+
+# --- Paramètres de sécurité (optionnel mais recommandé) ---
+# group_replication_ssl_mode = REQUIRED # Activer SSL pour la communication du groupe
+# group_replication_recovery_use_ssl = 1 # Utiliser SSL pour la récupération
+# Assurez-vous d'avoir configuré les certificats SSL MySQL si vous activez ceci

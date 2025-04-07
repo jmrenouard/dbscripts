@@ -1,0 +1,174 @@
+# roles/mysql_server/tasks/main.yml
+# Installe MySQL Server 5.7 depuis les dépôts MySQL Community
+
+- name: Vérifier si le paquet de configuration APT MySQL est déjà téléchargé
+  ansible.builtin.stat:
+    path: "{{ mysql_apt_repo_deb_path }}"
+  register: mysql_apt_config_stat
+  tags: [mysql, mysql_install, mysql_repo]
+
+- name: Télécharger le paquet de configuration APT MySQL Community
+  ansible.builtin.get_url:
+    url: "{{ mysql_apt_repo_deb_url }}"
+    dest: "{{ mysql_apt_repo_deb_path }}"
+    mode: '0644'
+  when: not mysql_apt_config_stat.stat.exists
+  tags: [mysql, mysql_install, mysql_repo]
+
+# Note : L'installation de ce .deb est normalement interactive.
+# On utilise DEBIAN_FRONTEND=noninteractive pour essayer de l'automatiser.
+# Il sélectionnera par défaut MySQL 8.0. Il faut pré-configurer debconf
+# pour choisir MySQL 5.7.
+
+- name: Pré-configurer Debconf pour sélectionner MySQL 5.7
+  ansible.builtin.debconf:
+    name: mysql-apt-config
+    question: mysql-apt-config/select-server
+    value: "mysql-{{ mysql_version }}" # Doit correspondre à une option valide, ex: mysql-5.7
+    vtype: select
+  tags: [mysql, mysql_install, mysql_repo]
+
+- name: Pré-configurer Debconf pour sélectionner 'Ok'
+  ansible.builtin.debconf:
+    name: mysql-apt-config
+    question: mysql-apt-config/select-product
+    value: "Ok" # Pour valider la sélection
+    vtype: select
+  tags: [mysql, mysql_install, mysql_repo]
+
+- name: Installer le paquet de configuration APT MySQL (non interactif)
+  ansible.builtin.apt:
+    deb: "{{ mysql_apt_repo_deb_path }}"
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  register: apt_config_install
+  changed_when: "'install ok installed' in apt_config_install.stdout" # Heuristique pour détecter le changement
+  tags: [mysql, mysql_install, mysql_repo]
+
+- name: Mettre à jour le cache APT après ajout du repo MySQL
+  ansible.builtin.apt:
+    update_cache: yes
+  when: apt_config_install.changed # Seulement si le repo a été ajouté/modifié
+  tags: [mysql, mysql_install, mysql_repo]
+
+- name: Installer MySQL Server {{ mysql_version }} et le client
+  ansible.builtin.apt:
+    name:
+      - "mysql-server={{ mysql_version }}*" # Utilise un pattern pour correspondre à la version exacte
+      - "mysql-client={{ mysql_version }}*"
+      - "mysql-community-server-core={{ mysql_version }}*" # Dépendances possibles
+      - "mysql-community-client-plugins={{ mysql_version }}*" # Dépendances possibles
+    state: present
+    allow_downgrade: yes # Nécessaire si une version plus récente était installée
+  notify: Restart mysql # Déclencher un redémarrage après l'installation/mise à jour
+  tags: [mysql, mysql_install]
+  environment:
+    # Préseeder le mot de passe root pour éviter l'invite interactive (moins sécurisé que mysql_user)
+    # DEBIAN_FRONTEND: noninteractive # Peut être nécessaire
+    # Note: Cette méthode de préseed est moins fiable/sécurisée que le module mysql_user ensuite.
+    # Elle est laissée ici comme alternative si mysql_user pose problème initialement.
+    # mysql-community-server/root-pass: password {{ mysql_root_password }}
+    # mysql-community-server/re-root-pass: password {{ mysql_root_password }}
+    # mysql-community-server/remove-test-db: boolean true
+    pass:
+
+- name: Installer MySQL Shell (requis pour dba.create_cluster)
+  ansible.builtin.apt:
+    name: mysql-shell
+    state: present
+  tags: [mysql, mysql_install, mysql_cluster]
+
+- name: Créer les répertoires de configuration MySQL si nécessaire
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: '0755'
+  loop:
+    - /etc/mysql/mysql.conf.d
+    - /etc/mysql/conf.d # Ancien chemin, parfois encore utilisé/attendu
+  tags: [mysql, mysql_config]
+
+- name: Configurer MySQL (mysqld.cnf) via template
+  ansible.builtin.template:
+    src: mysqld.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf # Chemin standard Ubuntu
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart mysql
+  tags: [mysql, mysql_config]
+
+- name: S'assurer que le service MySQL est démarré et activé
+  ansible.builtin.service:
+    name: mysql # Nom du service peut varier (mysql, mysqld) - vérifier sur Ubuntu 24
+    state: started
+    enabled: yes
+  tags: [mysql, mysql_service]
+
+# --- Sécurisation et configuration post-installation ---
+
+- name: Attendre que MySQL démarre complètement
+  ansible.builtin.wait_for:
+    port: "{{ mysql_port }}"
+    host: "127.0.0.1"
+    delay: 10 # Attendre 10s avant de vérifier
+    timeout: 60 # Échouer après 60s
+  tags: [mysql, mysql_secure]
+
+- name: Définir/Mettre à jour le mot de passe root MySQL (méthode idempotente)
+  community.mysql.mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock # Utiliser socket si possible pour la première connexion
+    check_implicit_admin: yes # Permet de se connecter en tant que root sans mdp initial si socket fonctionne
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    priv: '*.*:ALL,GRANT' # Assurer tous les privilèges pour root@localhost
+    state: present
+  # no_log: true # Cache le mot de passe dans les logs Ansible
+  tags: [mysql, mysql_secure]
+
+- name: Créer le fichier .my.cnf pour l'utilisateur root OS
+  ansible.builtin.template:
+    src: root_my.cnf.j2 # Template simple pour les identifiants root
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: '0600'
+  tags: [mysql, mysql_secure]
+
+- name: Supprimer les utilisateurs anonymes
+  community.mysql.mysql_user:
+    name: '' # Utilisateur anonyme
+    host_all: yes # Sur tous les hôtes (localhost, %)
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: [mysql, mysql_secure]
+
+- name: Supprimer la base de données de test
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  tags: [mysql, mysql_secure]
+
+- name: Recharger les privilèges MySQL
+  community.mysql.mysql_info:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    filter: flush_privileges # Action spécifique pour recharger
+  tags: [mysql, mysql_secure]
+
+
+# --- Handlers ---
+# handlers:
+#   - name: Restart mysql
+#     ansible.builtin.service:
+#       name: mysql
+#       state: restarted
+#     listen: Restart mysql
+
