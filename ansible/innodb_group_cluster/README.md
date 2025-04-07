@@ -1,5 +1,4 @@
-
-**Detailed Structure of the Ansible Project for MySQL InnoDB Cluster**
+# **Detailed Structure of the Ansible Project for MySQL InnoDB Cluster**
 
 Adopting and rigorously adhering to a standardized project structure, such as the one presented here, is much more than a simple convention; it is a fundamental pillar for ensuring the success and sustainability of your automation efforts with Ansible. Whether the project is modest or large-scale, this structured organization is absolutely essential for several critical reasons.
 
@@ -11,13 +10,13 @@ Thirdly, this approach greatly facilitates **collaboration**. By clearly separat
 
 Finally, a well-thought-out structure promotes **scalability**. As your infrastructure or the complexity of your deployments increases, an organized foundation allows you to add new roles, manage more variables, or integrate new environments without the project collapsing under its own weight. It is an initial investment in organization that pays off by avoiding future technical debt.
 
-**🌳 Detailed Tree Structure: A Proven Model**
+## **🌳 Detailed Tree Structure: A Proven Model**
 
 The structure presented below is a widely adopted convention within the Ansible community. Although Ansible offers some flexibility, following this proven model maximizes the benefits described above. It embodies the principles of Infrastructure as Code (IaC) by making your automation versionable, testable, and reproducible.
 
 Here is a visual representation of this recommended organization, specifically adapted for our goal of deploying a MySQL InnoDB cluster:
 
-````plaintext
+```plaintext
 innodb_group_cluster/
 ├── 📁 inventory/
 │   └── hosts.ini           \# Defines the target servers (the WHAT) and their groups.
