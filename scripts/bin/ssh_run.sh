@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ###############################################################################
-# SCRIPT: run_command_on_nodes.sh
+# SCRIPT: ssh_run.sh
 # DESCRIPTION: Executes a given command on a list of nodes defined in a variable.
 # AUTHOR: Jean-Marie Renouard
 # DATE: 2024-04-18
 #
 # USAGE:
-#   ./run_command_on_nodes.sh <variable_name_nodes> <command_to_run>
+#   ./ssh_run.sh <variable_name_nodes> <command_to_run>
 #
 # ARGUMENTS:
 #   <variable_name_nodes>: The name of the bash variable containing the list of nodes
@@ -19,10 +19,10 @@
 #   export MY_NODES="node1.example.com node2.example.com 192.168.1.100"
 #
 #   # Run 'hostname -I' on all nodes in MY_NODES
-#   ./run_command_on_nodes.sh MY_NODES 'hostname -I'
+#   ./ssh_run.sh MY_NODES 'hostname -I'
 #
 #   # Run 'df -h / | grep /' on all nodes in SERVER_LIST (assuming SERVER_LIST is defined)
-#   ./run_command_on_nodes.sh SERVER_LIST 'df -h / | grep /'
+#   ./ssh_run.sh SERVER_LIST 'df -h / | grep /'
 #
 # PREREQUISITES:
 #   - SSH access configured (preferably with key-based authentication) to all target nodes
