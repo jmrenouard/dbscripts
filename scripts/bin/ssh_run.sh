@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ###############################################################################
 # SCRIPT: ssh_run.sh
 # DESCRIPTION: Executes a given command on a list of nodes defined in a variable.
@@ -63,7 +62,7 @@ set_val()
 # Retrieve the value of the variable whose name is provided
 # Use 'eval echo \$$NODES_VARIABLE_NAME' to get the variable value indirectly
 # If the variable is not defined, this will return an empty string
-NODES=$(get_val NODES_VARIABLE_NAME)
+NODES=$(get_val $NODES_VARIABLE_NAME)
 
 # Check if the variable contains a list of nodes
 if [ -z "$NODES" ]; then
@@ -81,11 +80,12 @@ TOTAL_EXIT_STATUS=0
 # Loop through each node in the list
 for NODE in $NODES; do
     echo "Executing on node: $NODE"
+    echo "Executing command: $COMMAND_TO_RUN"
     # Execute the command on the node via SSH
     # The -T option disables pseudo-terminal allocation, useful for non-interactive commands
     # The -o BatchMode=yes option prevents password prompts
     # The -o ConnectTimeout=5 option sets a timeout for the SSH connection
-    ssh -T -o BatchMode=yes -o ConnectTimeout=5 "$NODE" "$COMMAND_TO_RUN"
+    ssh -q -T -o BatchMode=yes -o ConnectTimeout=5 "$NODE" "$COMMAND_TO_RUN"
     # Capture the exit code of the SSH command
     SSH_EXIT_STATUS=$?
 
