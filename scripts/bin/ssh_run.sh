@@ -48,10 +48,22 @@ NODES_VARIABLE_NAME="$1"
 # The command to execute on each node
 COMMAND_TO_RUN="$2"
 
+get_val()
+{
+    local value=$1
+    echo $(eval "echo \$${value}")
+}
+
+set_val()
+{
+    local var=$1
+    shift
+    eval "${var}='$*'"
+}
 # Retrieve the value of the variable whose name is provided
 # Use 'eval echo \$$NODES_VARIABLE_NAME' to get the variable value indirectly
 # If the variable is not defined, this will return an empty string
-NODES=$(eval echo \$$NODES_VARIABLE_NAME)
+NODES=$(get_val NODES_VARIABLE_NAME)
 
 # Check if the variable contains a list of nodes
 if [ -z "$NODES" ]; then
