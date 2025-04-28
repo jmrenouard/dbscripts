@@ -43,7 +43,7 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	cmd "iptables -L"
 else
 	cmd "apt install -y firewalld python3-firewall"
-	cmd "timeout 10 systemctl restart"
+	cmd "timeout 10 systemctl restart firewalld"
 	cmd "timeout 10 systemctl enable firewalld"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=3306/tcp --permanent"
