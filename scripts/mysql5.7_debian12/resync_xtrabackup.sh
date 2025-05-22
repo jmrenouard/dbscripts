@@ -105,8 +105,7 @@ delete from mysql.slave_relay_log_info;
 delete from mysql.slave_worker_info;
 SET GLOBAL GTID_PURGED='$GTID_INFO';
 SET SQL_LOG_BIN=1;
-CHANGE MASTER TO MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PASS', MASTER_AUTO_POSITION=1;
-START GROUP_REPLICATION' FOR CHANNEL 'group_replication_recovery';
+CHANGE MASTER TO MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PASS' FOR CHANNEL 'group_replication_recovery';
 START GROUP_REPLICATION;" | mysql -v
 
 echo "==> Synchronisation terminée !"
