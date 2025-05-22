@@ -59,7 +59,7 @@ REPL_USER="rpl"
 REPL_PASS="xxxxx"
 MYSQL_DATA_DIR="/var/lib/mysql"
 MYSQL_USER="mysql"
-
+fi
 
 # Vérification de la présence de xtrabackup
 if ! command -v xtrabackup &> /dev/null; then
