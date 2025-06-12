@@ -122,6 +122,26 @@ graph TD
 
 ## 💡 Typical Workflow
 
+Here is a diagram illustrating a common workflow:
+
+```mermaid
+graph TD
+    A[Start] --> B{Choose DB Version};
+    B --> C[Ex: make mysql84];
+    C --> D{Launch MySQL 8.4};
+    D --> E[Work with DB];
+    subgraph "Possible Actions"
+        direction LR
+        F[Use make client]
+        G[Check logs with make logs]
+        H[Check status with make status]
+    end
+    E --> F & G & H;
+    H --> I[Stop Environment];
+    I --> J[`make stop`];
+    J --> K[End];
+```
+
 1.  **Choose and start a database version**:
     ```bash
     make mysql84
