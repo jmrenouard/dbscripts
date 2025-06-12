@@ -1,11 +1,12 @@
-version: '3.9'
-
+# This Docker Compose file sets up a reverse proxy using Traefik
+# and multiple MySQL/MariaDB/Percona database services.
 services:
   # ----------------------------------------------------------------
   # SERVICE 1: The Reverse Proxy that listens on port 3306
   # ----------------------------------------------------------------
   traefik:
-    image: traefik:v2.11
+    image: traefik:latest
+    restart: unless-stopped
     container_name: traefik-db-proxy
     command:
       - "--providers.docker=true"
@@ -21,6 +22,7 @@ services:
     # whenever ANY profile is activated.
     profiles:
       - "*"
+      - "traefik"
 
   # ----------------------------------------------------------------
   # SERVICE 2: The Database Services
