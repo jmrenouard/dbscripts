@@ -138,7 +138,7 @@ graph TD
     end
     E --> F & G & H;
     H --> I[Stop Environment];
-    I --> J[`make stop`];
+    I --> J[make stop];
     J --> K[End];
 ```
 
