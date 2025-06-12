@@ -1,120 +1,169 @@
-# 🚀 Gestion des Bases de Données avec Docker Compose et Make
+# 🚀 Multi-Version Database Manager with Docker & Make
 
-Ce projet fournit un ensemble d'outils basés sur `make` et `docker-compose` pour démarrer, gérer et interagir facilement avec différentes versions de serveurs de bases de données (MySQL, MariaDB, Percona). Il est idéal pour des tests de développement locaux.
+This project provides a flexible development environment to quickly launch and manage different versions of MySQL, MariaDB, and Percona Server using Docker, Docker Compose, and a `Makefile` for streamlined operations.
 
-## 📋 Prérequis
+A key feature is the **Traefik reverse proxy**, which ensures all database instances are accessible through a single, stable port on your host machine (`localhost:3306`), regardless of which specific database version you choose to run.
 
-Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre système :
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following tools installed:
 
 *   [Docker](https://docs.docker.com/get-docker/)
-*   [Docker Compose](https://docs.docker.com/compose/install/)
+*   [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
+*   `make` (available on most Linux/macOS systems. For Windows, you can use Chocolatey: `choco install make`)
 
-## 🔧 Configuration Initiale
+## ⚙️ Initial Setup
 
-La seule étape de configuration requise est de créer un fichier `.env` à la racine du projet pour définir le mot de passe root de vos bases de données.
+The only required configuration step is to set the root password for your databases.
 
-1.  Créez un fichier nommé `.env`.
-2.  Ajoutez la ligne suivante en remplaçant `votre_mot_de_passe_secret` par un mot de passe sécurisé :
+1.  Create a file named `.env` in the project's root directory.
+2.  Add the following line, replacing `your_super_secret_password` with a strong password of your choice (do not use quotes around the password):
 
     ```env
-    # Fichier de configuration des variables d'environnement
-    DB_ROOT_PASSWORD=votre_mot_de_passe_secret
+    # File: .env
+    DB_ROOT_PASSWORD=your_super_secret_password
     ```
 
-Cette variable est essentielle pour que les commandes `mycnf` et `client` fonctionnent correctement.
+⚠️ **Important**: This `DB_ROOT_PASSWORD` is crucial for the `make mycnf` and `make client` commands to function correctly.
 
-## 📚 Commandes Disponibles
+## ✨ Usage with Makefile
 
-Le `Makefile` simplifie toutes les interactions avec les conteneurs.
+The `Makefile` is the main entry point for managing the environment. It simplifies all operations into short, memorable commands.
 
-### Commandes Générales
+### General Commands
 
-Ces commandes vous aident à gérer l'état de votre environnement.
+These commands help you manage and interact with the overall environment.
 
-| Commande | Icône | Description                                                                                                | Exemple d'utilisation |
-| :------- | :---- | :--------------------------------------------------------------------------------------------------------- | :-------------------- |
-| `help`   | ❓    | Affiche le message d'aide avec la liste de toutes les commandes.                                           | `make help`           |
-| `stop`   | 🛑    | Arrête et supprime tous les conteneurs et réseaux gérés par ce projet.                                     | `make stop`           |
-| `status` | 📊    | Affiche l'état des conteneurs Docker Compose actifs.                                                       | `make status`         |
-| `info`   | ℹ️    | Donne des informations sur le service de base de données actif.                                              | `make info`           |
-| `logs`   | 📄    | Affiche les logs en temps réel du service de base de données actif.                                          | `make logs`           |
-| `mycnf`  | 🔑    | Génère un fichier `~/.my.cnf` pour se connecter avec le client `mysql` sans saisir de mot de passe.        | `make mycnf`          |
-| `client` | 💻    | Lance un client MySQL et se connecte à la base de données active.                                            | `make client`         |
+| Command         | Icon | Description                                                                 | Example Usage         |
+| :-------------- | :--- | :-------------------------------------------------------------------------- | :-------------------- |
+| `make help`     | 📜   | Displays the full list of all available commands.                           | `make help`           |
+| `make stop`     | 🛑   | Stops and properly removes all containers and networks for this project.    | `make stop`           |
+| `make status`   | 📊   | Shows the status of the project's active containers (Traefik + DB).         | `make status`         |
+| `make info`     | ℹ️   | Provides information about the active DB service and recent logs.           | `make info`           |
+| `make logs`     | 📄   | Displays logs for the currently active database service (or all if none).   | `make logs`           |
+| `make mycnf`    | 🔑   | Generates a `~/.my.cnf` file for password-less `mysql` client connections.  | `make mycnf`          |
+| `make client`   | 💻   | Starts a MySQL client connected to the active database.                     | `make client`         |
 
-### Démarrage d'une Base de Données
+### Starting a Database Instance
 
-Chaque commande de démarrage arrêtera d'abord toute instance précédemment lancée avant de démarrer la nouvelle, garantissant ainsi qu'une seule base de données tourne à la fois.
+To start a specific database instance, use the `make <database_version>` command. The Makefile will automatically stop any currently running database instance before launching the new one, ensuring only one database (plus Traefik) runs at a time.
 
 **MySQL**
 
-| Commande  | Icône | Description                             |
-| :-------- | :---- | :-------------------------------------- |
-| `mysql93` | 🐬    | Démarre un conteneur avec MySQL 9.3.    |
-| `mysql84` | 🐬    | Démarre un conteneur avec MySQL 8.4.    |
-| `mysql80` | 🐬    | Démarre un conteneur avec MySQL 8.0.    |
-| `mysql57` | 🐬    | Démarre un conteneur avec MySQL 5.7.    |
+| Command         | Icon | Description          |
+| :-------------- | :--- | :------------------- |
+| `make mysql93`  | 🐬   | Starts MySQL 9.3     |
+| `make mysql84`  | 🐬   | Starts MySQL 8.4     |
+| `make mysql80`  | 🐬   | Starts MySQL 8.0     |
+| `make mysql57`  | 🐬   | Starts MySQL 5.7     |
 
 **MariaDB**
 
-| Commande     | Icône | Description                               |
-| :----------- | :---- | :---------------------------------------- |
-| `mariadb114` | 🐧    | Démarre un conteneur avec MariaDB 11.4.   |
-| `mariadb1011`| 🐧    | Démarre un conteneur avec MariaDB 10.11.  |
-| `mariadb106` | 🐧    | Démarre un conteneur avec MariaDB 10.6.   |
+| Command           | Icon | Description            |
+| :---------------- | :--- | :--------------------- |
+| `make mariadb114` | 🐧   | Starts MariaDB 11.4    |
+| `make mariadb1011`| 🐧   | Starts MariaDB 10.11   |
+| `make mariadb106` | 🐧   | Starts MariaDB 10.6    |
 
 **Percona Server**
 
-| Commande    | Icône | Description                                 |
-| :---------- | :---- | :------------------------------------------ |
-| `percona84` | ⚡    | Démarre un conteneur avec Percona Server 8.4. |
-| `percona80` | ⚡    | Démarre un conteneur avec Percona Server 8.0. |
+| Command          | Icon | Description               |
+| :--------------- | :--- | :------------------------ |
+| `make percona84` | ⚡   | Starts Percona Server 8.4 |
+| `make percona80` | ⚡   | Starts Percona Server 8.0 |
 
-## 💡 Workflow Typique
+**Example: Switching Databases**
 
-Voici un diagramme illustrant un flux de travail courant :
+```bash
+# 1. You are working with MySQL 8.0
+make mysql80
+
+# 2. You want to switch to Percona 8.4. No need to stop manually.
+make percona84
+# This will stop mysql80 and then start percona84.
+```
+
+## 🏛️ Architecture
+
+The system uses a **Traefik reverse proxy** as a smart router. It is the only service exposed on your host machine's port `3306` and automatically forwards traffic to the currently active database instance.
 
 ```mermaid
 graph TD
-    A[Début] --> B{Choisir une version de BDD};
-    B --> C[Ex: make mysql84];
-    C --> D{Lancement de MySQL 8.4};
-    D --> E[Travailler avec la BDD];
-    subgraph "Actions possibles"
-        direction LR
-        F[Utiliser `make client`]
-        G[Consulter les logs avec make logs]
-        H[Vérifier le statut avec make status]
+    subgraph "💻 Your Host Machine"
+        App[Your App / SQL Client]
     end
-    E --> F & G & H;
-    H --> I[Arrêter l'environnement];
-    I --> J[make stop];
-    J --> K[Fin];
+
+    subgraph "🐳 Docker Engine"
+        direction LR
+        subgraph "🚪 Single Entrypoint"
+            Traefik[traefik-db-proxy<br/>proxy-for-db<br/>Listens on localhost:3306]
+        end
+        subgraph "🚀 On-Demand Database Container"
+            ActiveDB["Active Database Instance<br/>e.g., mysql80, percona84<br/>Internal Docker Port"]
+        end
+    end
+
+    App -- "Connects to localhost:3306" --> Traefik
+    Traefik -- "Dynamically routes traffic to" --> ActiveDB
 ```
 
-## ✨ Exemple Concret
+✨ **Traefik Dashboard**: To see this routing in action and inspect Traefik's configuration, open your browser and navigate to [http://localhost:8080](http://localhost:8080).
 
-1.  **Démarrer une base de données** (par exemple, MariaDB 11.4) :
+## 📁 Project Structure
+
+```
+.
+├── 📜 .env                 # Secrets file (password), to be created by you
+├── 🐳 docker-compose.yml  # Defines all services (Traefik, DBs) and their profiles
+├── 🛠️ Makefile             # Simplified commands to manage the environment
+├── 📖 README.md           # This file (English documentation)
+└── 📖 README.fr.md        # French version of this file
+```
+
+## 💡 Typical Workflow
+
+Here is a diagram illustrating a common workflow:
+
+```mermaid
+graph TD
+    A[Start] --> B{Choose DB Version};
+    B --> C[Ex: make mysql84];
+    C --> D{Launch MySQL 8.4};
+    D --> E[Work with DB];
+    subgraph "Possible Actions"
+        direction LR
+        F[Use make client]
+        G[Check logs with make logs]
+        H[Check status with make status]
+    end
+    E --> F & G & H;
+    H --> I[Stop Environment];
+    I --> J[make stop];
+    J --> K[End];
+```
+
+1.  **Choose and start a database version**:
     ```bash
-    make mariadb114
+    make mysql84
     ```
-
-2.  **Générer le fichier de configuration** pour le client MySQL :
+2.  **(Optional but Recommended)** Generate your `~/.my.cnf` for easy client access:
     ```bash
     make mycnf
     ```
-    Cela vous permettra de vous connecter sans mot de passe depuis votre terminal local.
-
-3.  **Se connecter à la base de données** :
+3.  **Connect using your preferred SQL client** to `localhost:3306` or use the provided Make command:
     ```bash
     make client
     ```
-
-4.  **Vérifier les logs** si quelque chose ne va pas :
+4.  **Develop and test** against the database.
+5.  **Check logs** if needed:
     ```bash
     make logs
     ```
-
-5.  **Arrêter l'environnement** une fois votre travail terminé :
+6.  **Switch to another database version** if required:
+    ```bash
+    make mariadb114
+    ```
+7.  When done, **stop the environment**:
     ```bash
     make stop
     ```
