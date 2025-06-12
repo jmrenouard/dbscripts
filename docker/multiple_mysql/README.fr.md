@@ -76,18 +76,18 @@ Voici un diagramme illustrant un flux de travail courant :
 ```mermaid
 graph TD
     A[Début] --> B{Choisir une version de BDD};
-    B --> C[Ex: `make mysql84`];
+    B --> C[Ex: make mysql84];
     C --> D{Lancement de MySQL 8.4};
     D --> E[Travailler avec la BDD];
     subgraph "Actions possibles"
         direction LR
         F[Utiliser `make client`]
-        G[Consulter les logs avec `make logs`]
-        H[Vérifier le statut avec `make status`]
+        G[Consulter les logs avec make logs]
+        H[Vérifier le statut avec make status]
     end
     E --> F & G & H;
     H --> I[Arrêter l'environnement];
-    I --> J[`make stop`];
+    I --> J[make stop];
     J --> K[Fin];
 ```
 

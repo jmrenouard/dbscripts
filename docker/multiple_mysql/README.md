@@ -96,10 +96,10 @@ graph TD
     subgraph "🐳 Docker Engine"
         direction LR
         subgraph "🚪 Single Entrypoint"
-            Traefik[traefik-db-proxy<br/>(proxy-for-db)<br/>Listens on localhost:3306]
+            Traefik[traefik-db-proxy<br/>proxy-for-db<br/>Listens on localhost:3306]
         end
         subgraph "🚀 On-Demand Database Container"
-            ActiveDB>"Active Database Instance<br/>(e.g., mysql80, percona84)<br/>Internal Docker Port"
+            ActiveDB>"Active Database Instance<br/>e.g., mysql80, percona84<br/>Internal Docker Port"
         end
     end
 
