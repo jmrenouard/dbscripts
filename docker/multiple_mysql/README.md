@@ -103,8 +103,8 @@ graph TD
         end
     end
 
-    App -- "Connects to localhost:3306" --> Traefik
-    Traefik -- "Dynamically routes traffic to" --> ActiveDB
+    App --> "Connects to localhost:3306" --> Traefik
+    Traefik --> "Dynamically routes traffic to" --> ActiveDB
 ```
 
 ✨ **Traefik Dashboard**: To see this routing in action and inspect Traefik's configuration, open your browser and navigate to [http://localhost:8080](http://localhost:8080).
