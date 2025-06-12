@@ -99,12 +99,12 @@ graph TD
             Traefik[traefik-db-proxy<br/>proxy-for-db<br/>Listens on localhost:3306]
         end
         subgraph "🚀 On-Demand Database Container"
-            ActiveDB>"Active Database Instance<br/>e.g., mysql80, percona84<br/>Internal Docker Port"
+            ActiveDB["Active Database Instance<br/>e.g., mysql80, percona84<br/>Internal Docker Port"]
         end
     end
 
-    App --> "Connects to localhost:3306" --> Traefik
-    Traefik --> "Dynamically routes traffic to" --> ActiveDB
+    App -- "Connects to localhost:3306" --> Traefik
+    Traefik -- "Dynamically routes traffic to" --> ActiveDB
 ```
 
 ✨ **Traefik Dashboard**: To see this routing in action and inspect Traefik's configuration, open your browser and navigate to [http://localhost:8080](http://localhost:8080).
