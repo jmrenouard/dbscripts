@@ -1,4 +1,4 @@
-# **🚀 Gestionnaire de BDD Multi-Versions avec Docker & Traefik(multi-db-docker-env)**
+# ** 🚀 Gestionnaire de BDD Multi-Versions avec Docker & Traefik(multi-db-docker-env) **
 
 Ce projet fournit un environnement de développement flexible pour lancer et gérer rapidement différentes versions de **MySQL**, **MariaDB**, et **Percona Server**. Il utilise Docker, Docker Compose, et un Makefile pour simplifier les opérations.
 
