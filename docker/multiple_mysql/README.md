@@ -1,4 +1,6 @@
-# 🚀 Multi-Version Database Manager with Docker & Make
+# ** 🚀 Multi-Version Database Manager with Docker & Make (multi-db-docker-env) **
+
+A modular Docker-based lab for running and testing multiple versions of MySQL, PostgreSQL, MongoDB, Redis, and Cassandra.
 
 This project provides a flexible development environment to quickly launch and manage different versions of MySQL, MariaDB, and Percona Server using Docker, Docker Compose, and a `Makefile` for streamlined operations.
 
