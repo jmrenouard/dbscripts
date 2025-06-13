@@ -120,7 +120,7 @@ graph TD
             Traefik[traefik-db-proxy\<br/\>proxy-for-db\<br/\>Écoute sur localhost:3306]  
         end  
         subgraph "🚀 Conteneur de BDD à la Demande"  
-            ActiveDB\["Instance de BDD Active\<br/\>ex: mysql80, percona84\<br/\>Port Docker Interne"\]  
+            ActiveDB["Instance de BDD Active\<br/\>ex: mysql80, percona84\<br/\>Port Docker Interne"]  
         end  
     end
 
