@@ -1,5 +1,9 @@
 # 🚀 Gestionnaire de BDD Multi-Versions avec Docker & Traefik(multi-db-docker-env)
 
+![multi-db-docker-env](logo.png)
+
+[!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/jmrenouard)
+
 Ce projet fournit un environnement de développement flexible pour lancer et gérer rapidement différentes versions de **MySQL**, **MariaDB**, et **Percona Server**. Il utilise Docker, Docker Compose, et un Makefile pour simplifier les opérations.
 
 Une fonctionnalité clé est le **reverse proxy Traefik**, qui assure que toutes les instances sont accessibles via un port unique et stable (localhost:3306), quelle que soit la version de base de données active.
