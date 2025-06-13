@@ -89,26 +89,6 @@ make percona84
 Un **reverse proxy Traefik** sert de routeur unique. Il écoute sur localhost:3306 et redirige le trafic vers la base de données active.
 
 ```mermaid
-graph TD
-    subgraph "💻 Your Host Machine"
-        App[Your App / SQL Client]
-    end
-
-    subgraph "🐳 Docker Engine"
-        direction LR
-        subgraph "🚪 Single Entrypoint"
-            Traefik[traefik-db-proxy<br/>proxy-for-db<br/>Listens on localhost:3306]
-        end
-        subgraph "🚀 On-Demand Database Container"
-            ActiveDB["Active Database Instance<br/>e.g., mysql80, percona84<br/>Internal Docker Port"]
-        end
-    end
-
-    App -- "Connects to localhost:3306" --> Traefik
-    Traefik -- "Dynamically routes traffic to" --> ActiveDB
-```
-
-```mermaid
 graph TD  
     subgraph "💻 Votre Machine Hôte"
         App[Votre App / Client SQL]
