@@ -1,6 +1,6 @@
-# 🚀 Gestionnaire de BDD Multi-Versions avec Docker & Traefik(multi-db-docker-env)
-
 ![multi-db-docker-env](logo.png)
+
+# 🚀 Gestionnaire de BDD Multi-Versions avec Docker & Traefik(multi-db-docker-env)
 
 [!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/jmrenouard)
 
@@ -88,6 +88,7 @@ make percona84
 
 Un **reverse proxy Traefik** sert de routeur unique. Il écoute sur localhost:3306 et redirige le trafic vers la base de données active.
 
+```mermaid
 graph TD  
     subgraph "💻 Votre Machine Hôte"  
         App\[Votre App / Client SQL\]  
@@ -105,6 +106,7 @@ graph TD
 
     App \-- "Se connecte à localhost:3306" \--\> Traefik  
     Traefik \-- "Route dynamiquement le trafic vers" \--\> ActiveDB
+```
 
 ✨ **Tableau de Bord Traefik** : Pour visualiser le routage, consultez [http://localhost:8080](http://localhost:8080).
 

@@ -1,6 +1,6 @@
-# 🚀 Multi-Version Database Manager with Docker & Make (multi-db-docker-env)
-
 ![multi-db-docker-env](logo.png)
+
+# 🚀 Multi-Version Database Manager with Docker & Make (multi-db-docker-env)
 
 [!["Buy Us A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/jmrenouard)
 
