@@ -1,0 +1,45 @@
+---
+- name: Uninstall MariaDB on Ubuntu
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Remove MariaDB list files
+      ansible.builtin.find:
+        paths: /etc/apt/sources.list.d
+        patterns: '*mariadb*.list'
+        use_regex: true
+      register: files_to_delete
+
+    - name: Delete found files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ files_to_delete.files }}"
+
+    - name: Remove MariaDB and related packages
+      ansible.builtin.apt:
+        name:
+          - mariadb-client
+          - mariadb-backup
+          - mariadb-server
+          - mariadb-plugin-cracklib-password-check
+          - mariadb-plugin-connect
+          - socat
+          - libjemalloc2
+          - nmap
+          - pwgen
+          - lsof
+          - pigz
+          - percona-toolkit
+        state: absent
+
+    - name: Remove MySQLTuner-perl directory
+      ansible.builtin.file:
+        path: /opt/local/MySQLTuner-perl
+        state: absent
+
+    - name: Remove mysqltuner profile script
+      ansible.builtin.file:
+        path: /etc/profile.d/mysqltuner.sh
+        state: absent

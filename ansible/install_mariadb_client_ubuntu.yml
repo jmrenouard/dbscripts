@@ -1,0 +1,60 @@
+---
+- name: Install MariaDB Client on Ubuntu
+  hosts: all
+  become: yes
+  vars:
+    mariadb_version: "10.8"
+
+  tasks:
+    - name: Remove existing MariaDB list files
+      ansible.builtin.find:
+        paths: /etc/apt/sources.list.d
+        patterns: '*mariadb*.list'
+        use_regex: true
+      register: files_to_delete
+
+    - name: Delete found files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ files_to_delete.files }}"
+
+    - name: Install software-properties-common
+      ansible.builtin.apt:
+        name: software-properties-common
+        state: present
+
+    - name: Add MariaDB GPG key
+      ansible.builtin.apt_key:
+        url: https://mariadb.org/mariadb_release_signing_key.asc'
+        state: present
+
+    - name: Add MariaDB repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64,arm64,ppc64el] http://nyc2.mirrors.digitalocean.com/mariadb/repo/{{ mariadb_version }}/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: Update package list
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install MariaDB client and other tools
+      ansible.builtin.apt:
+        name:
+          - python3
+          - mariadb-client
+          - mylvmbackup
+          - sysbench
+          - mycli
+          - mariadb-backup
+          - socat
+          - telnet
+          - rsync
+          - tree
+          - nmap
+          - lsof
+          - netcat
+          - pigz
+          - git
+          - pwgen
+        state: present

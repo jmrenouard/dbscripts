@@ -1,0 +1,42 @@
+---
+- name: Uninstall MariaDB on CentOS
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Remove MariaDB repo file
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/mariadb.repo
+        state: absent
+
+    - name: Remove MariaDB and related packages
+      ansible.builtin.yum:
+        name:
+          - mysql-server
+          - mariadb-server
+          - MariaDB-backup
+          - MariaDB-client
+          - MariaDB-compat
+          - socat
+          - jemalloc
+          - nmap
+          - pwgen
+          - lsof
+          - perl-DBI
+          - nc
+          - mariadb-server-utils
+          - pigz
+          - perl-DBD-MySQL
+          - percona-toolkit
+          - mysqlreport
+        state: absent
+
+    - name: Remove MySQLTuner-perl directory
+      ansible.builtin.file:
+        path: /opt/local/MySQLTuner-perl
+        state: absent
+
+    - name: Remove mysqltuner profile script
+      ansible.builtin.file:
+        path: /etc/profile.d/mysqltuner.sh
+        state: absent

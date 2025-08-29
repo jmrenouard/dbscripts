@@ -1,0 +1,51 @@
+---
+- name: Install MariaDB Client on CentOS
+  hosts: all
+  become: yes
+  vars:
+    mariadb_version: "10.5"
+
+  tasks:
+    - name: Remove existing MariaDB repo files
+      ansible.builtin.file:
+        path: "/etc/yum.repos.d/mariadb_{{ item }}.repo"
+        state: absent
+      with_items:
+        - "10.5"
+        - "10.6"
+        - "10.7"
+        - "10.8"
+
+    - name: Add MariaDB repository
+      ansible.builtin.yum_repository:
+        name: mariadb
+        description: "MariaDB_{{ mariadb_version }}"
+        baseurl: "http://yum.mariadb.org/{{ mariadb_version }}/centos{{ ansible_distribution_major_version }}-amd64"
+        module_hotfixes: yes
+        gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+        gpgcheck: yes
+
+    - name: Install EPEL release
+      ansible.builtin.yum:
+        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: present
+
+    - name: Install MariaDB client and other tools
+      ansible.builtin.yum:
+        name:
+          - python3
+          - MariaDB-backup
+          - sysbench
+          - MariaDB-client
+          - socat
+          - telnet
+          - rsync
+          - tree
+          - nmap
+          - lsof
+          - perl-DBI
+          - nc
+          - pigz
+          - git
+          - pwgen
+        state: present

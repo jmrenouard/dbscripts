@@ -1,0 +1,104 @@
+---
+- name: Install MariaDB on CentOS
+  hosts: all
+  become: yes
+  vars:
+    mariadb_version: "10.8"
+
+  tasks:
+    - name: Remove existing MariaDB repo files
+      ansible.builtin.file:
+        path: "/etc/yum.repos.d/mariadb_{{ item }}.repo"
+        state: absent
+      with_items:
+        - "10.5"
+        - "10.6"
+        - "10.7"
+        - "10.8"
+
+    - name: Add MariaDB repository
+      ansible.builtin.yum_repository:
+        name: mariadb
+        description: "MariaDB_{{ mariadb_version }}"
+        baseurl: "http://yum.mariadb.org/{{ mariadb_version }}/centos{{ ansible_distribution_major_version }}-amd64"
+        module_hotfixes: yes
+        gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+        gpgcheck: yes
+
+    - name: Install EPEL release
+      ansible.builtin.yum:
+        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: present
+
+    - name: Install MariaDB and related packages
+      ansible.builtin.yum:
+        name:
+          - MariaDB-server
+          - galera-4
+          - MariaDB-client
+          - MariaDB-shared
+          - MariaDB-backup
+          - MariaDB-common
+          - pv
+          - python3
+          - mylvmbackup
+          - MariaDB-cracklib-password-check
+          - MariaDB-connect-engine
+          - cracklib
+          - cracklib-dicts
+          - tree
+          - socat
+          - sysbench
+          - jemalloc
+          - rsync
+          - nmap
+          - lsof
+          - net-tools
+          - perl-DBI
+          - nc
+          - mariadb-server-utils
+          - pigz
+          - perl-DBD-MySQL
+          - git
+          - pwgen
+        state: present
+
+    - name: Install Percona repository
+      ansible.builtin.yum:
+        name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+        state: present
+
+    - name: Install Percona Toolkit
+      ansible.builtin.yum:
+        name: percona-toolkit
+        state: present
+
+    - name: Install mydumper
+      ansible.builtin.yum:
+        name: https://github.com/mydumper/mydumper/releases/download/v0.12.5-3/mydumper-0.12.5-3.el7.x86_64.rpm
+        state: present
+      when: ansible_distribution_major_version == '7'
+
+    - name: Create /opt/local directory
+      ansible.builtin.file:
+        path: /opt/local
+        state: directory
+        mode: '0755'
+
+    - name: Clone MySQLTuner-perl repository
+      ansible.builtin.git:
+        repo: https://github.com/major/MySQLTuner-perl.git
+        dest: /opt/local/MySQLTuner-perl
+        clone: yes
+        update: yes
+
+    - name: Set permissions for mysqltuner.pl
+      ansible.builtin.file:
+        path: /opt/local/MySQLTuner-perl/mysqltuner.pl
+        mode: '0755'
+
+    - name: Create profile script for mysqltuner
+      ansible.builtin.copy:
+        content: 'export PATH=$PATH:/opt/local/MySQLTuner-perl'
+        dest: /etc/profile.d/mysqltuner.sh
+        mode: '0755'
