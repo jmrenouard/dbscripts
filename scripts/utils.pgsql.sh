@@ -497,7 +497,7 @@ pgtables()
     local db=${2:-"$1"}
 
     if [ -z "$3" ]; then
-        psql -p $port -Antcount() -c "select schemaname || '.' || tablename from pg_tables where schemaname NOT IN ('information_schema' , 'pg_catalog')" $db
+        psql -p $port -Ant -c "select schemaname || '.' || tablename from pg_tables where schemaname NOT IN ('information_schema' , 'pg_catalog')" $db
     else 
         psql -p $port -Ant -c "select schemaname || '.' || tablename from pg_tables where schemaname = '$3'" $db
     fi 

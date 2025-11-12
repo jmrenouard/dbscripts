@@ -13,8 +13,13 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 
 	info "Autoriser les clients MySQL/MariaDB"
 	cmd "/sbin/iptables -A INPUT -p tcp --dport 3306 -j ACCEPT"
+	cmd "/sbin/iptables -A OUTPUT -p tcp --dport 3306 -j ACCEPT"
 
-	info"Autoriser la réplication WSREP"
+	info "Autoriser la réplication Group replication"
+	cmd "/sbin/iptables -A INPUT -p tcp --dport 33061 -j ACCEPT"
+	cmd "/sbin/iptables -A OUTPUT -p tcp --dport 33061 -j ACCEPT"
+  
+	info "Autoriser la réplication WSREP"
 	cmd "/sbin/iptables -A INPUT -p tcp --dport 4567 -j ACCEPT"
 	cmd "/sbin/iptables -A INPUT -p udp --dport 4567 -j ACCEPT"
 	cmd "/sbin/iptables -A OUTPUT -p tcp --dport 4567 -j ACCEPT"
@@ -43,7 +48,7 @@ if [ "$ID" != "centos" -a "$VERSION_ID" = "7" ]; then
 	cmd "iptables -L"
 else
 	cmd "apt install -y firewalld python3-firewall"
-	cmd "timeout 10 systemctl restart"
+	cmd "timeout 10 systemctl restart firewalld"
 	cmd "timeout 10 systemctl enable firewalld"
 	lRC=$(($lRC + $?))
 	cmd "firewall-cmd --add-port=3306/tcp --permanent"

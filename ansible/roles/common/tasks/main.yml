@@ -1,0 +1,96 @@
+# roles/common/tasks/main.yml
+# Tâches de préparation communes pour les serveurs Ubuntu 24.04
+
+- name: Mise à jour du cache APT
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600 # Rafraîchir le cache si plus vieux qu'une heure
+  tags: [common, packages]
+
+- name: Mise à niveau des paquets système
+  ansible.builtin.apt:
+    upgrade: dist # 'dist' gère mieux les dépendances que 'yes'
+  tags: [common, packages]
+
+- name: Installation des paquets de base utiles
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - vim
+      - htop
+      - net-tools
+      - wget
+      - ufw # Firewall (si vous l'utilisez)
+      - "{{ mysql_python_package }}" # Paquet Python pour le module mysql_user, etc.
+    state: present
+  tags: [common, packages]
+
+# --- Bonnes pratiques pour BDD ---
+
+- name: Désactivation du Swap (Recommandé pour les BDD) - Arrêt
+  ansible.builtin.command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+  changed_when: false # La commande ne modifie pas de fichier de manière idempotente
+  failed_when: false # Ne pas échouer si swap déjà off
+  tags: [common, swap]
+
+- name: Désactivation du Swap (Recommandé pour les BDD) - fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1' # Commente la ligne de swap
+  notify: Remount filesystems # Peut être nécessaire dans certains cas, sinon un reboot suffit
+  tags: [common, swap]
+
+- name: Réglage de Swappiness à une valeur basse (1)
+  ansible.posix.sysctl:
+    name: vm.swappiness
+    value: '1'
+    state: present
+    reload: yes
+  tags: [common, sysctl]
+
+# --- Configuration du Firewall (exemple avec UFW) ---
+# Décommentez et adaptez si vous utilisez UFW
+
+# - name: Autoriser le trafic SSH (port 22)
+#   community.general.ufw:
+#     rule: allow
+#     port: '22'
+#     proto: tcp
+#   tags: [common, firewall]
+
+# - name: Autoriser le port MySQL ({{ mysql_port }}) depuis n'importe où (à restreindre !)
+#   community.general.ufw:
+#     rule: allow
+#     port: "{{ mysql_port }}"
+#     proto: tcp
+#   tags: [common, firewall, mysql]
+#   # Pour restreindre : ajoutez src: 'ip_ou_reseau'
+
+# - name: Autoriser le port InnoDB Cluster ({{ mysql_cluster_port }}) entre les nœuds du cluster
+#   community.general.ufw:
+#     rule: allow
+#     port: "{{ mysql_cluster_port }}"
+#     proto: tcp
+#     src: "{{ item }}"
+#   loop: "{{ groups['mysql_servers'] | map('extract', hostvars, 'ansible_host') | list }}"
+#   when: groups['mysql_servers'] is defined
+#   tags: [common, firewall, mysql_cluster]
+
+# - name: Activer UFW
+#   community.general.ufw:
+#     state: enabled
+#   tags: [common, firewall]
+
+# --- Handlers (déclenchés par 'notify') ---
+# Placez ce bloc à la racine du playbook ou dans un fichier handlers/main.yml séparé
+# handlers:
+#   - name: Remount filesystems
+#     ansible.builtin.command: mount -a
+#     listen: Remount filesystems
+

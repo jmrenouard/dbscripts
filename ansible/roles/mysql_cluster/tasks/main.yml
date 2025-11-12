@@ -1,0 +1,162 @@
+# roles/mysql_cluster/tasks/main.yml
+# Configure MySQL InnoDB Cluster (Group Replication)
+
+- name: Inclure les variables spécifiques au groupe mysql_servers
+  ansible.builtin.include_vars:
+    file: ../../group_vars/mysql_servers.yml
+  # Ou utilisez directement les variables si définies dans l'inventaire [all:vars]
+
+- name: Créer le fichier de configuration InnoDB Cluster via template
+  ansible.builtin.template:
+    src: innodb_cluster.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/innodb_cluster.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart mysql for cluster config # Notifier un handler spécifique ou le même
+  tags: [mysql_cluster, mysql_config]
+
+# Assurer que MySQL est redémarré APRES la conf cluster ET la conf de base
+- name: Forcer l'exécution des handlers maintenant
+  ansible.builtin.meta: flush_handlers
+  tags: [mysql_cluster, mysql_service]
+
+- name: Attendre que MySQL redémarre après la configuration du cluster
+  ansible.builtin.wait_for:
+    port: "{{ mysql_port }}"
+    host: "127.0.0.1"
+    delay: 15 # Attendre un peu plus longtemps
+    timeout: 120
+  tags: [mysql_cluster, mysql_service]
+
+- name: Créer l'utilisateur administrateur pour InnoDB Cluster
+  community.mysql.mysql_user:
+    name: "{{ mysql_cluster_user }}"
+    host: '%' # Autoriser la connexion depuis les autres nœuds
+    password: "{{ mysql_cluster_password }}"
+    priv: '*.*:RELOAD,SHUTDOWN,PROCESS,FILE,SUPER,REPLICATION SLAVE,REPLICATION CLIENT,CREATE USER,CLONE_ADMIN' # Privilèges étendus nécessaires
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  # no_log: true # Cache le mot de passe dans les logs
+  tags: [mysql_cluster, mysql_users]
+
+# --- Initialisation/Configuration du Cluster avec mysqlsh ---
+# C'est la partie la plus délicate à rendre idempotente avec Ansible.
+# Utilisation de 'shell' avec des commandes mysqlsh et des vérifications.
+
+- name: Construire la liste des adresses IP des membres pour les seeds
+  ansible.builtin.set_fact:
+    mysql_cluster_seed_list: "{{ groups['mysql_servers'] | map('extract', hostvars, ['ansible_host']) | map('regex_replace', '$', ':' + mysql_cluster_port | string) | join(',') }}"
+  when: groups['mysql_servers'] is defined
+  tags: [mysql_cluster, cluster_setup]
+
+- name: Afficher la liste des seeds (debug)
+  ansible.builtin.debug:
+    var: mysql_cluster_seed_list
+  tags: [mysql_cluster, cluster_setup, debug]
+
+# Tâche pour le premier nœud (bootstrap)
+- name: Vérifier si le cluster existe déjà (sur le premier nœud)
+  ansible.builtin.shell: |
+    mysqlsh --user={{ mysql_cluster_user }} --password={{ mysql_cluster_password }} \
+    --host=127.0.0.1 --port={{ mysql_port }} --py \
+    -e "try: dba.get_cluster('{{ mysql_cluster_group_name }}'); print('EXISTS') except Exception: print('NOT_EXISTS')"
+  args:
+    executable: /bin/bash
+  register: check_cluster_exists
+  changed_when: false
+  failed_when: false # On gère l'existence via la sortie standard
+  when: inventory_hostname == groups['mysql_servers'][0] # Exécuter seulement sur le premier nœud listé
+  tags: [mysql_cluster, cluster_setup]
+  # no_log: true # Cache les identifiants
+
+- name: Créer le cluster InnoDB (sur le premier nœud si non existant)
+  ansible.builtin.shell: |
+    mysqlsh --user={{ mysql_cluster_user }} --password={{ mysql_cluster_password }} \
+    --host=127.0.0.1 --port={{ mysql_port }} --py \
+    -e "dba.create_cluster('{{ mysql_cluster_group_name }}', { \
+          ipAllowlist: '{{ groups['mysql_servers'] | map('extract', hostvars, 'ansible_host') | join(',') }},127.0.0.1', \
+          localAddress: '{{ ansible_default_ipv4.address }}:{{ mysql_cluster_port }}', \
+          autoRejoinTries: 3 \
+        })"
+  args:
+    executable: /bin/bash
+  when:
+    - inventory_hostname == groups['mysql_servers'][0]
+    - check_cluster_exists.stdout is defined
+    - "'NOT_EXISTS' in check_cluster_exists.stdout"
+  register: create_cluster_result
+  changed_when: "'Cluster successfully created' in create_cluster_result.stdout"
+  tags: [mysql_cluster, cluster_setup]
+  # no_log: true # Cache les identifiants
+
+# Tâches pour les autres nœuds (rejoindre le cluster)
+- name: Vérifier le statut de l'instance courante dans le cluster (sur les autres nœuds)
+  ansible.builtin.shell: |
+    mysqlsh --user={{ mysql_cluster_user }} --password={{ mysql_cluster_password }} \
+    --cluster --uri={{ mysql_cluster_user }}@{{ groups['mysql_servers'][0] }}:{{ mysql_port }} \
+    --py -e "cluster = dba.get_cluster('{{ mysql_cluster_group_name }}'); \
+             status = cluster.status(); \
+             instance_uri = '{{ mysql_cluster_user }}@{{ ansible_host }}:{{ mysql_port }}'; \
+             if instance_uri in status['defaultReplicaSet']['topology']: print('IN_CLUSTER'); \
+             else: print('NOT_IN_CLUSTER')"
+  args:
+    executable: /bin/bash
+  register: check_instance_status
+  changed_when: false
+  failed_when: false # On gère le statut via stdout
+  when: inventory_hostname != groups['mysql_servers'][0] # Exécuter sur tous sauf le premier
+  tags: [mysql_cluster, cluster_setup]
+  # no_log: true
+
+- name: Ajouter l'instance au cluster (sur les autres nœuds si pas déjà dedans)
+  ansible.builtin.shell: |
+    mysqlsh --user={{ mysql_cluster_user }} --password={{ mysql_cluster_password }} \
+    --cluster --uri={{ mysql_cluster_user }}@{{ groups['mysql_servers'][0] }}:{{ mysql_port }} \
+    --py -e "cluster = dba.get_cluster('{{ mysql_cluster_group_name }}'); \
+             cluster.add_instance('{{ mysql_cluster_user }}@{{ ansible_host }}:{{ mysql_port }}', { \
+               ipAllowlist: '{{ groups['mysql_servers'] | map('extract', hostvars, 'ansible_host') | join(',') }},127.0.0.1', \
+               localAddress: '{{ ansible_default_ipv4.address }}:{{ mysql_cluster_port }}', \
+               autoRejoinTries: 3, \
+               recoveryMethod: 'clone' \
+             })"
+  args:
+    executable: /bin/bash
+  when:
+    - inventory_hostname != groups['mysql_servers'][0]
+    - check_instance_status.stdout is defined
+    - "'NOT_IN_CLUSTER' in check_instance_status.stdout"
+  register: add_instance_result
+  changed_when: "'successfully added' in add_instance_result.stdout" # Adapter selon la sortie exacte
+  tags: [mysql_cluster, cluster_setup]
+  # no_log: true
+
+# --- Vérification finale (optionnelle) ---
+- name: Vérifier le statut final du cluster (depuis le premier nœud)
+  ansible.builtin.shell: |
+    mysqlsh --user={{ mysql_cluster_user }} --password={{ mysql_cluster_password }} \
+    --host=127.0.0.1 --port={{ mysql_port }} --py \
+    -e "cluster = dba.get_cluster('{{ mysql_cluster_group_name }}'); print(cluster.status())"
+  args:
+    executable: /bin/bash
+  register: final_cluster_status
+  changed_when: false
+  when: inventory_hostname == groups['mysql_servers'][0]
+  tags: [mysql_cluster, cluster_check]
+  # no_log: true
+
+- name: Afficher le statut final du cluster (debug)
+  ansible.builtin.debug:
+    var: final_cluster_status.stdout_lines
+  when: inventory_hostname == groups['mysql_servers'][0]
+  tags: [mysql_cluster, cluster_check, debug]
+
+
+# --- Handlers spécifiques au cluster (si nécessaire) ---
+# handlers:
+#   - name: Restart mysql for cluster config
+#     ansible.builtin.service:
+#       name: mysql
+#       state: restarted
+#     listen: Restart mysql for cluster config
