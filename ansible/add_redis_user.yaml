@@ -1,0 +1,93 @@
+---
+- name: Ajouter un utilisateur Redis avec des permissions spécifiques
+  hosts: redis
+  gather_facts: false
+  vars:
+    redis_username: "{{ user }}"  # Nom d'utilisateur Redis à définir
+#    redis_password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"  # Mot de passe utilisateur à définir
+    redis_email: "{{ email }}"  # Adresse e-mail de l'utilisateur
+    redis_profile: "{{ profile | default('READ_ONLY') }}"  # Profil de l'utilisateur
+  #run_once: true
+  tasks:
+    - name: Générer un mot de passe aléatoire
+      ansible.builtin.shell: |
+        echo "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"
+      register: redis_password
+      changed_when: false
+      run_once: true
+
+    - name: Créer l'utilisateur Redis s'il n'existe pas
+      ansible.builtin.shell: |
+        RPROFILE=""
+        [ "{{ redis_profile }}" = "READ_ONLY" ] && RPROFILE="-@all +@read +@list +@string +@hash +@bitmap +@pubsub +PING ~*"
+        [ "{{ redis_profile }}" = "READ_WRITE" ] && RPROFILE="-@all +PING +@read +@write +@set +@sortedset +@list +@string +@hash +@bitmap +@pubsub ~*"
+        [ "{{ redis_profile }}" = "ADMIN" ] && RPROFILE="+@all ~*"
+        if [ -z "$RPROFILE" ]; then
+          echo "Profil Redis non valide."
+          exit 1
+        fi
+        
+        for port in $(seq 7000 7005); do
+          nc -zv -w1 localhost $port 2>&1 | grep -qi "succeeded"  
+          [ $? -ne 0 ] && continue
+          echo "-----------------------------------"
+          echo "$(hostname) / $port"
+          echo "-----------------------------------"
+          echo -e "ACL DELUSER {{ redis_username }}\nACL SETUSER {{ redis_username }} on >{{ redis_password.stdout }} $RPROFILE\n" |\
+          redis-cli -c -p $port -a {{ redis_auth_password }}
+        done
+      args:
+        executable: /bin/bash
+
+    - name: Afficher le résultat de la création d'utilisateur
+      ansible.builtin.debug:
+        msg: "Utilisateur Redis '{{ redis_username }}' créé avec les permissions '{{ redis_profile }}'."
+
+    - name: Tester la connexion avec le nouvel utilisateur
+      ansible.builtin.shell: |
+        for port in $(seq 7000 7005); do
+          nc -zv -w1 localhost $port 2>&1 | grep -qi "succeeded"  
+          [ $? -ne 0 ] && continue
+          echo -e "AUTH {{ redis_username }} {{ redis_password.stdout }}\nPING" |\
+          redis-cli -c -p ${port} 2>/dev/null| tail -n1
+        done | sort | uniq
+      args:
+        executable: /bin/bash
+      register: user_test
+      changed_when: false
+
+    - name: Afficher le résultat du test de connexion
+      ansible.builtin.debug:
+        msg: "Test de connexion avec l'utilisateur '{{ redis_username }}' : {{ user_test.stdout }}"
+#      when: user_test.stdout == "PONG"
+    
+    - name: Envoyer un e-mail de confirmation
+      mail:
+        host: "smtp.sendgrid.net"
+        username: "{{ sendgrid_username }}"
+        password: "{{ sendgrid_api_key }}"
+        port: 587
+        secure: starttls
+        from: "archi@imporelec.com"
+        to:
+          - "{{ redis_email }}"
+        subject: "Création de compte Redis"
+        body: |
+          Bonjour,
+          
+          Votre compte Redis a été créé avec succès.
+          Environnement : {{ env }}
+          Vos identifiants sont : {{ redis_username }} / {{ redis_password.stdout }}
+
+          Cordialement,
+          L'équipe d'Archi/ImporElec
+          archi@imporelec.com
+      when: user_test.stdout == "PONG"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Afficher le résultat de l'envoi de l'e-mail
+      ansible.builtin.debug:
+        msg: "E-mail de confirmation envoyé à '{{ redis_email }}'."
+      when: user_test.stdout == "PONG"
+      run_once: true

@@ -1,0 +1,44 @@
+---
+- name: Supprimer un utilisateur Redis
+  hosts: redis
+  gather_facts: false
+  vars:
+    redis_username: "{{ user }}"  # Le nom de l'utilisateur à supprimer
+  #run_once: true
+  tasks:
+    - name: Vérifier si l'utilisateur Redis existe
+      ansible.builtin.shell: |
+          for port in $(seq 7000 7005); do
+            nc -zv -w1 localhost $port 2>&1 | grep -qi "succeeded"  
+            [ $? -ne 0 ] && continue
+            echo "-----------------------------------"
+            echo "$(hostname) / $port"
+            echo "-----------------------------------"
+            redis-cli -c -p $port -a {{ redis_auth_password }} acl list 2>/dev/null| grep "{{ redis_username }}"
+          done
+      register: user_exists
+      failed_when: false
+      changed_when: false
+
+    - name: Supprimer l'utilisateur Redis s'il existe
+      ansible.builtin.shell: |
+        for port in $(seq 7000 7005); do
+          nc -zv -w1 localhost $port 2>&1 | grep -qi "succeeded"  
+          [ $? -ne 0 ] && continue
+          echo "-----------------------------------"
+          echo "$(hostname) / $port"
+          echo "-----------------------------------"
+          redis-cli -c -p $port -a {{ redis_auth_password }} acl deluser "{{ redis_username }}" 2>/dev/null
+        done
+      when: user_exists.stdout != ""
+      register: delete_result
+
+    - name: Afficher un message si l'utilisateur n'existe pas
+      ansible.builtin.debug:
+        msg: "L'utilisateur Redis '{{ redis_username }}' n'existe pas."
+      when: user_exists.stdout == ""
+
+    - name: Afficher le résultat de la suppression
+      ansible.builtin.debug:
+        msg: "Utilisateur Redis '{{ redis_username }}' supprimé."
+      when: delete_result is changed
