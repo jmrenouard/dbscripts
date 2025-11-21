@@ -19,4 +19,3 @@ docker run -d -p 9000:9000 -p 8000:8000 \
 -v portainer_data:/data \
 -v /var/tmp/portainer_password:/var/tmp/portainer_password portainer/portainer-ce \
 --admin-password-file /var/tmp/portainer_password
-
