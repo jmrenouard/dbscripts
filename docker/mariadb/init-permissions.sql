@@ -1,0 +1,3 @@
+-- init-permissions.sql
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'10.5.0.%' IDENTIFIED BY 'rootpass' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
