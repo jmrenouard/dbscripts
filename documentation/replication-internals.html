@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>MySQL Replication Sim: Parallel Workers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #1e1e2e;
+      --panel: #181825;
+      --text: #cdd6f4;
+      --master-color: #89b4fa;
+      --slave-color: #a6e3a1;
+      --event-color: #fab387;
+      --ack-color: #f38ba8;
+      --highlight: #f9e2af;
+      --danger: #e78284;
+      --success: #a6e3a1;
+      --disk-color: #7f8c8d;
+      --worker-color: #cba6f7; /* Mauve pour les workers */
+    }
+
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', monospace; display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    aside { width: 340px; background: var(--panel); padding: 15px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #313244; box-shadow: 4px 0 10px rgba(0,0,0,0.3); overflow-y: auto; z-index: 10; }
+    h1 { margin: 0; font-size: 1.3rem; color: #fff; border-bottom: 2px solid var(--master-color); padding-bottom: 8px; }
+    h2 { margin: 10px 0 5px 0; font-size: 0.9rem; text-transform: uppercase; color: #6c7086; letter-spacing: 1px; }
+    
+    .control-group { background: #11111b; padding: 12px; border-radius: 6px; border: 1px solid #313244; }
+    label { display: flex; justify-content: space-between; font-size: 0.85rem; color: #a6adc8; margin-bottom: 5px; }
+    span.val { color: var(--highlight); font-weight: bold; font-family: monospace; }
+    input[type=range] { width: 100%; cursor: pointer; accent-color: var(--master-color); }
+    select { width: 100%; background: #313244; color: #fff; border: 1px solid #45475a; padding: 6px; border-radius: 4px; font-family: inherit; margin-top: 5px; }
+
+    /* BUTTONS */
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    button { background: #313244; color: white; border: 1px solid #45475a; padding: 10px; cursor: pointer; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+    button:hover { background: #45475a; }
+    button:active { transform: translateY(1px); }
+    
+    .btn-master { border-left: 3px solid var(--master-color); }
+    .btn-stop { background: #3e1b1b; border-color: var(--danger); }
+    button.btn-on { background: #1e3a29; border-color: var(--success); color: var(--success); }
+    button.btn-off { background: #3a1e1e; border-color: var(--danger); color: var(--danger); opacity: 0.8; }
+
+    /* METRICS */
+    .metrics { font-size: 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-box { background: #1e1e2e; padding: 5px; border-radius: 4px; border: 1px solid #313244; }
+    .metric-val { font-size: 1.1rem; font-weight: bold; color: var(--text); }
+    .lag { color: var(--danger); }
+
+    /* CANVAS */
+    main { flex: 1; position: relative; background: #000; }
+    canvas { display: block; width: 100%; height: 100%; }
+
+    /* CONSOLE */
+    #console { position: absolute; bottom: 0; left: 0; right: 0; height: 150px; background: rgba(17, 17, 27, 0.95); border-top: 1px solid #45475a; padding: 10px; font-family: 'Consolas', monospace; font-size: 11px; overflow-y: auto; pointer-events: none; }
+    .log-line { margin-bottom: 3px; display: flex; gap: 10px; }
+    .ts { color: #89dceb; width: 70px; }
+    .comp { color: #f9e2af; width: 90px; font-weight: bold; text-align: right; margin-right: 10px;}
+    .msg { flex: 1; color: #cdd6f4; }
+    
+    .legend { position: absolute; top: 50px; right: 50px; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 4px; font-size: 0.8rem; pointer-events: none; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+  </style>
+</head>
+<body>
+
+<aside>
+  <h1>MySQL Repl <span style="font-size:0.6em; color:#6c7086">Sim v1.6</span></h1>
+
+  <h2>🚀 Charge (Master)</h2>
+  <div class="control-group">
+    <div class="btn-grid">
+      <button class="btn-master" onclick="sim.startLoad(1)">🐢 Low</button>
+      <button class="btn-master" onclick="sim.startLoad(5)">🐇 High</button>
+      <button class="btn-master" onclick="sim.startLoad(20)">🔥 Burst</button>
+      <button class="btn-stop" onclick="sim.stopLoad()">🛑 Stop</button>
+    </div>
+    <label style="margin-top:10px">Taille TRX (Events)<span class="val" id="disp-trx">1</span></label>
+    <input type="range" min="1" max="10" value="1" oninput="sim.params.trxSize=parseInt(this.value); ui.update()">
+  </div>
+
+  <h2>⚙️ Configuration Master</h2>
+  <div class="control-group">
+    <label>Max Binlog Size (Events)<span class="val" id="disp-mbs">20</span></label>
+    <input type="range" min="10" max="100" value="20" oninput="sim.params.maxBinlogSize=parseInt(this.value); sim.masterBinlog.maxEvents=sim.params.maxBinlogSize; ui.update()">
+
+    <label>Sync Binlog</label>
+    <select onchange="sim.params.syncBinlog = parseInt(this.value); sim.log('Sync Binlog changé: ' + this.value, 'CONFIG')">
+      <option value="1">1 (Fsync à chaque commit)</option>
+      <option value="0">0 (OS Cache / Async)</option>
+    </select>
+    
+    <label>Rpl Semi-Sync Master</label>
+    <select onchange="sim.params.semiSync = (this.value === 'true'); sim.log('Semi-Sync: ' + this.value, 'CONFIG')">
+      <option value="false">Disabled (Async)</option>
+      <option value="true">Enabled (Wait for ACK)</option>
+    </select>
+  </div>
+
+  <h2>🐌 Configuration Slave</h2>
+  <div class="control-group">
+    <label>Parallel Workers (MTS)<span class="val" id="disp-workers">0</span></label>
+    <input type="range" min="0" max="4" value="0" step="1" oninput="sim.setWorkers(this.value); ui.update()">
+
+    <label>Slave IO Thread (Latence)</label>
+    <input type="range" min="0" max="100" value="10" oninput="sim.params.netLatency=parseInt(this.value); ui.update()">
+    
+    <label>Slave SQL Thread (Vitesse)</label>
+    <input type="range" min="1" max="20" value="5" oninput="sim.params.sqlSpeed=parseInt(this.value); ui.update()">
+    
+    <div class="btn-grid" style="margin-top:10px">
+      <button id="btn-io" class="btn-on" onclick="sim.toggleSlaveIO()">IO: ON</button>
+      <button id="btn-sql" class="btn-on" onclick="sim.toggleSlaveSQL()">SQL: ON</button>
+    </div>
+  </div>
+
+  <h2>📊 Métriques</h2>
+  <div class="control-group metrics">
+    <div class="metric-box">
+      <div style="color:#aaa">Master Pos</div>
+      <div class="metric-val" id="m-mpos">0</div>
+    </div>
+    <div class="metric-box">
+      <div style="color:#aaa">Exec Master</div>
+      <div class="metric-val" id="m-spos">0</div>
+    </div>
+    <div class="metric-box" style="grid-column: span 2">
+      <div style="color:#aaa">Seconds Behind Master</div>
+      <div class="metric-val lag" id="m-lag">0s</div>
+    </div>
+    <div class="metric-box">
+      <div style="color:#aaa">Events Queue</div>
+      <div class="metric-val" id="m-queue">0</div>
+    </div>
+  </div>
+
+  <div style="font-size:0.75rem; color:#666; margin-top:auto">
+    Jean-Marie Renouard | Expertise Données
+  </div>
+</aside>
+
+<main>
+  <canvas id="simCanvas"></canvas>
+  <div class="legend">
+    <div><span class="dot" style="background:var(--event-color)"></span>Binlog Event</div>
+    <div><span class="dot" style="background:var(--worker-color)"></span>Worker Task</div>
+    <div><span class="dot" style="background:var(--disk-color)"></span>Data Write</div>
+  </div>
+  <div id="console"></div>
+</main>
+
+<script>
+(() => {
+  const C = {
+    bg: '#000000',
+    serverBg: '#181825',
+    serverBorder: '#313244',
+    masterBorder: '#89b4fa',
+    slaveBorder: '#a6e3a1',
+    binlog: '#89b4fa',
+    relaylog: '#a6e3a1',
+    event: '#fab387',
+    ack: '#f38ba8',
+    threadActive: '#a6e3a1',
+    threadWait: '#f9e2af',
+    threadStop: '#e78284',
+    disk: '#7f8c8d',
+    dataPacket: '#95a5a6',
+    worker: '#cba6f7',
+    coordinator: '#f5c2e7' // Pinkish for Coord
+  };
+
+  class Packet {
+    constructor(id, type, x, y, tx, ty, speed, onArrive) {
+      this.id = id; this.type = type;
+      this.x = x; this.y = y; this.tx = tx; this.ty = ty;
+      this.speed = speed; this.onArrive = onArrive;
+      this.progress = 0; this.finished = false;
+    }
+    update() {
+      this.progress += this.speed;
+      if (this.progress >= 1) { this.progress = 1; this.finished = true; }
+      this.currX = this.x + (this.tx - this.x) * this.progress;
+      this.currY = this.y + (this.ty - this.y) * this.progress;
+    }
+    draw(ctx) {
+      if (this.type === 'data') ctx.fillStyle = C.dataPacket;
+      else if (this.type === 'ack') ctx.fillStyle = C.ack;
+      else if (this.type === 'worker') ctx.fillStyle = C.worker;
+      else ctx.fillStyle = C.event;
+      
+      ctx.beginPath(); 
+      if (this.type === 'data') {
+         ctx.fillRect(this.currX - 3, this.currY - 3, 6, 6);
+      } else {
+         ctx.arc(this.currX, this.currY, 4, 0, Math.PI * 2); 
+      }
+      ctx.fill();
+    }
+  }
+
+  class StorageBox {
+    constructor(name, x, y, w, h) {
+        this.name = name; this.x = x; this.y = y; this.w = w; this.h = h;
+    }
+    draw(ctx) {
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.strokeStyle = C.disk;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(this.x, this.y, this.w, this.h);
+        ctx.strokeStyle = '#34495e';
+        ctx.lineWidth = 1;
+        for(let i=1; i<4; i++) {
+            ctx.beginPath(); ctx.moveTo(this.x + 10, this.y + i*(this.h/4)); ctx.lineTo(this.x + this.w - 10, this.y + i*(this.h/4)); ctx.stroke();
+        }
+        ctx.fillStyle = '#bdc3c7'; ctx.textAlign = 'center'; ctx.font = 'bold 11px monospace';
+        ctx.fillText(this.name, this.x + this.w/2, this.y + this.h/2 + 4);
+    }
+  }
+
+  class ThreadBox {
+    constructor(name, x, y, w, h, isWorker = false) {
+      this.name = name;
+      this.x = x; this.y = y; this.w = w; this.h = h;
+      this.state = 'WORK'; // WORK, STOP, IDLE
+      this.activity = 0;
+      this.isWorker = isWorker;
+    }
+    setStatus(s) { this.state = s; if(s==='WORK') this.activity = 20; }
+    draw(ctx) {
+      if(this.state === 'STOP') return; 
+
+      ctx.fillStyle = this.isWorker ? '#3e2e4f' : '#2a2b3d';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+      ctx.strokeStyle = this.isWorker ? C.worker : '#555';
+      ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+      let color = this.state === 'WORK' ? C.threadActive : C.threadWait;
+      if (this.isWorker && this.state === 'WORK') color = C.worker;
+
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(this.x + 15, this.y + this.h/2, 5, 0, Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = '11px Segoe UI';
+      ctx.fillText(this.name, this.x + 55, this.y + this.h/2 + 4);
+
+      if (this.activity > 0) {
+        ctx.strokeStyle = `rgba(255,255,255,${this.activity/20})`;
+        ctx.strokeRect(this.x, this.y, this.w, this.h);
+        this.activity--;
+      }
+    }
+  }
+
+  class LogFile {
+    constructor(name, type, x, y, w, h) {
+      this.name = name; this.type = type;
+      this.x = x; this.y = y; this.w = w; this.h = h;
+      this.events = []; this.maxEvents = 20;
+    }
+    push(evt) { this.events.push(evt); }
+    draw(ctx) {
+      ctx.fillStyle = '#11111b';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+      ctx.strokeStyle = this.type === 'bin' ? C.binlog : C.relaylog;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(this.x, this.y, this.w, this.h);
+      ctx.fillStyle = ctx.strokeStyle; ctx.textAlign = 'center'; ctx.font = 'bold 12px monospace';
+      ctx.fillText(this.name, this.x + this.w/2, this.y - 8);
+
+      const h = (this.h - 10) / this.maxEvents;
+      this.events.forEach((evt, i) => {
+        const yPos = (this.y + this.h - 5) - (i * h) - h;
+        ctx.fillStyle = C.event;
+        ctx.fillRect(this.x + 5, yPos, this.w - 10, h - 2);
+        if (this.type === 'bin' && evt.needAck) {
+             ctx.fillStyle = C.ack;
+             ctx.beginPath(); ctx.arc(this.x + this.w - 8, yPos + h/2, 2, 0, Math.PI*2); ctx.fill();
+        }
+      });
+    }
+  }
+
+  class Engine {
+    constructor() {
+      this.canvas = document.getElementById('simCanvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.params = { trxSize: 1, syncBinlog: 1, semiSync: false, netLatency: 10, sqlSpeed: 5, loadInterval: null, maxBinlogSize: 20, slaveWorkers: 0 };
+      this.metrics = { masterPos: 0, slavePos: 0, lag: 0 };
+      
+      this.packets = [];
+      this.threads = {};
+      this.workers = []; // Array of worker objects
+      this.masterLogStore = []; this.slaveRelayStore = [];
+      this.binlogIndex = 1; this.relayLogIndex = 1;
+      this.rrIndex = 0; // Round Robin index
+      
+      this.masterIBD = null; this.slaveIBD = null;
+
+      this.initLayout();
+      window.addEventListener('resize', () => this.initLayout());
+      requestAnimationFrame(() => this.drawLoop());
+      setInterval(() => this.logicLoop(), 100);
+    }
+
+    initLayout() {
+      this.canvas.width = this.canvas.parentElement.offsetWidth;
+      this.canvas.height = this.canvas.parentElement.offsetHeight;
+      const w = this.canvas.width; const h = this.canvas.height;
+      const serverWidth = (w / 2) - 60; const netWidth = 80;
+      this.zones = {
+        master: { x: 20, y: 40, w: serverWidth, h: h - 60 },
+        slave: { x: 20 + serverWidth + netWidth, y: 40, w: serverWidth, h: h - 60 },
+        net: { x: 20 + serverWidth, y: 40, w: netWidth, h: h - 60 }
+      };
+
+      const tW = 120; const tH = 36; const logW = 60; const logH = 200; const midY = h / 2;
+      const ibdW = 100; const ibdH = 50;
+
+      // MASTER
+      this.threads['App'] = new ThreadBox('Client Session', this.zones.master.x + (serverWidth * 0.1), midY - 200 -150, tW, tH);
+      this.masterIBD = new StorageBox('Tablespace (.ibd)', this.zones.master.x + (serverWidth * 0.1) + 10, midY +200-150, ibdW, ibdH);
+      this.masterBinlog = new LogFile('mysql-bin.00001', 'bin', this.zones.master.x + (serverWidth * 0.5) , midY - (logH/2)-150, logW, logH);
+      this.threads['Dump'] = new ThreadBox('Binlog Dump', this.zones.master.x + serverWidth - tW - 10, midY - (tH/2)-150, tW, tH);
+
+      // SLAVE
+      this.threads['IO'] = new ThreadBox('IO Thread', this.zones.slave.x + 10, midY - (tH/2)-150, tW, tH);
+      this.slaveRelayLog = new LogFile('relay-log.00001', 'relay', this.zones.slave.x + (serverWidth * 0.5), midY - (logH/2)-150, logW, logH);
+      
+      // SQL Thread / Coordinator
+      const sqlY = midY + 114;
+      this.threads['SQL'] = new ThreadBox('SQL Thread', this.zones.slave.x  + serverWidth - tW - 170, sqlY - 100, tW, tH);
+
+      // Workers
+      this.setupWorkers();
+
+      // Slave IBD - Move down if workers are present
+      const ibdY = sqlY + 60 + (this.params.slaveWorkers > 0 ? 80 : 0);
+      this.slaveIBD = new StorageBox('Tablespace (.ibd)', this.zones.slave.x + serverWidth - tW -170, ibdY -50 , ibdW, ibdH);
+    }
+
+    setupWorkers() {
+      this.workers = [];
+      const num = this.params.slaveWorkers;
+      if (num === 0) return;
+
+      const tW = 100; const tH = 28;
+      const startX = this.threads['SQL'].x + 10; 
+      const startY = this.threads['SQL'].y + 50;
+      
+      for(let i=0; i<num; i++) {
+        // Arrange nicely
+        const x = this.zones.slave.x + 20 + (i * (tW + 10)); // Horizontal row?
+        // Let's stack them or grid them below SQL? 
+        // Better: Put them between SQL and IBD visually
+        const wx = this.zones.slave.x + this.zones.slave.w - tW - 20 - (i*10); // Staggered
+        const wy = startY + (i * (tH + 5));
+        
+        this.workers.push(new ThreadBox(`Worker ${i+1}`, wx, wy, tW, tH, true));
+      }
+    }
+
+    setWorkers(val) {
+        this.params.slaveWorkers = parseInt(val);
+        document.getElementById('disp-workers').innerText = this.params.slaveWorkers;
+        if(this.params.slaveWorkers > 0) {
+            this.threads['SQL'].name = "SQL (Coord)";
+        } else {
+            this.threads['SQL'].name = "SQL Thread";
+        }
+        this.initLayout(); // Re-layout to fit workers
+    }
+
+    // ... (toggleSlaveIO, toggleSlaveSQL, startLoad, stopLoad, createTransaction same as before)
+    toggleSlaveIO() {
+      const t = this.threads['IO'];
+      const btn = document.getElementById('btn-io');
+      if(t.state === 'STOP') { 
+        t.setStatus('WORK'); btn.innerText="IO: ON"; btn.className="btn-on";
+        this.log("IO Thread Started", "SLAVE");
+      } else { 
+        t.setStatus('STOP'); btn.innerText="IO: OFF"; btn.className="btn-off";
+        this.log("IO Thread Stopped", "SLAVE");
+      }
+    }
+
+    toggleSlaveSQL() {
+      const t = this.threads['SQL'];
+      const btn = document.getElementById('btn-sql');
+      if(t.state === 'STOP') { 
+        t.setStatus('WORK'); btn.innerText="SQL: ON"; btn.className="btn-on";
+        this.log("SQL Thread Started", "SLAVE");
+      } else { 
+        t.setStatus('STOP'); btn.innerText="SQL: OFF"; btn.className="btn-off";
+        this.log("SQL Thread Stopped", "SLAVE");
+      }
+    }
+
+    startLoad(speed) {
+      if (this.params.loadInterval) clearInterval(this.params.loadInterval);
+      const delay = 1000 / speed;
+      this.params.loadInterval = setInterval(() => this.createTransaction(), delay);
+    }
+    stopLoad() {
+      if (this.params.loadInterval) clearInterval(this.params.loadInterval);
+      this.params.loadInterval = null;
+      this.threads['App'].setStatus('IDLE');
+    }
+
+    createTransaction() {
+      this.threads['App'].setStatus('WORK');
+      // 1. IBD Write
+      const startApp = {x: this.threads['App'].x + 60, y: this.threads['App'].y + 36};
+      const endIBD = {x: this.masterIBD.x + 50, y: this.masterIBD.y};
+      this.spawnPacket(-1, 'data', startApp.x, startApp.y, endIBD.x, endIBD.y, 0.15);
+
+      // 2. Binlog Write
+      if (this.masterBinlog.events.length >= this.params.maxBinlogSize) {
+         this.binlogIndex++;
+         this.masterBinlog.name = `mysql-bin.${String(this.binlogIndex).padStart(5, '0')}`;
+         this.masterBinlog.events = [];
+      }
+      for(let i=0; i<this.params.trxSize; i++) {
+        this.metrics.masterPos++;
+        const evt = { id: this.metrics.masterPos, ts: Date.now(), needAck: this.params.semiSync };
+        this.masterLogStore.push(evt);
+        this.masterBinlog.push(evt);
+
+        const endBin = {x: this.masterBinlog.x + 30, y: this.masterBinlog.y + 40};
+        const speed = this.params.syncBinlog === 1 ? 0.1 : 0.3;
+        this.spawnPacket(evt.id, 'event', startApp.x, startApp.y, endBin.x, endBin.y, speed);
+      }
+      ui.update();
+    }
+
+    logicLoop() {
+      // 1. Dump Logic
+      if(this.masterLogStore.length > 0) {
+        const lastEvt = this.masterLogStore[this.masterLogStore.length - 1];
+        if(!lastEvt.sentToNet && this.threads['IO'].state !== 'STOP') {
+            this.threads['Dump'].setStatus('WORK');
+            lastEvt.sentToNet = true;
+            const p1 = {x: this.masterBinlog.x + 60, y: this.masterBinlog.y + 100};
+            const p2 = {x: this.threads['Dump'].x + 10, y: this.threads['Dump'].y + 18};
+            this.spawnPacket(lastEvt.id, 'event', p1.x, p1.y, p2.x, p2.y, 0.2, () => {
+                const pStartNet = {x: this.threads['Dump'].x + this.threads['Dump'].w, y: this.threads['Dump'].y + 18};
+                const pEndNet = {x: this.threads['IO'].x, y: this.threads['IO'].y + 18};
+                const speed = 0.01 + (this.params.netLatency / 500); 
+                this.spawnPacket(lastEvt.id, 'event', pStartNet.x, pStartNet.y, pEndNet.x, pEndNet.y, speed * 0.5, () => {
+                    this.receiveAtSlave(lastEvt);
+                });
+            });
+        }
+      }
+
+      // 2. SQL Thread Logic (Classic or Coordinator)
+      if(this.threads['SQL'].state !== 'STOP' && this.slaveRelayStore.length > 0) {
+        if(Math.random() * 20 < this.params.sqlSpeed) {
+            const evt = this.slaveRelayStore.shift();
+            
+            const p1 = {x: this.slaveRelayLog.x + 30, y: this.slaveRelayLog.y + 180};
+            const p2 = {x: this.threads['SQL'].x + 10, y: this.threads['SQL'].y + 18};
+            
+            // Relay -> SQL/Coord
+            this.spawnPacket(evt.id, 'event', p1.x, p1.y, p2.x, p2.y, 0.15, () => {
+                this.threads['SQL'].setStatus('WORK'); 
+                
+                // MULTI-THREADED LOGIC
+                if (this.params.slaveWorkers > 0) {
+                    // Dispatch to Worker
+                    this.rrIndex = (this.rrIndex + 1) % this.workers.length;
+                    const w = this.workers[this.rrIndex];
+                    w.setStatus('WORK');
+                    
+                    // SQL Coord -> Worker
+                    const pCoord = {x: this.threads['SQL'].x + 50, y: this.threads['SQL'].y + 36};
+                    const pWorker = {x: w.x + 10, y: w.y + 10};
+                    this.spawnPacket(evt.id, 'worker', pCoord.x, pCoord.y, pWorker.x, pWorker.y, 0.15, () => {
+                         // Worker -> IBD
+                         const pWOut = {x: w.x + 50, y: w.y + 28};
+                         const pIBD = {x: this.slaveIBD.x + 50, y: this.slaveIBD.y};
+                         this.spawnPacket(-1, 'data', pWOut.x, pWOut.y, pIBD.x, pIBD.y, 0.2, () => {
+                             this.completeSlaveTrx(evt);
+                         });
+                    });
+
+                } else {
+                    // CLASSIC LOGIC: SQL -> IBD
+                    const p3 = {x: this.threads['SQL'].x + 50, y: this.threads['SQL'].y + 36};
+                    const p4 = {x: this.slaveIBD.x + 50, y: this.slaveIBD.y};
+                    this.spawnPacket(-1, 'data', p3.x, p3.y, p4.x, p4.y, 0.2, () => {
+                         this.completeSlaveTrx(evt);
+                    });
+                }
+            });
+        }
+      } else {
+         if (this.slaveRelayStore.length === 0 && this.threads['SQL'].state === 'WORK') {
+          this.threads['SQL'].setStatus('IDLE');
+          this.metrics.lag = 0;
+          ui.update();
+        }
+      }
+    }
+
+    completeSlaveTrx(evt) {
+        this.metrics.slavePos = evt.id;
+        this.metrics.lag = ((Date.now() - evt.ts)/1000).toFixed(1);
+        ui.update();
+        if(this.slaveRelayLog.events.length > 0 && this.slaveRelayLog.events[0].id === evt.id) {
+           this.slaveRelayLog.events.shift();
+        }
+    }
+
+    receiveAtSlave(evt) {
+      if(this.threads['IO'].state === 'STOP') return; 
+      if (this.slaveRelayLog.events.length >= this.params.maxBinlogSize) {
+         this.relayLogIndex++;
+         this.slaveRelayLog.name = `relay-log.${String(this.relayLogIndex).padStart(5, '0')}`;
+         this.slaveRelayLog.events = [];
+      }
+      this.threads['IO'].setStatus('WORK');
+      this.slaveRelayStore.push(evt);
+      this.slaveRelayLog.push(evt);
+      this.log(`Slave IO: Reçu GTID ${evt.id}`, 'IO');
+
+      const p1 = {x: this.threads['IO'].x + this.threads['IO'].w, y: this.threads['IO'].y + 18};
+      const p2 = {x: this.slaveRelayLog.x + 30, y: this.slaveRelayLog.y + 20};
+      this.spawnPacket(evt.id, 'event', p1.x, p1.y, p2.x, p2.y, 0.2, () => {
+         if(evt.needAck) this.sendAck(evt);
+      });
+    }
+
+    sendAck(evt) {
+        const start = {x: this.threads['IO'].x, y: this.threads['IO'].y + 25};
+        const end = {x: this.threads['Dump'].x + this.threads['Dump'].w, y: this.threads['Dump'].y + 25};
+        this.spawnPacket(evt.id, 'ack', start.x, start.y, end.x, end.y, 0.02, () => {
+            this.log(`Master: ACK GTID ${evt.id}`, 'DUMP');
+            const visualEvt = this.masterBinlog.events.find(e => e.id === evt.id);
+            if(visualEvt) visualEvt.needAck = false;
+        });
+    }
+
+    spawnPacket(id, type, x, y, tx, ty, speed, cb) {
+      this.packets.push(new Packet(id, type, x, y, tx, ty, speed, cb));
+    }
+
+    drawLoop() {
+      this.ctx.fillStyle = C.bg; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.lineWidth = 2;
+      
+      // Servers
+      this.ctx.fillStyle = C.serverBg; this.ctx.strokeStyle = C.masterBorder;
+      this.ctx.fillRect(this.zones.master.x, this.zones.master.y, this.zones.master.w, this.zones.master.h);
+      this.ctx.strokeRect(this.zones.master.x, this.zones.master.y, this.zones.master.w, this.zones.master.h -160);
+      this.ctx.fillStyle = C.masterBorder; this.ctx.font = 'bold 14px Arial'; this.ctx.textAlign = 'left';
+      this.ctx.fillText("SERVER 1: MASTER", this.zones.master.x + 10, this.zones.master.y - 10);
+
+      this.ctx.fillStyle = C.serverBg; this.ctx.strokeStyle = C.slaveBorder;
+      this.ctx.fillRect(this.zones.slave.x, this.zones.slave.y, this.zones.slave.w, this.zones.slave.h);
+      this.ctx.strokeRect(this.zones.slave.x, this.zones.slave.y, this.zones.slave.w, this.zones.slave.h -160);
+      this.ctx.fillStyle = C.slaveBorder; this.ctx.font = 'bold 14px Arial'; this.ctx.textAlign = 'right';
+      this.ctx.fillText("SERVER 2: SLAVE", this.zones.slave.x + this.zones.slave.w - 370, this.zones.slave.y - 10);
+
+      // Network
+      this.ctx.strokeStyle = '#444'; this.ctx.setLineDash([4, 4]); this.ctx.beginPath();
+      this.ctx.moveTo(this.zones.net.x + this.zones.net.w/2, 0); this.ctx.lineTo(this.zones.net.x + this.zones.net.w/2, this.canvas.height);
+      this.ctx.stroke(); this.ctx.setLineDash([]);
+      this.ctx.fillStyle = '#666'; this.ctx.textAlign = 'center'; this.ctx.font = '10px monospace';
+      this.ctx.fillText("NETWORK (TCP/IP)", this.zones.net.x + this.zones.net.w/2, this.zones.net.y - 10);
+
+      this.masterBinlog.draw(this.ctx);
+      this.slaveRelayLog.draw(this.ctx);
+      this.masterIBD.draw(this.ctx);
+      this.slaveIBD.draw(this.ctx);
+      
+      Object.values(this.threads).forEach(t => t.draw(this.ctx));
+      this.workers.forEach(w => w.draw(this.ctx)); // Draw workers
+
+      // Arrows
+      this.drawElbowArrow({x: this.threads['App'].x + 60, y: this.threads['App'].y + 36}, {x: this.masterBinlog.x + 30, y: this.masterBinlog.y}, 'down');
+      this.drawElbowArrow({x: this.threads['App'].x + 60, y: this.threads['App'].y + 36}, {x: this.masterIBD.x + 50, y: this.masterIBD.y}, 'down');
+
+      if (this.threads['Dump'].state !== 'STOP') {
+        this.drawElbowArrow({x: this.masterBinlog.x + 60, y: this.masterBinlog.y + 100}, {x: this.threads['Dump'].x, y: this.threads['Dump'].y + 18}, 'right');
+      }
+
+      if (this.threads['IO'].state !== 'STOP') {
+          this.drawElbowArrow({x: this.threads['IO'].x + 120, y: this.threads['IO'].y + 18}, {x: this.slaveRelayLog.x, y: this.slaveRelayLog.y + 40}, 'right');
+      }
+
+      if (this.threads['SQL'].state !== 'STOP') {
+          this.drawElbowArrow({x: this.slaveRelayLog.x + 30, y: this.slaveRelayLog.y + 180}, {x: this.threads['SQL'].x, y: this.threads['SQL'].y + 18}, 'down');
+          
+          if (this.params.slaveWorkers === 0) {
+             // Direct to IBD
+             this.drawElbowArrow({x: this.threads['SQL'].x + 50, y: this.threads['SQL'].y + 36}, {x: this.slaveIBD.x + 50, y: this.slaveIBD.y}, 'down');
+          } else {
+             // Arrows to workers (simplified visual: just point down generally)
+          }
+      }
+
+      for (let i = this.packets.length - 1; i >= 0; i--) {
+        const p = this.packets[i]; p.update(); p.draw(this.ctx);
+        if (p.finished) { if (p.onArrive) p.onArrive(); this.packets.splice(i, 1); }
+      }
+      requestAnimationFrame(() => this.drawLoop());
+    }
+
+    drawElbowArrow(p1, p2, startDir) {
+        this.ctx.strokeStyle = '#555'; this.ctx.lineWidth = 1; this.ctx.beginPath(); this.ctx.moveTo(p1.x, p1.y);
+        if (startDir === 'down') {
+            const midY = p1.y + (p2.y - p1.y) * 0.5;
+            this.ctx.lineTo(p1.x, midY); this.ctx.lineTo(p2.x, midY); this.ctx.lineTo(p2.x, p2.y);
+        } else if (startDir === 'right') {
+            const midX = p1.x + (p2.x - p1.x) * 0.5;
+            this.ctx.lineTo(midX, p1.y); this.ctx.lineTo(midX, p2.y); this.ctx.lineTo(p2.x, p2.y);
+        }
+        this.ctx.stroke();
+    }
+
+    log(msg, comp) {
+      const el = document.getElementById('console');
+      const div = document.createElement('div');
+      div.className = 'log-line';
+      const t = new Date().toLocaleTimeString();
+      div.innerHTML = `<div class="ts">${t}</div><div class="comp">[${comp}]</div><div class="msg">${msg}</div>`;
+      el.prepend(div);
+      if (el.children.length > 30) el.lastChild.remove();
+    }
+  }
+
+  window.ui = {
+    update: () => {
+      document.getElementById('disp-trx').innerText = sim.params.trxSize;
+      document.getElementById('disp-mbs').innerText = sim.params.maxBinlogSize;
+      document.getElementById('m-mpos').innerText = sim.metrics.masterPos;
+      document.getElementById('m-spos').innerText = sim.metrics.slavePos;
+      document.getElementById('m-lag').innerText = sim.metrics.lag + 's';
+      document.getElementById('m-queue').innerText = sim.slaveRelayStore.length;
+    }
+  };
+  window.sim = new Engine();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>InnoDB Sim V3: OLAP & Tuning</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --text: #e0e0e0;
+      --accent: #3498db;
+      --danger: #e74c3c;
+      --warn: #f39c12;
+      --success: #2ecc71;
+      --olap: #9b59b6;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', monospace;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Controls */
+    aside {
+      width: 320px;
+      background: var(--panel);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-right: 1px solid #333;
+      z-index: 10;
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #fff;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 5px;
+    }
+
+    h3 {
+      margin: 15px 0 5px 0;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #888;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    /* Inputs & Sliders */
+    .control-group {
+      background: #181818;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    span.val {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    input[type=range] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    button {
+      background: #2a2a2a;
+      color: white;
+      border: 1px solid #444;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.1s;
+      font-size: 0.85rem;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    button:hover {
+      background: #3a3a3a;
+      border-color: #666;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.active {
+      background: #2c3e50;
+      border-color: var(--accent);
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .b-oltp {
+      border-left: 3px solid var(--success);
+    }
+
+    .b-olap {
+      border-left: 3px solid var(--olap);
+    }
+
+    .b-write {
+      border-left: 3px solid var(--danger);
+    }
+
+    .b-read {
+      border-left: 3px solid var(--accent);
+    }
+
+    .b-stop {
+      background: #3e1b1b;
+      border-color: #522;
+    }
+
+    /* Canvas Area */
+    main {
+      flex: 1;
+      position: relative;
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Console Overlay */
+    #console {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+      background: rgba(10, 10, 10, 0.9);
+      border-top: 1px solid #333;
+      padding: 10px;
+      font-size: 11px;
+      overflow-y: auto;
+      pointer-events: none;
+    }
+
+    .log-line {
+      margin-bottom: 2px;
+      display: flex;
+    }
+
+    .ts {
+      color: #569cd6;
+      width: 60px;
+    }
+
+    .src {
+      color: #dcdcaa;
+      width: 90px;
+      font-weight: bold;
+    }
+
+    .msg {
+      flex: 1;
+    }
+
+    .msg.alert {
+      color: var(--danger);
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <aside>
+    <h1>InnoDB V3 <span style="font-size:0.6em; color:#666">Architect</span></h1>
+
+    <h3>🚀 Workloads</h3>
+    <div class="btn-grid">
+      <button class="b-oltp" id="btn-oltp" onclick="sim.setWorkload('oltp')">📊 OLTP (Mix)</button>
+      <button class="b-olap" id="btn-olap" onclick="sim.setWorkload('olap')">📑 OLAP (Scan)</button>
+      <button class="b-write" id="btn-write" onclick="sim.setWorkload('write')">✏️ Write 100%</button>
+      <button class="b-read" id="btn-read" onclick="sim.setWorkload('read')">🔍 Read 100%</button>
+      <button class="b-stop" onclick="sim.setWorkload(null)" style="grid-column: span 2">⏹️ STOP</button>
+    </div>
+
+    <h3>⚙️ Transaction (TRX)</h3>
+    <div class="control-group">
+      <label>Taille TRX (Pages)<span class="val" id="disp-trx">1</span></label>
+      <input type="range" min="1" max="10" value="1" oninput="sim.params.trxSize = parseInt(this.value); ui.update()">
+
+      <label>RPS (Vitesse)<span class="val" id="disp-rps">5</span></label>
+      <input type="range" min="1" max="60" value="5" oninput="sim.setRPS(this.value); ui.update()">
+    </div>
+
+    <h3>💾 Storage Engine</h3>
+    <div class="control-group">
+      <label>Buffer Pool (Pages)<span class="val" id="disp-bp">50</span></label>
+      <input type="range" min="20" max="2000" value="50" oninput="sim.resizeBP(this.value); ui.update()">
+
+      <label>Log Buffer Size</label>
+      <select onchange="sim.params.logBufSize = parseInt(this.value); sim.log('Log Buffer set to ' + this.options[this.selectedIndex].text, 'Conf')" style="width:100%; background:#222; color:#fff; border:1px solid #444; padding:5px; border-radius:4px;">
+        <option value="20" selected>8MB</option>
+        <option value="40">16MB</option>
+      </select>
+
+      <label>ib_logfile Size (MB)<span class="val" id="disp-lf">100</span></label>
+      <input type="range" min="50" max="2048" step="50" value="100"
+        oninput="sim.params.logFileSize = parseInt(this.value); ui.update()">
+    </div>
+
+    <h3>🛡️ ACID & Safety</h3>
+    <div class="control-group">
+      <label>innodb_flush_log_at_trx_commit</label>
+      <select onchange="sim.params.flushLogAtTrxCommit = parseInt(this.value); sim.log('Param changed: flush_log_at_trx_commit=' + this.value, 'Conf')" style="width:100%; background:#222; color:#fff; border:1px solid #444; padding:5px; border-radius:4px;">
+        <option value="1" selected>1 - Strict ACID (Fsync/Commit)</option>
+        <option value="2">2 - OS Cache (No Fsync/Commit)</option>
+        <option value="0">0 - Performance (No Flush/Commit)</option>
+      </select>
+    </div>
+
+    <h3>🔧 Actions Manuelles</h3>
+    <div class="btn-grid">
+      <button onclick="sim.execSelect()">🔍 Select 1</button>
+      <button onclick="sim.execUpdate()">✏️ Update 1</button>
+      <button onclick="sim.forceCheckpoint()">🧹 Checkpoint</button>
+      <button onclick="sim.toggleAHI()" id="btn-ahi">⚡ AHI: ON</button>
+    </div>
+
+    <h3>📈 Metrics</h3>
+    <div class="control-group" style="font-size: 0.75rem; line-height: 1.4;">
+      <div style="display:flex; justify-content:space-between;"><span>BP Hits:</span> <span class="val" id="m-hits">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Disk Reads:</span> <span class="val" id="m-reads">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Log Waits:</span> <span class="val" id="m-waits" style="color:var(--danger)">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Checkpoints:</span> <span class="val" id="m-ckpt">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Purges:</span> <span class="val" id="m-purge">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>DB Size:</span> <span class="val" id="m-dbsize">1000</span></div>
+      <hr style="border:0; border-top:1px solid #333; margin:5px 0;">
+      <div style="display:flex; justify-content:space-between;"><span>Read IO/s:</span> <span class="val" id="m-rio">0</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Write IO/s:</span> <span class="val" id="m-wio">0</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="simCanvas"></canvas>
+    <div id="console"></div>
+  </main>
+
+  <script>
+    // Encapsulation pour éviter les erreurs de redéclaration lors des re-runs
+    (() => {
+      // Nettoyage de l'instance précédente si elle existe
+      if (window.sim) {
+        if (window.sim.destroy) window.sim.destroy();
+        // Fallback nettoyage manuel si destroy n'existait pas
+        if (window.sim.loopId) cancelAnimationFrame(window.sim.loopId);
+        if (window.sim.workloadId) clearInterval(window.sim.workloadId);
+      }
+
+      /* --- CONFIGURATION & CONSTANTS --- */
+      const C = {
+        bg: '#000000',
+        zone: '#1a1a1a',
+        zoneBorder: '#333',
+        clean: '#3498db',    // Bleu
+        dirty: '#e74c3c',    // Rouge
+        empty: '#222',
+        ahi: '#f1c40f',      // Jaune
+        scan: '#9b59b6',     // Violet (OLAP)
+        log: '#2ecc71',      // Vert
+        undo: '#e67e22',     // Orange (Undo Log)
+        text: '#ccc'
+      };
+
+      /* --- MOTEUR PHYSIQUE & LOGIQUE --- */
+      class Particle {
+        constructor(x, y, tx, ty, color, speed = 1, type = 'normal') {
+          this.x = x; this.y = y;
+          this.tx = tx; this.ty = ty;
+          this.color = color;
+          this.speed = (0.03 + Math.random() * 0.02) * speed;
+          this.progress = 0;
+          this.finished = false;
+          this.type = type; // normal, scan
+        }
+        update() {
+          this.progress += this.speed;
+          if (this.progress >= 1) { this.progress = 1; this.finished = true; }
+
+          // Easing function
+          const t = this.progress < .5 ? 2 * this.progress * this.progress : -1 + (4 - 2 * this.progress) * this.progress;
+          this.currX = this.x + (this.tx - this.x) * t;
+          this.currY = this.y + (this.ty - this.y) * t;
+        }
+        draw(ctx) {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          const r = this.type === 'scan' ? 3 : 4;
+          ctx.arc(this.currX, this.currY, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Trail
+          if (this.progress < 1) {
+            ctx.strokeStyle = this.color;
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.moveTo(this.currX, this.currY);
+            ctx.lineTo(this.x + (this.tx - this.x) * (this.progress - 0.1), this.y + (this.ty - this.y) * (this.progress - 0.1));
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      class Thread {
+        constructor(name) {
+          this.name = name;
+          this.activity = 0; // 0-100
+          this.x = 0; this.y = 0;
+        }
+        wake(amount = 20) { this.activity = Math.min(100, this.activity + amount); }
+        update() { if (this.activity > 0) this.activity -= 2; }
+        draw(ctx) {
+          // LED indicator style
+          ctx.fillStyle = '#222';
+          ctx.fillRect(this.x, this.y, 100, 24);
+
+          // Activity bar
+          const intensity = this.activity / 100;
+          ctx.fillStyle = `rgba(0, 255, 0, ${Math.max(0.1, intensity)})`;
+          ctx.fillRect(this.x, this.y, 100 * intensity, 24);
+
+          ctx.strokeStyle = '#444';
+          ctx.strokeRect(this.x, this.y, 100, 24);
+
+          ctx.fillStyle = '#fff';
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(this.name, this.x + 50, this.y + 15);
+        }
+      }
+
+      class InnoDBEngine {
+        constructor() {
+          this.canvas = document.getElementById('simCanvas');
+          this.ctx = this.canvas.getContext('2d');
+
+          // Paramètres modifiables
+          this.params = {
+            trxSize: 1,
+            rps: 5,
+            bpSize: 50,
+            logBufSize: 20,
+            logFileSize: 100, // En "unités" pour la simu
+            maxUndoLogSize: 100,
+            ahiEnabled: true,
+            flushLogAtTrxCommit: 1,
+            dbSize: 1000 // Total pages in DB
+          };
+
+          // État interne
+          this.state = {
+            pages: [],      // {slotId, pageId, status, type, scanCount}
+            pageMap: new Map(), // pageId -> slotId
+            ahi: new Set(),
+            logBufUsed: 0,
+            diskLogUsed: 0, // Position dans le Redo Log circulaire
+            undoLogUsed: 0, // Taille de l'Undo Log
+            diskReadActivity: 0, // Visual flash for disk reads
+            diskLogCheckpoint: 0,
+            particles: [],
+            threads: {}
+          };
+
+          this.metrics = {
+            hits: 0,
+            reads: 0,
+            waits: 0,
+            checkpoints: 0,
+            purges: 0,
+            readOps: 0, // Temp for rate
+            writeOps: 0 // Temp for rate
+          };
+
+          this.initThreads();
+          this.initPages();
+
+          // Timers
+          this.loopId = null;
+          this.workloadId = null;
+          this.masterInt = null;
+
+          // Init
+          this.resize();
+          window.addEventListener('resize', () => this.resize());
+          this.setRPS(this.params.rps);
+
+          // Démarrage boucle graphique
+          this.loop();
+
+          // Master Thread Loop (Maintenance)
+          this.masterInt = setInterval(() => this.masterThread(), 1000);
+        }
+
+        destroy() {
+          if (this.loopId) cancelAnimationFrame(this.loopId);
+          if (this.workloadId) clearInterval(this.workloadId);
+          if (this.masterInt) clearInterval(this.masterInt);
+          // Remove event listener? (Optional as element might be replaced)
+        }
+
+        initThreads() {
+          ['Master', 'IO Read', 'IO Write', 'Page Cleaner Thread', 'Log Writer', 'Purge Thread'].forEach(n => {
+            this.state.threads[n] = new Thread(n);
+          });
+        }
+
+        initPages() {
+          this.state.pages = [];
+          this.state.pageMap.clear();
+          this.state.ahi.clear();
+          for (let i = 0; i < this.params.bpSize; i++) {
+            this.state.pages.push({ slotId: i, pageId: null, status: 'empty', hits: 0 });
+          }
+        }
+
+        resize() {
+          this.canvas.width = this.canvas.parentElement.offsetWidth;
+          this.canvas.height = this.canvas.parentElement.offsetHeight;
+
+          const w = this.canvas.width;
+          const h = this.canvas.height;
+
+          // Définition des zones (Layout Grid)
+          // Gauche: Données (Buffer Pool -> Tablespace)
+          // Droite: Logs (Log Buffer -> Redo Log)
+          // Extrême Droite: Threads
+
+          const pad = 20;
+          const rightPanelW = 120; // Pour les threads
+          const mainW = w - rightPanelW - pad * 2;
+
+          const dataW = mainW * 0.7;
+          const logW = mainW * 0.25;
+
+          const midY = h * 0.55; // Ligne de flottaison Mémoire / Disque
+
+          this.zones = {
+            memData: { x: pad, y: pad, w: dataW, h: midY - pad * 2 },
+            memLog: { x: pad + dataW + pad, y: pad, w: logW, h: midY - pad * 2 },
+
+            diskData: { x: pad, y: midY + pad, w: dataW, h: h - midY - pad * 2 },
+            diskLog: { x: pad + dataW + pad, y: midY + pad, w: logW, h: h - midY - pad * 2 },
+
+            threads: { x: w - rightPanelW, y: pad, w: rightPanelW, h: h }
+          };
+
+          // Placement des threads
+          let ty = this.zones.threads.y + 40;
+          Object.values(this.state.threads).forEach(t => {
+            t.x = this.zones.threads.x;
+            t.y = ty;
+            ty += 40;
+          });
+        }
+
+        resizeBP(val) {
+          this.params.bpSize = parseInt(val);
+          // Reset complet pour simplifier la gestion de la map
+          this.initPages();
+        }
+
+        setRPS(val) {
+          this.params.rps = parseInt(val);
+          if (this.workloadType) {
+            this.setWorkload(this.workloadType); // Restart with new speed
+          }
+        }
+
+        /* --- WORKLOADS --- */
+
+        setWorkload(type) {
+          if (this.workloadId) clearInterval(this.workloadId);
+          this.workloadType = type;
+
+          // Reset buttons
+          document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          if (type) document.getElementById(`btn-${type}`).classList.add('active');
+
+          if (!type) return;
+
+          const interval = 1000 / this.params.rps;
+
+          this.workloadId = setInterval(() => {
+            if (type === 'oltp') {
+              // Mix random: 70% Select, 30% Update
+              if (Math.random() > 0.3) this.execSelect();
+              else this.execUpdate();
+            } else if (type === 'olap') {
+              // Table Scan: Read sequential pages
+              this.execScan();
+            } else if (type === 'write') {
+              this.execUpdate();
+            } else if (type === 'read') {
+              this.execSelect();
+            }
+          }, interval);
+        }
+
+        /* --- OPERATIONS --- */
+
+        execSelect() {
+          const pid = Math.floor(Math.random() * this.params.dbSize);
+          this._accessPage(pid, 'read');
+        }
+
+        execScan() {
+          // Simule un scan de 5 pages contiguës
+          const start = Math.floor(Math.random() * (this.params.dbSize - 5));
+          for (let i = 0; i < 5; i++) {
+            // Un scan bypass souvent l'AHI et ne promeut pas les pages en "Hot" de la même façon
+            // Pour la simu, on fait des lectures rapides
+            this._accessPage(start + i, 'scan');
+          }
+        }
+
+        execUpdate() {
+          // Transaction: Modifie N pages
+          const trxSize = this.params.trxSize;
+
+          // 1. Log Buffer Write (Atomic pour la transaction)
+          this.state.threads['Log Writer'].wake(20 * trxSize);
+          this.state.logBufUsed += trxSize;
+
+          // 2. Undo Log Generation (MVCC)
+          this.state.undoLogUsed += trxSize;
+          if (this.state.undoLogUsed > this.params.maxUndoLogSize) this.state.undoLogUsed = this.params.maxUndoLogSize;
+
+          this.log(`TRX: Updating ${trxSize} records. Log Buffer: ${this.state.logBufUsed}/${this.params.logBufSize}`, 'TRX');
+
+          // Check Log Buffer Overflow
+          if (this.state.logBufUsed >= this.params.logBufSize) {
+            this.flushLogBuffer();
+          }
+
+          // ACID Behavior: innodb_flush_log_at_trx_commit
+          if (this.params.flushLogAtTrxCommit === 1 || this.params.flushLogAtTrxCommit === 2) {
+            this.flushLogBuffer();
+          }
+
+          // 3. Modify Pages
+          for (let i = 0; i < trxSize; i++) {
+            const pid = Math.floor(Math.random() * this.params.dbSize);
+            
+            // Async modification (needs to find page in BP first)
+            setTimeout(() => {
+               this._accessPage(pid, 'write');
+            }, 50 + i * 10);
+          }
+        }
+
+        _accessPage(pid, mode) {
+          let slotIdx = this.state.pageMap.get(pid);
+          let page;
+
+          // Cache Miss?
+          if (slotIdx === undefined) {
+             // Eviction Logic
+             // 1. Try empty slot
+             const emptySlot = this.state.pages.find(p => p.status === 'empty');
+             if (emptySlot) {
+               slotIdx = emptySlot.slotId;
+             } else {
+               // 2. Random Eviction (Simplified LRU)
+               slotIdx = Math.floor(Math.random() * this.params.bpSize);
+               const victim = this.state.pages[slotIdx];
+               
+               // If victim dirty, flush (simplified: instant flush visual)
+               if (victim.status === 'dirty') {
+                 this.metrics.writeOps++; // Eviction write
+                 // Visual flash for eviction?
+               }
+               
+               // Remove old mapping
+               if (victim.pageId !== null) {
+                 this.state.pageMap.delete(victim.pageId);
+                 this.state.ahi.delete(victim.pageId); // Remove from AHI
+               }
+             }
+
+             // Load new page
+             page = this.state.pages[slotIdx];
+             page.pageId = pid;
+             page.status = 'empty'; // Transient state
+             page.hits = 0;
+             this.state.pageMap.set(pid, slotIdx);
+
+             this.metrics.reads++;
+             this.metrics.readOps++;
+             this.state.threads['IO Read'].wake(30);
+             this.state.diskReadActivity = 20; // Trigger flash
+             const color = mode === 'scan' ? C.scan : C.clean;
+
+             // Visual Disk -> Mem
+             const diskPos = { x: this.zones.diskData.x + this.zones.diskData.w / 2, y: this.zones.diskData.y + 60 };
+
+             this.spawnParticle(diskPos, this.getPageCoord(slotIdx), color, 1, 'normal', () => {
+               page.status = mode === 'write' ? 'dirty' : 'clean';
+               if (mode !== 'scan') this.log(`Page ${pid} loaded`, 'IO');
+             });
+
+             return; // Async load started
+          }
+
+          // Cache Hit
+          page = this.state.pages[slotIdx];
+          page.hits++;
+          this.metrics.hits++;
+
+          if (mode === 'write') {
+             page.status = 'dirty';
+             // Invalidate AHI
+             if (this.state.ahi.has(pid)) {
+                this.state.ahi.delete(pid);
+             }
+          } else {
+             // Read Hit Logic
+             // AHI Hit?
+             if (this.params.ahiEnabled && mode === 'read' && this.state.ahi.has(pid) && page.status !== 'empty') {
+                this.state.threads['Master'].wake(5);
+                this.spawnParticle(this.zones.memData, this.getPageCoord(slotIdx), C.ahi, 2);
+                return;
+             }
+             
+             // Promotion to AHI
+             if (mode === 'read' && page.hits > 5 && this.params.ahiEnabled && !this.state.ahi.has(pid)) {
+                this.state.ahi.add(pid);
+                this.log(`Page ${pid} promoted to AHI`, 'Master', 'ahi');
+             }
+          }
+        }
+
+        /* --- MAINTENANCE & THREADS --- */
+
+        flushLogBuffer() {
+          if (this.state.logBufUsed === 0) return;
+
+          this.state.threads['IO Write'].wake(50);
+          this.state.threads['Log Writer'].wake(50);
+
+          const amount = this.state.logBufUsed;
+          this.state.logBufUsed = 0;
+
+          // Visual LogBuf -> DiskLog
+          const start = { x: this.zones.memLog.x + this.zones.memLog.w / 2, y: this.zones.memLog.y + this.zones.memLog.h };
+          const end = { x: this.zones.diskLog.x + this.zones.diskLog.w / 2, y: this.zones.diskLog.y + 20 };
+
+          this.spawnParticle(start, end, C.log, 1.5, 'normal', () => {
+            this.state.diskLogUsed += amount;
+            this.log(`Flushed ${amount} ops to ib_logfile`, 'LogWr');
+
+            // Check Redo Log Capacity (Circular Buffer)
+            if (this.state.diskLogUsed > this.params.logFileSize) {
+              this.metrics.waits++;
+              this.log('REDO LOG FULL! Furious Flushing started!', 'Sys', true);
+              this.forceCheckpoint(true); // Sync Flush (Emergency)
+              this.state.diskLogUsed = 0; // Reset simulé du cycle
+            }
+          });
+        }
+
+        forceCheckpoint(emergency = false) {
+          const dirtyPages = this.state.pages.filter(p => p.status === 'dirty');
+          if (dirtyPages.length === 0) return;
+
+          this.metrics.checkpoints++;
+          this.state.threads['Page Cleaner Thread'].wake(100);
+          this.state.threads['IO Write'].wake(100);
+
+          const batch = emergency ? dirtyPages : dirtyPages.slice(0, 5); // Async vs Sync
+          this.metrics.writeOps += batch.length;
+
+          batch.forEach((p, i) => {
+            setTimeout(() => {
+              const pCoords = this.getPageCoord(p.id);
+              const dCoords = { x: this.zones.diskData.x + this.zones.diskData.w / 2, y: this.zones.diskData.y + 50 };
+
+              this.spawnParticle(pCoords, dCoords, C.dirty, 0.8, 'normal', () => {
+                p.status = 'clean';
+              });
+            }, i * 30);
+          });
+
+          this.log(`Checkpoint: Flushing ${batch.length} pages`, 'Cleaner');
+        }
+
+        purgeThread() {
+          if (this.state.undoLogUsed > 0) {
+            this.metrics.purges++;
+            this.state.threads['Purge Thread'].wake(30);
+
+            // Simulate purge speed
+            const purgeAmount = Math.min(this.state.undoLogUsed, 2);
+            this.state.undoLogUsed -= purgeAmount;
+
+            // Visual effect?
+            if (Math.random() > 0.7) {
+              this.log(`Purge: Cleaning Undo Log entries`, 'Purge');
+            }
+          }
+        }
+
+        masterThread() {
+          this.state.threads['Master'].wake(10);
+
+          // 1-Second Flush for Mode 0 & 2
+          if (this.params.flushLogAtTrxCommit !== 1) {
+            this.flushLogBuffer();
+          }
+
+          // Adaptive flushing
+          if (this.state.logBufUsed > this.params.logBufSize * 0.5) {
+            this.flushLogBuffer();
+          }
+
+          // Purgatory logic (simplified)
+          const dirtyRatio = this.state.pages.filter(p => p.status === 'dirty').length / this.params.bpSize;
+          if (dirtyRatio > 0.75) {
+            this.forceCheckpoint();
+          }
+
+          // Trigger Purge Thread
+          if (this.state.undoLogUsed > 10) {
+            this.purgeThread();
+          }
+
+          // Update Metrics UI
+          this.updateMetrics();
+        }
+
+        updateMetrics() {
+          // Update counters
+          document.getElementById('m-hits').innerText = this.metrics.hits;
+          document.getElementById('m-reads').innerText = this.metrics.reads;
+          document.getElementById('m-waits').innerText = this.metrics.waits;
+          document.getElementById('m-ckpt').innerText = this.metrics.checkpoints;
+          document.getElementById('m-purge').innerText = this.metrics.purges;
+          document.getElementById('m-dbsize').innerText = this.params.dbSize;
+
+          // Calculate Rates (approx every second via Master Thread)
+          document.getElementById('m-rio').innerText = this.metrics.readOps;
+          document.getElementById('m-wio').innerText = this.metrics.writeOps;
+
+          // Reset rate counters
+          this.metrics.readOps = 0;
+          this.metrics.writeOps = 0;
+        }
+
+        toggleAHI() {
+          this.params.ahiEnabled = !this.params.ahiEnabled;
+          if (!this.params.ahiEnabled) this.state.ahi.clear();
+          document.getElementById('btn-ahi').innerText = `⚡ AHI: ${this.params.ahiEnabled ? 'ON' : 'OFF'}`;
+          document.getElementById('btn-ahi').style.opacity = this.params.ahiEnabled ? '1' : '0.5';
+        }
+
+        /* --- GRAPHICS CORE --- */
+
+        spawnParticle(from, to, color, speed, type, cb) {
+          // Center coords
+          const fx = from.x + (from.w || 0) / 2; const fy = from.y + (from.h || 0) / 2;
+          const tx = to.x + (to.w || 0) / 2; const ty = to.y + (to.h || 0) / 2;
+
+          const p = new Particle(fx, fy, tx, ty, color, speed, type);
+          p.cb = cb;
+          this.state.particles.push(p);
+        }
+
+        getPageCoord(id) {
+          // Grid layout inside memData zone
+          const zone = this.zones.memData;
+          const innerW = zone.w - 20;
+          const cols = Math.floor(innerW / 14); // 10px + 4px margin
+
+          const col = id % cols;
+          const row = Math.floor(id / cols);
+
+          return {
+            x: zone.x + 10 + col * 14,
+            y: zone.y + 30 + row * 14,
+            w: 10, h: 10
+          };
+        }
+
+        loop() {
+          // Clear
+          this.ctx.fillStyle = C.bg;
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          // Draw Layout
+          this.drawZones();
+
+          // Draw Content
+          this.drawBufferPool();
+          this.drawLogSystem();
+          this.drawDiskSystem();
+
+          // Draw Threads
+          Object.values(this.state.threads).forEach(t => { t.update(); t.draw(this.ctx); });
+
+          // Particles
+          for (let i = this.state.particles.length - 1; i >= 0; i--) {
+            const p = this.state.particles[i];
+            p.update();
+            p.draw(this.ctx);
+            if (p.finished) {
+              if (p.cb) p.cb();
+              this.state.particles.splice(i, 1);
+            }
+          }
+
+          this.loopId = requestAnimationFrame(() => this.loop());
+        }
+
+        drawZones() {
+          const drawZ = (z, lbl) => {
+            this.ctx.strokeStyle = C.zoneBorder;
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(z.x, z.y, z.w, z.h);
+            this.ctx.fillStyle = '#444';
+            this.ctx.font = 'bold 12px Segoe UI';
+            this.ctx.fillText(lbl, z.x + z.w / 2, z.y + 15);
+          };
+
+          this.ctx.save();
+          this.ctx.textAlign = 'center';
+          drawZ(this.zones.memData, "MEMORY: Buffer Pool & AHI");
+          drawZ(this.zones.memLog, "MEMORY: Log Buffer");
+          drawZ(this.zones.diskData, "DISK: Tablespaces & Undo Log");
+          drawZ(this.zones.diskLog, "DISK: Redo Log (ib_logfile)");
+          this.ctx.restore();
+        }
+
+        drawBufferPool() {
+          this.state.pages.forEach(p => {
+            const c = this.getPageCoord(p.slotId);
+
+            // Base Color
+            if (p.status === 'clean') this.ctx.fillStyle = C.clean;
+            else if (p.status === 'dirty') this.ctx.fillStyle = C.dirty;
+            else this.ctx.fillStyle = C.empty;
+
+            this.ctx.fillRect(c.x, c.y, 10, 10);
+
+            // AHI Border
+            if (p.pageId !== null && this.state.ahi.has(p.pageId)) {
+              this.ctx.strokeStyle = C.ahi;
+              this.ctx.lineWidth = 2;
+              this.ctx.strokeRect(c.x - 1, c.y - 1, 12, 12);
+            }
+          });
+
+          // Stats
+          const used = this.state.pages.filter(p => p.status !== 'empty').length;
+          const dirty = this.state.pages.filter(p => p.status === 'dirty').length;
+          const ahi = this.state.ahi.size;
+
+          this.ctx.fillStyle = '#888';
+          this.ctx.font = '10px monospace';
+          const z = this.zones.memData;
+          this.ctx.fillText(`Pages: ${used}/${this.params.bpSize} | Dirty: ${dirty} | AHI: ${ahi}`, z.x + 5, z.y + z.h - 5);
+        }
+
+        drawLogSystem() {
+          // Mem Log Buffer
+          const mz = this.zones.memLog;
+          const pct = this.state.logBufUsed / this.params.logBufSize;
+
+          this.ctx.fillStyle = '#222';
+          this.ctx.fillRect(mz.x + 10, mz.y + 30, mz.w - 20, mz.h - 40);
+
+          // Fill
+          this.ctx.fillStyle = pct > 0.9 ? C.dirty : C.log;
+          const h = (mz.h - 40) * pct;
+          this.ctx.fillRect(mz.x + 10, mz.y + 30 + (mz.h - 40) - h, mz.w - 20, h);
+
+          this.ctx.fillStyle = '#fff';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(`${this.state.logBufUsed}/${this.params.logBufSize}`, mz.x + mz.w / 2, mz.y + mz.h / 2);
+        }
+
+        drawDiskSystem() {
+          // Disk Redo Log (Circular visual)
+          const dz = this.zones.diskLog;
+          const cx = dz.x + dz.w / 2;
+          const cy = dz.y + dz.h / 2;
+          const r = Math.min(dz.w, dz.h) * 0.3;
+
+          this.ctx.beginPath();
+          this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          this.ctx.strokeStyle = '#333';
+          this.ctx.lineWidth = 10;
+          this.ctx.stroke();
+
+          // Usage arc
+          const pct = this.state.diskLogUsed / this.params.logFileSize;
+          this.ctx.beginPath();
+          this.ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pct));
+          this.ctx.strokeStyle = pct > 0.8 ? C.dirty : C.log;
+          this.ctx.stroke();
+
+          this.ctx.fillStyle = '#fff';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(`ib_logfile`, cx, cy - 5);
+          this.ctx.font = '9px monospace';
+          this.ctx.fillText(`${Math.round(pct * 100)}% Used`, cx, cy + 10);
+
+          // Disk Data (.ibd)
+          const ddz = this.zones.diskData;
+
+          // Flash logic for reads
+          if (this.state.diskReadActivity > 0) {
+            const intensity = this.state.diskReadActivity / 20;
+            this.ctx.fillStyle = `rgba(52, 152, 219, ${0.2 + intensity * 0.5})`; // Blue flash
+            this.state.diskReadActivity--;
+          } else {
+            this.ctx.fillStyle = '#222';
+          }
+
+          this.ctx.fillRect(ddz.x + 20, ddz.y + 40, ddz.w - 40, 40);
+          this.ctx.strokeStyle = '#555';
+          this.ctx.strokeRect(ddz.x + 20, ddz.y + 40, ddz.w - 40, 40);
+          this.ctx.fillStyle = '#aaa';
+          this.ctx.font = '14px Arial';
+          this.ctx.fillText("User Tablespaces (.ibd)", ddz.x + ddz.w / 2, ddz.y + 65);
+
+          // Undo Log Visualization
+          const undoPct = this.state.undoLogUsed / this.params.maxUndoLogSize;
+          const undoW = (ddz.w - 40) * undoPct;
+
+          this.ctx.fillStyle = '#333';
+          this.ctx.fillRect(ddz.x + 20, ddz.y + 100, ddz.w - 40, 20); // Track
+
+          this.ctx.fillStyle = C.undo;
+          this.ctx.fillRect(ddz.x + 20, ddz.y + 100, undoW, 20); // Bar
+
+          this.ctx.fillStyle = '#ccc';
+          this.ctx.font = '11px monospace';
+          this.ctx.fillText(`Undo Log: ${Math.round(undoPct * 100)}%`, ddz.x + ddz.w / 2, ddz.y + 114);
+        }
+
+        log(msg, src = 'Sys', alert = false) {
+          const el = document.getElementById('console');
+          const div = document.createElement('div');
+          div.className = 'log-line';
+          const t = new Date().toISOString().split('T')[1].slice(0, 8);
+          div.innerHTML = `<div class="ts">${t}</div><div class="src">[${src}]</div><div class="msg ${alert ? 'alert' : ''}">${msg}</div>`;
+          el.prepend(div);
+          if (el.children.length > 50) el.lastChild.remove();
+        }
+      }
+
+      // UI Helpers
+      window.ui = {
+        update: () => {
+          document.getElementById('disp-trx').innerText = window.sim.params.trxSize;
+          document.getElementById('disp-rps').innerText = window.sim.params.rps;
+          document.getElementById('disp-bp').innerText = window.sim.params.bpSize;
+          // document.getElementById('disp-lb').innerText = window.sim.params.logBufSize;
+          document.getElementById('disp-lf').innerText = window.sim.params.logFileSize;
+        }
+      };
+
+      window.sim = new InnoDBEngine();
+    })();
+  </script>
+</body>
+
+</html>
