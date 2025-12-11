@@ -1,0 +1,9 @@
+﻿Fonctionnalité,MongoDB Community,MongoDB Enterprise,MongoDB Atlas,Percona Server MongoDB
+Disponibilité audit natif,❌ Non disponible,✅ Disponible,✅ Disponible (M10+),✅ Disponible (gratuit)
+Formats de logs,N/A,"JSON, BSON, OCSF (v8.0+)",JSON,JSON uniquement
+Destinations,N/A,"File, Syslog, Console",Cloud logs,"File, Syslog"
+Filtrage événements,N/A,✅ Filtres avancés,✅ Filtres UI + API,✅ Filtres (syntaxe différente)
+Configuration runtime,N/A,✅ Depuis v5.0,✅ Via API,❌ Non
+Événements CRUD,N/A,✅ Via auditAuthorizationSuccess,✅ Via auditAuthorizationSuccess,✅ Via auditAuthorizationSuccess
+Rotation logs,N/A,✅ logRotate,✅ Automatique,✅ logRotate
+Coût,Gratuit,Licence commerciale,+10% tarif cluster (hors Enterprise/Platinum),Gratuit (GPL)

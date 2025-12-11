@@ -1,0 +1,11 @@
+﻿Configuration,Impact estimé,Recommandation,Cas d'usage
+Audit désactivé (baseline),0% (référence),Production sans exigence audit,Environnements non régulés
+Audit DDL uniquement,< 5%,✅ Recommandé pour conformité basique,Conformité RGPD/SOC2
+Audit authentification,< 5%,✅ Recommandé pour sécurité,Détection intrusions
+Audit avec auditAuthorizationSuccess=false,5-10%,✅ Bon compromis,Audit général
+Audit CRUD (auditAuthorizationSuccess=true),15-30%,⚠️ À utiliser avec filtres précis,"Forensique détaillé, investigations"
+Audit tout + CRUD sans filtre,30-50%+,❌ Non recommandé en production,Tests/debugging uniquement
+Format BSON vs JSON,BSON: -5 à -10% vs JSON,✅ Préférer BSON,Optimisation stockage
+Destination: File,Impact moyen,✅ Recommandé,Standard production
+Destination: Syslog,Impact variable (réseau),✅ Pour intégration SIEM,Centralisation logs
+Destination: Console,Impact élevé (non recommandé prod),❌ Dev/test uniquement,Debug développement

@@ -1,0 +1,8 @@
+﻿Paramètre,Valeurs possibles,Disponibilité,Niveau config
+auditLog.destination,"file, syslog, console","Enterprise, Atlas, Percona",Config file / CLI
+auditLog.format,"JSON, BSON","Enterprise, Atlas, Percona",Config file / CLI
+auditLog.path,Chemin du fichier de log,"Enterprise, Percona",Config file / CLI
+auditLog.filter,Expression de filtre JSON,"Enterprise, Atlas, Percona",Config file / CLI / Runtime (v5.0+)
+auditLog.schema,"mongo (défaut), OCSF (v8.0+)","Enterprise v8.0+, Atlas",Config file (v8.0+)
+auditAuthorizationSuccess,"true, false (défaut)","Enterprise, Atlas, Percona",Runtime (setParameter) / Config file
+systemLog.logRotate,"rename (défaut), reopen",Toutes versions,Config file / CLI

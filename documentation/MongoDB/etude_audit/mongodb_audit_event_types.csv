@@ -1,0 +1,10 @@
+﻿Catégorie,Types d'événements (atype),Impact performance
+Authentification,authenticate,Faible
+Autorisation,authCheck,Modéré à Élevé
+DDL (Schema),"createCollection, dropCollection, createDatabase, dropDatabase, createIndex, dropIndex, renameCollection",Faible
+CRUD Lecture,"find, count, distinct, aggregate (nécessite auditAuthorizationSuccess: true)",Élevé
+CRUD Écriture,"insert, update, delete, findandmodify (nécessite auditAuthorizationSuccess: true)",Élevé
+Gestion utilisateurs,"createUser, dropUser, updateUser, dropAllUsersFromDatabase",Faible
+Gestion rôles,"createRole, dropRole, updateRole, grantRolesToUser, revokeRolesFromUser",Faible
+Replica Set,"replSetReconfig, replSetStateChange",Faible
+Sharding,"addShard, removeShard, enableSharding",Faible
