@@ -90,3 +90,11 @@ oracle/*.sql
 docker/*.cnf
 docker/*.bashrc
 **/data
+uditNov2025/Dumps
+uditNov2025/venv
+uditNov2025/audit_report.html
+uditNov2025/audit_report.pdf
+uditNov2025/mysqltuner_verbose_Nov2025.json
+uditNov2025/tmp
+uditNov2025/results
+uditNov2025/.venv
