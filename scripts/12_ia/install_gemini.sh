@@ -76,4 +76,53 @@ info "Version de Gemini CLI installée :"
 gemini --version || error "Impossible d'exécuter 'gemini --version'."
 success "Gemini CLI est installé et fonctionnel."
 
+
+info "Installation de l'extension github-mcp-server..."
+gemini extensions install https://github.com/github/github-mcp-server --consent
+info "Installation de l'extension chrome-devtools-mcp..."
+gemini extensions install https://github.com/ChromeDevTools/chrome-devtools-mcp --consent
+info "Installation de l'extension genai-toolbox..."
+gemini extensions install https://github.com/googleapis/genai-toolbox --consent
+info "Installation de l'extension mcp-server-kubernetes..."
+gemini extensions install https://github.com/Flux159/mcp-server-kubernetes --consent
+info "Installation de l'extension terraform-mcp-server..."
+gemini extensions install https://github.com/hashicorp/terraform-mcp-server --consent
+info "Installation de l'extension nanobanana..."
+gemini extensions install https://github.com/gemini-cli-extensions/nanobanana --consent
+info "Installation de l'extension mcp-redis..."
+gemini extensions install https://github.com/redis/mcp-redis --consent
+info "Installation de l'extension security..."
+gemini extensions install https://github.com/gemini-cli-extensions/security --consent
+info "Installation de l'extension gemini-flow..."
+gemini extensions install https://github.com/clduab11/gemini-flow --consent
+info "Installation de l'extension jules..."
+gemini extensions install https://github.com/gemini-cli-extensions/jules --consent
+info "Installation de l'extension workspace..."
+gemini extensions install https://github.com/gemini-cli-extensions/workspace --consent
+info "Installation de l'extension gemini-cli-prompt-library..."
+gemini extensions install https://github.com/harish-garg/gemini-cli-prompt-library --consent
+info "Installation de l'extension slash-criticalthink..."
+gemini extensions install https://github.com/abagames/slash-criticalthink --consent
+info "Installation de l'extension GeminiCLI_ComputerUse_Extension..."
+gemini extensions install https://github.com/automateyournetwork/GeminiCLI_ComputerUse_Extension --consent
+info "Installation de l'extension gemini-docs-ext..."
+gemini extensions install https://github.com/markmcd/gemini-docs-ext --consent
+info "Installation de l'extension GeminiCLI_File_Search_Extension..."
+gemini extensions install https://github.com/automateyournetwork/GeminiCLI_File_Search_Extension --consent
+info "Installation de l'extension gemini-plan-commands..."
+gemini extensions install https://github.com/ddobrin/gemini-plan-commands --consent
+info "Installation de l'extension gemini-agent-creator..."
+gemini extensions install https://github.com/jduncan-rva/gemini-agent-creator --consent
+info "Installation de l'extension gemini-cli-git..."
+gemini extensions install https://github.com/ox01024/gemini-cli-git --consent
+info "Installation de l'extension archon-gemini-cli-extension..."
+gemini extensions install https://github.com/cwest/archon-gemini-cli-extension --consent
+info "Installation de l'extension github-issue-agent..."
+gemini extensions install https://github.com/enola-dev/github-issue-agent --consent
+info "Installation de l'extension gemini-mentor..."
+gemini extensions install https://github.com/JayadityaGit/gemini-mentor --consent
+info "Installation de l'extension gemini-cli-ssh-extension..."
+gemini extensions install https://github.com/involvex/gemini-cli-ssh-extension --consent
+
+
 end_success "Installation de Gemini CLI terminée avec succès."
