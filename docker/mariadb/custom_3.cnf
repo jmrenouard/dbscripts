@@ -1,0 +1,5 @@
+[mariadb]
+server-id=3
+log-bin=mariadb-bin
+binlog-format=row
+bind-address=0.0.0.0

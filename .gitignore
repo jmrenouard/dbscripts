@@ -98,3 +98,6 @@ uditNov2025/mysqltuner_verbose_Nov2025.json
 uditNov2025/tmp
 uditNov2025/results
 uditNov2025/.venv
+docker/mariadb/datadir_01
+docker/mariadb/datadir_02
+docker/mariadb/datadir_03
