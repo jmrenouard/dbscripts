@@ -1,4 +1,5 @@
 -- init-permissions.sql
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'rootpass' WITH GRANT OPTION;
 GRANT REPLICATION SLAVE ON *.* TO 'repli_user'@'%' IDENTIFIED BY 'replipass';
+GRANT RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'sst_user'@'%' IDENTIFIED BY 'sstpass';
 FLUSH PRIVILEGES;

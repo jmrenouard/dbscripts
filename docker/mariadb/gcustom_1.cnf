@@ -1,0 +1,15 @@
+[mariadb]
+binlog_format=ROW
+default_storage_engine=InnoDB
+innodb_autoinc_lock_mode=2
+
+# Galera Cluster Configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_address="gcomm://10.6.0.11,10.6.0.12,10.6.0.13"
+wsrep_cluster_name="galera_cluster"
+wsrep_sst_method=rsync
+
+# Node Configuration
+wsrep_node_address="10.6.0.11"
+wsrep_node_name="galera01"

@@ -35,7 +35,7 @@ A `Makefile` is provided to simplify management and log access:
 | **Start** | `make up-galera` | `make up-repli` |
 | **Stop** | `make down-galera` | `make down-repli` |
 | **Logs** | `make logs-galera` | `make logs-repli` |
-| **Test** | | `make test-repli` |
+| **Test** | `make test-galera` | `make test-repli` |
 
 Use `make help` to see all available commands.
 
@@ -104,7 +104,7 @@ Backups are stored in:
 
 - **User**: `root`
 - **Password**: `rootpass` (Defined in environment variables)
-- **Permissions**: `init-permissions.sql` grants privileges to the root user from the internal network subnet.
+- **Permissions**: `init-permissions.sql` grants privileges to the root user from the internal network subnet. It also configures `repli_user` for standard replication and `sst_user` for Galera SST.
 
 ---
 
@@ -130,3 +130,19 @@ This script will:
 2. Display Master and Slave status.
 3. Create a test database/table on the master.
 4. Verify that data is correctly replicated to both slaves.
+
+## 🧪 Testing Galera Cluster
+
+You can automatically verify that the Galera Cluster is working correctly using:
+
+```bash
+make test-galera
+```
+
+This script will:
+
+1. Check if all 3 nodes are online and part of the cluster.
+2. Verify cluster readiness (`wsrep_ready`) and size (`wsrep_cluster_size`).
+3. Create a test database/table on Node 1.
+4. Insert data on Node 1 and verify it on Node 2.
+5. Insert data on Node 3 and verify it on Node 1.

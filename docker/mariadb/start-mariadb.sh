@@ -10,10 +10,46 @@ if [ ! -d "$DATA_DIR/mysql" ]; then
     echo ">> ⚠️ Première exécution détectée. Initialisation de la base de données..."
     
     # Initialisation de la DB system
-    # --auth-root-authentication-method=normal permet de se connecter en root avec mot de passe si besoin
     mariadb-install-db --user=root --datadir="$DATA_DIR"
     
     echo ">> ✅ Initialisation terminée."
+
+    # Execute initialization scripts
+    if [ -d "/docker-entrypoint-initdb.d" ]; then
+        echo ">> 📜 Exécution des scripts d'initialisation..."
+        mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld || true
+        
+        SOCKET="/run/mysqld/mysqld_init.sock"
+        # Start temporary MariaDB to apply permissions
+        mariadbd --user=root --datadir="$DATA_DIR" --skip-networking --wsrep-on=OFF --socket="$SOCKET" &
+        pid="$!"
+        
+        # Wait for MariaDB to be ready (with timeout)
+        COUNTER=0
+        until mariadb --socket="$SOCKET" -u root -e "SELECT 1" >/dev/null 2>&1 || [ $COUNTER -eq 30 ]; do
+            echo ">> ⏳ Attente de MariaDB ($COUNTER/30)..."
+            sleep 1
+            let COUNTER=COUNTER+1
+        done
+        
+        if [ $COUNTER -eq 30 ]; then
+            echo ">> ❌ Timeout en attendant MariaDB pour l'initialisation."
+            kill -s TERM "$pid" || true
+            exit 1
+        fi
+
+        for f in /docker-entrypoint-initdb.d/*; do
+            case "$f" in
+                *.sql)    echo ">> 🚀 Exécution de $f..."; mariadb --socket="$SOCKET" -u root < "$f"; echo ;;
+                *)        echo ">> ⏭️ Ignoré: $f" ;;
+            esac
+        done
+        
+        # Shutdown temporary MariaDB
+        echo ">> 🛑 Arrêt de la MariaDB temporaire..."
+        mariadb-admin --socket="$SOCKET" -u root shutdown || kill -s TERM "$pid" || true
+        wait "$pid" || true
+    fi
 else
     echo ">> ✅ Données existantes détectées. Démarrage normal."
 fi

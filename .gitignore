@@ -101,3 +101,6 @@ uditNov2025/.venv
 docker/mariadb/datadir_01
 docker/mariadb/datadir_02
 docker/mariadb/datadir_03
+docker/mariadb/gdatadir_01
+docker/mariadb/gdatadir_02
+docker/mariadb/gdatadir_03
