@@ -13,7 +13,7 @@ x-template: &template
   environment:
     - MARIADB_ROOT_PASSWORD=rootpass
     # Astuce Expert : Définit le DNS interne pour la résolution de noms
-    - MARIADB_ROOT_HOST=% 
+    - MARIADB_ROOT_HOST=%
   networks:
     backend_db:
 
@@ -64,4 +64,21 @@ services:
       - "./init-permissions.sql:/docker-entrypoint-initdb.d/init-permissions.sql:ro"
     networks:
       backend_db:
-        ipv4_address: 10.5.0.13
+  # 🔵 Load Balancer (HAProxy)
+  haproxy_repli:
+    image: haproxy:latest
+    container_name: haproxy_repli
+    restart: unless-stopped
+    volumes:
+      - ./haproxy-repli.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "3406:3306" # Writes (Master)
+      - "3407:3307" # Reads (Slaves)
+      - "8405:8404" # Stats on 8405 to avoid conflict with Galera HAProxy
+    networks:
+      backend_db:
+        ipv4_address: 10.5.0.100
+    depends_on:
+      - mariadb_01
+      - mariadb_02
+      - mariadb_03

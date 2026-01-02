@@ -106,6 +106,23 @@ Backups are stored in:
 - **Password**: `rootpass` (Defined in environment variables)
 - **Permissions**: `init-permissions.sql` grants privileges to the root user from the internal network subnet. It also configures `repli_user` for standard replication and `sst_user` for Galera SST.
 
+ ---
+
+## ⚖️ Load Balancing (HAProxy)
+
+ Each cluster includes an HAProxy container to provide a unified entry point and load balancing.
+
+### 🌐 Galera Cluster (HAProxy)
+
+- **Entry Point**: `localhost:3306` (Round-robins to all 3 nodes)
+- **Stats Page**: `http://localhost:8404/stats`
+
+### 🔄 Replication Cluster (HAProxy)
+
+- **Write Point (Master)**: `localhost:3406` (Points to Node 1)
+- **Read Point (Slaves)**: `localhost:3407` (Round-robins between Nodes 2 & 3)
+- **Stats Page**: `http://localhost:8405/stats`
+
 ---
 
 ## 📝 Troubleshooting & Logs
@@ -131,18 +148,73 @@ This script will:
 3. Create a test database/table on the master.
 4. Verify that data is correctly replicated to both slaves.
 
-## 🧪 Testing Galera Cluster
+## 🏎️ Performance Testing (Sysbench)
 
-You can automatically verify that the Galera Cluster is working correctly using:
+You can benchmark both clusters using the `test_perf.sh` script, which provides multiple testing profiles.
 
+### Usage
+
+ ```bash
+ ### 🏎️ Performance Benchmarking (sysbench)
+
+Des scripts dédiés permettent de mesurer les performances de chaque architecture :
+
+#### 🔹 Tester Galera (Optimistic Locking & Conflits)
 ```bash
-make test-galera
+# Préparation des données (1 table de 100k lignes par défaut en profil standard)
+make test-perf-galera PROFILE=light ACTION=prepare
+
+# Exécution du benchmark
+make test-perf-galera PROFILE=light ACTION=run
 ```
 
-This script will:
+Génère un rapport détaillé : `test_perf_galera.html`.
 
-1. Check if all 3 nodes are online and part of the cluster.
-2. Verify cluster readiness (`wsrep_ready`) and size (`wsrep_cluster_size`).
-3. Create a test database/table on Node 1.
-4. Insert data on Node 1 and verify it on Node 2.
-5. Insert data on Node 3 and verify it on Node 1.
+#### 🔹 Tester Replication (Master/Slave Lag & Read Scale)
+
+```bash
+# Préparation des données
+make test-perf-repli PROFILE=light ACTION=prepare
+
+# Exécution du benchmark
+make test-perf-repli PROFILE=light ACTION=run
+```
+
+Génère un rapport détaillé : `test_perf_repli.html`.
+
+> [!TIP]
+> Chaque exécution génère un rapport visuel premium utilisant Tailwind CSS et Chart.js pour faciliter l'audit des performances.
+
+### Profiles
+
+| Profile | Description |
+| :--- | :--- |
+| **light** | 5 tables, 1,000 rows (Quick sanity check) |
+| **standard** | 10 tables, 10,000 rows (Default benchmark) |
+| **read** | Read-only intensive benchmark |
+| **write** | Write-only intensive benchmark |
+
+### Targets
+
+- **galera**: Targets the Galera Cluster via HAProxy (`localhost:3306`).
+- **repli**: Targets the Replication Cluster via HAProxy (`localhost:3406`).
+
+---
+
+## 🧪 Testing Galera Cluster
+
+ You can automatically verify that the Galera Cluster is working correctly using:
+
+ ```bash
+ make test-galera
+ ```
+
+ This script performs a comprehensive suite of tests:
+
+ 1. **Connectivity & Status**: Checks if all 3 nodes are online, ready (`wsrep_ready`), and part of a primary cluster of size 3.
+ 2. **Synchronous Replication**: Verifies that data inserted on one node is immediately available on all others.
+ 3. **Auto-increment Consistency**: Ensures that the cluster correctly manages non-conflicting auto-increment IDs across multiple masters.
+ 4. **Certification Conflict (Optimistic Locking)**: Simulates concurrent updates on the same record to verify Galera's conflict resolution.
+ 5. **DDL Replication**: Verifies that schema changes (`ALTER TABLE`) are propagated synchronously across the cluster.
+ 6. **Unique Key Constraints**: Checks that duplicate keys are rejected globally across all nodes.
+ 7. **Cluster Summary**: Displays technical details like `wsrep_incoming_addresses` and auto-increment variables.

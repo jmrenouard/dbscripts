@@ -8,8 +8,10 @@ wsrep_on=ON
 wsrep_provider=/usr/lib/galera/libgalera_smm.so
 wsrep_cluster_address="gcomm://10.6.0.11,10.6.0.12,10.6.0.13"
 wsrep_cluster_name="galera_cluster"
-wsrep_sst_method=rsync
+wsrep_sst_method=mariabackup
+wsrep_sst_auth="sst_user:sstpass"
 
 # Node Configuration
 wsrep_node_address="10.6.0.13"
 wsrep_node_name="galera03"
+wsrep_log_conflicts=ON

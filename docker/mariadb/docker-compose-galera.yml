@@ -64,4 +64,20 @@ services:
       - "./init-permissions.sql:/docker-entrypoint-initdb.d/init-permissions.sql:ro"
     networks:
       backend_galera:
-        ipv4_address: 10.6.0.13
+  # 🔵 Load Balancer (HAProxy)
+  haproxy_galera:
+    image: haproxy:latest
+    container_name: haproxy_galera
+    restart: unless-stopped
+    volumes:
+      - ./haproxy-galera.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "3306:3306"
+      - "8404:8404"
+    networks:
+      backend_galera:
+        ipv4_address: 10.6.0.100
+    depends_on:
+      - galera_01
+      - galera_02
+      - galera_03

@@ -36,9 +36,20 @@ test-repli: ## Run replication tests on the active cluster
 	@chmod +x test_repli.sh
 	./test_repli.sh
 
-test-galera: ## Run Galera cluster tests on the active cluster
+test-galera: ## Run advanced Galera cluster tests (Replication, DDL, Conflicts, Auto-inc)
 	@chmod +x test_galera.sh
 	./test_galera.sh
+
+test-perf-repli: ## Run performance tests on Replication cluster (Usage: make test-perf-repli PROFILE=light ACTION=run)
+	@chmod +x test_perf_repli.sh
+	./test_perf_repli.sh $(PROFILE) $(ACTION)
+
+test-perf-galera: ## Run performance tests on Galera cluster (Usage: make test-perf-galera PROFILE=light ACTION=run)
+	@chmod +x test_perf_galera.sh
+	./test_perf_galera.sh $(PROFILE) $(ACTION)
+
+test-perf: ## [DEPRECATED] Use test-perf-galera or test-perf-repli instead
+	@echo "Please use 'make test-perf-galera' or 'make test-perf-repli'"
 
 ## Utility
 clean-data: ## Remove data and backup directories (CAUTION!)
