@@ -15,3 +15,4 @@ wsrep_sst_auth="sst_user:sstpass"
 wsrep_node_address="10.6.0.12"
 wsrep_node_name="galera02"
 wsrep_log_conflicts=ON
+wsrep_provider_options="cert.log_conflicts=YES"

@@ -106,7 +106,20 @@ case $ACTION in
         echo_title "Collecting Container Logs..."
         LOGS_OUT=""
         for node in "${NODES[@]}"; do
-            node_logs=$(docker logs --since "$START_TIME" "$node" 2>&1 | grep -iE "error|fatal|critical|conflict|certification" || echo "No relevant issues found.")
+            # 💡 Pro Tip: Conflict logs often go to the file defined by log_error, not always to docker logs
+            log_file=$(docker exec "$node" mariadb -h 127.0.0.1 -uroot -p$DB_PASS -N -s -e "SHOW VARIABLES LIKE 'log_error';" 2>/dev/null | awk '{print $2}')
+            
+            if [ -n "$log_file" ]; then
+                # Get logs from file (conflicts) AND docker logs (system/startup errors)
+                node_logs_f=$(docker exec "$node" grep -iE "error|fatal|critical|conflict|certification|brute force" "$log_file" | tail -n 10)
+                node_logs_d=$(docker logs --since "$START_TIME" "$node" 2>&1 | grep -iE "error|fatal|critical|conflict|certification|brute force" | tail -n 10)
+                node_logs=$(echo -e "$node_logs_d\n$node_logs_f" | grep -v "^$" | sort -u || echo "No relevant issues found.")
+            else
+                node_logs=$(docker logs --since "$START_TIME" "$node" 2>&1 | grep -iE "error|fatal|critical|conflict|certification|brute force" | tail -n 20 || echo "No relevant issues found.")
+            fi
+
+            [ -z "$node_logs" ] && node_logs="No relevant issues found."
+
             LOGS_OUT="$LOGS_OUT
 --- $node ---
 $node_logs
