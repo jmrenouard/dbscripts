@@ -202,6 +202,29 @@ Des scripts permettent d'effectuer des sauvegardes logiques compressées (via `m
 
 ---
 
+## 🏗️ Sauvegarde & Restauration (Physique - MariaBackup)
+
+La sauvegarde physique est plus rapide pour les grosses bases de données car elle copie directement les fichiers de données InnoDB.
+
+### 1. Sauvegarde Physique
+
+| Environnement | Commande | Outil | Format |
+| :--- | :--- | :--- | :--- |
+| **Galera** | `make backup-phys-galera` | `mariabackup` | `.tar.gz` |
+| **Replication** | `make backup-phys-repli` | `mariabackup` | `.tar.gz` |
+
+### 2. Restauration Physique
+
+| Environnement | Commande | Note |
+| :--- | :--- | :--- |
+| **Galera** | `make restore-phys-galera FILE=nom_fichier.tar.gz` | Restaure le nœud 1. Les autres nœuds se synchroniseront via SST. |
+| **Replication** | `make restore-phys-repli FILE=nom_fichier.tar.gz` | Restaure le **Master**. |
+
+> [!WARNING]
+> La restauration physique **arrête le service MariaDB**, nettoie le dossier de données (`/var/lib/mysql`) et remplace les fichiers. Elle est beaucoup plus rapide qu'une restauration logique pour les volumes importants.
+
+---
+
 ## 🧪 Testing Galera Cluster
 
  You can automatically verify that the Galera Cluster is working correctly using:

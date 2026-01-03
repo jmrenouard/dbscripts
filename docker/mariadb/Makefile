@@ -64,6 +64,19 @@ backup-repli: ## Backup Replication cluster (Usage: make backup-repli [DB=name])
 restore-repli: ## Restore Replication cluster (Usage: make restore-repli FILE=filename.sql.gz)
 	./restore_logical.sh repli $(FILE)
 
+## Backup & Restore (Physical - MariaBackup)
+backup-phys-galera: ## Physical backup Galera (Usage: make backup-phys-galera)
+	./backup_physical.sh galera
+
+restore-phys-galera: ## Physical restore Galera (Usage: make restore-phys-galera FILE=filename.tar.gz)
+	./restore_physical.sh galera $(FILE)
+
+backup-phys-repli: ## Physical backup Replication (Usage: make backup-phys-repli)
+	./backup_physical.sh repli
+
+restore-phys-repli: ## Physical restore Replication (Usage: make restore-phys-repli FILE=filename.tar.gz)
+	./restore_physical.sh repli $(FILE)
+
 ## Utility
 clean-data: ## Remove data and backup directories (CAUTION!)
 	rm -rf gdatadir_* gbackups_* datadir_* backups_*
