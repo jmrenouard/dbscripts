@@ -179,6 +179,29 @@ Des outils d'analyse de performance dédiés permettent de benchmarker chaque ar
 
 ---
 
+## 💾 Sauvegarde & Restauration (Logique)
+
+Des scripts permettent d'effectuer des sauvegardes logiques compressées (via `mariadb-dump` et `pigz`) et de les restaurer.
+
+### 1. Sauvegarde
+
+| Environnement | Commande | Destination (Conteneur) |
+| :--- | :--- | :--- |
+| **Galera** | `make backup-galera [DB=sbtest]` | `/backups/galera_logical_*.sql.gz` |
+| **Replication** | `make backup-repli [DB=sbtest]` | `/backups/repli_logical_*.sql.gz` |
+
+> [!NOTE]
+> Par défaut, tous les schémas sont sauvegardés (`--all-databases`). La sauvegarde de réplication s'effectue sur un **esclave** pour minimiser l'impact sur le Master.
+
+### 2. Restauration
+
+| Environnement | Commande | Note |
+| :--- | :--- | :--- |
+| **Galera** | `make restore-galera FILE=nom_du_fichier.sql.gz` | Se réplique sur tous les nœuds. |
+| **Replication** | `make restore-repli FILE=nom_du_fichier.sql.gz` | S'effectue obligatoirement sur le **Master**. |
+
+---
+
 ## 🧪 Testing Galera Cluster
 
  You can automatically verify that the Galera Cluster is working correctly using:

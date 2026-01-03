@@ -51,6 +51,19 @@ test-perf-galera: ## Run performance tests on Galera (Usage: make test-perf-gale
 test-perf: ## [DEPRECATED] Use test-perf-galera or test-perf-repli
 	@echo "❌ 'make test-perf' is deprecated. Please use 'make test-perf-galera' or 'make test-perf-repli'"
 
+## Backup & Restore (Logical)
+backup-galera: ## Backup Galera cluster (Usage: make backup-galera [DB=name])
+	./backup_logical.sh galera $(DB)
+
+restore-galera: ## Restore Galera cluster (Usage: make restore-galera FILE=filename.sql.gz)
+	./restore_logical.sh galera $(FILE)
+
+backup-repli: ## Backup Replication cluster (Usage: make backup-repli [DB=name])
+	./backup_logical.sh repli $(DB)
+
+restore-repli: ## Restore Replication cluster (Usage: make restore-repli FILE=filename.sql.gz)
+	./restore_logical.sh repli $(FILE)
+
 ## Utility
 clean-data: ## Remove data and backup directories (CAUTION!)
 	rm -rf gdatadir_* gbackups_* datadir_* backups_*
