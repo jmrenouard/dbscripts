@@ -150,54 +150,32 @@ This script will:
 
 ## 🏎️ Performance Testing (Sysbench)
 
-You can benchmark both clusters using the `test_perf.sh` script, which provides multiple testing profiles.
+Des outils d'analyse de performance dédiés permettent de benchmarker chaque architecture et de générer des rapports HTML premium intégrant **Tailwind CSS**, **Chart.js** et des icônes **FontAwesome**.
 
-### Usage
+### 🚀 Exécution des Tests
 
- ```bash
- ### 🏎️ Performance Benchmarking (sysbench)
+| Cluster | Commande de Préparation | Commande d'Exécution | Rapport Généré |
+| :--- | :--- | :--- | :--- |
+| **Galera** | `make test-perf-galera PROFILE=light ACTION=prepare` | `make test-perf-galera PROFILE=light ACTION=run` | `test_perf_galera.html` |
+| **Replication** | `make test-perf-repli PROFILE=light ACTION=prepare` | `make test-perf-repli PROFILE=light ACTION=run` | `test_perf_repli.html` |
 
-Des scripts dédiés permettent de mesurer les performances de chaque architecture :
+### 📊 Profils Disponibles
 
-#### 🔹 Tester Galera (Optimistic Locking & Conflits)
-```bash
-# Préparation des données (1 table de 100k lignes par défaut en profil standard)
-make test-perf-galera PROFILE=light ACTION=prepare
+| Profil | Tables | Lignes | Durée | Usage |
+| :--- | :--- | :--- | :--- | :--- |
+| **light** | 1 | 1,000 | 10s | Vérification rapide |
+| **standard** | 1 | 100,000 | 60s | Benchmark par défaut |
+| **read** | 1 | 100,000 | 60s | Lecture intensive (Read-Only) |
+| **write** | 1 | 100,000 | 60s | Écriture intensive (Write-Only) |
 
-# Exécution du benchmark
-make test-perf-galera PROFILE=light ACTION=run
-```
+### ✨ Caractéristiques des Rapports
 
-Génère un rapport détaillé : `test_perf_galera.html`.
-
-#### 🔹 Tester Replication (Master/Slave Lag & Read Scale)
-
-```bash
-# Préparation des données
-make test-perf-repli PROFILE=light ACTION=prepare
-
-# Exécution du benchmark
-make test-perf-repli PROFILE=light ACTION=run
-```
-
-Génère un rapport détaillé : `test_perf_repli.html`.
-
-> [!TIP]
-> Chaque exécution génère un rapport visuel premium utilisant Tailwind CSS et Chart.js pour faciliter l'audit des performances.
-
-### Profiles
-
-| Profile | Description |
-| :--- | :--- |
-| **light** | 5 tables, 1,000 rows (Quick sanity check) |
-| **standard** | 10 tables, 10,000 rows (Default benchmark) |
-| **read** | Read-only intensive benchmark |
-| **write** | Write-only intensive benchmark |
-
-### Targets
-
-- **galera**: Targets the Galera Cluster via HAProxy (`localhost:3306`).
-- **repli**: Targets the Replication Cluster via HAProxy (`localhost:3406`).
+- **Visualisation de Latence** : Graphiques interactifs (Min, Avg, 95th, Max) avec unités en `ms`.
+- **Répartition des Requêtes** : Barres de progression détaillant les types de requêtes (Read/Write/Other).
+- **Intelligence Cluster** :
+  - **Galera** : Monitoring des conflits de certification et des brute-force aborts.
+  - **Replication** : Mesure du retard maximal (`Seconds_Behind_Master`) sur les esclaves.
+- **Log Health** : Extraction intelligente des erreurs critiques et des conflits directement depuis les fichiers logs MariaDB.
 
 ---
 
