@@ -104,3 +104,9 @@ docker/mariadb/datadir_03
 docker/mariadb/gdatadir_01
 docker/mariadb/gdatadir_02
 docker/mariadb/gdatadir_03
+docker/mariadb/backups_01
+docker/mariadb/backups_02
+docker/mariadb/backups_03
+docker/mariadb/gbackups_01
+docker/mariadb/gbackups_02
+docker/mariadb/gbackups_03
