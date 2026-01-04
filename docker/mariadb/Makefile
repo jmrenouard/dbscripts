@@ -13,7 +13,7 @@ build-image: ## Build the base mariadb_ssh image
 	docker build -t $(IMAGE_NAME) .
 
 ## Galera Cluster
-up-galera: ## Start Galera cluster
+up-galera: build-image ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
 
 down-galera: ## Stop Galera cluster
@@ -23,7 +23,7 @@ logs-galera: ## Follow Galera cluster logs
 	docker compose -f $(COMPOSE_GALERA) logs -f
 
 ## Replication Cluster
-up-repli: ## Start Replication cluster
+up-repli: build-image ## Start Replication cluster
 	docker compose -f $(COMPOSE_REPLI) up -d
 
 down-repli: ## Stop Replication cluster
