@@ -1,0 +1,9 @@
+# Galera Environment Aliases
+# Source this file: source profile_galera
+
+alias mariadb-g1='mariadb -h 127.0.0.1 -P 3511 -uroot -prootpass'
+alias mariadb-g2='mariadb -h 127.0.0.1 -P 3512 -uroot -prootpass'
+alias mariadb-g3='mariadb -h 127.0.0.1 -P 3513 -uroot -prootpass'
+alias mariadb-galera-lb='mariadb -h 127.0.0.1 -P 3306 -uroot -prootpass'
+
+echo "✅ Galera aliases loaded (mariadb-g1, mariadb-g2, mariadb-g3, mariadb-galera-lb)"

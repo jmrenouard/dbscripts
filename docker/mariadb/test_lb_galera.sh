@@ -5,7 +5,7 @@ LB_HOST="127.0.0.1"
 LB_PORT="3306"
 USER="root"
 PASS="rootpass"
-ITERATIONS=12
+ITERATIONS=40
 
 echo "=========================================================="
 echo "🚀 MariaDB Galera HAProxy Load Balancing Test"

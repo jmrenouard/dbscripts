@@ -1,0 +1,10 @@
+# Replication Environment Aliases
+# Source this file: source profile_repli
+
+alias mariadb-m1='mariadb -h 127.0.0.1 -P 3411 -uroot -prootpass'
+alias mariadb-s1='mariadb -h 127.0.0.1 -P 3412 -uroot -prootpass'
+alias mariadb-s2='mariadb -h 127.0.0.1 -P 3413 -uroot -prootpass'
+alias mariadb-repli-lb-rw='mariadb -h 127.0.0.1 -P 3406 -uroot -prootpass'
+alias mariadb-repli-lb-ro='mariadb -h 127.0.0.1 -P 3407 -uroot -prootpass'
+
+echo "✅ Replication aliases loaded (mariadb-m1, mariadb-s1, mariadb-s2, mariadb-repli-lb-rw, mariadb-repli-lb-ro)"
