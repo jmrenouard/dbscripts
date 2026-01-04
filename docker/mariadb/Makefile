@@ -19,13 +19,25 @@ install-client: ## Install MariaDB client on the host (Ubuntu/Debian)
 up-galera: build-image down-repli ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
 
-bootstrap-galera: build-image down-repli ## Bootstrap a NEW Galera cluster
-	@echo ">> 🚀 Bootstrapping Node 1..."
+bootstrap-galera: build-image down-repli ## Bootstrap a NEW Galera cluster (Sequential)
+	@echo ">> 🚀 Bootstrapping Node 1 (Primary)..."
 	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d galera_01
-	@echo ">> ⏳ Waiting for Node 1 to be ready..."
-	@sleep 20
-	@echo ">> 🚀 Starting rest of the cluster..."
-	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate
+	@echo ">> ⏳ Waiting for Node 1 to bootstrap..."
+	@until docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 1; done
+	@echo "✅ Node 1 is Synced."
+	@echo ">> 🚀 Joining Node 2..."
+	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate galera_02
+	@echo ">> ⏳ Waiting for Node 2 to join..."
+	@until mariadb -h 127.0.0.1 -P 3512 -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 2; done
+	@echo "✅ Node 2 is Synced."
+	@echo ">> 🚀 Joining Node 3..."
+	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate galera_03
+	@echo ">> ⏳ Waiting for Node 3 to join..."
+	@until mariadb -h 127.0.0.1 -P 3513 -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 2; done
+	@echo "✅ Node 3 is Synced."
+	@echo ">> 🚀 Starting Load Balancer..."
+	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate haproxy_galera
+	@echo "✅ Cluster is fully SEQUENTIALLY BOOTSTRAPPED and ready."
 
 down-galera: ## Stop Galera cluster
 	docker compose -f $(COMPOSE_GALERA) down
