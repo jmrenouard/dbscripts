@@ -55,6 +55,7 @@ The `Makefile` simplifies cluster management and tool execution.
 | `make down-galera` / `down-repli` | Stop and remove containers |
 | `make logs-galera` / `logs-repli` | Follow cluster logs |
 | `make test-galera` / `test-repli` | Run functional verification tests |
+| `make test-lb-galera` | Test HAProxy Load Balancing for Galera |
 | `make setup-repli` | Configure Replication topology (Master/Slaves) |
 | `make backup-galera` / `backup-repli` | Perform logical backup |
 | `make test-perf-galera` / `test-perf-repli` | Run performance benchmarks |
