@@ -14,6 +14,14 @@ Commencez par construire l'image personnalisée `mariadb_ssh` contenant tous les
 make build-image
 ```
 
+### Installer le Client (Optionnel)
+
+Pour interagir avec les bases de données depuis votre hôte (Ubuntu/Debian), vous pouvez installer les outils client :
+
+```bash
+make install-client
+```
+
 ### Déployer les Clusters
 
 Choisissez votre scénario et démarrez l'environnement via Docker Compose :

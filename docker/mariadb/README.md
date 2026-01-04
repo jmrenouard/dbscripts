@@ -14,6 +14,14 @@ First, build the custom `mariadb_ssh` image containing all necessary DBA tools.
 make build-image
 ```
 
+### Install Client (Optional)
+
+To interact with the databases from your host (Ubuntu/Debian), you can install the client tools:
+
+```bash
+make install-client
+```
+
 ### Deploy Clusters
 
 Choose your scenario and start the environment using Docker Compose:

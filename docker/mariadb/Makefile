@@ -12,6 +12,9 @@ help: ## Show this help message
 build-image: ## Build the base mariadb_ssh image
 	docker build -t $(IMAGE_NAME) .
 
+install-client: ## Install MariaDB client on the host (Ubuntu/Debian)
+	sudo apt-get update && sudo apt-get install -y mariadb-client
+
 ## Galera Cluster
 up-galera: build-image ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
