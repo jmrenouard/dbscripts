@@ -51,6 +51,7 @@ Le `Makefile` simplifie la gestion des clusters et l'exécution des outils.
 | Commande | Description |
 | :--- | :--- |
 | `make up-galera` / `up-repli` | Démarrer le cluster choisi |
+| `make bootstrap-galera` | Initialiser (Bootstrap) un NOUVEAU cluster Galera |
 | `make down-galera` / `down-repli` | Arrêter et supprimer les conteneurs |
 | `make logs-galera` / `logs-repli` | Suivre les logs du cluster |
 | `make test-galera` / `test-repli` | Exécuter les tests de vérification fonctionnelle |
