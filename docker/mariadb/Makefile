@@ -39,6 +39,10 @@ test-repli: ## Run replication tests on the active cluster
 	@chmod +x test_repli.sh
 	./test_repli.sh
 
+setup-repli: ## Configure Master/Slave relationship
+	@chmod +x setup_repli.sh
+	./setup_repli.sh
+
 test-galera: ## Run advanced Galera cluster tests (Replication, DDL, Conflicts, Auto-inc)
 	@chmod +x test_galera.sh
 	./test_galera.sh
@@ -87,5 +91,4 @@ clean-galera: down-galera ## Stop Galera and remove all data/backups (CAUTION!)
 clean-repli: down-repli ## Stop Replication and remove all data/backups (CAUTION!)
 	rm -rf datadir_* backups_*
 
-clean-data: ## Remove ALL data and backup directories (CAUTION!)
-	rm -rf gdatadir_* gbackups_* datadir_* backups_*
+clean-data: clean-galera clean-repli ## Remove ALL data and backup directories (CAUTION!)
