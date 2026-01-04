@@ -43,8 +43,8 @@ for port in $SLAVE1_PORT $SLAVE2_PORT; do
         --master-data=1 \
         --single-transaction \
         --routines --triggers --events \
-        | sed "s/^CHANGE MASTER TO /CHANGE MASTER TO MASTER_HOST='$MASTER_IP', MASTER_USER='$REPLI_USER', MASTER_PASSWORD='$REPLI_PASS', /" \
-        | mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -v
+        | sed "0,/^CHANGE MASTER TO /s/^CHANGE MASTER TO /CHANGE MASTER TO MASTER_HOST='$MASTER_IP', MASTER_USER='$REPLI_USER', MASTER_PASSWORD='$REPLI_PASS', /" \
+        | mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS
 
     if [ $? -eq 0 ]; then
         echo "✅ Data sync and Master link successful for Port $port."
