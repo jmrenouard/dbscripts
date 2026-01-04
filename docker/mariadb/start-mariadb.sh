@@ -61,4 +61,10 @@ fi
 # Pour Supervisor, il vaut mieux lancer mariadbd directement ou utiliser exec.
 
 echo ">> 🚀 Démarrage de MariaDB Safe..."
-exec mariadbd-safe --datadir="$DATA_DIR" --user=root
+EXTRA_ARGS=""
+if [ "$MARIADB_GALERA_BOOTSTRAP" = "1" ]; then
+    echo ">> 🌟 Bootstrapping de nouveaux clusters Galera détecté..."
+    EXTRA_ARGS="--wsrep-new-cluster"
+fi
+
+exec mariadbd-safe --datadir="$DATA_DIR" --user=root $EXTRA_ARGS

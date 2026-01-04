@@ -13,7 +13,8 @@ x-template: &template
   environment:
     - MARIADB_ROOT_PASSWORD=rootpass
     # Astuce Expert : Définit le DNS interne pour la résolution de noms
-    - MARIADB_ROOT_HOST=% 
+    - MARIADB_ROOT_HOST=%
+    - MARIADB_GALERA_BOOTSTRAP=${MARIADB_GALERA_BOOTSTRAP:-0}
   networks:
     backend_galera:
 
@@ -64,6 +65,7 @@ services:
       - "./init-permissions.sql:/docker-entrypoint-initdb.d/init-permissions.sql:ro"
     networks:
       backend_galera:
+        ipv4_address: 10.6.0.13
   # 🔵 Load Balancer (HAProxy)
   haproxy_galera:
     image: haproxy:latest

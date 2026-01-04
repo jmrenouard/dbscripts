@@ -19,6 +19,14 @@ install-client: ## Install MariaDB client on the host (Ubuntu/Debian)
 up-galera: build-image down-repli ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
 
+bootstrap-galera: build-image down-repli ## Bootstrap a NEW Galera cluster
+	@echo ">> 🚀 Bootstrapping Node 1..."
+	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d galera_01
+	@echo ">> ⏳ Waiting for Node 1 to be ready..."
+	@sleep 20
+	@echo ">> 🚀 Starting rest of the cluster..."
+	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate
+
 down-galera: ## Stop Galera cluster
 	docker compose -f $(COMPOSE_GALERA) down
 
@@ -36,47 +44,42 @@ logs-repli: ## Follow Replication cluster logs
 	docker compose -f $(COMPOSE_REPLI) logs -f
 
 test-repli: ## Run replication tests on the active cluster
-	@chmod +x test_repli.sh
-	./test_repli.sh
+	bash ./test_repli.sh
 
 setup-repli: ## Configure Master/Slave relationship
-	@chmod +x setup_repli.sh
-	./setup_repli.sh
+	bash ./setup_repli.sh
 
 test-galera: ## Run advanced Galera cluster tests (Replication, DDL, Conflicts, Auto-inc)
-	@chmod +x test_galera.sh
-	./test_galera.sh
+	bash ./test_galera.sh
 
 test-perf-repli: ## Run performance tests on Replication (Usage: make test-perf-repli PROFILE=light ACTION=run)
-	@chmod +x test_perf_repli.sh
-	./test_perf_repli.sh $(PROFILE) $(ACTION)
+	bash ./test_perf_repli.sh $(PROFILE) $(ACTION)
 
 test-perf-galera: ## Run performance tests on Galera (Usage: make test-perf-galera PROFILE=light ACTION=run)
-	@chmod +x test_perf_galera.sh
-	./test_perf_galera.sh $(PROFILE) $(ACTION)
+	bash ./test_perf_galera.sh $(PROFILE) $(ACTION)
 
 test-perf: ## [DEPRECATED] Use test-perf-galera or test-perf-repli
 	@echo "❌ 'make test-perf' is deprecated. Please use 'make test-perf-galera' or 'make test-perf-repli'"
 
 ## Backup & Restore (Logical)
 backup-galera: ## Backup Galera cluster (Usage: make backup-galera [DB=name])
-	./backup_logical.sh galera $(DB)
+	bash ./backup_logical.sh galera $(DB)
 
 restore-galera: ## Restore Galera cluster (Usage: make restore-galera FILE=filename.sql.gz)
-	./restore_logical.sh galera $(FILE)
+	bash ./restore_logical.sh galera $(FILE)
 
 backup-repli: ## Backup Replication cluster (Usage: make backup-repli [DB=name])
-	./backup_logical.sh repli $(DB)
+	bash ./backup_logical.sh repli $(DB)
 
 restore-repli: ## Restore Replication cluster (Usage: make restore-repli FILE=filename.sql.gz)
-	./restore_logical.sh repli $(FILE)
+	bash ./restore_logical.sh repli $(FILE)
 
 ## Backup & Restore (Physical - MariaBackup)
 backup-phys-galera: ## Physical backup Galera (Usage: make backup-phys-galera)
-	./backup_physical.sh galera
+	bash ./backup_physical.sh galera
 
 restore-phys-galera: ## Physical restore Galera (Usage: make restore-phys-galera FILE=filename.tar.gz)
-	./restore_physical.sh galera $(FILE)
+	bash ./restore_physical.sh galera $(FILE)
 
 backup-phys-repli: ## Physical backup Replication (Usage: make backup-phys-repli)
 	./backup_physical.sh repli
