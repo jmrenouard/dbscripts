@@ -3,7 +3,7 @@ IMAGE_NAME = mariadb_ssh:004
 COMPOSE_GALERA = docker-compose-galera.yml
 COMPOSE_REPLI = docker-compose-repli.yml
 
-.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data
+.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -78,5 +78,11 @@ restore-phys-repli: ## Physical restore Replication (Usage: make restore-phys-re
 	./restore_physical.sh repli $(FILE)
 
 ## Utility
-clean-data: ## Remove data and backup directories (CAUTION!)
+clean-galera: down-galera ## Stop Galera and remove all data/backups (CAUTION!)
+	rm -rf gdatadir_* gbackups_*
+
+clean-repli: down-repli ## Stop Replication and remove all data/backups (CAUTION!)
+	rm -rf datadir_* backups_*
+
+clean-data: ## Remove ALL data and backup directories (CAUTION!)
 	rm -rf gdatadir_* gbackups_* datadir_* backups_*
