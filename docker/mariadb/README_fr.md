@@ -54,6 +54,7 @@ Le `Makefile` simplifie la gestion des clusters et l'exécution des outils.
 | `make down-galera` / `down-repli` | Arrêter et supprimer les conteneurs |
 | `make logs-galera` / `logs-repli` | Suivre les logs du cluster |
 | `make test-galera` / `test-repli` | Exécuter les tests de vérification fonctionnelle |
+| `make setup-repli` | Configurer la topologie de réplication (Maître/Esclaves) |
 | `make backup-galera` / `backup-repli` | Effectuer une sauvegarde logique |
 | `make test-perf-galera` / `test-perf-repli` | Exécuter les benchmarks de performance |
 | `make clean-galera` / `clean-repli` | Arrêter et supprimer toutes les données |
