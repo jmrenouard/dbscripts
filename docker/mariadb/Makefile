@@ -16,7 +16,7 @@ install-client: ## Install MariaDB client on the host (Ubuntu/Debian)
 	sudo apt-get update && sudo apt-get install -y mariadb-client
 
 ## Galera Cluster
-up-galera: build-image ## Start Galera cluster
+up-galera: build-image down-repli ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
 
 down-galera: ## Stop Galera cluster
@@ -26,7 +26,7 @@ logs-galera: ## Follow Galera cluster logs
 	docker compose -f $(COMPOSE_GALERA) logs -f
 
 ## Replication Cluster
-up-repli: build-image ## Start Replication cluster
+up-repli: build-image down-galera ## Start Replication cluster
 	docker compose -f $(COMPOSE_REPLI) up -d
 
 down-repli: ## Stop Replication cluster
