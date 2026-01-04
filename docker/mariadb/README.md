@@ -57,7 +57,27 @@ The `Makefile` simplifies cluster management and tool execution.
 | `make setup-repli` | Configure Replication topology (Master/Slaves) |
 | `make backup-galera` / `backup-repli` | Perform logical backup |
 | `make test-perf-galera` / `test-perf-repli` | Run performance benchmarks |
-| `make clean-galera` / `clean-repli` | Stop and wipe all cluster data |
+| `make gen-profiles` | Generate shell profile files with aliases |
+
+### 🛠️ Shell Aliases (Quick Access)
+
+To easily access MariaDB instances from your terminal without typing host and port every time:
+
+1. Generate the profiles:
+
+   ```bash
+   make gen-profiles
+   ```
+
+2. Source the relevant profile:
+
+   ```bash
+   source profile_repli   # For Replication aliases
+   # OR
+   source profile_galera  # For Galera aliases
+   ```
+
+3. Use the aliases: `mariadb-m1`, `mariadb-s1`, `mariadb-g1`, `mariadb-lb`, etc.
 
 ---
 

@@ -91,4 +91,8 @@ clean-galera: down-galera ## Stop Galera and remove all data/backups (CAUTION!)
 clean-repli: down-repli ## Stop Replication and remove all data/backups (CAUTION!)
 	rm -rf datadir_* backups_*
 
+gen-profiles: ## Generate shell profile files with aliases
+	@chmod +x gen_profiles.sh
+	./gen_profiles.sh
+
 clean-data: clean-galera clean-repli ## Remove ALL data and backup directories (CAUTION!)
