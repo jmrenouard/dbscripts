@@ -37,7 +37,7 @@ EOF
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "$query" 2>/dev/null
 }
 
 # Data for HTML report
@@ -62,8 +62,9 @@ while [ $(($(date +%s) - START_WAIT)) -lt $MAX_WAIT ]; do
         if ! run_sql $port "SELECT 1" > /dev/null 2>&1; then
             ALL_UP=false
         else
-            IO=$(run_sql $port "SHOW SLAVE STATUS\G" | grep "Slave_IO_Running:" | awk '{print $2}')
-            SQL=$(run_sql $port "SHOW SLAVE STATUS\G" | grep "Slave_SQL_Running:" | awk '{print $2}')
+            # Use raw mariadb to ensure labels are present for grep
+            IO=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Slave_IO_Running:" | awk '{print $2}')
+            SQL=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "SHOW SLAVE STATUS\G" 2>/dev/null | grep "Slave_SQL_Running:" | awk '{print $2}')
             if [ "$IO" != "Yes" ] || [ "$SQL" != "Yes" ]; then
                 REPL_OK=false
             fi
@@ -120,10 +121,10 @@ for port in $SLAVE1_PORT $SLAVE2_PORT; do
 done
 
 write_report "\n## Sections pour la réplication (master & slave)"
-write_report "### Detailed Master Status\n\`\`\`sql\n$MASTER_STATUS\n\`\`\`"
-SLAVE1_FULL=$(run_sql $SLAVE1_PORT "SHOW SLAVE STATUS\G")
+write_report "### Detailed Master Status\n\`\`\`sql\n$(mariadb -h 127.0.0.1 -P $MASTER_PORT -u$USER -p$PASS -e "SHOW MASTER STATUS\G")\n\`\`\`"
+SLAVE1_FULL=$(mariadb -h 127.0.0.1 -P $SLAVE1_PORT -u$USER -p$PASS -e "SHOW SLAVE STATUS\G")
 write_report "### Detailed Slave 1 Status\n\`\`\`sql\n$SLAVE1_FULL\n\`\`\`"
-SLAVE2_FULL=$(run_sql $SLAVE2_PORT "SHOW SLAVE STATUS\G")
+SLAVE2_FULL=$(mariadb -h 127.0.0.1 -P $SLAVE2_PORT -u$USER -p$PASS -e "SHOW SLAVE STATUS\G")
 write_report "### Detailed Slave 2 Status\n\`\`\`sql\n$SLAVE2_FULL\n\`\`\`"
 
 echo -e "\n5. 🧪 Performing Data Replication Test..."

@@ -14,6 +14,7 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make gen-profiles` | Generate shell profiles for quick container access. |
 | `make clean-galera` | Stop Galera and remove all its data/backups. |
 | `make clean-repli` | Stop Replication and remove all its data/backups. |
+| `make clean-reports` | Purge all test reports (`.md` and `.html`) from the `reports/` directory. |
 | `make full-repli` | Full orchestration for Replication: Clean, Start, Setup, and Test. |
 | `make full-galera` | Full orchestration for Galera: Clean, Start (Bootstrap), and Test. |
 | `make clean-ssl` | Remove generated certificates. |

@@ -102,10 +102,13 @@ backup-phys-repli: ## Physical backup Replication (Usage: make backup-phys-repli
 restore-phys-repli: ## Physical restore Replication (Usage: make restore-phys-repli FILE=filename.tar.gz)
 	./restore_physical.sh repli $(FILE)
 
-## Full Cycles (CI/CD Style)
-full-repli: clean-repli clean-ssl up-repli setup-repli test-repli ## Full cycle for Replication: Clean, Start, Setup, and Test
+## Full Cycle Targets (CI/CD style)
+clean-reports:
+	rm -rf reports/*.md reports/*.html
 
-full-galera: clean-galera clean-ssl bootstrap-galera test-galera ## Full cycle for Galera: Clean, Start (Sequential), and Test
+full-repli: clean-repli clean-ssl clean-reports up-repli setup-repli test-repli ## Full cycle for Replication: Clean, Start, Setup, and Test
+
+full-galera: clean-galera clean-ssl clean-reports up-galera bootstrap-galera test-galera ## Full cycle for Galera: Clean, Start (Sequential), and Test
 
 ## Utility
 clean-galera: down-galera ## Stop Galera and remove all data/backups (CAUTION!)

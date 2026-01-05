@@ -97,51 +97,57 @@ write_report "| $LB_NATURE | $LB_EXPECTED | $LB_STATUS | $LB_DETAILS |"
 TEST_RESULTS="{\"test\":\"$LB_NATURE\",\"nature\":\"$LB_NATURE\",\"expected\":\"$LB_EXPECTED\",\"status\":\"$LB_STATUS\",\"details\":\"$LB_DETAILS\"},"
 
 # Generate HTML Report
-cat <<EOF > "$REPORT_HTML"
+cat <<'EOF' > "$REPORT_HTML"
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <title>Rapport de Test de Charge HAProxy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MariaDB LB Test Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
-        body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f1f5f9; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        :root { --glass: rgba(15, 23, 42, 0.8); }
+        body { font-family: 'Inter', sans-serif; background: #020617; color: #f8fafc; }
+        .glass { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="p-8">
-    <div class="max-w-4xl mx-auto space-y-8">
-        <header class="glass p-8 rounded-3xl flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent italic">
-                    <i class="fa-solid fa-balancer-scale mr-3"></i>Load Balancing Test
-                </h1>
-                <p class="text-slate-400 mt-2 font-light italic">Vérification de la distribution HAProxy</p>
+<body class="min-h-screen pb-20">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+        <header class="mb-16">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-network-wired text-xl text-white"></i>
+                </div>
+                <h1 class="text-4xl font-extrabold tracking-tight gradient-text">MariaDB LB Report</h1>
             </div>
-            <div class="text-right">
-                <span class="px-4 py-1 rounded-full text-[10px] font-bold uppercase ${LB_STATUS === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
-                    ${LB_STATUS}
-                </span>
+            <div class="flex items-center text-slate-400 space-x-6">
+                <span class="flex items-center"><i class="fa-regular fa-calendar-days mr-2"></i>REPLACE_DATE</span>
+                <span class="flex items-center"><i class="fa-solid fa-server mr-2"></i>REPLACE_ITERATIONS iterations</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div class="glass p-8 rounded-3xl">
-                <h3 class="text-xl font-bold mb-6 text-emerald-400">Distribution</h3>
-                <canvas id="distChart"></canvas>
+                <h3 class="text-xl font-bold mb-2 text-emerald-400">Statut Global</h3>
+                <div class="text-xs text-slate-500 mb-6 uppercase tracking-widest font-bold">Health check</div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-4 h-4 rounded-full REPLACE_LB_COLOR animate-pulse"></div>
+                    <div class="text-2xl font-bold REPLACE_LB_TEXT_COLOR">REPLACE_LB_STATUS</div>
+                </div>
             </div>
-            <div class="glass p-8 rounded-3xl flex flex-col justify-center text-center">
-                <div class="text-slate-500 text-xs uppercase font-bold mb-2">Total Iterations</div>
-                <div class="text-5xl font-bold text-cyan-400">$ITERATIONS</div>
-                <div class="mt-4 text-slate-400 text-sm italic">$UNIQUE_HOSTS distinct hosts hit</div>
+            <div class="glass p-8 rounded-3xl">
+                <h3 class="text-xl font-bold mb-2 text-blue-400 italic">Distribution</h3>
+                <div class="text-xs text-slate-500 mb-6 uppercase tracking-widest font-bold">Node hit count</div>
+                <canvas id="distChart" class="max-h-48"></canvas>
             </div>
         </div>
 
-        <div class="glass p-8 rounded-3xl">
-            <h3 class="text-xl font-bold mb-6 text-blue-400 italic">
+        <div class="glass p-8 rounded-3xl mb-12">
+            <h3 class="text-xl font-bold mb-6 text-blue-400 flex items-center italic">
                 <i class="fa-solid fa-list-check mr-3"></i>Résultats des Tests
             </h3>
             <div class="overflow-x-auto">
@@ -160,14 +166,14 @@ cat <<EOF > "$REPORT_HTML"
         </div>
 
         <div class="glass p-8 rounded-3xl">
-            <h3 class="text-xl font-bold mb-6 text-blue-400">Connection Logs</h3>
-            <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-y-auto h-64 text-slate-400">$RAW_LOGS</pre>
+            <h3 class="text-xl font-bold mb-6 text-slate-400">Connection Logs</h3>
+            <pre class="p-6 bg-black/40 rounded-2xl text-[10px] font-mono whitespace-pre overflow-y-auto h-96 text-slate-500 border border-white/5">REPLACE_RAW_LOGS</pre>
         </div>
     </div>
 
     <script>
-        const distData = [${DIST_DATA%?}];
-        const testResults = [${TEST_RESULTS%?}];
+        const distData = [REPLACE_DIST_DATA];
+        const testResults = [REPLACE_TEST_RESULTS];
 
         new Chart(document.getElementById('distChart'), {
             type: 'doughnut',
@@ -175,38 +181,54 @@ cat <<EOF > "$REPORT_HTML"
                 labels: distData.map(d => d.host),
                 datasets: [{
                     data: distData.map(d => d.count),
-                    backgroundColor: ['#34d399', '#22d3ee', '#818cf8', '#fbbf24', '#f87171'],
-                    borderWidth: 0
+                    backgroundColor: ['#38bdf8', '#818cf8', '#34d399', '#fbbf24', '#f87171'],
+                    borderWidth: 0,
+                    hoverOffset: 20
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
-                }
+                    legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11, family: 'Inter' }, padding: 20, usePointStyle: true } }
+                },
+                cutout: '75%'
             }
         });
 
         const resContainer = document.getElementById('test-results');
         testResults.forEach(item => {
             const row = document.createElement('tr');
-            row.className = 'border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors';
-            row.innerHTML = \`
-                <td class="py-4 font-semibold text-slate-300">\${item.nature}</td>
-                <td class="py-4 text-slate-400">\${item.expected}</td>
+            row.className = 'border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors cursor-default';
+            row.innerHTML = `
+                <td class="py-4 font-semibold text-slate-300 font-medium">${item.nature}</td>
+                <td class="py-4 text-slate-400">${item.expected}</td>
                 <td class="py-4">
-                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase \${item.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
-                        \${item.status}
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${item.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
+                        ${item.status}
                     </span>
                 </td>
-                <td class="py-4 text-slate-400 text-xs font-mono">\${item.details}</td>
-            \`;
+                <td class="py-4 text-slate-400 text-xs font-mono font-medium">${item.details}</td>
+            `;
             resContainer.appendChild(row);
         });
     </script>
 </body>
 </html>
 EOF
+
+# Replace placeholders in the HTML report
+sed -i "s|REPLACE_DATE|$(date)|g" "$REPORT_HTML"
+sed -i "s|REPLACE_ITERATIONS|$ITERATIONS|g" "$REPORT_HTML"
+sed -i "s|REPLACE_LB_STATUS|$LB_STATUS|g" "$REPORT_HTML"
+sed -i "s|REPLACE_LB_COLOR|$( [ "$LB_STATUS" == "PASS" ] && echo "bg-green-500" || echo "bg-red-500" )|g" "$REPORT_HTML"
+sed -i "s|REPLACE_LB_TEXT_COLOR|$( [ "$LB_STATUS" == "PASS" ] && echo "text-green-400" || echo "text-red-400" )|g" "$REPORT_HTML"
+sed -i "s|REPLACE_DIST_DATA|${DIST_DATA%?}|g" "$REPORT_HTML"
+sed -i "s|REPLACE_TEST_RESULTS|${TEST_RESULTS%?}|g" "$REPORT_HTML"
+
+# Safely escape backslashes and quotes for log inclusion
+ESCAPED_LOGS=$(echo "$RAW_LOGS" | sed 's/\\/\\\\/g; s/"/\\"/g; s/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+python3 -c "import sys; c=open('$REPORT_HTML').read(); open('$REPORT_HTML','w').write(c.replace('REPLACE_RAW_LOGS', sys.argv[1]))" "$RAW_LOGS"
 
 echo "=========================================================="
 echo "🏁 Test Finished."

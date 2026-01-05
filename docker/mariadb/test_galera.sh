@@ -37,7 +37,7 @@ EOF
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -sN -e "$query" 2>/dev/null
 }
 
 # Data for HTML report
@@ -55,7 +55,7 @@ while [ $(($(date +%s) - START_WAIT)) -lt $MAX_WAIT ]; do
     for i in 1 2 3; do
         port_var="NODE${i}_PORT"
         port=${!port_var}
-        if run_sql $port "SELECT 1" > /dev/null 2>&1; then
+        if mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -e "SELECT 1" > /dev/null 2>&1; then
             W_READY=$(mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_ready';" | awk '{print $2}')
             W_SIZE=$(mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';" | awk '{print $2}')
             W_STATE=$(mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | awk '{print $2}')
@@ -94,12 +94,12 @@ for i in 1 2 3; do
     size="-"
     state="-"
     ssl="-"
-    if run_sql $port "SELECT 1" > /dev/null; then
+    if mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "SELECT 1" > /dev/null; then
         status="UP"
-        ready=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_ready';" | awk '{print $2}')
-        size=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';" | awk '{print $2}')
-        state=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | awk '{print $2}')
-        ssl=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
+        ready=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_ready';" | awk '{print $2}')
+        size=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';" | awk '{print $2}')
+        state=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | awk '{print $2}')
+        ssl=$(run_sql $port "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
         [ -z "$ssl" ] || [ "$ssl" == "NULL" ] && ssl="DISABLED"
         gtid=$(run_sql $port "SELECT @@gtid_strict_mode;")
         echo "✅ Node $i at port $port is UP (Ready: $ready, Cluster Size: $size, State: $state, SSL: $ssl, GTID: $gtid)"
