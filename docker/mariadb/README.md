@@ -171,4 +171,17 @@ Detailed reports include latency charts (ms), query distribution (Read/Write/Oth
 Logs are managed via Supervisor inside containers:
 
 - `/var/log/supervisor/mariadb.err.log`
-- `/var/lib/mysql/${HOSTNAME}.err` (MariaDB specific logs)
+
+---
+
+## 📚 8. Detailed Documentation
+
+For more in-depth information, please refer to the following documents in the [documentation/](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/) directory:
+
+- **[Architecture](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/architecture.md)**: Global topology and Mermaid diagrams.
+- **[Makefile Reference](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/makefile.md)**: Detailed breakdown of all `make` tasks.
+- **[Utility Scripts](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/scripts.md)**: Description of backup, SSL, and setup scripts.
+- **[SSL & Replication](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_ssl.md)**: Security configuration and verification.
+- **[Galera Bootstrap](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/galera_bootstrap.md)**: Step-by-step guide for new clusters.
+- **[Replication Setup](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_setup.md)**: Walkthrough of the replication automation.
+- **[Test Cases](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/tests.md)**: Automated test descriptions and expected results.
