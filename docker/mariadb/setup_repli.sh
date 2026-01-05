@@ -21,12 +21,36 @@ run_sql() {
     mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" -sN
 }
 
-echo "1. 🔍 Verifying Master Connectivity on Port $MASTER_PORT..."
-if ! run_sql $MASTER_PORT "SELECT 1" > /dev/null; then
-    echo "❌ Failed to connect to Master. Is MariaDB running on port $MASTER_PORT?"
+echo "1. ⏳ Waiting for Master and Slaves to be ready (max 60s)..."
+MAX_WAIT=60
+START_WAIT=$(date +%s)
+READY=false
+
+while [ $(($(date +%s) - START_WAIT)) -lt $MAX_WAIT ]; do
+    ALL_UP=true
+    # Check Master and both Slaves connectivity
+    for port in $MASTER_PORT $SLAVE1_PORT $SLAVE2_PORT; do
+        if ! run_sql $port "SELECT 1" > /dev/null 2>&1; then
+            ALL_UP=false
+            break
+        fi
+    done
+    
+    if $ALL_UP; then
+        READY=true
+        break
+    fi
+    echo -n "."
+    sleep 2
+done
+echo ""
+
+if [ "$READY" = false ]; then
+    echo "❌ Timeout: Master or Slaves not reachable after 60s."
     exit 1
 fi
-echo "✅ Master is reachable."
+
+echo "✅ All nodes are reachable. Proceeding with setup..."
 
 for port in $SLAVE1_PORT $SLAVE2_PORT; do
     echo -e "\n2. ⛓️  Initializing Slave on Port $port..."

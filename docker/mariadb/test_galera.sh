@@ -59,9 +59,12 @@ while [ $(($(date +%s) - START_WAIT)) -lt $MAX_WAIT ]; do
             W_READY=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_ready';" | awk '{print $2}')
             W_SIZE=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';" | awk '{print $2}')
             W_STATE=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | awk '{print $2}')
+            echo "   Node $i (Port $port): Ready=$W_READY, Size=$W_SIZE, State=$W_STATE"
             if [ "$W_READY" = "ON" ] && [ "$W_SIZE" = "3" ] && [ "$W_STATE" = "Synced" ]; then
                 ((MATCH_COUNT++))
             fi
+        else
+            echo "   Node $i (Port $port): UNREACHABLE"
         fi
     done
     
