@@ -17,9 +17,11 @@ echo ""
 declare -A hosts_count
 
 for i in $(seq 1 $ITERATIONS); do
-    HOSTNAME=$(mariadb -h "$LB_HOST" -P "$LB_PORT" -u "$USER" -p"$PASS" -N -e "SELECT @@hostname;" 2>/dev/null)
+    RESULT=$(mariadb -h "$LB_HOST" -P "$LB_PORT" -u "$USER" -p"$PASS" -N -s -e "SELECT @@hostname, (SELECT VARIABLE_VALUE FROM information_schema.SESSION_STATUS WHERE VARIABLE_NAME='Ssl_cipher');" 2>/dev/null)
     if [ $? -eq 0 ]; then
-        echo "   [Connection $i] -> $HOSTNAME"
+        HOSTNAME=$(echo "$RESULT" | awk '{print $1}')
+        SSL=$(echo "$RESULT" | awk '{print $2}')
+        echo "   [Connection $i] -> $HOSTNAME (SSL: $SSL)"
         ((hosts_count["$HOSTNAME"]++))
     else
         echo "   [Connection $i] -> ❌ FAILED"

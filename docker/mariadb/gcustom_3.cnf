@@ -16,3 +16,8 @@ wsrep_node_address="10.6.0.13"
 wsrep_node_name="galera03"
 wsrep_log_conflicts=ON
 wsrep_provider_options="cert.log_conflicts=YES"
+
+# Advanced Galera/MariaDB Settings
+gtid_strict_mode=1
+proxy_protocol_networks=10.5.0.0/24,10.6.0.0/24
+binlog_expire_logs_seconds=172800

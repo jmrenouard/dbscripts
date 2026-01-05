@@ -26,7 +26,9 @@ for port in $NODE1_PORT $NODE2_PORT $NODE3_PORT; do
         READY=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_ready';" | grep "ON" | awk '{print $2}')
         SIZE=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';" | grep "wsrep_cluster_size" | awk '{print $2}')
         STATE=$(run_sql $port "SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';" | awk '{print $2}')
-        echo "✅ Node at port $port is UP (Ready: $READY, Cluster Size: $SIZE, State: $STATE)"
+        CIPHER=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
+        GTID=$(run_sql $port "SELECT @@gtid_strict_mode;")
+        echo "✅ Node at port $port is UP (Ready: $READY, Cluster Size: $SIZE, State: $STATE, SSL: $CIPHER, GTID: $GTID)"
     else
         echo "❌ Node at port $port is DOWN"
         ALL_UP=false
