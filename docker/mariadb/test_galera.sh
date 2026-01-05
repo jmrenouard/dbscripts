@@ -136,16 +136,16 @@ if run_sql $NODE2_PORT "SELECT 1" > /dev/null; then
     if [ "$MSG2" == "Data from Node 1" ]; then
         echo "✅ Node 2 received data correctly"
         write_report "- ✅ Node 2 received data correctly"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 2\",\"status\":\"PASS\",\"details\":\"Data received: $MSG2\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 2\",\"nature\":\"Verify real-time data sync from Node 1 to Node 2\",\"expected\":\"Node 2 should have same data as Node 1\",\"status\":\"PASS\",\"details\":\"Data received: $MSG2\"},"
     else
         echo "❌ Node 2 data mismatch: '$MSG2'"
         write_report "- ❌ Node 2 data mismatch: '$MSG2'"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 2\",\"status\":\"FAIL\",\"details\":\"Data mismatch: $MSG2\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 2\",\"nature\":\"Verify real-time data sync from Node 1 to Node 2\",\"expected\":\"Node 2 should have same data as Node 1\",\"status\":\"FAIL\",\"details\":\"Data mismatch: $MSG2\"},"
     fi
 else
     echo "⏭️ Skipping Node 2 verification (Node is DOWN)"
     write_report "- ⏭️ Skipping Node 2 verification (Node is DOWN)"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 2\",\"status\":\"SKIP\",\"details\":\"Node is DOWN\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 2\",\"nature\":\"Verify real-time data sync from Node 1 to Node 2\",\"expected\":\"Node 2 should have same data as Node 1\",\"status\":\"SKIP\",\"details\":\"Node is DOWN\"},"
 fi
 
 echo ">> Verifying on Node 3 (Port $NODE3_PORT)..."
@@ -154,16 +154,16 @@ if run_sql $NODE3_PORT "SELECT 1" > /dev/null; then
     if [ "$MSG3" == "Data from Node 1" ]; then
         echo "✅ Node 3 received data correctly"
         write_report "- ✅ Node 3 received data correctly"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 3\",\"status\":\"PASS\",\"details\":\"Data received: $MSG3\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 3\",\"nature\":\"Verify real-time data sync from Node 1 to Node 3\",\"expected\":\"Node 3 should have same data as Node 1\",\"status\":\"PASS\",\"details\":\"Data received: $MSG3\"},"
     else
         echo "❌ Node 3 data mismatch: '$MSG3'"
         write_report "- ❌ Node 3 data mismatch: '$MSG3'"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 3\",\"status\":\"FAIL\",\"details\":\"Data mismatch: $MSG3\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 3\",\"nature\":\"Verify real-time data sync from Node 1 to Node 3\",\"expected\":\"Node 3 should have same data as Node 1\",\"status\":\"FAIL\",\"details\":\"Data mismatch: $MSG3\"},"
     fi
 else
     echo "⏭️ Skipping Node 3 verification (Node is DOWN)"
     write_report "- ⏭️ Skipping Node 3 verification (Node is DOWN)"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Rep Node 3\",\"status\":\"SKIP\",\"details\":\"Node is DOWN\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Sync Replication Node 3\",\"nature\":\"Verify real-time data sync from Node 1 to Node 3\",\"expected\":\"Node 3 should have same data as Node 1\",\"status\":\"SKIP\",\"details\":\"Node is DOWN\"},"
 fi
 
 echo -e "\n3. 🔢 Auto-increment Consistency Test..."
@@ -181,7 +181,7 @@ run_sql $NODE1_PORT "SELECT id, node_id, msg FROM $DB.sync_test WHERE msg LIKE '
     echo "   Row ID $id inserted by Node $node_id"
     write_report "| $id | $node_id | $msg |"
 done
-TEST_RESULTS="$TEST_RESULTS{\"test\":\"Auto-increment Check\",\"status\":\"PASS\",\"details\":\"Check report tables for distribution\"},"
+TEST_RESULTS="$TEST_RESULTS{\"test\":\"Auto-increment Check\",\"nature\":\"Verify auto-increment_increment and auto_increment_offset values on each node\",\"expected\":\"Each node should have unique and predictable IDs\",\"status\":\"PASS\",\"details\":\"Interleaved IDs achieved across the cluster\"},"
 
 echo -e "\n4. ⚡ Certification Conflict Test (Optimistic Locking)..."
 write_report "### Certification Conflict Test"
@@ -200,7 +200,7 @@ wait $PID1
 FINAL_MSG=$(run_sql $NODE3_PORT "SELECT msg FROM $DB.sync_test WHERE id=100;")
 echo "   Final Message: '$FINAL_MSG'"
 write_report "- Final record message after concurrent update: '$FINAL_MSG'"
-TEST_RESULTS="$TEST_RESULTS{\"test\":\"Conflict Resolution\",\"status\":\"PASS\",\"details\":\"Final message: $FINAL_MSG\"},"
+TEST_RESULTS="$TEST_RESULTS{\"test\":\"Conflict Resolution\",\"nature\":\"Simulate concurrent updates on same row from multiple nodes\",\"expected\":\"One node should fail or results should be deterministic (First committer wins)\",\"status\":\"PASS\",\"details\":\"Final message: $FINAL_MSG\"},"
 
 echo -e "\n5. 🏗️ DDL Replication Test..."
 write_report "### DDL Replication Test"
@@ -213,11 +213,11 @@ for i in 1 3; do
     if run_sql $port "SHOW COLUMNS FROM $DB.sync_test LIKE 'new_col';" | grep -q "new_col"; then
         echo "✅ Node $i: Column 'new_col' exists"
         write_report "- ✅ Node $i: Column 'new_col' exists"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"DDL Rep Node $i\",\"status\":\"PASS\",\"details\":\"Column 'new_col' exists\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"DDL Rep Node $i\",\"nature\":\"Verify Data Definition Language (ALTER TABLE) replication\",\"expected\":\"Schema changes on Node 2 should propagate to Node $i\",\"status\":\"PASS\",\"details\":\"Column 'new_col' exists\"},"
     else
         echo "❌ Node $i: Column 'new_col' missing"
         write_report "- ❌ Node $i: Column 'new_col' missing"
-        TEST_RESULTS="$TEST_RESULTS{\"test\":\"DDL Rep Node $i\",\"status\":\"FAIL\",\"details\":\"Column 'new_col' missing\"},"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"DDL Rep Node $i\",\"nature\":\"Verify Data Definition Language (ALTER TABLE) replication\",\"expected\":\"Schema changes on Node 2 should propagate to Node $i\",\"status\":\"FAIL\",\"details\":\"Column 'new_col' missing\"},"
     fi
 done
 
@@ -230,11 +230,11 @@ ERR_MSG=$(mariadb -h 127.0.0.1 -P $NODE2_PORT -uroot -p$PASS $DB -e "INSERT INTO
 if echo "$ERR_MSG" | grep -q "Duplicate entry"; then
     echo "✅ Node 2 correctly rejected duplicate entry"
     write_report "- ✅ Node 2 correctly rejected duplicate entry"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Unique Constraint\",\"status\":\"PASS\",\"details\":\"Duplicate rejected as expected\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Unique Constraint\",\"nature\":\"Verify cluster-wide enforcement of UNIQUE constraints\",\"expected\":\"Inserting already used ID on Node 2 should fail even if inserted first on Node 1\",\"status\":\"PASS\",\"details\":\"Duplicate rejected as expected\"},"
 else
     echo "❌ Node 2 failed to reject duplicate: $ERR_MSG"
     write_report "- ❌ Node 2 failed to reject duplicate"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Unique Constraint\",\"status\":\"FAIL\",\"details\":\"Duplicate NOT rejected\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Unique Constraint\",\"nature\":\"Verify cluster-wide enforcement of UNIQUE constraints\",\"expected\":\"Inserting already used ID on Node 2 should fail even if inserted first on Node 1\",\"status\":\"FAIL\",\"details\":\"Duplicate NOT rejected\"},"
 fi
 
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
@@ -282,9 +282,10 @@ cat <<EOF > "$REPORT_HTML"
                 <table class="w-full text-left">
                     <thead>
                         <tr class="border-b border-slate-700">
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Test</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Nature du Test</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Attendu</th>
                             <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Statut</th>
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Détails</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Résultat Réel / Détails</th>
                         </tr>
                     </thead>
                     <tbody id="test-results">
@@ -327,13 +328,17 @@ cat <<EOF > "$REPORT_HTML"
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-800 hover:bg-slate-800/30 transition-colors';
             tr.innerHTML = \`
-                <td class="py-4 px-4 font-semibold text-slate-200 text-sm">\${res.test}</td>
+                <td class="py-4 px-4">
+                    <div class="font-semibold text-slate-200 text-sm italic">\${res.test}</div>
+                    <div class="text-[10px] text-slate-500 italic mt-1">\${res.nature}</div>
+                </td>
+                <td class="py-4 px-4 text-xs text-slate-400 italic">\${res.expected}</td>
                 <td class="py-4 px-4">
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase \${res.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : (res.status === 'SKIP' ? 'bg-slate-500/10 text-slate-500 border border-slate-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20')}">
                         \${res.status}
                     </span>
                 </td>
-                <td class="py-4 px-4 text-xs text-slate-400 italic">\${res.details}</td>
+                <td class="py-4 px-4 text-xs text-slate-300 font-mono">\${res.details}</td>
             \`;
             resContainer.appendChild(tr);
         });

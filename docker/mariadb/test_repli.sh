@@ -157,11 +157,11 @@ MSG1=$(run_sql $SLAVE1_PORT "SELECT msg FROM $DB.test_table LIMIT 1;")
 if [ ! -z "$MSG1" ]; then
     echo "✅ Slave 1 received: $MSG1"
     write_report "- ✅ Slave 1 (Port $SLAVE1_PORT): Data received correctly."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"status\":\"PASS\",\"details\":\"Data received: $MSG1\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"nature\":\"Verify data propagation from Master to Slave 1\",\"expected\":\"Slave 1 contains the same data inserted on Master\",\"status\":\"PASS\",\"details\":\"Data received: $MSG1\"},"
 else
     echo "❌ Slave 1 failed to receive data"
     write_report "- ❌ Slave 1 (Port $SLAVE1_PORT): Data replication FAILED."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"nature\":\"Verify data propagation from Master to Slave 1\",\"expected\":\"Slave 1 contains the same data inserted on Master\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
 fi
 
 echo ">> Checking Slave 2..."
@@ -169,11 +169,11 @@ MSG2=$(run_sql $SLAVE2_PORT "SELECT msg FROM $DB.test_table LIMIT 1;")
 if [ ! -z "$MSG2" ]; then
     echo "✅ Slave 2 received: $MSG2"
     write_report "- ✅ Slave 2 (Port $SLAVE2_PORT): Data received correctly."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"status\":\"PASS\",\"details\":\"Data received: $MSG2\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"nature\":\"Verify data propagation from Master to Slave 2\",\"expected\":\"Slave 2 contains the same data inserted on Master\",\"status\":\"PASS\",\"details\":\"Data received: $MSG2\"},"
 else
     echo "❌ Slave 2 failed to receive data"
     write_report "- ❌ Slave 2 (Port $SLAVE2_PORT): Data replication FAILED."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"nature\":\"Verify data propagation from Master to Slave 2\",\"expected\":\"Slave 2 contains the same data inserted on Master\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
 fi
 
 # Generate HTML Report
@@ -217,9 +217,10 @@ cat <<EOF > "$REPORT_HTML"
                 <table class="w-full text-left">
                     <thead>
                         <tr class="border-b border-slate-700">
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Test</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Nature du Test</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Attendu</th>
                             <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Statut</th>
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Détails</th>
+                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Résultat Réel / Détails</th>
                         </tr>
                     </thead>
                     <tbody id="test-results">
@@ -262,13 +263,17 @@ cat <<EOF > "$REPORT_HTML"
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-800 hover:bg-slate-800/30 transition-colors';
             tr.innerHTML = \`
-                <td class="py-4 px-4 font-semibold text-slate-200">\${res.test}</td>
+                <td class="py-4 px-4">
+                    <div class="font-semibold text-slate-200 text-sm italic">\${res.test}</div>
+                    <div class="text-[10px] text-slate-500 italic mt-1">\${res.nature}</div>
+                </td>
+                <td class="py-4 px-4 text-xs text-slate-400 italic">\${res.expected}</td>
                 <td class="py-4 px-4">
                     <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase \${res.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
                         \${res.status}
                     </span>
                 </td>
-                <td class="py-4 px-4 text-xs text-slate-400">\${res.details}</td>
+                <td class="py-4 px-4 text-xs text-slate-300 font-mono">\${res.details}</td>
             \`;
             resContainer.appendChild(tr);
         });
