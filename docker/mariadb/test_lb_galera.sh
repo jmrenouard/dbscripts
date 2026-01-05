@@ -19,8 +19,11 @@ REPORT_HTML="$REPORT_DIR/test_lb_galera_$TIMESTAMP.html"
 echo "=========================================================="
 echo "🚀 MariaDB Galera HAProxy Load Balancing Test"
 echo "=========================================================="
-echo "Connecting to $LB_HOST:$LB_PORT $ITERATIONS times..."
-echo ""
+
+# Function to write to report
+write_report() {
+    echo -e "$1" >> "$REPORT_MD"
+}
 
 # Initialize MD report
 cat <<EOF > "$REPORT_MD"
@@ -34,12 +37,18 @@ EOF
 # Data for reports
 declare -A hosts_count
 RAW_LOGS=""
+TEST_RESULTS=""
+
+echo "1. ⏳ Iterating through Load Balancer ($ITERATIONS connections)..."
 
 for i in $(seq 1 $ITERATIONS); do
-    RESULT=$(mariadb -h "$LB_HOST" -P "$LB_PORT" -u "$USER" -p"$PASS" -N -s -e "SELECT @@hostname, (SELECT VARIABLE_VALUE FROM information_schema.SESSION_STATUS WHERE VARIABLE_NAME='Ssl_cipher');" 2>/dev/null)
+    # Use -sN for robust parsing of single values
+    RESULT=$(mariadb -h "$LB_HOST" -P "$LB_PORT" -u "$USER" -p"$PASS" -sN -e "SELECT @@hostname, (SELECT VARIABLE_VALUE FROM information_schema.SESSION_STATUS WHERE VARIABLE_NAME='Ssl_cipher');" 2>/dev/null)
     if [ $? -eq 0 ]; then
         HOSTNAME=$(echo "$RESULT" | awk '{print $1}')
         SSL=$(echo "$RESULT" | awk '{print $2}')
+        [ -z "$SSL" ] || [ "$SSL" == "NULL" ] && SSL="DISABLED"
+        
         echo "   [Connection $i] -> $HOSTNAME (SSL: $SSL)"
         ((hosts_count["$HOSTNAME"]++))
         RAW_LOGS="$RAW_LOGS[Connection $i] -> $HOSTNAME (SSL: $SSL)\n"
@@ -52,28 +61,40 @@ done
 echo ""
 echo "📊 Distribution Summary:"
 echo "--------------------------------------------------------"
-echo -e "## Distribution Summary\n| Hostname | Connections | Percentage |\n| --- | --- | --- |" >> "$REPORT_MD"
+write_report "## Distribution Summary"
+write_report "| Nom de l'hôte | Connexions | Pourcentage |"
+write_report "| --- | --- | --- |"
+
 DIST_DATA=""
 for host in "${!hosts_count[@]}"; do
     count=${hosts_count[$host]}
     perc=$(echo "scale=2; $count*100/$ITERATIONS" | bc)
     printf "   %-15s : %d connections (%s%%)\n" "$host" "$count" "$perc"
-    echo "| $host | $count | $perc% |" >> "$REPORT_MD"
+    write_report "| $host | $count | $perc% |"
     DIST_DATA="$DIST_DATA{\"host\":\"$host\",\"count\":$count,\"perc\":$perc},"
 done
 echo "--------------------------------------------------------"
 
-# Basic check
+# Results Table logic
 UNIQUE_HOSTS=${#hosts_count[@]}
-STATUS="FAIL"
+LB_STATUS="FAIL"
+LB_NATURE="Load Balancing Check"
+LB_EXPECTED="Connections should be spread across 3 nodes"
+LB_DETAILS="Connections hit $UNIQUE_HOSTS distinct hosts."
+
 if [ "$UNIQUE_HOSTS" -ge 3 ]; then
     echo "✅ SUCCESS: Connections were balanced across $UNIQUE_HOSTS nodes."
-    STATUS="PASS"
+    LB_STATUS="PASS"
 else
     echo "⚠️  WARNING: Connections only hit $UNIQUE_HOSTS node(s). Check HAProxy status."
 fi
 
-echo -e "\n**Final Status:** $STATUS ($UNIQUE_HOSTS nodes hit)" >> "$REPORT_MD"
+write_report "\n## Résultats du Test"
+write_report "| Nature du Test | Attendu | Statut | Résultat Réel / Détails |"
+write_report "| --- | --- | --- | --- |"
+write_report "| $LB_NATURE | $LB_EXPECTED | $LB_STATUS | $LB_DETAILS |"
+
+TEST_RESULTS="{\"test\":\"$LB_NATURE\",\"nature\":\"$LB_NATURE\",\"expected\":\"$LB_EXPECTED\",\"status\":\"$LB_STATUS\",\"details\":\"$LB_DETAILS\"},"
 
 # Generate HTML Report
 cat <<EOF > "$REPORT_HTML"
@@ -101,8 +122,8 @@ cat <<EOF > "$REPORT_HTML"
                 <p class="text-slate-400 mt-2 font-light italic">Vérification de la distribution HAProxy</p>
             </div>
             <div class="text-right">
-                <span class="px-4 py-1 rounded-full text-[10px] font-bold uppercase ${STATUS === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
-                    ${STATUS}
+                <span class="px-4 py-1 rounded-full text-[10px] font-bold uppercase ${LB_STATUS === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
+                    ${LB_STATUS}
                 </span>
             </div>
         </header>
@@ -120,6 +141,25 @@ cat <<EOF > "$REPORT_HTML"
         </div>
 
         <div class="glass p-8 rounded-3xl">
+            <h3 class="text-xl font-bold mb-6 text-blue-400 italic">
+                <i class="fa-solid fa-list-check mr-3"></i>Résultats des Tests
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-700/50">
+                            <th class="pb-4">Nature du Test</th>
+                            <th class="pb-4">Attendu</th>
+                            <th class="pb-4">Statut</th>
+                            <th class="pb-4">Résultat Réel / Détails</th>
+                        </tr>
+                    </thead>
+                    <tbody id="test-results"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass p-8 rounded-3xl">
             <h3 class="text-xl font-bold mb-6 text-blue-400">Connection Logs</h3>
             <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-y-auto h-64 text-slate-400">$RAW_LOGS</pre>
         </div>
@@ -127,6 +167,8 @@ cat <<EOF > "$REPORT_HTML"
 
     <script>
         const distData = [${DIST_DATA%?}];
+        const testResults = [${TEST_RESULTS%?}];
+
         new Chart(document.getElementById('distChart'), {
             type: 'doughnut',
             data: {
@@ -143,6 +185,23 @@ cat <<EOF > "$REPORT_HTML"
                     legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
                 }
             }
+        });
+
+        const resContainer = document.getElementById('test-results');
+        testResults.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors';
+            row.innerHTML = \`
+                <td class="py-4 font-semibold text-slate-300">\${item.nature}</td>
+                <td class="py-4 text-slate-400">\${item.expected}</td>
+                <td class="py-4">
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase \${item.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
+                        \${item.status}
+                    </span>
+                </td>
+                <td class="py-4 text-slate-400 text-xs font-mono">\${item.details}</td>
+            \`;
+            resContainer.appendChild(row);
         });
     </script>
 </body>

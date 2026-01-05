@@ -37,7 +37,7 @@ EOF
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" 2>/dev/null
 }
 
 # Data for HTML report
@@ -45,8 +45,8 @@ CONN_STATS=""
 REPL_INFO=""
 TEST_RESULTS=""
 
-echo "1. ⏳ Waiting for containers and replication to be ready (max 60s)..."
-MAX_WAIT=60
+echo "1. ⏳ Waiting for containers and replication to be ready (max 90s)..."
+MAX_WAIT=90
 START_WAIT=$(date +%s)
 READY=false
 
@@ -80,14 +80,15 @@ done
 echo ""
 
 if [ "$READY" = false ]; then
-    echo "❌ Timeout: Containers or replication not ready after 60s."
-    write_report "## ❌ Pre-flight Check Failed\nTimeout: Containers or replication not ready after 60s."
+    echo "❌ Timeout: Containers or replication not ready after 90s."
+    write_report "## ❌ Pre-flight Check Failed\nTimeout: Containers or replication not ready after 90s."
     exit 1
 fi
 
 echo "✅ Environment is ready. Starting tests..."
 
-write_report "## Informations sur la connexion"
+write_report "| Nom du Nœud | Port | Statut | SSL Cipher |"
+write_report "| --- | --- | --- | --- |"
 for role in "Master:$MASTER_PORT" "Slave1:$SLAVE1_PORT" "Slave2:$SLAVE2_PORT"; do
     IFS=":" read -r name port <<< "$role"
     status="DOWN"
@@ -96,59 +97,39 @@ for role in "Master:$MASTER_PORT" "Slave1:$SLAVE1_PORT" "Slave2:$SLAVE2_PORT"; d
         status="UP"
         CIPHER=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
         if [ ! -z "$CIPHER" ] && [ "$CIPHER" != "NULL" ]; then
-            echo "✅ $name (Port $port) is UP (SSL: $CIPHER)"
             ssl="$CIPHER"
         else
-            echo "⚠️  $name (Port $port) is UP (SSL: DISABLED)"
             ssl="DISABLED"
         fi
         write_report "| $name | $port | UP | $ssl |"
     else
-        echo "❌ $name (Port $port) is DOWN"
         write_report "| $name | $port | DOWN | N/A |"
     fi
     CONN_STATS="$CONN_STATS{\"name\":\"$name\",\"port\":\"$port\",\"status\":\"$status\",\"ssl\":\"$ssl\"},"
 done
 
-write_report "\n## Config replication (status)"
+# Populate variables for HTML report and MD summary
 MASTER_VARS=$(run_sql $MASTER_PORT "SHOW VARIABLES LIKE '%binlog%'; SHOW VARIABLES LIKE '%gtid%';")
-write_report "### Master Variables"
-write_report "\`\`\`sql\n$MASTER_VARS\n\`\`\`"
-
-write_report "\n## Status replication (variables)"
 MASTER_STATUS=$(run_sql $MASTER_PORT "SHOW MASTER STATUS\G")
-write_report "### Master Status"
-write_report "\`\`\`sql\n$MASTER_STATUS\n\`\`\`"
-
-# Sanitize for HTML/JSON (Moved here to ensure variables are populated)
 MASTER_STATUS_JS=$(echo "$MASTER_STATUS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
 MASTER_VARS_JS=$(echo "$MASTER_VARS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
 
-write_report "\n## Informations sur l'état de la réplication"
 for port in $SLAVE1_PORT $SLAVE2_PORT; do
     REPL_STATUS=$(run_sql $port "SHOW SLAVE STATUS\G" | grep -E "Slave_IO_Running|Slave_SQL_Running|Master_Host|Seconds_Behind_Master")
-    write_report "### Slave (Port $port) Status Summary\n\`\`\`\n$REPL_STATUS\n\`\`\`"
     REPL_INFO="$REPL_INFO{\"port\":\"$port\",\"status\":\"$(echo "$REPL_STATUS" | tr '\n' ' ')\"},"
 done
 
 write_report "\n## Sections pour la réplication (master & slave)"
-
-echo -e "\n2. 👑 MASTER STATUS (Port $MASTER_PORT)"
-run_sql $MASTER_PORT "SHOW MASTER STATUS\G"
 write_report "### Detailed Master Status\n\`\`\`sql\n$MASTER_STATUS\n\`\`\`"
-
-echo -e "\n3. ⛓️ SLAVE 1 STATUS (Port $SLAVE1_PORT)"
-run_sql $SLAVE1_PORT "SHOW SLAVE STATUS\G" | grep -E "Slave_IO_Running|Slave_SQL_Running|Master_Host|Seconds_Behind_Master"
 SLAVE1_FULL=$(run_sql $SLAVE1_PORT "SHOW SLAVE STATUS\G")
 write_report "### Detailed Slave 1 Status\n\`\`\`sql\n$SLAVE1_FULL\n\`\`\`"
-
-echo -e "\n4. ⛓️ SLAVE 2 STATUS (Port $SLAVE2_PORT)"
-run_sql $SLAVE2_PORT "SHOW SLAVE STATUS\G" | grep -E "Slave_IO_Running|Slave_SQL_Running|Master_Host|Seconds_Behind_Master"
 SLAVE2_FULL=$(run_sql $SLAVE2_PORT "SHOW SLAVE STATUS\G")
 write_report "### Detailed Slave 2 Status\n\`\`\`sql\n$SLAVE2_FULL\n\`\`\`"
 
 echo -e "\n5. 🧪 Performing Data Replication Test..."
 write_report "\n## Résultats des tests de réplication"
+write_report "| Nature du Test | Attendu | Statut | Résultat Réel / Détails |"
+write_report "| --- | --- | --- | --- |"
 echo ">> Creating database '$DB' and table on Master..."
 run_sql $MASTER_PORT "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB; USE $DB; CREATE TABLE test_table (id INT AUTO_INCREMENT PRIMARY KEY, msg VARCHAR(255), ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
 run_sql $MASTER_PORT "INSERT INTO $DB.test_table (msg) VALUES ('Hello from Master at $(date)');"
@@ -157,27 +138,68 @@ echo ">> Waiting 2 seconds for replication..."
 sleep 2
 
 echo ">> Checking Slave 1..."
-MSG1=$(run_sql $SLAVE1_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
-if [ ! -z "$MSG1" ]; then
-    echo "✅ Slave 1 received: $MSG1"
-    write_report "- ✅ Slave 1 (Port $SLAVE1_PORT): Data received correctly."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"nature\":\"Verify data propagation from Master to Slave 1\",\"expected\":\"Slave 1 contains the same data inserted on Master\",\"status\":\"PASS\",\"details\":\"Data received: $MSG1\"},"
+VAL=$(run_sql $SLAVE1_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
+if [ -z "$VAL" ]; then
+    ROW_COUNT=0
 else
-    echo "❌ Slave 1 failed to receive data"
-    write_report "- ❌ Slave 1 (Port $SLAVE1_PORT): Data replication FAILED."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 1\",\"nature\":\"Verify data propagation from Master to Slave 1\",\"expected\":\"Slave 1 contains the same data inserted on Master\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
+    ROW_COUNT=1
+fi
+
+if [ "$ROW_COUNT" -eq 1 ]; then
+    echo "✅ Data replicated successfully to Slave 1"
+    write_report "| Master -> Slave 1 Sync | Write on Master should replicate to Slave 1 | PASS | Row found on Slave 1 |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Master->Slave 1\",\"nature\":\"Replication Sync (Slave 1)\",\"expected\":\"Data replicated from Master\",\"status\":\"PASS\",\"details\":\"Row found with value: $VAL\"},"
+else
+    echo "❌ Data NOT found on Slave 1"
+    write_report "| Master -> Slave 1 Sync | Write on Master should replicate to Slave 1 | FAIL | Row NOT found on Slave 1 |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Master->Slave 1\",\"nature\":\"Replication Sync (Slave 1)\",\"expected\":\"Data replicated from Master\",\"status\":\"FAIL\",\"details\":\"Row NOT found\"},"
 fi
 
 echo ">> Checking Slave 2..."
-MSG2=$(run_sql $SLAVE2_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
-if [ ! -z "$MSG2" ]; then
-    echo "✅ Slave 2 received: $MSG2"
-    write_report "- ✅ Slave 2 (Port $SLAVE2_PORT): Data received correctly."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"nature\":\"Verify data propagation from Master to Slave 2\",\"expected\":\"Slave 2 contains the same data inserted on Master\",\"status\":\"PASS\",\"details\":\"Data received: $MSG2\"},"
+VAL_S2=$(run_sql $SLAVE2_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
+if [ -z "$VAL_S2" ]; then
+    ROW_COUNT_S2=0
 else
-    echo "❌ Slave 2 failed to receive data"
-    write_report "- ❌ Slave 2 (Port $SLAVE2_PORT): Data replication FAILED."
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Slave 2\",\"nature\":\"Verify data propagation from Master to Slave 2\",\"expected\":\"Slave 2 contains the same data inserted on Master\",\"status\":\"FAIL\",\"details\":\"No data received\"},"
+    ROW_COUNT_S2=1
+fi
+
+if [ "$ROW_COUNT_S2" -eq 1 ]; then
+    echo "✅ Data replicated successfully to Slave 2"
+    write_report "| Master -> Slave 2 Sync | Write on Master should replicate to Slave 2 | PASS | Row found on Slave 2 |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Master->Slave 2\",\"nature\":\"Replication Sync (Slave 2)\",\"expected\":\"Data replicated from Master\",\"status\":\"PASS\",\"details\":\"Row found with value: $VAL_S2\"},"
+else
+    echo "❌ Data NOT found on Slave 2"
+    write_report "| Master -> Slave 2 Sync | Write on Master should replicate to Slave 2 | FAIL | Row NOT found on Slave 2 |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Replication Master->Slave 2\",\"nature\":\"Replication Sync (Slave 2)\",\"expected\":\"Data replicated from Master\",\"status\":\"FAIL\",\"details\":\"Row NOT found\"},"
+fi
+
+echo -e "\n6. 🛡️ Read-Only Test on Slaves..."
+# Create a temporary non-super user to test read_only (which root bypasses)
+run_sql $SLAVE1_PORT "CREATE USER IF NOT EXISTS 'test_ro'@'%' IDENTIFIED BY 'testpass'; GRANT INSERT ON $DB.* TO 'test_ro'@'%'; FLUSH PRIVILEGES;"
+RO_ERR=0
+mariadb -h 127.0.0.1 -P $SLAVE1_PORT -utest_ro -ptestpass $DB -e "INSERT INTO test_table (msg) VALUES ('Illegal write from non-super user');" 2>/dev/null || RO_ERR=1
+run_sql $SLAVE1_PORT "DROP USER 'test_ro'@'%';"
+
+if [ "$RO_ERR" -eq 0 ]; then
+    echo "❌ ERROR: Slave 1 accepted a write (should be read-only for non-super users)"
+    write_report "| Slave Read-Only | Write on Slave should be rejected | FAIL | Slave accepted the write from non-super user |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Slave Read-Only\",\"nature\":\"Read-Only Constraint\",\"expected\":\"Slave should reject writes for non-super users\",\"status\":\"FAIL\",\"details\":\"Slave 1 incorrectly accepted the write\"},"
+else
+    echo "✅ Slave 1 correctly rejected the write (Read-only mode enforced)"
+    write_report "| Slave Read-Only | Write on Slave should be rejected | PASS | Correctly rejected write from non-super user |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Slave Read-Only\",\"nature\":\"Read-Only Constraint\",\"expected\":\"Slave should reject writes for non-super users\",\"status\":\"PASS\",\"details\":\"Slave 1 rejected the write as expected\"},"
+fi
+
+echo -e "\n7. 🔐 SSL Connection Verification..."
+CIPHER=$(mariadb -h 127.0.0.1 -P $MASTER_PORT -u$USER -p$PASS -sN -e "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
+if [[ "$CIPHER" != "" ]] && [[ "$CIPHER" != "NULL" ]]; then
+    echo "✅ SSL Connection verified on Master (Cipher: $CIPHER)"
+    write_report "| SSL Connectivity (Master) | Node should support SSL | PASS | Connected with $CIPHER |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Connectivity Master\",\"nature\":\"SSL Status Check\",\"expected\":\"Connection should be encrypted\",\"status\":\"PASS\",\"details\":\"Connected to Master using SSL ($CIPHER)\"},"
+else
+    echo "❌ SSL NOT active on Master"
+    write_report "| SSL Connectivity (Master) | Node should support SSL | FAIL | SSL Cipher is empty/null |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Connectivity Master\",\"nature\":\"SSL Status Check\",\"expected\":\"Connection should be encrypted\",\"status\":\"FAIL\",\"details\":\"SSL not active on Master\"},"
 fi
 
 # Generate HTML Report
@@ -218,15 +240,15 @@ cat <<EOF > "$REPORT_HTML"
                 <i class="fa-solid fa-flask mr-3"></i>Résultats des Tests
             </h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="border-b border-slate-700">
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Nature du Test</th>
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Attendu</th>
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Statut</th>
-                            <th class="py-3 px-4 text-slate-400 uppercase text-xs font-bold">Résultat Réel / Détails</th>
-                        </tr>
-                    </thead>
+                <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-700/50">
+                        <th class="pb-4">Nature du Test</th>
+                        <th class="pb-4">Attendu</th>
+                        <th class="pb-4">Statut</th>
+                        <th class="pb-4">Résultat Réel / Détails</th>
+                    </tr>
+                </thead>
                     <tbody id="test-results">
                         <!-- Results injected here -->
                     </tbody>
@@ -268,24 +290,21 @@ cat <<EOF > "$REPORT_HTML"
         });
 
         const resContainer = document.getElementById('test-results');
-        testResults.forEach(res => {
-            const tr = document.createElement('tr');
-            tr.className = 'border-b border-slate-800 hover:bg-slate-800/30 transition-colors';
-            tr.innerHTML = \`
-                <td class="py-4 px-4">
-                    <div class="font-semibold text-slate-200 text-sm italic">\${res.test}</div>
-                    <div class="text-[10px] text-slate-500 italic mt-1">\${res.nature}</div>
-                </td>
-                <td class="py-4 px-4 text-xs text-slate-400 italic">\${res.expected}</td>
-                <td class="py-4 px-4">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase \${res.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
-                        \${res.status}
-                    </span>
-                </td>
-                <td class="py-4 px-4 text-xs text-slate-300 font-mono">\${res.details}</td>
-            \`;
-            resContainer.appendChild(tr);
-        });
+                testResults.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors';
+                    row.innerHTML = \`
+                        <td class="py-4 font-semibold text-slate-300">\${item.nature || item.test}</td>
+                        <td class="py-4 text-slate-400">\${item.expected || '-'}</td>
+                        <td class="py-4">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase \${item.status === 'PASS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}">
+                                \${item.status}
+                            </span>
+                        </td>
+                        <td class="py-4 text-slate-400 text-xs font-mono">\${item.details}</td>
+                    \`;
+                    resContainer.appendChild(row);
+                });
     </script>
 </body>
 </html>

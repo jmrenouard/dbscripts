@@ -18,11 +18,11 @@ echo "=========================================================="
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" 2>/dev/null
 }
 
-echo "1. ⏳ Waiting for Master and Slaves to be ready (max 60s)..."
-MAX_WAIT=60
+echo "1. ⏳ Waiting for Master and Slaves to be ready (max 90s)..."
+MAX_WAIT=90
 START_WAIT=$(date +%s)
 READY=false
 
@@ -46,7 +46,7 @@ done
 echo ""
 
 if [ "$READY" = false ]; then
-    echo "❌ Timeout: Master or Slaves not reachable after 60s."
+    echo "❌ Timeout: Master or Slaves not reachable after 90s."
     exit 1
 fi
 
@@ -77,8 +77,8 @@ for port in $SLAVE1_PORT $SLAVE2_PORT; do
         continue
     fi
     
-    echo ">> Starting Slave..."
-    run_sql $port "START SLAVE;"
+    echo ">> Starting Slave and enforcing configuration (Read-Only, GTID)..."
+    run_sql $port "START SLAVE; SET GLOBAL read_only=ON; SET GLOBAL gtid_strict_mode=ON;"
     
     echo ">> Checking Slave Status..."
     # Wait a bit for the IO thread to connect
@@ -86,10 +86,11 @@ for port in $SLAVE1_PORT $SLAVE2_PORT; do
     STATUS=$(run_sql $port "SHOW SLAVE STATUS\G")
     IO_RUNNING=$(echo "$STATUS" | grep "Slave_IO_Running:" | awk '{print $2}')
     SQL_RUNNING=$(echo "$STATUS" | grep "Slave_SQL_Running:" | awk '{print $2}')
-    GTID_MODE=$(run_sql $port "SELECT @@gtid_strict_mode;")
+    GTID_MODE=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SELECT @@gtid_strict_mode;")
+    READ_ONLY=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SELECT @@read_only;")
     
     if [ "$IO_RUNNING" == "Yes" ] && [ "$SQL_RUNNING" == "Yes" ]; then
-        echo "✅ Slave on Port $port is UP and RUNNING (GTID Strict: $GTID_MODE)"
+        echo "✅ Slave on Port $port is UP and RUNNING (GTID: $GTID_MODE, RO: $READ_ONLY)"
     else
         echo "❌ Slave on Port $port has issues (IO: $IO_RUNNING, SQL: $SQL_RUNNING)"
         echo "$STATUS" | grep -E "Last_IO_Error|Last_SQL_Error"
