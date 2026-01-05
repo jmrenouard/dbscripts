@@ -37,7 +37,7 @@ EOF
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -sN -e "$query" 2>/dev/null
 }
 
 # Data for HTML report
