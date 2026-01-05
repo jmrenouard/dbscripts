@@ -2,6 +2,21 @@
 
 Ce document décrit les suites de tests automatisées disponibles pour valider les clusters.
 
+## 📊 Rapports de Test
+
+Tous les tests fonctionnels et de performance génèrent désormais des rapports détaillés dans le répertoire `reports/` :
+
+- **Markdown (.md)** : Idéal pour une lecture rapide en console ou une intégration dans la documentation.
+- **HTML (.html)** : Rapports visuels premium avec graphiques et micro-animations (générés via Tailwind CSS et Chart.js).
+
+Les noms des fichiers de rapport suivent le modèle : `test_<type>_<timestamp>.[md|html]`.
+
+---
+
+## 🏗️ Informations sur l'Architecture
+
+Pour plus de détails sur la topologie du cluster, consultez la **[Documentation de l'Architecture](architecture_fr.md)**.
+
 ## 🌐 1. Suite de Tests Galera (`test_galera.sh`)
 
 ### Cas de Tests

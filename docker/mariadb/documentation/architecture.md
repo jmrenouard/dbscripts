@@ -15,26 +15,27 @@ The Galera cluster provides synchronous multi-master replication.
 
 ```mermaid
 graph TD
-    Client[Client / App] -->|Port 3306| LB[HAProxy LB: 10.6.0.100]
-    LB -->|Health Check / R-R| G1[Galera Node 1: 10.6.0.11]
-    LB -->|Health Check / R-R| G2[Galera Node 2: 10.6.0.12]
-    LB -->|Health Check / R-R| G3[Galera Node 3: 10.6.0.13]
+    Client[Client / App] -->|Port 3306| LB[HAProxy LB<br/>10.6.0.100]
     
-    subgraph Galera_Cluster [Internal Network 10.6.0.x]
-        G1 <-->|Port 4567, 4568, 4444| G2
-        G2 <-->|Port 4567, 4568, 4444| G3
-        G3 <-->|Port 4567, 4568, 4444| G1
+    subgraph Galera_Cluster [Galera Cluster: 10.6.0.0/24]
+        LB -->|LB / Health Check| G1[mariadb-g1<br/>10.6.0.11]
+        LB -->|LB / Health Check| G2[mariadb-g2<br/>10.6.0.12]
+        LB -->|LB / Health Check| G3[mariadb-g3<br/>10.6.0.13]
+        
+        G1 <-->|Sync: 4567, 4568, 4444| G2
+        G2 <-->|Sync: 4567, 4568, 4444| G3
+        G3 <-->|Sync: 4567, 4568, 4444| G1
     end
 ```
 
 ### Access Ports
 
-| Node | MariaDB Port | SSH Port |
-| :--- | :--- | :--- |
-| Node 1 | 3511 | 22001 |
-| Node 2 | 3512 | 24002 |
-| Node 3 | 3513 | 24003 |
-| HAProxy | 3306 | N/A |
+| Logical Name | Node | IP Address | MariaDB Port | SSH Port |
+| :--- | :--- | :--- | :--- | :--- |
+| `mariadb-g1` | Node 1 | `10.6.0.11` | 3511 | 22001 |
+| `mariadb-g2` | Node 2 | `10.6.0.12` | 3512 | 24002 |
+| `mariadb-g3` | Node 3 | `10.6.0.13` | 3513 | 24003 |
+| `haproxy_galera` | Load Balancer | `10.6.0.100` | 3306 | N/A |
 
 ---
 
@@ -51,18 +52,27 @@ The replication cluster uses a classic Master/Slave topology with GTID.
 
 ```mermaid
 graph TD
-    Client_W[Write Client] -->|Port 3406| LB[HAProxy LB: 10.5.0.100]
+    Client_W[Write Client] -->|Port 3406| LB[HAProxy LB<br/>10.5.0.100]
     Client_R[Read Client] -->|Port 3407| LB
     
-    LB -->|Writes| M1[Master: 10.5.0.11]
-    LB -->|Read RR| S1[Slave 1: 10.5.0.12]
-    LB -->|Read RR| S2[Slave 2: 10.5.0.13]
-    
-    subgraph Replication_Flow [Internal Network 10.5.0.x]
-        M1 --"Asynchronous (GTID)"--> S1
-        M1 --"Asynchronous (GTID)"--> S2
+    subgraph Replication_Topology [Replication: 10.5.0.0/24]
+        LB -->|Writes| M1[mariadb-m1 (Master)<br/>10.5.0.11]
+        LB -->|Read RR| S1[mariadb-s1 (Slave 1)<br/>10.5.0.12]
+        LB -->|Read RR| S2[mariadb-s2 (Slave 2)<br/>10.5.0.13]
+        
+        M1 --"Async (GTID)"--> S1
+        M1 --"Async (GTID)"--> S2
     end
 ```
+
+### Access Ports
+
+| Logical Name | Node | Role | IP Address | MariaDB Port | SSH Port |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `mariadb-m1` | Node 1 | Master | `10.5.0.11` | 3411 | 23001 |
+| `mariadb-s1` | Node 2 | Slave 1 | `10.5.0.12` | 3412 | 23002 |
+| `mariadb-s2` | Node 3 | Slave 2 | `10.5.0.13` | 3413 | 23003 |
+| `haproxy_repli` | Load Balancer | LB (W/R) | `10.5.0.100` | 3406/3407 | N/A |
 
 ### Access Ports
 

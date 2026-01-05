@@ -12,7 +12,12 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make gen-ssl` | Generate SSL certificates in `ssl/` directory. |
 | `make clean-ssl` | Remove generated certificates. |
 | `make gen-profiles` | Generate shell profiles for quick container access. |
-| `make clean-data` | **DANGER**: Remove all data and backup directories. |
+| `make clean-galera` | Stop Galera and remove all its data/backups. |
+| `make clean-repli` | Stop Replication and remove all its data/backups. |
+| `make full-repli` | Full orchestration for Replication: Clean, Start, Setup, and Test. |
+| `make full-galera` | Full orchestration for Galera: Clean, Start (Bootstrap), and Test. |
+| `make clean-ssl` | Remove generated certificates. |
+| `make clean-data` | **DANGER**: Remove ALL data, backup, and SSL directories. |
 
 ## 🌐 Galera Cluster Commands
 
@@ -25,6 +30,9 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make test-galera` | Run the Galera functional test suite. |
 | `make test-lb-galera` | Specifically test the HAProxy load balancer for Galera. |
 | `make backup-galera` | Perform a logical SQL backup. |
+| `make backup-phys-galera`| Perform a physical (MariaBackup) backup. |
+| `make restore-galera` | Restore a logical SQL backup. |
+| `make restore-phys-galera`| Restore a physical (MariaBackup) backup. |
 | `make test-perf-galera`| Run Sysbench benchmarks (Usage: `make test-perf-galera PROFILE=light ACTION=run`). |
 
 ## 🔄 Replication Cluster Commands
@@ -37,4 +45,7 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make logs-repli` | View real-time logs for the Replication cluster. |
 | `make test-repli` | Run the Replication functional test suite. |
 | `make backup-repli` | Perform a logical SQL backup (on a slave). |
+| `make backup-phys-repli`| Perform a physical (MariaBackup) backup. |
+| `make restore-repli` | Restore a logical SQL backup. |
+| `make restore-phys-repli`| Restore a physical (MariaBackup) backup. |
 | `make test-perf-repli` | Run Sysbench benchmarks (Usage: `make test-perf-repli PROFILE=light ACTION=run`). |

@@ -101,7 +101,8 @@ Sauvegardes binaires rapides pour les bases de données volumineuses.
 
 - **Galera** : `make backup-phys-galera`
 - **Réplication** : `make backup-phys-repli`
-- **Restauration** : `make restore-phys-galera FILE=xxx.tar.gz` (Arrête MariaDB, remplace les données)
+- **Restauration** : `make restore-phys-galera FILE=xxx.tar.gz` ou `make restore-phys-repli FILE=xxx.tar.gz`
+- **ATTENTION** : La restauration arrête MariaDB, remplace tout le répertoire de données et redémarre le service.
 
 ---
 
@@ -176,12 +177,12 @@ Les journaux (logs) sont gérés via Supervisor à l'intérieur des conteneurs :
 
 ## 📚 8. Documentation Détaillée
 
-Pour des informations plus approfondies, veuillez consulter les documents suivants dans le répertoire [documentation/](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/) :
+Pour des informations plus approfondies, veuillez consulter l'**[Index de la Documentation](documentation/INDEX_fr.md)** ou explorer les fichiers directement :
 
-- **[Architecture](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/architecture_fr.md)** : Topologie globale et schémas Mermaid.
-- **[Référence du Makefile](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/makefile_fr.md)** : Détail de toutes les tâches `make`.
-- **[Scripts Utilitaires](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/scripts_fr.md)** : Description des scripts de sauvegarde, SSL et installation.
-- **[SSL & Réplication](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_ssl_fr.md)** : Configuration de la sécurité et vérification.
-- **[Bootstrap Galera](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/galera_bootstrap_fr.md)** : Guide étape par étape pour les nouveaux clusters.
-- **[Installation de la Réplication](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_setup_fr.md)** : Explication de l'automatisation de la réplication.
-- **[Cas de Tests](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/tests_fr.md)** : Descriptions des tests automatisés et résultats attendus.
+- **[Architecture](documentation/architecture_fr.md)** : Topologie globale et schémas Mermaid.
+- **[Référence du Makefile](documentation/makefile_fr.md)** : Détail de toutes les tâches `make`.
+- **[Scripts Utilitaires](documentation/scripts_fr.md)** : Description des scripts de sauvegarde, SSL et installation.
+- **[SSL & Réplication](documentation/replication_ssl_fr.md)** : Configuration de la sécurité et vérification.
+- **[Bootstrap Galera](documentation/galera_bootstrap_fr.md)** : Guide étape par étape pour les nouveaux clusters.
+- **[Installation de la Réplication](documentation/replication_setup_fr.md)** : Explication de l'automatisation de la réplication.
+- **[Cas de Tests](documentation/tests_fr.md)** : Descriptions des tests automatisés et résultats attendus.

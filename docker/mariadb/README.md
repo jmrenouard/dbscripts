@@ -101,7 +101,8 @@ Fast binary backups for large datasets.
 
 - **Galera**: `make backup-phys-galera`
 - **Replication**: `make backup-phys-repli`
-- **Restore**: `make restore-phys-galera FILE=xxx.tar.gz` (Stops MariaDB, replaces data)
+- **Restore**: `make restore-phys-galera FILE=xxx.tar.gz` or `make restore-phys-repli FILE=xxx.tar.gz`
+- **CAUTION**: Restore stops MariaDB, replaces the entire data directory, and restarts it.
 
 ---
 
@@ -176,12 +177,12 @@ Logs are managed via Supervisor inside containers:
 
 ## 📚 8. Detailed Documentation
 
-For more in-depth information, please refer to the following documents in the [documentation/](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/) directory:
+For more in-depth information, please refer to the **[Documentation Index](documentation/INDEX.md)** or explore the files directly:
 
-- **[Architecture](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/architecture.md)**: Global topology and Mermaid diagrams.
-- **[Makefile Reference](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/makefile.md)**: Detailed breakdown of all `make` tasks.
-- **[Utility Scripts](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/scripts.md)**: Description of backup, SSL, and setup scripts.
-- **[SSL & Replication](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_ssl.md)**: Security configuration and verification.
-- **[Galera Bootstrap](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/galera_bootstrap.md)**: Step-by-step guide for new clusters.
-- **[Replication Setup](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/replication_setup.md)**: Walkthrough of the replication automation.
-- **[Test Cases](file:///home/jmren/win_home/Documents/dbscripts/docker/mariadb/documentation/tests.md)**: Automated test descriptions and expected results.
+- **[Architecture](documentation/architecture.md)**: Global topology and Mermaid diagrams.
+- **[Makefile Reference](documentation/makefile.md)**: Detailed breakdown of all `make` tasks.
+- **[Utility Scripts](documentation/scripts.md)**: Description of backup, SSL, and setup scripts.
+- **[SSL & Replication](documentation/replication_ssl.md)**: Security configuration and verification.
+- **[Galera Bootstrap](documentation/galera_bootstrap.md)**: Step-by-step guide for new clusters.
+- **[Replication Setup](documentation/replication_setup.md)**: Walkthrough of the replication automation.
+- **[Test Cases](documentation/tests.md)**: Automated test descriptions and expected results.

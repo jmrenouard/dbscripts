@@ -10,9 +10,13 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make build-image` | Construit l'image de base `mariadb_ssh:004`. |
 | `make install-client` | Installe le client MariaDB sur l'hôte (Ubuntu/Debian). |
 | `make gen-ssl` | Génère les certificats SSL dans le répertoire `ssl/`. |
-| `make clean-ssl` | Supprime les certificats générés. |
-| `make gen-profiles` | Génère des profils shell pour un accès rapide aux conteneurs. |
-| `make clean-data` | **DANGER** : Supprime tous les répertoires de données et de sauvegardes. |
+| `make clean-ssl` | Supprimer les certificats générés. |
+| `make gen-profiles` | Générer des profils shell pour un accès rapide aux conteneurs. |
+| `make clean-galera` | Arrêter Galera et supprimer toutes ses données/sauvegardes. |
+| `make clean-repli` | Arrêter la Réplication et supprimer toutes ses données/sauvegardes. |
+| `make clean-data` | **DANGER** : Supprimer TOUTES les données, sauvegardes et répertoires SSL. |
+| `make full-repli` | Orchestration complète pour la Réplication : Nettoyage, Lancement, Configuration et Test. |
+| `make full-galera` | Orchestration complète pour Galera : Nettoyage, Lancement (Bootstrap) et Test. |
 
 ## 🌐 Commandes pour le Cluster Galera
 
@@ -24,8 +28,11 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make logs-galera` | Affiche les logs en temps réel pour le cluster Galera. |
 | `make test-galera` | Exécute la suite de tests fonctionnels Galera. |
 | `make test-lb-galera` | Teste spécifiquement l'équilibreur de charge HAProxy pour Galera. |
-| `make backup-galera` | Effectue une sauvegarde logique SQL. |
-| `make test-perf-galera`| Exécute les benchmarks Sysbench (Usage : `make test-perf-galera PROFILE=light ACTION=run`). |
+| `make backup-galera` | Effectuer une sauvegarde SQL logique. |
+| `make backup-phys-galera`| Effectuer une sauvegarde physique (MariaBackup). |
+| `make restore-galera` | Restaurer une sauvegarde SQL logique. |
+| `make restore-phys-galera`| Restaurer une sauvegarde physique (MariaBackup). |
+| `make test-perf-galera`| Exécuter les benchmarks Sysbench (Usage : `make test-perf-galera PROFILE=light ACTION=run`). |
 
 ## 🔄 Commandes pour le Cluster de Réplication
 
@@ -36,5 +43,8 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make down-repli` | Arrête et supprime le cluster de réplication. |
 | `make logs-repli` | Affiche les logs en temps réel pour le cluster de réplication. |
 | `make test-repli` | Exécute la suite de tests fonctionnels de réplication. |
-| `make backup-repli` | Effectue une sauvegarde logique SQL (sur un esclave). |
-| `make test-perf-repli` | Exécute les benchmarks Sysbench (Usage : `make test-perf-repli PROFILE=light ACTION=run`). |
+| `make backup-repli` | Effectuer une sauvegarde SQL logique (sur un esclave). |
+| `make backup-phys-repli`| Effectuer une sauvegarde physique (MariaBackup). |
+| `make restore-repli` | Restaurer une sauvegarde SQL logique. |
+| `make restore-phys-repli`| Restaurer une sauvegarde physique (MariaBackup). |
+| `make test-perf-repli` | Exécuter les benchmarks Sysbench (Usage : `make test-perf-repli PROFILE=light ACTION=run`). |
