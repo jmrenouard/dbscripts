@@ -37,7 +37,7 @@ EOF
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -N -s -e "$query" 2>/dev/null
+    mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -e "$query" 2>/dev/null
 }
 
 # Data for HTML report
@@ -132,7 +132,7 @@ run_sql $NODE1_PORT "INSERT INTO $DB.sync_test (node_id, msg) VALUES (1, 'Data f
 
 echo ">> Verifying on Node 2 (Port $NODE2_PORT)..."
 if run_sql $NODE2_PORT "SELECT 1" > /dev/null; then
-    MSG2=$(run_sql $NODE2_PORT "SELECT msg FROM $DB.sync_test WHERE node_id=1;")
+    MSG2=$(run_sql $NODE2_PORT "SELECT msg FROM $DB.sync_test WHERE node_id=1;" | tr -d '\n\r' | sed 's/"/\\"/g')
     if [ "$MSG2" == "Data from Node 1" ]; then
         echo "✅ Node 2 received data correctly"
         write_report "- ✅ Node 2 received data correctly"
@@ -150,7 +150,7 @@ fi
 
 echo ">> Verifying on Node 3 (Port $NODE3_PORT)..."
 if run_sql $NODE3_PORT "SELECT 1" > /dev/null; then
-    MSG3=$(run_sql $NODE3_PORT "SELECT msg FROM $DB.sync_test WHERE node_id=1;")
+    MSG3=$(run_sql $NODE3_PORT "SELECT msg FROM $DB.sync_test WHERE node_id=1;" | tr -d '\n\r' | sed 's/"/\\"/g')
     if [ "$MSG3" == "Data from Node 1" ]; then
         echo "✅ Node 3 received data correctly"
         write_report "- ✅ Node 3 received data correctly"
@@ -197,7 +197,7 @@ echo ">> Node 2 attempts to update the same record while Node 1 is sleeping..."
 run_sql $NODE2_PORT "UPDATE $DB.sync_test SET msg='Updated by Node 2' WHERE id=100;"
 
 wait $PID1
-FINAL_MSG=$(run_sql $NODE3_PORT "SELECT msg FROM $DB.sync_test WHERE id=100;")
+FINAL_MSG=$(run_sql $NODE3_PORT "SELECT msg FROM $DB.sync_test WHERE id=100;" | tr -d '\n\r' | sed 's/"/\\"/g')
 echo "   Final Message: '$FINAL_MSG'"
 write_report "- Final record message after concurrent update: '$FINAL_MSG'"
 TEST_RESULTS="$TEST_RESULTS{\"test\":\"Conflict Resolution\",\"nature\":\"Simulate concurrent updates on same row from multiple nodes\",\"expected\":\"One node should fail or results should be deterministic (First committer wins)\",\"status\":\"PASS\",\"details\":\"Final message: $FINAL_MSG\"},"
@@ -240,6 +240,10 @@ fi
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
 write_report "\n## Summary Configuration & Status"
 write_report "\`\`\`sql\n$SUMMARY_CONFIG\n\`\`\`"
+
+# Sanitize for HTML/JSON (Moved here)
+SUMMARY_CONFIG_JS=$(echo "$SUMMARY_CONFIG" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
+WSREP_STATUS_JS=$(echo "$WSREP_STATUS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
 
 # Generate HTML Report
 cat <<EOF > "$REPORT_HTML"
@@ -298,11 +302,11 @@ cat <<EOF > "$REPORT_HTML"
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-cyan-400"><i class="fa-solid fa-info-circle mr-3"></i>Cluster Info</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300">$SUMMARY_CONFIG</pre>
+                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300" id="cluster-info"></pre>
             </div>
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-amber-400"><i class="fa-solid fa-gears mr-3"></i>Wsrep Status</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-amber-300">$WSREP_STATUS</pre>
+                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-amber-300" id="wsrep-status"></pre>
             </div>
         </div>
     </div>
@@ -310,6 +314,11 @@ cat <<EOF > "$REPORT_HTML"
     <script>
         const connStats = [${CONN_STATS%?}];
         const testResults = [${TEST_RESULTS%?}];
+        const clusterInfoRaw = "$SUMMARY_CONFIG_JS";
+        const wsrepStatusRaw = "$WSREP_STATUS_JS";
+
+        document.getElementById('cluster-info').textContent = clusterInfoRaw.replace(/\\n/g, '\n');
+        document.getElementById('wsrep-status').textContent = wsrepStatusRaw.replace(/\\n/g, '\n');
 
         const connContainer = document.getElementById('conn-stats');
         connStats.forEach(stat => {

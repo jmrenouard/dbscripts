@@ -18,7 +18,7 @@ echo "=========================================================="
 run_sql() {
     local port=$1
     local query=$2
-    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" -sN
+    mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" 2>/dev/null
 }
 
 echo "1. ⏳ Waiting for Master and Slaves to be ready (max 60s)..."

@@ -120,6 +120,10 @@ MASTER_STATUS=$(run_sql $MASTER_PORT "SHOW MASTER STATUS\G")
 write_report "### Master Status"
 write_report "\`\`\`sql\n$MASTER_STATUS\n\`\`\`"
 
+# Sanitize for HTML/JSON (Moved here to ensure variables are populated)
+MASTER_STATUS_JS=$(echo "$MASTER_STATUS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
+MASTER_VARS_JS=$(echo "$MASTER_VARS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
+
 write_report "\n## Informations sur l'état de la réplication"
 for port in $SLAVE1_PORT $SLAVE2_PORT; do
     REPL_STATUS=$(run_sql $port "SHOW SLAVE STATUS\G" | grep -E "Slave_IO_Running|Slave_SQL_Running|Master_Host|Seconds_Behind_Master")
@@ -153,7 +157,7 @@ echo ">> Waiting 2 seconds for replication..."
 sleep 2
 
 echo ">> Checking Slave 1..."
-MSG1=$(run_sql $SLAVE1_PORT "SELECT msg FROM $DB.test_table LIMIT 1;")
+MSG1=$(run_sql $SLAVE1_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
 if [ ! -z "$MSG1" ]; then
     echo "✅ Slave 1 received: $MSG1"
     write_report "- ✅ Slave 1 (Port $SLAVE1_PORT): Data received correctly."
@@ -165,7 +169,7 @@ else
 fi
 
 echo ">> Checking Slave 2..."
-MSG2=$(run_sql $SLAVE2_PORT "SELECT msg FROM $DB.test_table LIMIT 1;")
+MSG2=$(run_sql $SLAVE2_PORT "SELECT msg FROM $DB.test_table LIMIT 1;" | tr -d '\n\r' | sed 's/"/\\"/g')
 if [ ! -z "$MSG2" ]; then
     echo "✅ Slave 2 received: $MSG2"
     write_report "- ✅ Slave 2 (Port $SLAVE2_PORT): Data received correctly."
@@ -233,11 +237,11 @@ cat <<EOF > "$REPORT_HTML"
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-cyan-400"><i class="fa-solid fa-server mr-3"></i>Master Status</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300">$MASTER_STATUS</pre>
+                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300" id="master-status"></pre>
             </div>
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-purple-400"><i class="fa-solid fa-microchip mr-3"></i>Master Variables</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-purple-300">$MASTER_VARS</pre>
+                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-purple-300" id="master-vars"></pre>
             </div>
         </div>
     </div>
@@ -245,6 +249,11 @@ cat <<EOF > "$REPORT_HTML"
     <script>
         const connStats = [${CONN_STATS%?}];
         const testResults = [${TEST_RESULTS%?}];
+        const masterStatusRaw = "$MASTER_STATUS_JS";
+        const masterVarsRaw = "$MASTER_VARS_JS";
+
+        document.getElementById('master-status').textContent = masterStatusRaw.replace(/\\n/g, '\n');
+        document.getElementById('master-vars').textContent = masterVarsRaw.replace(/\\n/g, '\n');
 
         const connContainer = document.getElementById('conn-stats');
         connStats.forEach(stat => {
