@@ -16,10 +16,10 @@ install-client: ## Install MariaDB client on the host (Ubuntu/Debian)
 	sudo apt-get update && sudo apt-get install -y mariadb-client
 
 ## Galera Cluster
-up-galera: build-image down-repli ## Start Galera cluster
+   up-galera: build-image gen-ssl down-repli ## Start Galera cluster
 	docker compose -f $(COMPOSE_GALERA) up -d
 
-bootstrap-galera: build-image down-repli ## Bootstrap a NEW Galera cluster (Sequential)
+bootstrap-galera: build-image gen-ssl down-repli ## Bootstrap a NEW Galera cluster (Sequential)
 	@echo ">> 🚀 Bootstrapping Node 1 (Primary)..."
 	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d galera_01
 	@echo ">> ⏳ Waiting for Node 1 to bootstrap..."
@@ -46,7 +46,7 @@ logs-galera: ## Follow Galera cluster logs
 	docker compose -f $(COMPOSE_GALERA) logs -f
 
 ## Replication Cluster
-up-repli: build-image down-galera ## Start Replication cluster
+up-repli: build-image gen-ssl down-galera ## Start Replication cluster
 	docker compose -f $(COMPOSE_REPLI) up -d
 
 down-repli: ## Stop Replication cluster
@@ -110,7 +110,12 @@ clean-repli: down-repli ## Stop Replication and remove all data/backups (CAUTION
 	rm -rf datadir_* backups_*
 
 gen-profiles: ## Generate shell profile files with aliases
-	@chmod +x gen_profiles.sh
-	./gen_profiles.sh
+	bash ./gen_profiles.sh
 
-clean-data: clean-galera clean-repli ## Remove ALL data and backup directories (CAUTION!)
+gen-ssl: ## Generate SSL certificates for MariaDB
+	bash ./gen_ssl.sh
+
+clean-ssl: ## Remove SSL certificates (REVERSIBLE)
+	rm -rf ssl/
+
+clean-data: clean-galera clean-repli clean-ssl ## Remove ALL data, backup, and SSL directories (CAUTION!)

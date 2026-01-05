@@ -64,6 +64,11 @@ echo ">> 🚀 Démarrage de MariaDB Safe..."
 EXTRA_ARGS=""
 if [ "$MARIADB_GALERA_BOOTSTRAP" = "1" ]; then
     echo ">> 🌟 Bootstrapping de nouveaux clusters Galera détecté..."
+    # Force safe_to_bootstrap=1 in grastate.dat if it exists
+    if [ -f "$DATA_DIR/grastate.dat" ]; then
+        echo ">> 🛠️ Forçage de safe_to_bootstrap=1 dans grastate.dat"
+        sed -i 's/safe_to_bootstrap: 0/safe_to_bootstrap: 1/' "$DATA_DIR/grastate.dat"
+    fi
     EXTRA_ARGS="--wsrep-new-cluster"
 fi
 
