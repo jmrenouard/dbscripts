@@ -19,10 +19,15 @@ run_sql() {
     mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -e "$query" 2>/dev/null
 }
 
-echo "1. 🔍 Checking Connectivity..."
+echo "1. 🔍 Checking Connectivity and SSL..."
 for port in $MASTER_PORT $SLAVE1_PORT $SLAVE2_PORT; do
     if run_sql $port "SELECT 1" > /dev/null; then
-        echo "✅ Port $port is UP"
+        CIPHER=$(mariadb -h 127.0.0.1 -P $port -u$USER -p$PASS -sN -e "SHOW STATUS LIKE 'Ssl_cipher';" | awk '{print $2}')
+        if [ ! -z "$CIPHER" ] && [ "$CIPHER" != "NULL" ]; then
+            echo "✅ Port $port is UP (SSL: $CIPHER)"
+        else
+            echo "⚠️  Port $port is UP (SSL: DISABLED)"
+        fi
     else
         echo "❌ Port $port is DOWN"
         exit 1

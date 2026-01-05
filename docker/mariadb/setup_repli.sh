@@ -59,14 +59,16 @@ for port in $SLAVE1_PORT $SLAVE2_PORT; do
     echo ">> Checking Slave Status..."
     # Wait a bit for the IO thread to connect
     sleep 2
-    IO_RUNNING=$(run_sql $port "SHOW SLAVE STATUS\G" | grep "Slave_IO_Running:" | awk '{print $2}')
-    SQL_RUNNING=$(run_sql $port "SHOW SLAVE STATUS\G" | grep "Slave_SQL_Running:" | awk '{print $2}')
+    STATUS=$(run_sql $port "SHOW SLAVE STATUS\G")
+    IO_RUNNING=$(echo "$STATUS" | grep "Slave_IO_Running:" | awk '{print $2}')
+    SQL_RUNNING=$(echo "$STATUS" | grep "Slave_SQL_Running:" | awk '{print $2}')
+    GTID_MODE=$(run_sql $port "SELECT @@gtid_strict_mode;")
     
     if [ "$IO_RUNNING" == "Yes" ] && [ "$SQL_RUNNING" == "Yes" ]; then
-        echo "✅ Slave on Port $port is UP and RUNNING"
+        echo "✅ Slave on Port $port is UP and RUNNING (GTID Strict: $GTID_MODE)"
     else
         echo "❌ Slave on Port $port has issues (IO: $IO_RUNNING, SQL: $SQL_RUNNING)"
-        run_sql $port "SHOW SLAVE STATUS\G" | grep -E "Last_IO_Error|Last_SQL_Error"
+        echo "$STATUS" | grep -E "Last_IO_Error|Last_SQL_Error"
     fi
 done
 
