@@ -84,6 +84,7 @@ Critères de Validation :
 * [2026-01-08] Implémentation de la rotation SSL à chaud (`make renew-ssl`) avec rechargement via `FLUSH SSL`.
 * [2026-01-08] Refonte de l'affichage des Provider Options Galera : passage d'un test unitaire à un bloc d'information dédié dans les rapports.
 * [2026-01-08] Optimisation du script `gen_ssl.sh` : ajout d'une vérification de validité existante pour éviter les régénérations inutiles.
+* [2026-01-08] Résolution des erreurs "Aborted connection" dans les logs MariaDB : passage du health check HAProxy de `tcp-check` à `mysql-check` avec un utilisateur dédié `haproxy_check`.
 * [2026-01-08] Intégration de la validation formatée des variables `wsrep_provider_options` dans les rapports de tests Galera (`test_galera.sh`).
 * [2026-01-07] Intégration de diagrammes d'architecture dynamiques (Mermaid.js) dans les rapports HTML de Galera et Réplication.
 * [2026-01-07] Correction des commandes de logs dans le Makefile : séparation entre lecture statique (`logs-*`) et flux dynamique (`follow-*`).
