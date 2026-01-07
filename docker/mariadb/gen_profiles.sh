@@ -10,6 +10,12 @@ echo "=========================================================="
 echo "🐚 Generating Shell Profiles and Aliases"
 echo "=========================================================="
 
+# Ensure proper permissions for SSH key
+if [ -f "./id_rsa" ]; then
+    chmod 600 "./id_rsa"
+    echo "🔐 SSH key permissions set to 600."
+fi
+
 # --- Replication Profile ---
 cat << EOF > $REPLI_PROFILE
 # Replication Environment Aliases
