@@ -328,6 +328,10 @@ cat <<EOF > "$REPORT_HTML"
         body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .mermaid { background: transparent !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body class="p-8">
@@ -398,15 +402,15 @@ graph TD
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-cyan-400"><i class="fa-solid fa-info-circle mr-3"></i>Cluster Info</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300" id="cluster-info"></pre>
+                <div id="cluster-info" class="space-y-2 text-[11px] font-mono"></div>
             </div>
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-amber-400"><i class="fa-solid fa-gears mr-3"></i>Wsrep Status</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-amber-300" id="wsrep-status"></pre>
+                <div id="wsrep-status" class="space-y-1 text-[10px] font-mono overflow-y-auto max-h-[500px] pr-2 custom-scrollbar"></div>
             </div>
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-purple-400"><i class="fa-solid fa-sliders mr-3"></i>Provider Options</h3>
-                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-purple-300" id="provider-options"></pre>
+                <div id="provider-options" class="space-y-1 text-[10px] font-mono overflow-y-auto max-h-[500px] pr-2 custom-scrollbar"></div>
             </div>
         </div>
     </div>
@@ -418,9 +422,35 @@ graph TD
         const wsrepStatusRaw = "$WSREP_STATUS_JS";
         const providerOptsRaw = "$(echo "$PROVIDER_OPTS_FLAT" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')";
 
-        document.getElementById('cluster-info').textContent = clusterInfoRaw.replace(/\\n/g, '\n');
-        document.getElementById('wsrep-status').textContent = wsrepStatusRaw.replace(/\\n/g, '\n');
-        document.getElementById('provider-options').textContent = providerOptsRaw.replace(/\\n/g, '\n');
+        function renderKV(containerId, rawText, colorClass) {
+            const container = document.getElementById(containerId);
+            const lines = rawText.split('\\n');
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                // Split on first whitespace or = or tab
+                const parts = line.split(/[ \t=]+/).filter(p => p.length > 0);
+                if (parts.length >= 2) {
+                    const key = parts[0];
+                    const val = parts.slice(1).join(' ');
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between border-b border-white/5 pb-1';
+                    item.innerHTML = \`
+                        <span class="text-slate-500">\${key}</span>
+                        <span class="\${colorClass} font-bold">\${val}</span>
+                    \`;
+                    container.appendChild(item);
+                } else if (line.trim().length > 0) {
+                    const item = document.createElement('div');
+                    item.className = 'text-slate-600 italic border-b border-white/5 pb-1';
+                    item.textContent = line.trim();
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        renderKV('cluster-info', clusterInfoRaw, 'text-cyan-300');
+        renderKV('wsrep-status', wsrepStatusRaw, 'text-amber-300');
+        renderKV('provider-options', providerOptsRaw, 'text-purple-300');
 
         const connContainer = document.getElementById('conn-stats');
         connStats.forEach(stat => {
@@ -454,8 +484,6 @@ graph TD
 </body>
 </html>
 EOF
-
-echo -e "\n=========================================================="
 echo "🏁 Galera Test Suite Finished."
 echo "Markdown Report: $REPORT_MD"
 echo "HTML Report: $REPORT_HTML"
