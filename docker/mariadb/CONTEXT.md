@@ -79,8 +79,10 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-08] Optimisation du script `gen_ssl.sh` : ajout d'une vérification de validité existante pour éviter les régénérations inutiles.
+* [2026-01-08] Correction et enrichissement de `wsrep_provider_options` dans les fichiers `gcustom_*.cnf` (formatage monoligne requis par Galera).
+* [2026-01-08] Intégration de la validation formatée des variables `wsrep_provider_options` dans les rapports de tests Galera (`test_galera.sh`).
 * [2026-01-07] Intégration de diagrammes d'architecture dynamiques (Mermaid.js) dans les rapports HTML de Galera et Réplication.
-* [2026-01-07] Mise à jour exhaustive de la documentation (`README.md`, `README_fr.md` et dossier `documentation/`) pour refléter les nouvelles fonctionnalités et règles.
 * [2026-01-07] Correction des commandes de logs dans le Makefile : séparation entre lecture statique (`logs-*`) et flux dynamique (`follow-*`).
 * [2026-01-07] Ajout des cibles `make logs-error-*` et `make logs-slow-*` dans le Makefile pour le diagnostic des conteneurs.
 * [2026-01-07] Refactorisation des fichiers `gcustom_*.cnf` et `custom_*.cnf` : structuration par thématiques et documentation des paramètres en anglais.

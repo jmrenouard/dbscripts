@@ -252,9 +252,29 @@ else
     TEST_RESULTS="$TEST_RESULTS{\"test\":\"Config Check\",\"nature\":\"Verify PFS and Slow Query Log activation\",\"expected\":\"PFS=ON, SlowQueryLog=ON\",\"status\":\"FAIL\",\"details\":\"PFS=$PFS_STATE, SlowLog=$SLOW_LOG_STATE\"},"
 fi
 
+echo -e "\n8. 🛰️ Galera Provider Options Verification..."
+write_report "### Galera Provider Options Verification"
+PROVIDER_OPTS=$(run_sql $NODE1_PORT "SELECT @@wsrep_provider_options;")
+# Format for Markdown Table (using <br> for newlines in cell)
+FORMATTED_OPTS_TABLE=$(echo "$PROVIDER_OPTS" | sed 's/;/ <br> /g')
+# Format for JSON/HTML
+FORMATTED_OPTS_JSON=$(echo "$PROVIDER_OPTS" | sed 's/;/\\n/g')
+
+if [ -n "$PROVIDER_OPTS" ]; then
+    echo "✅ Galera Provider Options retrieved"
+    write_report "| Provider Options | Should be defined and formatted | PASS | $FORMATTED_OPTS_TABLE |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options\",\"nature\":\"Galera Provider Options\",\"expected\":\"Defined & Formatted\",\"status\":\"PASS\",\"details\":\"$FORMATTED_OPTS_JSON\"},"
+else
+    echo "❌ Galera Provider Options are empty"
+    write_report "| Provider Options | Should be defined and formatted | FAIL | Options are empty |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options\",\"nature\":\"Galera Provider Options\",\"expected\":\"Defined & Formatted\",\"status\":\"FAIL\",\"details\":\"Empty\"},"
+fi
+
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
+PROVIDER_OPTS_FLAT=$(echo "$PROVIDER_OPTS" | sed 's/; /;\n                           /g')
+
 write_report "\n## Summary Configuration & Status"
-write_report "\`\`\`sql\n$SUMMARY_CONFIG\n\`\`\`"
+write_report "\`\`\`sql\n$SUMMARY_CONFIG\nwsrep_provider_options     $PROVIDER_OPTS_FLAT\n\`\`\`"
 
 # Sanitize for HTML/JSON (Moved here)
 SUMMARY_CONFIG_JS=$(echo "$SUMMARY_CONFIG" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')

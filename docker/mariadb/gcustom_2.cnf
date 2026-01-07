@@ -30,7 +30,7 @@ wsrep_node_name="galera02"
 # Log replication conflicts
 wsrep_log_conflicts=ON
 # Enable detailed conflict logging in provider options
-wsrep_provider_options="cert.log_conflicts=YES"
+wsrep_provider_options="cert.log_conflicts=YES;gcache.size=128M;evs.suspect_timeout=PT5S;evs.inactive_timeout=PT15S;evs.install_timeout=PT15S"
 
 # --- Advanced Replication & Networking ---
 # Enforce GTID consistency
