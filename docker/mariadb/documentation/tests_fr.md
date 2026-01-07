@@ -29,7 +29,9 @@ Pour plus de détails sur la topologie du cluster, consultez la **[Documentation
 4. **Conflit de Certification (Verrouillage Optimiste)** : Simule des mises à jour simultanées sur la même ligne via différents nœuds pour déclencher un interblocage (deadlock) ou un échec de certification.
 5. **Réplication du DDL** : Exécute un `ALTER TABLE` sur un nœud et vérifie les changements de schéma sur les autres.
 6. **Contrainte de Clé Unique** : Vérifie que les erreurs de doublon sont correctement propagées et gérées.
-7. **Vérification de la Configuration** : Valide que le **Performance Schema** et le **Slow Query Log** sont actifs avec les seuils et taux d'échantillonnage attendus.
+7. **Vérification de la Configuration** : Valide que le **Performance Schema** et le **Slow Query Log** sont actifs.
+8. **Audit du Fournisseur Galera** : Compare les `wsrep_provider_options` actuelles avec les meilleures pratiques.
+9. **Expiration SSL** : Vérifie si les certificats expirent dans moins de 30 jours.
 
 ### Résultats Types
 
@@ -68,3 +70,21 @@ Exécutés via `test_perf_galera.sh` ou `test_perf_repli.sh`.
 
 - **Sortie** : Génère un rapport HTML de haute qualité (ex : `test_perf_galera.html`).
 - **Métriques** : TPS (Transactions par seconde), Latence (95ème percentile), et taux d'erreurs.
+
+---
+
+## 🔵 4. Validation HAProxy (`test_haproxy_galera.sh`)
+
+### Cas de Tests
+
+1. **Santé du Backend** : Vérifie l'état (UP/DOWN) de chaque nœud MariaDB via l'interface API/Stats de HAProxy.
+2. **Benchmark de Latence** : Compare la latence moyenne d'une requête via le Load Balancer par rapport à une connexion directe sur un nœud.
+3. **Détection de Persistance** : Identifie si HAProxy est configuré en Round-Robin pur ou avec des sessions persistantes (sticky).
+4. **Simulation de Failover** :
+   - Arrêt réel d'un conteneur MariaDB (`docker stop`).
+   - Vérification de la continuité des requêtes SQL pendant la panne.
+   - Redémarrage automatique du nœud.
+
+### Rapports Premium
+
+Comme pour les autres tests, cette suite génère un rapport HTML élégant montrant l'overhead de performance et les statistiques de bascule.

@@ -42,9 +42,9 @@ This document describes the various shell scripts available in the `docker/maria
 
 ## 🧪 Testing
 
-- **[test_galera.sh](../test_galera.sh)**: Full suite for Galera (sync, DDL, conflicts).
+- **[test_galera.sh](../test_galera.sh)**: Full suite for Galera (sync, DDL, conflicts, Audit, SSL).
 - **[test_repli.sh](../test_repli.sh)**: Verification for Master/Slave replication.
-- **[test_lb_galera.sh](../test_lb_galera.sh)**: Validates HAProxy load balancing distribution for Galera.
-  - Usage: `./test_lb_galera.sh`
-  - Connects multiple times to the LB and reports the hits on each node.
+- **[test_haproxy_galera.sh](../test_haproxy_galera.sh)**: Advanced validation suite for HAProxy.
+  - Features: Latency benchmarking (LB vs Direct), persistence detection (Sticky/RR), real failover simulation, and HTML report generation.
+  - Usage: `./test_haproxy_galera.sh`
 - **[test_perf_galera.sh](../test_perf_galera.sh)** / **[test_perf_repli.sh](../test_perf_repli.sh)**: Performance benchmarks using Sysbench.

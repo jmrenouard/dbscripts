@@ -10,13 +10,15 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make build-image` | Construit l'image de base `mariadb_ssh:004`. |
 | `make install-client` | Installe le client MariaDB sur l'hôte (Ubuntu/Debian). |
 | `make gen-ssl` | Génère les certificats SSL dans le répertoire `ssl/`. |
+| `make renew-ssl` | **Rotation à chaud** : Régénérer et recharger SSL via `FLUSH SSL`. |
 | `make clean-ssl` | Supprimer les certificats générés. |
+| `make clean-reports` | Purge tous les rapports de test (`.md` et `.html`) du dossier `reports/`. |
 | `make gen-profiles` | Générer des profils shell pour un accès rapide aux conteneurs. |
 | `make clean-galera` | Arrêter Galera et supprimer toutes ses données/sauvegardes. |
 | `make clean-repli` | Arrêter la Réplication et supprimer toutes ses données/sauvegardes. |
-| `make clean-data` | **DANGER** : Supprimer TOUTES les données, sauvegardes et répertoires SSL. |
 | `make full-repli` | Orchestration complète pour la Réplication : Nettoyage, Lancement, Configuration et Test. |
 | `make full-galera` | Orchestration complète pour Galera : Nettoyage, Lancement (Bootstrap) et Test. |
+| `make clean-data` | **DANGER** : Supprimer TOUTES les données, sauvegardes et répertoires SSL. |
 
 ## 🌐 Commandes pour le Cluster Galera
 
@@ -26,8 +28,8 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make bootstrap-galera`| Initialise séquentiellement un nouveau cluster (assure que le nœud 1 est le primaire). |
 | `make down-galera` | Arrête et supprime le cluster Galera. |
 | `make logs-galera` | Affiche les logs en temps réel pour le cluster Galera. |
-| `make test-galera` | Exécute la suite de tests fonctionnels Galera. |
-| `make test-lb-galera` | Teste spécifiquement l'équilibreur de charge HAProxy pour Galera. |
+| `make test-galera` | Exécute la suite de tests avancés Galera (Réplication, DDL, Audit, SSL). |
+| `make test-lb-galera` | Exécute la suite de validation HAProxy (Performance, Failover, Rapports). |
 | `make backup-galera` | Effectuer une sauvegarde SQL logique. |
 | `make backup-phys-galera`| Effectuer une sauvegarde physique (MariaBackup). |
 | `make restore-galera` | Restaurer une sauvegarde SQL logique. |

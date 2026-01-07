@@ -12,13 +12,12 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make gen-ssl` | Generate SSL certificates in `ssl/` directory. |
 | `make renew-ssl` | **Zero-downtime rotation**: Regenerate and reload SSL via `FLUSH SSL`. |
 | `make clean-ssl` | Remove generated certificates. |
+| `make clean-reports` | Purge all test reports (`.md` and `.html`) from the `reports/` directory. |
 | `make gen-profiles` | Generate shell profiles for quick container access. |
 | `make clean-galera` | Stop Galera and remove all its data/backups. |
 | `make clean-repli` | Stop Replication and remove all its data/backups. |
-| `make clean-reports` | Purge all test reports (`.md` and `.html`) from the `reports/` directory. |
 | `make full-repli` | Full orchestration for Replication: Clean, Start, Setup, and Test. |
 | `make full-galera` | Full orchestration for Galera: Clean, Start (Bootstrap), and Test. |
-| `make clean-ssl` | Remove generated certificates. |
 | `make clean-data` | **DANGER**: Remove ALL data, backup, and SSL directories. |
 
 ## 🌐 Galera Cluster Commands
@@ -29,8 +28,8 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make bootstrap-galera`| Sequentially bootstrap a new cluster (ensures node 1 is primary). |
 | `make down-galera` | Stop and remove the Galera cluster. |
 | `make logs-galera` | View real-time logs for the Galera cluster. |
-| `make test-galera` | Run the Galera functional test suite (includes Audit & SSL check). |
-| `make test-lb-galera` | Specifically test the HAProxy load balancer for Galera. |
+| `make test-galera` | Run the advanced Galera test suite (Replication, DDL, Audit, SSL). |
+| `make test-lb-galera` | Run the HAProxy validation suite (Performance, Failover, Reports). |
 | `make backup-galera` | Perform a logical SQL backup. |
 | `make backup-phys-galera`| Perform a physical (MariaBackup) backup. |
 | `make restore-galera` | Restore a logical SQL backup. |

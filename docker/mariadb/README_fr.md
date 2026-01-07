@@ -132,6 +132,14 @@ Vérifie le statut Maître/Esclave et la cohérence des données sur tous les es
 make test-repli
 ```
 
+### 4.3 Tests du Load Balancer (HAProxy)
+
+Valide la répartition de charge, mesure l'overhead de performance et simule des pannes (failover) pour garantir la haute disponibilité.
+
+```bash
+make test-lb-galera
+```
+
 ---
 
 ## 🏎️ 5. Tests de Performance (Sysbench)

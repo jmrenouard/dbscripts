@@ -44,7 +44,7 @@ Ce document décrit les différents scripts shell disponibles dans le répertoir
 
 - **[test_galera.sh](../test_galera.sh)** : Suite complète pour Galera (synchronisation, DDL, conflits).
 - **[test_repli.sh](../test_repli.sh)** : Vérification pour la réplication Maître/Esclave.
-- **[test_lb_galera.sh](../test_lb_galera.sh)** : Valide la distribution de charge de HAProxy pour Galera.
-  - Utilisation : `./test_lb_galera.sh`
-  - Se connecte plusieurs fois au répartiteur de charge (LB) et affiche les statistiques par nœud.
+- **[test_haproxy_galera.sh](../test_haproxy_galera.sh)** : Suite de validation avancée pour HAProxy.
+  - Caractéristiques : Benchmarking de latence (LB vs Direct), détection du mode de répartition (Sticky/RR), simulation de panne réelle (failover) et génération de rapports HTML.
+  - Utilisation : `./test_haproxy_galera.sh`
 - **[test_perf_galera.sh](../test_perf_galera.sh)** / **[test_perf_repli.sh](../test_perf_repli.sh)** : Benchmarks de performance utilisant Sysbench.
