@@ -60,7 +60,7 @@ Critères de Validation :
 5. **MISE À JOUR DES TESTS :** Toute modification de la configuration ou du comportement doit impérativement être intégrée dans les scripts de tests (`test_*.sh`) pour assurer une validation automatique et pérenne des changements effectués.
 6. **COMMIT IMMÉDIAT :** Une fois les tests validés avec succès (`make test-*`), les modifications doivent être commitées immédiatement afin de garantir la traçabilité et l'intégrité de l'environnement de développement.
 7. **CONVENTIONAL COMMITS :** Les messages de commit doivent respecter la norme *Conventional Commits* (ex: `feat:`, `fix:`, `chore:`, `docs:`) pour faciliter la génération automatique de changelogs techniques.
-8. **BRANCHES DE FEATURE (Éphémères) :** Toute modification impactant la configuration globale (PFS, variables système, architecture) doit être réalisée sur une branche dédiée (ex: `feat/config-pfs`) avant d'être fusionnée dans `main`.
+8. **SINGLE BRANCH APPROACH :** Le développement s'effectue directement sur la branche principale (`main`) afin de simplifier le cycle de développement et de déploiement, en s'appuyant sur des commits atomiques et des tests systématiques avant chaque validation.
 
 ### **Format de Restitution**
 
@@ -79,6 +79,7 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-07] Transition vers une approche "Single Branch" sur `main` pour simplifier le flux de développement.
 * [2026-01-07] Intégration des règles "Conventional Commits" et "Branches de Feature" dans le cycle de développement.
 * [2026-01-07] Validation de la règle de commit immédiat et archivage Git des changements (PFS/SlowQuery).
 * [2026-01-07] Ajout de la règle de mise à jour des tests dans CONTEXT.md et intégration de la vérification PFS/SlowQuery dans `test_galera.sh`.
