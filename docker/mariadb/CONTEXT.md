@@ -79,6 +79,7 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-08] Mise à jour de la documentation (`README_fr.md` et `documentation/makefile.md`) pour inclure les nouvelles fonctionnalités SSL et l'audit Galera.
 * [2026-01-08] Intégration de la surveillance de l'expiration SSL (30 jours) et de l'audit des "Best Practices" Galera dans `test_galera.sh`.
 * [2026-01-08] Implémentation de la rotation SSL à chaud (`make renew-ssl`) avec rechargement via `FLUSH SSL`.
 * [2026-01-08] Refonte de l'affichage des Provider Options Galera : passage d'un test unitaire à un bloc d'information dédié dans les rapports.

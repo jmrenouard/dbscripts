@@ -10,6 +10,7 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make build-image` | Build the base `mariadb_ssh:004` image. |
 | `make install-client` | Install MariaDB client on the host (Ubuntu/Debian). |
 | `make gen-ssl` | Generate SSL certificates in `ssl/` directory. |
+| `make renew-ssl` | **Zero-downtime rotation**: Regenerate and reload SSL via `FLUSH SSL`. |
 | `make clean-ssl` | Remove generated certificates. |
 | `make gen-profiles` | Generate shell profiles for quick container access. |
 | `make clean-galera` | Stop Galera and remove all its data/backups. |
@@ -28,7 +29,7 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make bootstrap-galera`| Sequentially bootstrap a new cluster (ensures node 1 is primary). |
 | `make down-galera` | Stop and remove the Galera cluster. |
 | `make logs-galera` | View real-time logs for the Galera cluster. |
-| `make test-galera` | Run the Galera functional test suite. |
+| `make test-galera` | Run the Galera functional test suite (includes Audit & SSL check). |
 | `make test-lb-galera` | Specifically test the HAProxy load balancer for Galera. |
 | `make backup-galera` | Perform a logical SQL backup. |
 | `make backup-phys-galera`| Perform a physical (MariaBackup) backup. |
