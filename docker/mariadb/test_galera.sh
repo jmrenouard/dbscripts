@@ -300,15 +300,32 @@ else
     TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Expiry\",\"nature\":\"SSL Expiry Check\",\"expected\":\"> $EXP_DAYS days\",\"status\":\"FAIL\",\"details\":\"Server certificate not found in $SSL_DIR/\"},"
 fi
 
+# Collect data for all nodes for comparison (Full view: Vars + Status + Galera Opts)
+NODE_DATA="{"
+for i in 1 2 3; do
+    port_var="NODE${i}_PORT"
+    port=${!port_var}
+    if mariadb -h 127.0.0.1 -P $port -uroot -p$PASS -e "SELECT 1" > /dev/null 2>&1; then
+        OPTS=$(run_sql $port "SELECT @@wsrep_provider_options;")
+        VARS=$(run_sql $port "SHOW GLOBAL VARIABLES;")
+        STATS=$(run_sql $port "SHOW GLOBAL STATUS;")
+        
+        # Sanitize and format
+        OPTS_JS=$(echo "$OPTS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/; /;\\n/g')
+        VARS_JS=$(echo "$VARS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n')
+        STATS_JS=$(echo "$STATS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n')
+        
+        NODE_DATA+="\"node$i\": { \"opts\": \"$OPTS_JS\", \"vars\": \"$VARS_JS\", \"stats\": \"$STATS_JS\", \"name\": \"Serveur $i\", \"port\": \"$port\" },"
+    fi
+done
+NODE_DATA="${NODE_DATA%,}}"
+
+# For Markdown report, use Node 1 as default
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
-PROVIDER_OPTS_FLAT=$(echo "$PROVIDER_OPTS" | sed 's/; /;\n                           /g')
+PROVIDER_OPTS_FLAT=$(run_sql $NODE1_PORT "SELECT @@wsrep_provider_options;" | sed 's/; /;\n                           /g')
 
-write_report "\n## Summary Configuration & Status"
+write_report "\n## Summary Configuration & Status (Node 1)"
 write_report "\`\`\`sql\n$SUMMARY_CONFIG\nwsrep_provider_options     $PROVIDER_OPTS_FLAT\n\`\`\`"
-
-# Sanitize for HTML/JSON (Moved here)
-SUMMARY_CONFIG_JS=$(echo "$SUMMARY_CONFIG" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
-WSREP_STATUS_JS=$(echo "$WSREP_STATUS" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')
 
 # Generate HTML Report
 cat <<EOF > "$REPORT_HTML"
@@ -399,18 +416,43 @@ graph TD
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="glass p-8 rounded-3xl">
-                <h3 class="text-xl font-bold mb-6 flex items-center text-cyan-400"><i class="fa-solid fa-info-circle mr-3"></i>Cluster Info</h3>
-                <div id="cluster-info" class="space-y-2 text-[11px] font-mono"></div>
-            </div>
-            <div class="glass p-8 rounded-3xl">
-                <h3 class="text-xl font-bold mb-6 flex items-center text-amber-400"><i class="fa-solid fa-gears mr-3"></i>Wsrep Status</h3>
-                <div id="wsrep-status" class="space-y-1 text-[10px] font-mono overflow-y-auto max-h-[500px] pr-2 custom-scrollbar"></div>
-            </div>
-            <div class="glass p-8 rounded-3xl">
-                <h3 class="text-xl font-bold mb-6 flex items-center text-purple-400"><i class="fa-solid fa-sliders mr-3"></i>Provider Options</h3>
-                <div id="provider-options" class="space-y-1 text-[10px] font-mono overflow-y-auto max-h-[500px] pr-2 custom-scrollbar"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass p-8 rounded-3xl col-span-1 lg:col-span-2">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 class="text-xl font-bold flex items-center text-indigo-400">
+                        <i class="fa-solid fa-magnifying-glass-chart mr-3"></i>Explorateur de Configuration & Comparaison
+                    </h3>
+                    <div class="flex gap-4 items-center">
+                        <div class="relative">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="global-search" placeholder="Rechercher une variable..." 
+                                class="bg-black/40 border border-white/10 rounded-full py-2 pl-9 pr-4 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 w-64">
+                        </div>
+                        <div class="text-xs text-slate-500 font-mono">
+                            Composants filtrés: <span id="filter-count" class="text-indigo-400 font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Serveur 1 -->
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                            <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Serveur</span>
+                            <select id="node-a-select" class="bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs px-3 py-1 text-indigo-300 focus:outline-none cursor-pointer hover:bg-indigo-500/30 transition-all"></select>
+                        </div>
+                        <div id="col-a-content" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                    </div>
+
+                    <!-- Serveur 2 -->
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                            <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Serveur</span>
+                            <select id="node-b-select" class="bg-purple-500/20 border border-purple-500/30 rounded-lg text-xs px-3 py-1 text-purple-300 focus:outline-none cursor-pointer hover:bg-purple-500/30 transition-all"></select>
+                        </div>
+                        <div id="col-b-content" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -418,39 +460,124 @@ graph TD
     <script>
         const connStats = [${CONN_STATS%?}];
         const testResults = [${TEST_RESULTS%?}];
-        const clusterInfoRaw = "$SUMMARY_CONFIG_JS";
-        const wsrepStatusRaw = "$WSREP_STATUS_JS";
-        const providerOptsRaw = "$(echo "$PROVIDER_OPTS_FLAT" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')";
+        const nodeData = $NODE_DATA;
 
-        function renderKV(containerId, rawText, colorClass) {
-            const container = document.getElementById(containerId);
+        let currentSearch = '';
+
+        function getGroups(rawText) {
             const lines = rawText.split('\\n');
+            const groups = {};
             lines.forEach(line => {
                 if (!line.trim()) return;
-                // Split on first whitespace or = or tab
                 const parts = line.split(/[ \t=]+/).filter(p => p.length > 0);
                 if (parts.length >= 2) {
                     const key = parts[0];
                     const val = parts.slice(1).join(' ');
-                    const item = document.createElement('div');
-                    item.className = 'flex justify-between border-b border-white/5 pb-1';
-                    item.innerHTML = \`
-                        <span class="text-slate-500">\${key}</span>
-                        <span class="\${colorClass} font-bold">\${val}</span>
-                    \`;
-                    container.appendChild(item);
-                } else if (line.trim().length > 0) {
-                    const item = document.createElement('div');
-                    item.className = 'text-slate-600 italic border-b border-white/5 pb-1';
-                    item.textContent = line.trim();
-                    container.appendChild(item);
+                    
+                    // Logic to group by prefix or category
+                    let groupName = 'Others';
+                    if (key.startsWith('wsrep_')) {
+                        groupName = key.split('_')[0] + '_' + key.split('_')[1]; // e.g. wsrep_local, wsrep_cluster
+                        if (groupName.length > 15) groupName = 'wsrep_core';
+                    } else if (key.includes('.')) {
+                        groupName = key.split('.')[0]; // e.g. evs, gcache
+                    } else if (key.startsWith('innodb_')) {
+                        groupName = 'InnoDB';
+                    } else if (key.startsWith('aria_')) {
+                        groupName = 'Aria';
+                    } else if (key.startsWith('log_') || key.includes('_log')) {
+                        groupName = 'Logging';
+                    } else if (key.startsWith('ssl_') || key.startsWith('have_ssl')) {
+                        groupName = 'SSL/Security';
+                    } else if (key.startsWith('binlog_') || key.startsWith('gtid_')) {
+                        groupName = 'Replication/GTID';
+                    } else if (key.startsWith('optimizer_')) {
+                        groupName = 'Optimizer';
+                    }
+
+                    if (!groups[groupName]) groups[groupName] = [];
+                    groups[groupName].push({ key, val });
                 }
             });
+            return groups;
         }
 
-        renderKV('cluster-info', clusterInfoRaw, 'text-cyan-300');
-        renderKV('wsrep-status', wsrepStatusRaw, 'text-amber-300');
-        renderKV('provider-options', providerOptsRaw, 'text-purple-300');
+        function renderNodeCol(containerId, nodeId, searchStr, themeColor) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            const data = nodeData[nodeId];
+            if (!data) return;
+
+            // Combine all available data for full exploration
+            const allText = data.vars + '\\n' + data.stats + '\\n' + data.opts;
+            const groups = getGroups(allText);
+            
+            let totalMatch = 0;
+
+            Object.keys(groups).sort().forEach(groupName => {
+                const groupItems = groups[groupName].filter(item => 
+                    item.key.toLowerCase().includes(searchStr.toLowerCase()) || 
+                    item.val.toLowerCase().includes(searchStr.toLowerCase())
+                );
+
+                if (groupItems.length === 0) return;
+                totalMatch += groupItems.length;
+
+                const groupDetails = document.createElement('details');
+                groupDetails.className = 'group bg-black/20 rounded-xl border border-white/5 overflow-hidden transition-all duration-300';
+                groupDetails.open = searchStr.length > 0;
+                
+                groupDetails.innerHTML = \`
+                    <summary class="flex justify-between items-center p-3 cursor-pointer hover:bg-white/5 transition-colors list-none">
+                        <span class="text-xs font-bold uppercase tracking-tighter \${themeColor}">\${groupName}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] bg-white/10 px-2 rounded-full text-slate-400">\${groupItems.length}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 group-open:rotate-180 transition-transform"></i>
+                        </div>
+                    </summary>
+                    <div class="p-3 pt-0 space-y-1 bg-black/10">
+                        \${groupItems.map(item => \`
+                            <div class="flex justify-between items-center py-1 border-b border-white/5 hover:bg-white/5 px-1 rounded transition-colors group/item">
+                                <span class="text-[10px] text-slate-500 font-mono truncate mr-4">\${item.key}</span>
+                                <span class="text-[10px] \${themeColor} font-mono font-bold text-right">\${item.val}</span>
+                            </div>
+                        \`).join('')}
+                    </div>
+                \`;
+                container.appendChild(groupDetails);
+            });
+            return totalMatch;
+        }
+
+        function refreshAll() {
+            const nodeA = document.getElementById('node-a-select').value;
+            const nodeB = document.getElementById('node-b-select').value;
+            const countA = renderNodeCol('col-a-content', nodeA, currentSearch, 'text-indigo-300');
+            const countB = renderNodeCol('col-b-content', nodeB, currentSearch, 'text-purple-300');
+            document.getElementById('filter-count').textContent = Math.max(countA, countB);
+        }
+
+        // Init selectors
+        const selA = document.getElementById('node-a-select');
+        const selB = document.getElementById('node-b-select');
+        Object.keys(nodeData).forEach((id, idx) => {
+            const optA = new Option(nodeData[id].name + ' (' + nodeData[id].port + ')', id);
+            const optB = new Option(nodeData[id].name + ' (' + nodeData[id].port + ')', id);
+            selA.add(optA);
+            selB.add(optB);
+            if (idx === 1) selB.selectedIndex = 1; // Default select node 2 in Col B
+        });
+
+        selA.addEventListener('change', refreshAll);
+        selB.addEventListener('change', refreshAll);
+        document.getElementById('global-search').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            refreshAll();
+        });
+
+        // Initial render
+        refreshAll();
 
         const connContainer = document.getElementById('conn-stats');
         connStats.forEach(stat => {
