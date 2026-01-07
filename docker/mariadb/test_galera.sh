@@ -252,22 +252,52 @@ else
     TEST_RESULTS="$TEST_RESULTS{\"test\":\"Config Check\",\"nature\":\"Verify PFS and Slow Query Log activation\",\"expected\":\"PFS=ON, SlowQueryLog=ON\",\"status\":\"FAIL\",\"details\":\"PFS=$PFS_STATE, SlowLog=$SLOW_LOG_STATE\"},"
 fi
 
-echo -e "\n8. 🛰️ Galera Provider Options Verification..."
-write_report "### Galera Provider Options Verification"
+echo -e "\n8. 🛰️ Galera Provider Options Audit..."
+write_report "### Galera Provider Options Audit"
 PROVIDER_OPTS=$(run_sql $NODE1_PORT "SELECT @@wsrep_provider_options;")
-# Format for Markdown Table (using <br> for newlines in cell)
-FORMATTED_OPTS_TABLE=$(echo "$PROVIDER_OPTS" | sed 's/;/ <br> /g')
-# Format for JSON/HTML
-FORMATTED_OPTS_JSON=$(echo "$PROVIDER_OPTS" | sed 's/;/\\n/g')
+
+# --- Audit Best Practices ---
+AUDIT_LOG=""
+declare -A RECOM=( ["gcache.size"]="128M" ["cert.log_conflicts"]="YES" ["evs.suspect_timeout"]="PT5S" ["evs.inactive_timeout"]="PT15S" )
+for key in "${!RECOM[@]}"; do
+    current=$(echo "$PROVIDER_OPTS" | grep -oP "$key = \K[^;]+" | xargs)
+    if [ "$current" == "${RECOM[$key]}" ]; then
+        AUDIT_LOG+="✅ $key matches recommended value (${RECOM[$key]})\\n"
+    else
+        AUDIT_LOG+="⚠️ $key mismatch: $current (Recommended: ${RECOM[$key]})\\n"
+    fi
+done
 
 if [ -n "$PROVIDER_OPTS" ]; then
-    echo "✅ Galera Provider Options retrieved"
-    write_report "| Provider Options | Should be defined and formatted | PASS | $FORMATTED_OPTS_TABLE |"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options\",\"nature\":\"Galera Provider Options\",\"expected\":\"Defined & Formatted\",\"status\":\"PASS\",\"details\":\"$FORMATTED_OPTS_JSON\"},"
+    echo "✅ Galera Provider Options audited"
+    write_report "| Provider Options Audit | Best practices check | PASS | Audit completed (see details) |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options Audit\",\"nature\":\"Galera Provider Options Audit\",\"expected\":\"Configured vs Best Practices\",\"status\":\"PASS\",\"details\":\"$AUDIT_LOG\"},"
 else
     echo "❌ Galera Provider Options are empty"
-    write_report "| Provider Options | Should be defined and formatted | FAIL | Options are empty |"
-    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options\",\"nature\":\"Galera Provider Options\",\"expected\":\"Defined & Formatted\",\"status\":\"FAIL\",\"details\":\"Empty\"},"
+    write_report "| Provider Options Audit | Best practices check | FAIL | Options are empty |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Provider Options Audit\",\"nature\":\"Galera Provider Options Audit\",\"expected\":\"Configured vs Best Practices\",\"status\":\"FAIL\",\"details\":\"Empty\"},"
+fi
+
+echo -e "\n9. 🔐 SSL Certificate Expiry Check..."
+write_report "### SSL Certificate Expiry Check"
+SSL_DIR="./ssl"
+EXP_DAYS=30
+EXP_SEC=$((EXP_DAYS * 86400))
+
+if [ -f "$SSL_DIR/server-cert.pem" ]; then
+    if openssl x509 -checkend $EXP_SEC -noout -in "$SSL_DIR/server-cert.pem"; then
+        echo "✅ SSL certificates are valid for more than $EXP_DAYS days"
+        write_report "| SSL Expiry | Should be > $EXP_DAYS days | PASS | Valid |"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Expiry\",\"nature\":\"SSL Expiry Check\",\"expected\":\"> $EXP_DAYS days\",\"status\":\"PASS\",\"details\":\"Server certificate is valid for at least $EXP_DAYS days\"},"
+    else
+        echo "⚠️ SSL certificates expire in less than $EXP_DAYS days"
+        write_report "| SSL Expiry | Should be > $EXP_DAYS days | WARN | Near expiry |"
+        TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Expiry\",\"nature\":\"SSL Expiry Check\",\"expected\":\"> $EXP_DAYS days\",\"status\":\"WARN\",\"details\":\"Server certificate expires soon!\"},"
+    fi
+else
+    echo "❌ SSL certificates missing for check"
+    write_report "| SSL Expiry | Should be > $EXP_DAYS days | FAIL | Missing |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"SSL Expiry\",\"nature\":\"SSL Expiry Check\",\"expected\":\"> $EXP_DAYS days\",\"status\":\"FAIL\",\"details\":\"Server certificate not found in $SSL_DIR/\"},"
 fi
 
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
@@ -365,7 +395,7 @@ graph TD
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-cyan-400"><i class="fa-solid fa-info-circle mr-3"></i>Cluster Info</h3>
                 <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-cyan-300" id="cluster-info"></pre>
@@ -373,6 +403,10 @@ graph TD
             <div class="glass p-8 rounded-3xl">
                 <h3 class="text-xl font-bold mb-6 flex items-center text-amber-400"><i class="fa-solid fa-gears mr-3"></i>Wsrep Status</h3>
                 <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-amber-300" id="wsrep-status"></pre>
+            </div>
+            <div class="glass p-8 rounded-3xl">
+                <h3 class="text-xl font-bold mb-6 flex items-center text-purple-400"><i class="fa-solid fa-sliders mr-3"></i>Provider Options</h3>
+                <pre class="p-4 bg-black/40 rounded text-[10px] font-mono whitespace-pre overflow-x-auto text-purple-300" id="provider-options"></pre>
             </div>
         </div>
     </div>
@@ -382,9 +416,11 @@ graph TD
         const testResults = [${TEST_RESULTS%?}];
         const clusterInfoRaw = "$SUMMARY_CONFIG_JS";
         const wsrepStatusRaw = "$WSREP_STATUS_JS";
+        const providerOptsRaw = "$(echo "$PROVIDER_OPTS_FLAT" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | tr -d '\r\n' | sed 's/\\n$/ /')";
 
         document.getElementById('cluster-info').textContent = clusterInfoRaw.replace(/\\n/g, '\n');
         document.getElementById('wsrep-status').textContent = wsrepStatusRaw.replace(/\\n/g, '\n');
+        document.getElementById('provider-options').textContent = providerOptsRaw.replace(/\\n/g, '\n');
 
         const connContainer = document.getElementById('conn-stats');
         connStats.forEach(stat => {

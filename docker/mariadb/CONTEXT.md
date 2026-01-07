@@ -79,8 +79,10 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-08] Intégration de la surveillance de l'expiration SSL (30 jours) et de l'audit des "Best Practices" Galera dans `test_galera.sh`.
+* [2026-01-08] Implémentation de la rotation SSL à chaud (`make renew-ssl`) avec rechargement via `FLUSH SSL`.
+* [2026-01-08] Refonte de l'affichage des Provider Options Galera : passage d'un test unitaire à un bloc d'information dédié dans les rapports.
 * [2026-01-08] Optimisation du script `gen_ssl.sh` : ajout d'une vérification de validité existante pour éviter les régénérations inutiles.
-* [2026-01-08] Correction et enrichissement de `wsrep_provider_options` dans les fichiers `gcustom_*.cnf` (formatage monoligne requis par Galera).
 * [2026-01-08] Intégration de la validation formatée des variables `wsrep_provider_options` dans les rapports de tests Galera (`test_galera.sh`).
 * [2026-01-07] Intégration de diagrammes d'architecture dynamiques (Mermaid.js) dans les rapports HTML de Galera et Réplication.
 * [2026-01-07] Correction des commandes de logs dans le Makefile : séparation entre lecture statique (`logs-*`) et flux dynamique (`follow-*`).

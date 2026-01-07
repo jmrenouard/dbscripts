@@ -143,6 +143,16 @@ gen-ssl: ## Generate SSL certificates for MariaDB
 clean-ssl: ## Remove SSL certificates (REVERSIBLE)
 	rm -rf ssl/
 
+renew-ssl: ## Force SSL certificate regeneration and reload on active nodes
+	@echo ">> 🔄 Regenerating SSL certificates..."
+	rm -rf ssl/
+	bash ./gen_ssl.sh
+	@echo ">> 🚀 Reloading SSL on Galera nodes..."
+	@docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
+	@docker exec mariadb-galera_02-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
+	@docker exec mariadb-galera_03-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
+	@echo "✨ Zero-downtime SSL rotation completed."
+
 clean-data: clean-galera clean-repli clean-ssl ## Remove ALL data, backup, and SSL directories (CAUTION!)
 
 ## Logs & Troubleshooting
