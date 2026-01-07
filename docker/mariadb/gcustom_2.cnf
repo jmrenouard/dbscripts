@@ -1,60 +1,92 @@
 [mariadb]
+
+# --- Core MariaDB Settings ---
+# Binary logging format (Required for Galera: ROW)
 binlog_format=ROW
+# Storage engine used for Galera
 default_storage_engine=InnoDB
+# InnoDB lock mode for auto-increment (Required for Galera: 2)
 innodb_autoinc_lock_mode=2
 
-# Galera Cluster Configuration
+# --- Galera Cluster Configuration ---
+# Enable Galera replication
 wsrep_on=ON
+# Path to the Galera library
 wsrep_provider=/usr/lib/galera/libgalera_smm.so
+# IP addresses of all cluster nodes
 wsrep_cluster_address="gcomm://10.6.0.11,10.6.0.12,10.6.0.13"
+# Logical name of the cluster
 wsrep_cluster_name="galera_cluster"
+# Method used for State Snapshot Transfer (SST)
 wsrep_sst_method=mariabackup
+# Authentication credentials for SST
 wsrep_sst_auth="sst_user:sstpass"
 
-# Node Configuration
+# --- Galera Local Node Configuration ---
+# Local node network address
 wsrep_node_address="10.6.0.12"
+# Local node name
 wsrep_node_name="galera02"
+# Log replication conflicts
 wsrep_log_conflicts=ON
+# Enable detailed conflict logging in provider options
 wsrep_provider_options="cert.log_conflicts=YES"
 
-# Advanced Galera/MariaDB Settings
+# --- Advanced Replication & Networking ---
+# Enforce GTID consistency
 gtid_strict_mode=1
+# Trusted networks for PROXY protocol
 proxy_protocol_networks=10.5.0.0/24,10.6.0.0/24
+# Binary log expiration period (2 days)
 binlog_expire_logs_seconds=172800
-# innodb
+
+# --- InnoDB Settings ---
+# Redo log flush frequency (0=Performance, 1=ACID)
 innodb_flush_log_at_trx_commit = 0
+# Use O_DIRECT to bypass OS cache for InnoDB data files
 innodb_flush_method = O_DIRECT
+# InnoDB buffer pool size
 innodb_buffer_pool_size = 2G
+# Redo log file size
 innodb_log_file_size = 512M
 
-
-performance_schema             = ON
+# --- Performance Schema (PFS) ---
+# Enable Performance Schema monitoring
+performance_schema = ON
+# Enable statement history consumers
 performance-schema-consumer-events-statements-history-long = ON
 performance-schema-consumer-events-statements-history = ON
 performance-schema-consumer-events-statements-current = ON
-performance-schema-consumer-events-stages-current=ON
-performance-schema-consumer-events-stages-history=ON
-performance-schema-consumer-events-stages-history-long=ON
-performance-schema-consumer-events-transactions-current=ON
-performance-schema-consumer-events-transactions-history=ON
-performance-schema-consumer-events-transactions-history-long=ON
-performance-schema-consumer-events-waits-current=ON
-performance-schema-consumer-events-waits-history=ON
-performance-schema-consumer-events-waits-history-long=ON
-performance-schema-instrument='%=ON'
-max-digest-length=2048
-performance-schema-max-digest-length=2048
+# Enable stage monitoring
+performance-schema-consumer-events-stages-current = ON
+performance-schema-consumer-events-stages-history = ON
+performance-schema-consumer-events-stages-history-long = ON
+# Enable transaction monitoring
+performance-schema-consumer-events-transactions-current = ON
+performance-schema-consumer-events-transactions-history = ON
+performance-schema-consumer-events-transactions-history-long = ON
+# Enable wait monitoring
+performance-schema-consumer-events-waits-current = ON
+performance-schema-consumer-events-waits-history = ON
+performance-schema-consumer-events-waits-history-long = ON
+# Enable all instrumentation by default
+performance-schema-instrument = '%=ON'
+# Maximum digest length for statement tracking
+max-digest-length = 2048
+performance-schema-max-digest-length = 2048
 
-# Taille par connexion (history)
+# --- PFS Internal Buffer Sizes ---
+# Statement history size per connection
 performance_schema_events_statements_history_size = 20
-
-# Taille globale (long history)
+# Global statement history size
 performance_schema_events_statements_history_long_size = 15000
-
-# Longueur du texte SQL stocké
+# Maximum length of SQL text stored in PFS
 performance_schema_max_sql_text_length = 4096
 
-
+# --- Slow Query Logging ---
+# Enable the slow query log
 slow_query_log = 1
+# Log queries slower than 2 seconds
 long_query_time = 2.0
+# Only log 1 out of every 5 slow queries (sampling)
 log_slow_rate_limit = 5
