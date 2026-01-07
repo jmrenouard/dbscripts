@@ -60,6 +60,8 @@ Le `Makefile` simplifie la gestion des clusters et l'exécution des outils.
 | `make backup-galera` / `backup-repli` | Effectuer une sauvegarde logique |
 | `make test-perf-galera` / `test-perf-repli` | Exécuter les benchmarks de performance |
 | `make gen-profiles` | Générer des fichiers de profil shell avec des alias |
+| `make logs-error-galera` | Lire les 100 dernières lignes des logs d'erreur (Galera) |
+| `make follow-slow-galera` | Suivre le flux des slow query logs en temps réel (Galera) |
 
 ### 🛠️ Alias Shell (Accès Rapide)
 
@@ -79,7 +81,8 @@ Pour accéder facilement aux instances MariaDB depuis votre terminal sans taper 
    source profile_galera  # Pour les alias de Galera
    ```
 
-3. Utiliser les alias : `mariadb-m1`, `mariadb-s1`, `mariadb-g1`, `mariadb-lb`, etc.
+3. Utiliser les alias MariaDB : `mariadb-m1`, `mariadb-s1`, `mariadb-g1`, `mariadb-lb`, etc.
+4. Utiliser les alias SSH : `ssh-g1`, `ssh-g2`, `ssh-m1`, `ssh-s1`, etc., pour vous connecter directement aux conteneurs.
 
 ---
 
@@ -154,8 +157,9 @@ Les rapports détaillés incluent des graphiques de latence (ms), la répartitio
 
 ### Persistance & Configuration
 
-- **Dossiers de données** : `gdatadir_*` (Galera) ou `datadir_*` (Réplication)
-- **Configuration personnalisée** : Modifiez `gcustom_X.cnf` ou `custom_X.cnf` pour régler les paramètres InnoDB ou Galera.
+- **Dossiers de données** : `gdatadir_*` (Galera) ou `datadir_*` (Replication)
+- **Configuration personnalisée** : Modifiez `gcustom_X.cnf` ou `custom_X.cnf` pour régler les paramètres InnoDB, Galera, **Performance Schema** ou **Slow Query Log**.
+- **Monitoring** : Performance Schema et les Slow Query Logs (avec échantillonnage) sont activés par défaut dans la configuration personnalisée.
 
 ### Accès & Sécurité
 
@@ -167,11 +171,17 @@ Les rapports détaillés incluent des graphiques de latence (ms), la répartitio
 
 ---
 
-## 📝 7. Dépannage
+## 📝 7. Logs & Dépannage
 
-Les journaux (logs) sont gérés via Supervisor à l'intérieur des conteneurs :
+Les journaux peuvent être consultés directement via les commandes `make` :
+
+- **Logs d'erreur** : `make logs-error-galera` ou `make follow-error-galera`
+- **Slow Query Logs** : `make logs-slow-galera` ou `make follow-slow-galera` (échantillonnage activé)
+
+À l'intérieur des conteneurs, les logs sont gérés via Supervisor :
 
 - `/var/log/supervisor/mariadb.err.log`
+- `/var/lib/mysql/*.err` et `/var/lib/mysql/*-slow.log`
 
 ---
 

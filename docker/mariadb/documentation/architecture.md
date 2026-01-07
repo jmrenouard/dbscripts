@@ -74,3 +74,25 @@ graph TD
 | `mariadb-s2` | Node 3 | Slave 2 | `10.5.0.13` | 3413 | 23003 |
 | `haproxy_repli` | LB | Write -> M1 | `10.5.0.100` | 3406 | N/A |
 | `haproxy_repli` | LB | Read -> S1/S2 | `10.5.0.100` | 3407 | N/A |
+
+---
+
+## 📊 3. Monitoring & Observability
+
+Both clusters are pre-configured for audit and performance analysis.
+
+### Performance Schema (PFS)
+
+Enabled by default on all nodes. It provides high-granularity data on:
+
+- **Statement execution**: Detailed query statistics and history.
+- **Wait events**: Analysis of resource contention (locks, IO).
+- **Transactions**: Tracking of current and historical transactions.
+
+### Slow Query Logging
+
+Configured with an aggressive sampling to minimize overhead while capturing outliers.
+
+- **Threshold**: 2.0 seconds (`long_query_time`).
+- **Sampling**: 1 out of every 5 queries (`log_slow_rate_limit`).
+- **Storage**: Logs are stored in `/var/lib/mysql/*.slow` and accessible via `make logs-slow-*`.

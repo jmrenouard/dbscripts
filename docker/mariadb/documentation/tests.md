@@ -12,6 +12,9 @@ This document describes the automated test suites available to validate the clus
    - Write on Node 3 -> Read on Node 1.
 3. **Auto-increment Consistency**: Ensures each node uses a different offset to avoid ID collisions.
 4. **Certification Conflict (Optimistic Locking)**: Simulates simultaneous updates on the same row across different nodes to trigger a deadlock/certification failure.
+5. **DDL Replication**: Runs `ALTER TABLE` on one node and verifies schema changes on others.
+6. **Unique Key Constraint**: Verifies that duplicate entry errors are correctly propagated and handled.
+7. **Configuration Verification**: Validates that **Performance Schema** and **Slow Query Log** are active with the expected sampling rate and thresholds.
 
 ## 📊 Test Reports
 
@@ -27,8 +30,6 @@ The report filenames follow the pattern: `test_<type>_<timestamp>.[md|html]`.
 ## 🏗️ Architecture Information
 
 For more details on the cluster topology, refer to the **[Architecture Documentation](architecture.md)**.
-5. **DDL Replication**: Runs `ALTER TABLE` on one node and verifies schema changes on others.
-6. **Unique Key Constraint**: Verifies that duplicate entry errors are correctly propagated and handled.
 
 ### Typical Results
 

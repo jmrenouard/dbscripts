@@ -48,3 +48,20 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make restore-repli` | Restaurer une sauvegarde SQL logique. |
 | `make restore-phys-repli`| Restaurer une sauvegarde physique (MariaBackup). |
 | `make test-perf-repli` | Exécuter les benchmarks Sysbench (Usage : `make test-perf-repli PROFILE=light ACTION=run`). |
+
+## 🔍 Dépannage & Logs
+
+Ces commandes permettent un accès ciblé aux journaux à l'intérieur des nœuds sans utiliser `docker compose logs`.
+
+| Commande | Description |
+| :--- | :--- |
+| `make logs-error-galera` | Lire les 100 dernières lignes du log d'erreur MariaDB d'un nœud Galera. |
+| `make follow-error-galera`| Suivre (tail -f) le log d'erreur MariaDB d'un nœud Galera. |
+| `make logs-slow-galera` | Lire les 100 dernières lignes du slow query log MariaDB d'un nœud Galera. |
+| `make follow-slow-galera` | Suivre (tail -f) le slow query log sur un nœud Galera. |
+| `make logs-error-repli` | Lire les 100 dernières lignes du log d'erreur MariaDB d'un nœud de Réplication. |
+| `make follow-error-repli` | Suivre (tail -f) le log d'erreur sur un nœud de Réplication. |
+| `make logs-slow-repli` | Lire les 100 dernières lignes du slow query log MariaDB d'un nœud de Réplication. |
+| `make follow-slow-repli` | Suivre (tail -f) le slow query log sur un nœud de Réplication. |
+
+> **Astuce d'expert** : Utilisez `NODE=2` ou `NODE=3` (ex: `make logs-error-galera NODE=2`) pour cibler un nœud spécifique. Le nœud 1 est utilisé par défaut.

@@ -74,3 +74,25 @@ graph TD
 | `mariadb-s2` | Nœud 3 | Esclave 2 | `10.5.0.13` | 3413 | 23003 |
 | `haproxy_repli` | LB | Écriture -> M1 | `10.5.0.100` | 3406 | N/A |
 | `haproxy_repli` | LB | Lecture -> S1/S2 | `10.5.0.100` | 3407 | N/A |
+
+---
+
+## 📊 3. Supervision & Observabilité
+
+Les deux clusters sont pré-configurés pour l'audit et l'analyse de performance.
+
+### Performance Schema (PFS)
+
+Activé par défaut sur tous les nœuds. Il fournit des données de haute précision sur :
+
+- **Exécution des instructions** : Statistiques détaillées et historique des requêtes.
+- **Événements d'attente** : Analyse de la contention des ressources (verrous, IO).
+- **Transactions** : Suivi des transactions actuelles et passées.
+
+### Slow Query Logging
+
+Configuré avec un échantillonnage agressif pour minimiser l'impact CPU tout en capturant les requêtes anormales.
+
+- **Seuil** : 2.0 secondes (`long_query_time`).
+- **Échantillonnage** : 1 requête sur 5 (`log_slow_rate_limit`).
+- **Stockage** : Les journaux sont stockés dans `/var/lib/mysql/*.slow` et accessibles via `make logs-slow-*`.

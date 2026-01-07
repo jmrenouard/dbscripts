@@ -29,6 +29,7 @@ Pour plus de détails sur la topologie du cluster, consultez la **[Documentation
 4. **Conflit de Certification (Verrouillage Optimiste)** : Simule des mises à jour simultanées sur la même ligne via différents nœuds pour déclencher un interblocage (deadlock) ou un échec de certification.
 5. **Réplication du DDL** : Exécute un `ALTER TABLE` sur un nœud et vérifie les changements de schéma sur les autres.
 6. **Contrainte de Clé Unique** : Vérifie que les erreurs de doublon sont correctement propagées et gérées.
+7. **Vérification de la Configuration** : Valide que le **Performance Schema** et le **Slow Query Log** sont actifs avec les seuils et taux d'échantillonnage attendus.
 
 ### Résultats Types
 

@@ -50,3 +50,20 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make restore-repli` | Restore a logical SQL backup. |
 | `make restore-phys-repli`| Restore a physical (MariaBackup) backup. |
 | `make test-perf-repli` | Run Sysbench benchmarks (Usage: `make test-perf-repli PROFILE=light ACTION=run`). |
+
+## 🔍 Troubleshooting & Logs
+
+These commands allow targeted access to logs within nodes without using `docker compose logs`.
+
+| Command | Description |
+| :--- | :--- |
+| `make logs-error-galera` | View last 100 lines of MariaDB error log on a Galera node. |
+| `make follow-error-galera`| Follow (tail -f) the MariaDB error log on a Galera node. |
+| `make logs-slow-galera` | View last 100 lines of MariaDB slow query log on a Galera node. |
+| `make follow-slow-galera` | Follow (tail -f) the slow query log on a Galera node. |
+| `make logs-error-repli` | View last 100 lines of MariaDB error log on a Replication node. |
+| `make follow-error-repli` | Follow (tail -f) the error log on a Replication node. |
+| `make logs-slow-repli` | View last 100 lines of MariaDB slow query log on a Replication node. |
+| `make follow-slow-repli` | Follow (tail -f) the slow query log on a Replication node. |
+
+> **Pro Tip**: Use `NODE=2` or `NODE=3` (e.g., `make logs-error-galera NODE=2`) to target a specific node. Default is Node 1.

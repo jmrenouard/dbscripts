@@ -60,6 +60,8 @@ The `Makefile` simplifies cluster management and tool execution.
 | `make backup-galera` / `backup-repli` | Perform logical backup |
 | `make test-perf-galera` / `test-perf-repli` | Run performance benchmarks |
 | `make gen-profiles` | Generate shell profile files with aliases |
+| `make logs-error-galera` | View last 100 lines of error logs (Galera) |
+| `make follow-slow-galera` | Stream slow query logs in real-time (Galera) |
 
 ### 🛠️ Shell Aliases (Quick Access)
 
@@ -79,7 +81,8 @@ To easily access MariaDB instances from your terminal without typing host and po
    source profile_galera  # For Galera aliases
    ```
 
-3. Use the aliases: `mariadb-m1`, `mariadb-s1`, `mariadb-g1`, `mariadb-lb`, etc.
+3. Use the MariaDB aliases: `mariadb-m1`, `mariadb-s1`, `mariadb-g1`, `mariadb-lb`, etc.
+4. Use the SSH aliases: `ssh-g1`, `ssh-g2`, `ssh-m1`, `ssh-s1`, etc., to connect directly to the containers.
 
 ---
 
@@ -155,7 +158,8 @@ Detailed reports include latency charts (ms), query distribution (Read/Write/Oth
 ### Persistence & Configuration
 
 - **Data Dir**: `gdatadir_*` (Galera) or `datadir_*` (Replication)
-- **Custom Config**: Edit `gcustom_X.cnf` or `custom_X.cnf` to tune InnoDB or Galera parameters.
+- **Custom Config**: Edit `gcustom_X.cnf` or `custom_X.cnf` to tune InnoDB, Galera, **Performance Schema**, or **Slow Query Log** parameters.
+- **Monitoring**: Performance Schema and Slow Query Logging (with sampling) are enabled by default in the custom configuration.
 
 ### Access & Security
 
@@ -167,11 +171,17 @@ Detailed reports include latency charts (ms), query distribution (Read/Write/Oth
 
 ---
 
-## 📝 7. Troubleshooting
+## 📝 7. Logs & Troubleshooting
 
-Logs are managed via Supervisor inside containers:
+Logs can be accessed directly via `make` commands:
+
+- **Error Logs**: `make logs-error-galera` or `make follow-error-galera`
+- **Slow Query Logs**: `make logs-slow-galera` or `make follow-slow-galera` (sampling enabled)
+
+Inside containers, logs are managed via Supervisor:
 
 - `/var/log/supervisor/mariadb.err.log`
+- `/var/lib/mysql/*.err` and `/var/lib/mysql/*-slow.log`
 
 ---
 
