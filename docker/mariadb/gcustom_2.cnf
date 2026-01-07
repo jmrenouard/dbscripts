@@ -21,3 +21,40 @@ wsrep_provider_options="cert.log_conflicts=YES"
 gtid_strict_mode=1
 proxy_protocol_networks=10.5.0.0/24,10.6.0.0/24
 binlog_expire_logs_seconds=172800
+# innodb
+innodb_flush_log_at_trx_commit = 0
+innodb_flush_method = O_DIRECT
+innodb_buffer_pool_size = 2G
+innodb_log_file_size = 512M
+
+
+performance_schema             = ON
+performance-schema-consumer-events-statements-history-long = ON
+performance-schema-consumer-events-statements-history = ON
+performance-schema-consumer-events-statements-current = ON
+performance-schema-consumer-events-stages-current=ON
+performance-schema-consumer-events-stages-history=ON
+performance-schema-consumer-events-stages-history-long=ON
+performance-schema-consumer-events-transactions-current=ON
+performance-schema-consumer-events-transactions-history=ON
+performance-schema-consumer-events-transactions-history-long=ON
+performance-schema-consumer-events-waits-current=ON
+performance-schema-consumer-events-waits-history=ON
+performance-schema-consumer-events-waits-history-long=ON
+performance-schema-instrument='%=ON'
+max-digest-length=2048
+performance-schema-max-digest-length=2048
+
+# Taille par connexion (history)
+performance_schema_events_statements_history_size = 20
+
+# Taille globale (long history)
+performance_schema_events_statements_history_long_size = 15000
+
+# Longueur du texte SQL stocké
+performance_schema_max_sql_text_length = 4096
+
+
+slow_query_log = 1
+long_query_time = 2.0
+log_slow_rate_limit = 5
