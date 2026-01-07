@@ -79,6 +79,7 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-07] Ajout des cibles `make logs-error-*` et `make logs-slow-*` dans le Makefile pour le diagnostic des conteneurs.
 * [2026-01-07] Refactorisation des fichiers `gcustom_*.cnf` et `custom_*.cnf` : structuration par thématiques et documentation des paramètres en anglais.
 * [2026-01-07] Correction automatique des permissions de `id_rsa` (600) dans `gen_profiles.sh` pour l'accès SSH.
 * [2026-01-07] Ajout des alias SSH (`ssh-g*`, `ssh-m*`) dans les profils de shell pour faciliter l'accès aux conteneurs.
