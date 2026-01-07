@@ -235,6 +235,23 @@ else
     TEST_RESULTS="$TEST_RESULTS{\"test\":\"Unique Constraint\",\"nature\":\"Verify cluster-wide enforcement of UNIQUE constraints\",\"expected\":\"Inserting already used ID on Node 2 should fail even if inserted first on Node 1\",\"status\":\"FAIL\",\"details\":\"Duplicate NOT rejected: $ERR_MSG\"},"
 fi
 
+echo -e "\n7. ⚙️ Configuration Verification Test (PFS & Slow Query)..."
+write_report "### Configuration Verification Test"
+PFS_STATE=$(run_sql $NODE1_PORT "SELECT @@performance_schema;")
+SLOW_LOG_STATE=$(run_sql $NODE1_PORT "SELECT @@slow_query_log;")
+LONG_QUERY_TIME=$(run_sql $NODE1_PORT "SELECT @@long_query_time;")
+SLOW_RATE_LIMIT=$(run_sql $NODE1_PORT "SELECT @@log_slow_rate_limit;")
+
+if [ "$PFS_STATE" == "1" ] && [ "$SLOW_LOG_STATE" == "1" ]; then
+    echo "✅ Performance Schema and Slow Query Log are ACTIVE"
+    write_report "| Config Check | PFS and Slow Query Log should be ON | PASS | PFS=ON, SlowLog=ON (Time: ${LONG_QUERY_TIME}s, Rate: ${SLOW_RATE_LIMIT}) |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Config Check\",\"nature\":\"Verify PFS and Slow Query Log activation\",\"expected\":\"PFS=ON, SlowQueryLog=ON\",\"status\":\"PASS\",\"details\":\"PFS is ON, Slow Query Log is ON (${LONG_QUERY_TIME}s, Rate: ${SLOW_RATE_LIMIT})\"},"
+else
+    echo "❌ Configuration mismatch: PFS=$PFS_STATE, SlowLog=$SLOW_LOG_STATE"
+    write_report "| Config Check | PFS and Slow Query Log should be ON | FAIL | PFS=$PFS_STATE, SlowLog=$SLOW_LOG_STATE |"
+    TEST_RESULTS="$TEST_RESULTS{\"test\":\"Config Check\",\"nature\":\"Verify PFS and Slow Query Log activation\",\"expected\":\"PFS=ON, SlowQueryLog=ON\",\"status\":\"FAIL\",\"details\":\"PFS=$PFS_STATE, SlowLog=$SLOW_LOG_STATE\"},"
+fi
+
 SUMMARY_CONFIG=$(run_sql $NODE1_PORT "SHOW STATUS LIKE 'wsrep_local_state_comment'; SHOW STATUS LIKE 'wsrep_incoming_addresses'; SHOW STATUS LIKE 'wsrep_cluster_status'; SHOW VARIABLES LIKE 'auto_increment_increment'; SHOW VARIABLES LIKE 'auto_increment_offset';")
 write_report "\n## Summary Configuration & Status"
 write_report "\`\`\`sql\n$SUMMARY_CONFIG\n\`\`\`"
