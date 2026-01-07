@@ -269,10 +269,15 @@ cat <<EOF > "$REPORT_HTML"
     <title>Rapport de Test Galera Cluster</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
         body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .mermaid { background: transparent !important; }
     </style>
 </head>
 <body class="p-8">
@@ -291,6 +296,32 @@ cat <<EOF > "$REPORT_HTML"
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="conn-stats">
             <!-- Stats will be injected here -->
+        </div>
+
+        <div class="glass p-8 rounded-3xl">
+            <h3 class="text-xl font-bold mb-6 flex items-center text-indigo-400">
+                <i class="fa-solid fa-diagram-project mr-3"></i>Architecture Visuelle
+            </h3>
+            <div class="mermaid flex justify-center py-4">
+graph TD
+    Client[Client / App] -->|Port 3306| LB[HAProxy LB<br/>10.6.0.100]
+    
+    subgraph Galera_Cluster [Galera Cluster: 10.6.0.0/24]
+        LB -->|Port 3511| G1["mariadb-g1 (Node 1)"]
+        LB -->|Port 3512| G2["mariadb-g2 (Node 2)"]
+        LB -->|Port 3513| G3["mariadb-g3 (Node 3)"]
+        
+        G1 <--> G2
+        G2 <--> G3
+        G3 <--> G1
+    end
+
+    style Galera_Cluster fill:#1e293b,stroke:#334155,stroke-width:2px,color:#94a3b8
+    style LB fill:#1e1b4b,stroke:#3730a3,color:#818cf8
+    style G1 fill:#064e3b,stroke:#059669,color:#34d399
+    style G2 fill:#064e3b,stroke:#059669,color:#34d399
+    style G3 fill:#064e3b,stroke:#059669,color:#34d399
+            </div>
         </div>
 
         <div class="glass p-8 rounded-3xl">

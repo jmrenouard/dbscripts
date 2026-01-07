@@ -79,6 +79,7 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-07] Intégration de diagrammes d'architecture dynamiques (Mermaid.js) dans les rapports HTML de Galera et Réplication.
 * [2026-01-07] Mise à jour exhaustive de la documentation (`README.md`, `README_fr.md` et dossier `documentation/`) pour refléter les nouvelles fonctionnalités et règles.
 * [2026-01-07] Correction des commandes de logs dans le Makefile : séparation entre lecture statique (`logs-*`) et flux dynamique (`follow-*`).
 * [2026-01-07] Ajout des cibles `make logs-error-*` et `make logs-slow-*` dans le Makefile pour le diagnostic des conteneurs.

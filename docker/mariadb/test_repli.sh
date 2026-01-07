@@ -212,10 +212,15 @@ cat <<EOF > "$REPORT_HTML"
     <title>Rapport de Test de Réplication MariaDB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
         body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .mermaid { background: transparent !important; }
     </style>
 </head>
 <body class="p-8">
@@ -234,6 +239,32 @@ cat <<EOF > "$REPORT_HTML"
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="conn-stats">
             <!-- Stats will be injected here -->
+        </div>
+
+        <div class="glass p-8 rounded-3xl">
+            <h3 class="text-xl font-bold mb-6 flex items-center text-indigo-400">
+                <i class="fa-solid fa-diagram-project mr-3"></i>Architecture Visuelle
+            </h3>
+            <div class="mermaid flex justify-center py-4">
+graph TD
+    Client_W[Write Client] -->|Port 3406| LB[HAProxy LB<br/>10.5.0.100]
+    Client_R[Read Client] -->|Port 3407| LB
+    
+    subgraph Replication_Topology [Replication Cluster: 10.5.0.0/24]
+        LB -->|Writes| M1["mariadb-m1 (Master)"]
+        LB -->|Read RR| S1["mariadb-s1 (Slave 1)"]
+        LB -->|Read RR| S2["mariadb-s2 (Slave 2)"]
+        
+        M1 --"Async (GTID)"--> S1
+        M1 --"Async (GTID)"--> S2
+    end
+
+    style Replication_Topology fill:#1e293b,stroke:#334155,stroke-width:2px,color:#94a3b8
+    style LB fill:#1e1b4b,stroke:#3730a3,color:#818cf8
+    style M1 fill:#4c1d95,stroke:#8b5cf6,color:#ddd6fe
+    style S1 fill:#064e3b,stroke:#059669,color:#34d399
+    style S2 fill:#064e3b,stroke:#059669,color:#34d399
+            </div>
         </div>
 
         <div class="glass p-8 rounded-3xl">
