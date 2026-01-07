@@ -110,9 +110,11 @@ Sauvegardes binaires rapides pour les bases de données volumineuses.
 
 ---
 
-## 🧪 4. Tests Fonctionnels
+## 🧪 4. Tests Fonctionnels & Performance
 
 Validez la santé et les fonctionnalités du cluster via des scripts automatisés.
+
+> 📊 **Note sur les rapports** : Tous les tests (Galera, Réplication, Sysbench, HAProxy) génèrent systématiquement des rapports au format **Markdown** et **HTML** dans le répertoire centralisé `reports/`.
 
 ### 4.1 Tests du Cluster Galera
 

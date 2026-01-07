@@ -78,8 +78,9 @@ case $ACTION in
         ;;
     run)
         echo_title "Running $PROFILE performance test on Replication..."
+        mkdir -p reports
         RAW_OUT="perf_raw_repli_$(date +%Y%m%d_%H%M%S).txt"
-        REPORT_FILE="test_perf_repli.html"
+        REPORT_FILE="reports/test_perf_repli_$(date +%Y%m%d_%H%M%S).html"
         START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
         # Capture Slave Lag BEFORE

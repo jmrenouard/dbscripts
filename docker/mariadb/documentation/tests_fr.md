@@ -4,12 +4,12 @@ Ce document décrit les suites de tests automatisées disponibles pour valider l
 
 ## 📊 Rapports de Test
 
-Tous les tests fonctionnels et de performance génèrent désormais des rapports détaillés dans le répertoire `reports/` :
+Tous les rapports (Galera, Réplication, Performance Sysbench et HAProxy) sont centralisés dans le répertoire `reports/` :
 
-- **Markdown (.md)** : Idéal pour une lecture rapide en console ou une intégration dans la documentation.
-- **HTML (.html)** : Rapports visuels premium avec graphiques et micro-animations (générés via Tailwind CSS et Chart.js).
+- **Markdown (.md)** : Pour une consultation rapide ou archivage.
+- **HTML (.html)** : Rapports interactifs premium (Tailwind CSS, Chart.js).
 
-Les noms des fichiers de rapport suivent le modèle : `test_<type>_<timestamp>.[md|html]`.
+Les fichiers sont nommés selon le format : `test_<type>_<timestamp>.[md|html]`.
 
 ---
 

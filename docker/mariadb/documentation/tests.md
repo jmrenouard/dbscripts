@@ -4,12 +4,12 @@ This document describes the automated test suites available to validate the clus
 
 ## 📊 Test Reports
 
-All functional and performance tests now generate detailed reports in the `reports/` directory:
+All report files (Galera, Replication, Performance Sysbench, and HAProxy) are centralized in the `reports/` directory:
 
-- **Markdown (.md)**: Ideal for quick console review or integration into documentation.
-- **HTML (.html)**: Premium visual reports with charts and micro-animations (generated using Tailwind CSS and Chart.js).
+- **Markdown (.md)**: For quick CLI review or documentation integration.
+- **HTML (.html)**: Premium interactive reports (Tailwind CSS, Chart.js).
 
-The report filenames follow the pattern: `test_<type>_<timestamp>.[md|html]`.
+Filenames follow the pattern: `test_<type>_<timestamp>.[md|html]`.
 
 ---
 
