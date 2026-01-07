@@ -5,5 +5,8 @@ alias mariadb-g1='mariadb -h 127.0.0.1 -P 3511 -uroot -prootpass'
 alias mariadb-g2='mariadb -h 127.0.0.1 -P 3512 -uroot -prootpass'
 alias mariadb-g3='mariadb -h 127.0.0.1 -P 3513 -uroot -prootpass'
 alias mariadb-galera-lb='mariadb -h 127.0.0.1 -P 3306 -uroot -prootpass'
+alias ssh-g1='ssh -i ./id_rsa -p 22001 root@127.0.0.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+alias ssh-g2='ssh -i ./id_rsa -p 24002 root@127.0.0.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+alias ssh-g3='ssh -i ./id_rsa -p 24003 root@127.0.0.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
-echo "✅ Galera aliases loaded (mariadb-g1, mariadb-g2, mariadb-g3, mariadb-galera-lb)"
+echo "✅ Galera aliases loaded (mariadb-g1, mariadb-g2, mariadb-g3, mariadb-galera-lb, ssh-g1, ssh-g2, ssh-g3)"

@@ -79,6 +79,7 @@ Critères de Validation :
 
 **Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
 
+* [2026-01-07] Ajout des alias SSH (`ssh-g*`, `ssh-m*`) dans les profils de shell pour faciliter l'accès aux conteneurs.
 * [2026-01-07] Transition vers une approche "Single Branch" sur `main` pour simplifier le flux de développement.
 * [2026-01-07] Intégration des règles "Conventional Commits" et "Branches de Feature" dans le cycle de développement.
 * [2026-01-07] Validation de la règle de commit immédiat et archivage Git des changements (PFS/SlowQuery).
