@@ -78,11 +78,12 @@ test-repli: ## Run replication tests on the active cluster
 setup-repli: ## Configure Master/Slave relationship
 	bash ./setup_repli.sh
 
-test-galera: ## Run advanced Galera cluster tests (Replication, DDL, Conflicts, Auto-inc)
+test-lb-galera: ## Specifically test the HAProxy load balancer for Galera
+	bash ./test_haproxy_galera.sh
+
+test-galera: ## Run the Galera functional test suite
 	bash ./test_galera.sh
 
-test-lb-galera: ## Run HAProxy load balancing test for Galera
-	bash ./test_lb_galera.sh
 
 test-perf-repli: ## Run performance tests on Replication (Usage: make test-perf-repli PROFILE=light ACTION=run)
 	bash ./test_perf_repli.sh $(PROFILE) $(ACTION)
