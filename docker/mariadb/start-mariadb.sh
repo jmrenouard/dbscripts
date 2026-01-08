@@ -98,4 +98,4 @@ if [ "$MARIADB_GALERA_BOOTSTRAP" = "1" ]; then
     fi
 fi
 
-exec mariadbd-safe --datadir="$DATA_DIR" --user=root $EXTRA_ARGS
+exec mariadbd --datadir="$DATA_DIR" --user=root $EXTRA_ARGS
