@@ -1,3 +1,40 @@
+[
+  {
+    "status": "SUCCESS",
+    "task_signature": "chore: tune galera flow control and parallel slave threads",
+    "keypoints": [
+      "Added wsrep_slave_threads=1 for parallel slave replication applying",
+      "Tuned gcs.fc_factor=0.8 in wsrep_provider_options",
+      "Tuned gcs.fc_limit=32 in wsrep_provider_options",
+      "Applied changes to all three Galera custom configuration files (gcustom_*.cnf)"
+    ],
+    "reasoning": "Adjusting Flow Control parameters (fc_factor/fc_limit) and slave threads optimizes the balance between cluster consistency and write performance during high-concurrency labs.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "galera",
+      "config",
+      "tuning",
+      "performance"
+    ]
+  },
+  {
+    "status": "SUCCESS",
+    "task_signature": "feat: add emergency single-node startup commands",
+    "keypoints": [
+      "Added emergency-galera target to Makefile with NODE parameter",
+      "Added emergency-repli target to Makefile with NODE parameter",
+      "Uses MARIADB_GALERA_BOOTSTRAP=1 to force single-node Galera bootstrap",
+      "Allows starting individual replication nodes without full cluster start"
+    ],
+    "reasoning": "Emergency startup targets allow administrators to recover or test single nodes without triggering full cluster orchestration, which is critical for disaster recovery simulations.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "makefile",
+      "galera",
+      "replication",
+      "emergency"
+    ]
+  },
 {
   "status": "SUCCESS",
   "task_signature": "feat: add renew-ssl-repli for zero-downtime replication ssl rotation",
@@ -16,4 +53,3 @@
     "replication",
     "galera"
   ]
-}

@@ -26,6 +26,7 @@ Execute the user's request based on the refined strategy.
 #### **Phase 3: Distillation (Memory Acquisition)**
 
 At the end of your response, you **MUST** generate a strict JSON code block containing the essence of this new experience. Apply "critical ablation" (remove noise, keep key points).
+Never delete old contents inside  MEMORY.json
 
 **REQUIRED OUTPUT FORMAT (End of response):**
 
@@ -120,5 +121,6 @@ Modification prohibited without explicit request.
 2. **Git Sync:** Consult git log \-n 5 to synchronize context.  
 3. **Rotation:** FIFO Rotation (Max 600 lines). Remove oldest entries beyond 600 lines.
 
-### ** History Entry example**
+### **History Entry example**
+
 * [2026-01-09] Full translation of CONTEXT.md and HISTORY.md files into English.

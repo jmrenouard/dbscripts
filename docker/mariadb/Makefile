@@ -3,7 +3,7 @@ IMAGE_NAME = mariadb_ssh:004
 COMPOSE_GALERA = docker-compose-galera.yml
 COMPOSE_REPLI = docker-compose-repli.yml
 
-.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli
+.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli emergency-galera emergency-repli
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -56,6 +56,14 @@ bootstrap-galera: build-image gen-ssl down-repli ## Bootstrap a NEW Galera clust
 	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate haproxy_galera
 	@echo "✅ Cluster is fully SEQUENTIALLY BOOTSTRAPPED and ready."
 
+emergency-galera: ## Emergency start of a single Galera node (Usage: make emergency-galera NODE=1|2|3)
+	@if [ -z "$(NODE)" ]; then echo "❌ Error: NODE variable is required (e.g., make emergency-galera NODE=1)"; exit 1; fi
+	@SERVICE=$$(case "$(NODE)" in 2) echo "galera_02";; 3) echo "galera_03";; *) echo "galera_01";; esac); \
+	echo ">> 🚨 Stopping all Galera nodes for emergency restart..."; \
+	docker compose -f $(COMPOSE_GALERA) down; \
+	echo ">> 🚨 Emergency Bootstrapping Node $(NODE) ($$SERVICE)..."; \
+	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d $$SERVICE
+
 down-galera: ## Stop Galera cluster
 	docker compose -f $(COMPOSE_GALERA) down
 
@@ -65,6 +73,14 @@ logs-galera: ## Follow Galera cluster logs
 ## Replication Cluster
 up-repli: build-image gen-ssl down-galera ## Start Replication cluster
 	docker compose -f $(COMPOSE_REPLI) up -d
+
+emergency-repli: ## Emergency start of a single Replication node (Usage: make emergency-repli NODE=1|2|3)
+	@if [ -z "$(NODE)" ]; then echo "❌ Error: NODE variable is required (e.g., make emergency-repli NODE=1)"; exit 1; fi
+	@SERVICE=$$(case "$(NODE)" in 2) echo "mariadb_02";; 3) echo "mariadb_03";; *) echo "mariadb_01";; esac); \
+	echo ">> 🚨 Stopping all Replication nodes for emergency restart..."; \
+	docker compose -f $(COMPOSE_REPLI) down; \
+	echo ">> 🚨 Emergency Starting Node $(NODE) ($$SERVICE)..."; \
+	docker compose -f $(COMPOSE_REPLI) up -d $$SERVICE
 
 down-repli: ## Stop Replication cluster
 	docker compose -f $(COMPOSE_REPLI) down
