@@ -10,7 +10,8 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make build-image` | Construit l'image de base `mariadb_ssh:004`. |
 | `make install-client` | Installe le client MariaDB sur l'hôte (Ubuntu/Debian). |
 | `make gen-ssl` | Génère les certificats SSL dans le répertoire `ssl/`. |
-| `make renew-ssl` | **Rotation à chaud** : Régénérer et recharger SSL via `FLUSH SSL`. |
+| `make renew-ssl-galera` | **Rotation à chaud** Galera : Régénérer et recharger SSL via `FLUSH SSL`. |
+| `make renew-ssl-repli` | **Rotation à chaud** Replication : Régénérer et recharger SSL via `FLUSH SSL`. |
 | `make clean-ssl` | Supprimer les certificats générés. |
 | `make clean-reports` | Purge tous les rapports de test (`.md` et `.html`) du dossier `reports/`. |
 | `make gen-profiles` | Générer des profils shell pour un accès rapide aux conteneurs. |

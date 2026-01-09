@@ -10,7 +10,8 @@ The `Makefile` is the main entry point for managing both Galera and Replication 
 | `make build-image` | Build the base `mariadb_ssh:004` image. |
 | `make install-client` | Install MariaDB client on the host (Ubuntu/Debian). |
 | `make gen-ssl` | Generate SSL certificates in `ssl/` directory. |
-| `make renew-ssl` | **Zero-downtime rotation**: Regenerate and reload SSL via `FLUSH SSL`. |
+| `make renew-ssl-galera` | **Zero-downtime rotation** Galera: Regenerate and reload SSL via `FLUSH SSL`. |
+| `make renew-ssl-repli` | **Zero-downtime rotation** Replication: Regenerate and reload SSL via `FLUSH SSL`. |
 | `make clean-ssl` | Remove generated certificates. |
 | `make clean-reports` | Purge all test reports (`.md` and `.html`) from the `reports/` directory. |
 | `make gen-profiles` | Generate shell profiles for quick container access. |

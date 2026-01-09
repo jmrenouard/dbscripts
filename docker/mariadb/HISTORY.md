@@ -1,3 +1,4 @@
+* [2026-01-09] Implemented `make renew-ssl-repli` for zero-downtime SSL rotation on Replication clusters.
 * [2026-01-09] Optimized MariaDB configuration in `gcustom_*.cnf` with recommended parameters (InnoDB buffer/log sizes, `max_connections`, `query_cache`, etc.).
 * [2026-01-09] Added `make inject-*-galera` and `make inject-*-repli` commands to automate full deployment and sample data injection (Employees/Sakila) from github.com/jmrenouard/test_db.
 * [2026-01-09] Full translation of CONTEXT.md and HISTORY.md files into English.

@@ -59,7 +59,8 @@ The `Makefile` simplifies cluster management and tool execution.
 | `make setup-repli` | Configure Replication topology (Master/Slaves) |
 | `make backup-galera` / `backup-repli` | Perform logical backup |
 | `make test-perf-galera` / `test-perf-repli` | Run performance benchmarks |
-| `make gen-profiles` | Generate shell profile files with aliases |
+| `make renew-ssl-galera` | **Zero-downtime rotation** Galera: Regenerate and reload SSL via `FLUSH SSL` |
+| `make renew-ssl-repli` | **Zero-downtime rotation** Replication: Regenerate and reload SSL via `FLUSH SSL` |
 | `make logs-error-galera` | View last 100 lines of error logs (Galera) |
 | `make follow-slow-galera` | Stream slow query logs in real-time (Galera) |
 

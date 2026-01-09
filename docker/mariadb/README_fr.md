@@ -60,7 +60,8 @@ Le `Makefile` simplifie la gestion des clusters et l'exécution des outils.
 | `make backup-galera` / `backup-repli` | Effectuer une sauvegarde logique |
 | `make test-perf-galera` / `test-perf-repli` | Exécuter les benchmarks de performance |
 | `make gen-profiles` | Générer des fichiers de profil shell avec des alias |
-| `make renew-ssl` | **Rotation à chaud** : Régénérer et recharger SSL via `FLUSH SSL` |
+| `make renew-ssl-galera` | **Rotation à chaud** Galera : Régénérer et recharger SSL via `FLUSH SSL` |
+| `make renew-ssl-repli` | **Rotation à chaud** Replication : Régénérer et recharger SSL via `FLUSH SSL` |
 | `make logs-error-galera` | Lire les 100 dernières lignes des logs d'erreur (Galera) |
 | `make follow-slow-galera` | Suivre le flux des slow query logs en temps réel (Galera) |
 

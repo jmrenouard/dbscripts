@@ -3,7 +3,7 @@ IMAGE_NAME = mariadb_ssh:004
 COMPOSE_GALERA = docker-compose-galera.yml
 COMPOSE_REPLI = docker-compose-repli.yml
 
-.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli
+.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -133,24 +133,24 @@ clone-test-db: ## Clone the test database repository
 		(cd $(TEST_DB_DIR) && git pull); \
 	fi
 
-inject-employee-galera: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject employees.sql
+inject-employee-galera: clone-test-db ## Sequential: Full Galera bootstrap and inject employees.sql
 	@echo ">> 💉 Injecting employees database into Galera..."
 	@cd $(TEST_DB_DIR) && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < employees.sql
 	@echo "✅ employees.sql injected into Galera cluster."
 
-inject-sakila-galera: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject sakila database
+inject-sakila-galera: clone-test-db ## Sequential: Full Galera bootstrap and inject sakila database
 	@echo ">> 💉 Injecting sakila schema into Galera..."
 	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-schema.sql
 	@echo ">> 💉 Injecting sakila data into Galera..."
 	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-data.sql
 	@echo "✅ sakila database injected into Galera cluster."
 
-inject-employee-repli: full-repli clone-test-db ## Sequential: Full Replication bootstrap and inject employees.sql
+inject-employee-repli: clone-test-db ## Sequential: Full Replication bootstrap and inject employees.sql
 	@echo ">> 💉 Injecting employees database into Replication (Master)..."
 	@cd $(TEST_DB_DIR) && mariadb -h 127.0.0.1 -P 3411 -u root -prootpass < employees.sql
 	@echo "✅ employees.sql injected into Replication cluster."
 
-inject-sakila-repli: full-repli clone-test-db ## Sequential: Full Replication bootstrap and inject sakila database
+inject-sakila-repli: clone-test-db ## Sequential: Full Replication bootstrap and inject sakila database
 	@echo ">> 💉 Injecting sakila schema into Replication (Master)..."
 	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3411 -u root -prootpass < sakila-mv-schema.sql
 	@echo ">> 💉 Injecting sakila data into Replication (Master)..."
@@ -184,7 +184,7 @@ gen-ssl: ## Generate SSL certificates for MariaDB
 clean-ssl: ## Remove SSL certificates (REVERSIBLE)
 	rm -rf ssl/
 
-renew-ssl: ## Force SSL certificate regeneration and reload on active nodes
+renew-ssl-galera: ## Force SSL certificate regeneration and reload on active Galera nodes
 	@echo ">> 🔄 Regenerating SSL certificates..."
 	rm -rf ssl/
 	bash ./gen_ssl.sh
@@ -192,7 +192,19 @@ renew-ssl: ## Force SSL certificate regeneration and reload on active nodes
 	@docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
 	@docker exec mariadb-galera_02-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
 	@docker exec mariadb-galera_03-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
-	@echo "✨ Zero-downtime SSL rotation completed."
+	@echo "✨ Galera zero-downtime SSL rotation completed."
+
+renew-ssl-repli: ## Force SSL certificate regeneration and reload on active Replication nodes
+	@echo ">> 🔄 Regenerating SSL certificates..."
+	rm -rf ssl/
+	bash ./gen_ssl.sh
+	@echo ">> 🚀 Reloading SSL on Replication nodes..."
+	@docker compose -f $(COMPOSE_REPLI) exec mariadb_01 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
+	@docker compose -f $(COMPOSE_REPLI) exec mariadb_02 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
+	@docker compose -f $(COMPOSE_REPLI) exec mariadb_03 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
+	@echo "✨ Replication zero-downtime SSL rotation completed."
+
+renew-ssl: renew-ssl-galera ## [DEPRECATED] Use renew-ssl-galera or renew-ssl-repli
 
 clean-data: clean-galera clean-repli clean-ssl ## Remove ALL data, backup, and SSL directories (CAUTION!)
 
