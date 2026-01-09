@@ -36,6 +36,16 @@ Le `Makefile` est le point d'entrée principal pour la gestion des clusters Gale
 | `make restore-phys-galera`| Restaurer une sauvegarde physique (MariaBackup). |
 | `make test-perf-galera`| Exécuter les benchmarks Sysbench (Usage : `make test-perf-galera PROFILE=light ACTION=run`). |
 
+## 💉 Injection de Données
+
+Ces commandes automatisent le déploiement d'un cluster Galera propre suivi de l'injection de jeux de données exemples.
+
+| Commande | Description |
+| :--- | :--- |
+| `make clone-test-db` | Cloner ou mettre à jour le dépôt `test_db` depuis GitHub. |
+| `make inject-employee`| **Full Cycle** : Réinitialise Galera et injecte la base `employees`. |
+| `make inject-sakila`  | **Full Cycle** : Réinitialise Galera et injecte la base `sakila` (MV Edition). |
+
 ## 🔄 Commandes pour le Cluster de Réplication
 
 | Commande | Description |

@@ -120,6 +120,31 @@ backup-phys-repli: ## Physical backup Replication (Usage: make backup-phys-repli
 restore-phys-repli: ## Physical restore Replication (Usage: make restore-phys-repli FILE=filename.tar.gz)
 	./restore_physical.sh repli $(FILE)
 
+## Data Injection
+TEST_DB_REPO = https://github.com/jmrenouard/test_db
+TEST_DB_DIR = test_db
+
+clone-test-db: ## Clone the test database repository
+	@if [ ! -d "$(TEST_DB_DIR)" ]; then \
+		echo ">> 📥 Cloning test_db repository..."; \
+		git clone $(TEST_DB_REPO) $(TEST_DB_DIR); \
+	else \
+		echo ">> 🔄 test_db repository already exists, pulling updates..."; \
+		(cd $(TEST_DB_DIR) && git pull); \
+	fi
+
+inject-employee: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject employees.sql
+	@echo ">> 💉 Injecting employees database..."
+	@cd $(TEST_DB_DIR) && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < employees.sql
+	@echo "✅ employees.sql injected into Galera cluster."
+
+inject-sakila: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject sakila database
+	@echo ">> 💉 Injecting sakila schema..."
+	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-schema.sql
+	@echo ">> 💉 Injecting sakila data..."
+	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-data.sql
+	@echo "✅ sakila database injected into Galera cluster."
+
 ## Full Cycle Targets (CI/CD style)
 clean-reports:
 	rm -rf reports/*.md reports/*.html

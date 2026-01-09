@@ -86,7 +86,20 @@ To easily access MariaDB instances from your terminal without typing host and po
 
 ---
 
-## 💾 3. Backup & Restore
+## 💉 3. Data Injection
+
+Quickly inject sample databases (Employees, Sakila) into your Galera cluster.
+
+| Command | Description |
+| :--- | :--- |
+| `make inject-employee` | Full Galera reset and inject `employees` database |
+| `make inject-sakila` | Full Galera reset and inject `sakila` (MV Edition) database |
+
+> ⚠️ **Note**: These commands run `make full-galera` first, which **wipes all existing data** in the Galera cluster before injection.
+
+---
+
+## 💾 4. Backup & Restore
 
 Dedicated scripts handle both logical (SQL) and physical (Binary) backups.
 
@@ -109,7 +122,7 @@ Fast binary backups for large datasets.
 
 ---
 
-## 🧪 4. Functional Testing
+## 🧪 5. Functional Testing
 
 Validate cluster health and features through automated scripts.
 
@@ -131,7 +144,7 @@ make test-repli
 
 ---
 
-## 🏎️ 5. Performance Testing (Sysbench)
+## 🏎️ 6. Performance Testing (Sysbench)
 
 Measure cluster performance and generate premium HTML reports with visual insights.
 
@@ -153,7 +166,7 @@ Detailed reports include latency charts (ms), query distribution (Read/Write/Oth
 
 ---
 
-## ⚙️ 6. Advanced Configuration & Access
+## ⚙️ 7. Advanced Configuration & Access
 
 ### Persistence & Configuration
 
@@ -171,7 +184,7 @@ Detailed reports include latency charts (ms), query distribution (Read/Write/Oth
 
 ---
 
-## 📝 7. Logs & Troubleshooting
+## 📝 8. Logs & Troubleshooting
 
 Logs can be accessed directly via `make` commands:
 
@@ -185,7 +198,7 @@ Inside containers, logs are managed via Supervisor:
 
 ---
 
-## 📚 8. Detailed Documentation
+## 📚 9. Detailed Documentation
 
 For more in-depth information, please refer to the **[Documentation Index](documentation/INDEX.md)** or explore the files directly:
 

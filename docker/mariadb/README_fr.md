@@ -87,7 +87,20 @@ Pour accéder facilement aux instances MariaDB depuis votre terminal sans taper 
 
 ---
 
-## 💾 3. Sauvegarde & Restauration
+## 💉 3. Injection de Données
+
+Vous pouvez injecter rapidement des bases de données de test renommées (Employees, Sakila) dans votre cluster Galera.
+
+| Commande | Description |
+| :--- | :--- |
+| `make inject-employee` | Réinitialise Galera (Full Cycle) et injecte la base `employees` |
+| `make inject-sakila` | Réinitialise Galera (Full Cycle) et injecte la base `sakila` (MV Edition) |
+
+> ⚠️ **Note** : Ces commandes exécutent un `make full-galera` au préalable, ce qui **efface toutes les données existantes** dans le cluster Galera avant l'injection.
+
+---
+
+## 💾 4. Sauvegarde & Restauration
 
 Des scripts dédiés gèrent les sauvegardes logiques (SQL) et physiques (Binaires).
 
@@ -110,7 +123,7 @@ Sauvegardes binaires rapides pour les bases de données volumineuses.
 
 ---
 
-## 🧪 4. Tests Fonctionnels & Performance
+## 🧪 5. Tests Fonctionnels & Performance
 
 Validez la santé et les fonctionnalités du cluster via des scripts automatisés.
 
@@ -144,7 +157,7 @@ make test-lb-galera
 
 ---
 
-## 🏎️ 5. Tests de Performance (Sysbench)
+## 🏎️ 6. Tests de Performance (Sysbench)
 
 Mesurez les performances du cluster et générez des rapports HTML premium avec des visualisations détaillées.
 
@@ -166,7 +179,7 @@ Les rapports détaillés incluent des graphiques de latence (ms), la répartitio
 
 ---
 
-## ⚙️ 6. Configuration Avancée & Accès
+## ⚙️ 7. Configuration Avancée & Accès
 
 ### Persistance & Configuration
 
@@ -184,7 +197,7 @@ Les rapports détaillés incluent des graphiques de latence (ms), la répartitio
 
 ---
 
-## 📝 7. Logs & Dépannage
+## 📝 8. Logs & Dépannage
 
 Les journaux peuvent être consultés directement via les commandes `make` :
 
@@ -198,7 +211,7 @@ Les journaux peuvent être consultés directement via les commandes `make` :
 
 ---
 
-## 📚 8. Documentation Détaillée
+## 📚 9. Documentation Détaillée
 
 Pour des informations plus approfondies, veuillez consulter l'**[Index de la Documentation](documentation/INDEX_fr.md)** ou explorer les fichiers directement :
 
