@@ -1,3 +1,4 @@
+* [2026-01-10] Relocated `test_db` cloning directory to `/var/tmp/test_db` in Makefile to optimize I/O and keep repo clean.
 * [2026-01-10] Added `check-galera` and `check-repli` targets to Makefile for cluster health monitoring.
 * [2026-01-10] Applied `innodb_flush_method = O_DSYNC` optimization to all Galera nodes to fix `ERROR 14` on WSL2 filesystems.
 * [2026-01-10] Added `tmpfs` mount for `/tmp` to all Galera nodes in `docker-compose-galera.yml`.

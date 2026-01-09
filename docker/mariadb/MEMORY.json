@@ -1,6 +1,24 @@
 [
   {
     "status": "SUCCESS",
+    "task_signature": "chore: relocate test_db to /var/tmp",
+    "keypoints": [
+      "Updated Makefile variable TEST_DB_DIR to /var/tmp/test_db",
+      "Modified clone-test-db and injection targets to use the Linux /var/tmp path",
+      "Removed the local test_db directory to keep the project clean",
+      "Leveraged Linux filesystem for test datasets to avoid WSL2 bind-mount performance hits"
+    ],
+    "reasoning": "Moving large external datasets to /var/tmp ensures that the host Windows filesystem (via WSL2 /mnt/c) is not a bottleneck and keeps the Git repository workspace clutter-free.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "makefile",
+      "optimization",
+      "wsl2",
+      "relocation"
+    ]
+  },
+  {
+    "status": "SUCCESS",
     "task_signature": "fix: resolve galera injection error (error 14) and add health checks",
     "keypoints": [
       "Set innodb_flush_method = O_DSYNC to fix WSL2/bind-mount filesystem errors",
@@ -72,24 +90,6 @@
       "rotation",
       "replication",
       "galera"
-    ]
-  },
-  {
-    "status": "SUCCESS",
-    "task_signature": "chore: standardize makefile to use mariadb host client",
-    "keypoints": [
-      "Replaced docker exec with mariadb host client for status checks",
-      "Updated SSL reload targets to use TCP connection instead of container exec",
-      "Aligned up-galera and bootstrap-galera with inject-data commands",
-      "Enforced consistency across all administrative Makefile targets"
-    ],
-    "reasoning": "Using the host client for administrative tasks reduces dependency on docker-specific command syntax and provides a more uniform interface across all Makefile targets.",
-    "confidence_score": 1.0,
-    "utility_tag": [
-      "makefile",
-      "mariadb-client",
-      "standardization",
-      "maintenance"
     ]
   }
 ]
