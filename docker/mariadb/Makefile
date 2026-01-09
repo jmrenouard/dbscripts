@@ -138,14 +138,14 @@ restore-phys-repli: ## Physical restore Replication (Usage: make restore-phys-re
 
 ## Data Injection
 TEST_DB_REPO = https://github.com/jmrenouard/test_db
-TEST_DB_DIR = test_db
+TEST_DB_DIR = /var/tmp/test_db
 
-clone-test-db: ## Clone the test database repository
+clone-test-db: ## Clone the test database repository to /var/tmp
 	@if [ ! -d "$(TEST_DB_DIR)" ]; then \
-		echo ">> 📥 Cloning test_db repository..."; \
+		echo ">> 📥 Cloning test_db repository to $(TEST_DB_DIR)..."; \
 		git clone $(TEST_DB_REPO) $(TEST_DB_DIR); \
 	else \
-		echo ">> 🔄 test_db repository already exists, pulling updates..."; \
+		echo ">> 🔄 test_db repository already exists in $(TEST_DB_DIR), pulling updates..."; \
 		(cd $(TEST_DB_DIR) && git pull); \
 	fi
 
