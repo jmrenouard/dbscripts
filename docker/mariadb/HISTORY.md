@@ -1,4 +1,8 @@
-* [2026-01-09] Added `make emergency-galera` and `make emergency-repli` targets with mandatory `down` before start for clean isolation.
+* [2026-01-10] Added `check-galera` and `check-repli` targets to Makefile for cluster health monitoring.
+* [2026-01-10] Applied `innodb_flush_method = O_DSYNC` optimization to all Galera nodes to fix `ERROR 14` on WSL2 filesystems.
+* [2026-01-10] Added `tmpfs` mount for `/tmp` to all Galera nodes in `docker-compose-galera.yml`.
+* [2026-01-10] Standardized Makefile commands to use the `mariadb` host client instead of `docker exec` for all status checks and administrative tasks (FLUSH SSL), ensuring consistency with data injection commands.
+* [2026-01-09] fix: corrected emergency startup targets and replaced docker exec with mariadb host client in Makefile.
 * [2026-01-09] Improved Galera cluster resilience: added `wsrep_slave_threads=1` and tuned Flow Control (`gcs.fc_factor=0.8`, `gcs.fc_limit=32`) in `gcustom_*.cnf` files.
 * [2026-01-09] Implemented `make renew-ssl-repli` for zero-downtime SSL rotation on Replication clusters.
 * [2026-01-09] Optimized MariaDB configuration in `gcustom_*.cnf` with recommended parameters (InnoDB buffer/log sizes, `max_connections`, `query_cache`, etc.).

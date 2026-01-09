@@ -3,7 +3,7 @@ IMAGE_NAME = mariadb_ssh:004
 COMPOSE_GALERA = docker-compose-galera.yml
 COMPOSE_REPLI = docker-compose-repli.yml
 
-.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli emergency-galera emergency-repli
+.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli emergency-galera emergency-repli check-galera check-repli
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -20,7 +20,7 @@ up-galera: build-image gen-ssl down-repli ## Start Galera cluster
 	@echo ">> 🚀 Starting Node 1 (Primary)..."
 	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d --no-recreate galera_01
 	@echo ">> ⏳ Waiting for Node 1 to start..."
-	@until docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 1; done
+	@until mariadb -h 127.0.0.1 -P 3511 -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 1; done
 	@echo "✅ Node 1 is Synced."
 	@echo ">> 🚀 Joining Node 2..."
 	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate galera_02
@@ -40,7 +40,7 @@ bootstrap-galera: build-image gen-ssl down-repli ## Bootstrap a NEW Galera clust
 	@echo ">> 🚀 Bootstrapping Node 1 (Primary)..."
 	MARIADB_GALERA_BOOTSTRAP=1 docker compose -f $(COMPOSE_GALERA) up -d galera_01
 	@echo ">> ⏳ Waiting for Node 1 to bootstrap..."
-	@until docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 1; done
+	@until mariadb -h 127.0.0.1 -P 3511 -u root -prootpass -e "SHOW STATUS LIKE 'wsrep_local_state_comment'" 2>/dev/null | grep -q "Synced"; do sleep 1; done
 	@echo "✅ Node 1 is Synced."
 	@echo ">> 🚀 Joining Node 2..."
 	docker compose -f $(COMPOSE_GALERA) up -d --no-recreate galera_02
@@ -205,9 +205,9 @@ renew-ssl-galera: ## Force SSL certificate regeneration and reload on active Gal
 	rm -rf ssl/
 	bash ./gen_ssl.sh
 	@echo ">> 🚀 Reloading SSL on Galera nodes..."
-	@docker exec mariadb-galera_01-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
-	@docker exec mariadb-galera_02-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
-	@docker exec mariadb-galera_03-1 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
+	@mariadb -h 127.0.0.1 -P 3511 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
+	@mariadb -h 127.0.0.1 -P 3512 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
+	@mariadb -h 127.0.0.1 -P 3513 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
 	@echo "✨ Galera zero-downtime SSL rotation completed."
 
 renew-ssl-repli: ## Force SSL certificate regeneration and reload on active Replication nodes
@@ -215,9 +215,9 @@ renew-ssl-repli: ## Force SSL certificate regeneration and reload on active Repl
 	rm -rf ssl/
 	bash ./gen_ssl.sh
 	@echo ">> 🚀 Reloading SSL on Replication nodes..."
-	@docker compose -f $(COMPOSE_REPLI) exec mariadb_01 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
-	@docker compose -f $(COMPOSE_REPLI) exec mariadb_02 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
-	@docker compose -f $(COMPOSE_REPLI) exec mariadb_03 mariadb -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
+	@mariadb -h 127.0.0.1 -P 3411 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 1 reloaded"
+	@mariadb -h 127.0.0.1 -P 3412 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 2 reloaded"
+	@mariadb -h 127.0.0.1 -P 3413 -u root -prootpass -e "FLUSH SSL;" && echo "✅ Node 3 reloaded"
 	@echo "✨ Replication zero-downtime SSL rotation completed."
 
 renew-ssl: renew-ssl-galera ## [DEPRECATED] Use renew-ssl-galera or renew-ssl-repli
@@ -264,3 +264,24 @@ follow-slow-repli: ## Stream slow query logs for Replication (Usage: make follow
 	@SERVICE=$$(case "$(NODE)" in 2) echo "mariadb_02";; 3) echo "mariadb_03";; *) echo "mariadb_01";; esac); \
 	HOST=$$(case "$(NODE)" in 2) echo "frm02";; 3) echo "frm03";; *) echo "frm01";; esac); \
 	docker compose -f $(COMPOSE_REPLI) exec $$SERVICE tail -f /var/lib/mysql/$$HOST-slow.log
+
+check-galera: ## Check Galera cluster status and key variables (Usage: make check-galera [NODE=1|2|3])
+	@NODE_PORT=$$(case "$(NODE)" in 2) echo "3512";; 3) echo "3513";; *) echo "3511";; esac); \
+	echo ">> 📊 Galera Status (Node $(NODE:-1) @ port $$NODE_PORT)..."; \
+	mariadb -h 127.0.0.1 -P $$NODE_PORT -u root -prootpass -e "\
+		SELECT VARIABLE_NAME, VARIABLE_VALUE FROM information_schema.GLOBAL_STATUS WHERE VARIABLE_NAME IN ('WSREP_CLUSTER_SIZE', 'WSREP_LOCAL_STATE_COMMENT', 'WSREP_CONNECTED', 'WSREP_READY'); \
+		SHOW VARIABLES LIKE 'innodb_buffer_pool_size'; \
+		SHOW VARIABLES LIKE 'wsrep_slave_threads'; \
+		SHOW VARIABLES LIKE 'wsrep_provider_options';"
+
+check-repli: ## Check Replication cluster status and key variables (Usage: make check-repli [NODE=1|2|3])
+	@NODE_PORT=$$(case "$(NODE)" in 2) echo "3412";; 3) echo "3413";; *) echo "3411";; esac); \
+	echo ">> 📊 Replication Status (Node $(NODE:-1) @ port $$NODE_PORT)..."; \
+	mariadb -h 127.0.0.1 -P $$NODE_PORT -u root -prootpass -e "\
+		SHOW SLAVE STATUS\G \
+		SHOW VARIABLES LIKE 'innodb_buffer_pool_size'; \
+		SHOW VARIABLES LIKE 'read_only';" ; \
+	if [ "$$NODE_PORT" = "3411" ]; then \
+		echo ">> 🛡️ Master Status:"; \
+		mariadb -h 127.0.0.1 -P 3411 -u root -prootpass -e "SHOW MASTER STATUS\G"; \
+	fi

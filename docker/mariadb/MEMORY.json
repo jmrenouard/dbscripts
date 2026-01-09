@@ -1,6 +1,26 @@
 [
   {
     "status": "SUCCESS",
+    "task_signature": "fix: resolve galera injection error (error 14) and add health checks",
+    "keypoints": [
+      "Set innodb_flush_method = O_DSYNC to fix WSL2/bind-mount filesystem errors",
+      "Added tmpfs for /tmp in docker-compose.yml to speed up temp table operations",
+      "Increased innodb_buffer_pool_size (1G) and gcache.size (512M) for large datasets",
+      "Implemented 'make check-galera' and 'make check-repli' for cluster status monitoring",
+      "Verified target row counts (300k employees, 2.8M salaries) after internal container injection"
+    ],
+    "reasoning": "The ERROR 14 on WSL2 is caused by InnoDB's O_DIRECT failing on certain Windows-hosted bind mounts during rapid file expansion; switching to O_DSYNC and using internal container storage for injection resolves this bottleneck.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "fix",
+      "galera",
+      "wsl2",
+      "innodb",
+      "makefile"
+    ]
+  },
+  {
+    "status": "SUCCESS",
     "task_signature": "chore: tune galera flow control and parallel slave threads",
     "keypoints": [
       "Added wsrep_slave_threads=1 for parallel slave replication applying",
@@ -35,21 +55,41 @@
       "emergency"
     ]
   },
-{
-  "status": "SUCCESS",
-  "task_signature": "feat: add renew-ssl-repli for zero-downtime replication ssl rotation",
-  "keypoints": [
-    "Refactored renew-ssl into Galera and Replication variants",
-    "Enabled renew-ssl-repli using docker compose exec for portability",
-    "Updated all documentation (EN/FR) with new SSL rotation commands",
-    "Synchronized .PHONY targets in Makefile"
-  ],
-  "reasoning": "Symmetry in SSL management operations across environments ensures consistent operational procedures for high-availability setups.",
-  "confidence_score": 1.0,
-  "utility_tag": [
-    "feat",
-    "ssl",
-    "rotation",
-    "replication",
-    "galera"
-  ]
+  {
+    "status": "SUCCESS",
+    "task_signature": "feat: add renew-ssl-repli for zero-downtime replication ssl rotation",
+    "keypoints": [
+      "Refactored renew-ssl into Galera and Replication variants",
+      "Enabled renew-ssl-repli using docker compose exec for portability",
+      "Updated all documentation (EN/FR) with new SSL rotation commands",
+      "Synchronized .PHONY targets in Makefile"
+    ],
+    "reasoning": "Symmetry in SSL management operations across environments ensures consistent operational procedures for high-availability setups.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "feat",
+      "ssl",
+      "rotation",
+      "replication",
+      "galera"
+    ]
+  },
+  {
+    "status": "SUCCESS",
+    "task_signature": "chore: standardize makefile to use mariadb host client",
+    "keypoints": [
+      "Replaced docker exec with mariadb host client for status checks",
+      "Updated SSL reload targets to use TCP connection instead of container exec",
+      "Aligned up-galera and bootstrap-galera with inject-data commands",
+      "Enforced consistency across all administrative Makefile targets"
+    ],
+    "reasoning": "Using the host client for administrative tasks reduces dependency on docker-specific command syntax and provides a more uniform interface across all Makefile targets.",
+    "confidence_score": 1.0,
+    "utility_tag": [
+      "makefile",
+      "mariadb-client",
+      "standardization",
+      "maintenance"
+    ]
+  }
+]

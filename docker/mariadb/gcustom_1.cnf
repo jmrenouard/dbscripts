@@ -28,7 +28,7 @@ wsrep_sst_method=mariabackup
 # Authentication credentials for SST
 wsrep_sst_auth="sst_user:sstpass"
 # Number of threads to use for parallel slave applying
-wsrep_slave_threads=1
+wsrep_slave_threads=4
 
 # --- Galera Local Node Configuration ---
 # Local node network address
@@ -42,7 +42,7 @@ server_id=1
 # Log replication conflicts
 wsrep_log_conflicts=ON
 # Enable detailed conflict logging in provider options and tune Flow Control
-wsrep_provider_options="cert.log_conflicts=YES;gcache.size=128M;evs.suspect_timeout=PT5S;evs.inactive_timeout=PT15S;evs.install_timeout=PT15S;gcs.fc_factor=0.8;gcs.fc_limit=32"
+wsrep_provider_options="cert.log_conflicts=YES;gcache.size=512M;evs.suspect_timeout=PT5S;evs.inactive_timeout=PT15S;evs.install_timeout=PT15S;gcs.fc_factor=0.8;gcs.fc_limit=32"
 
 # --- Advanced Replication & Networking ---
 # Enforce GTID consistency
@@ -55,12 +55,14 @@ binlog_expire_logs_seconds=172800
 # --- InnoDB Settings ---
 # Redo log flush frequency (0=Performance, 1=ACID)
 innodb_flush_log_at_trx_commit = 0
-# Use O_DIRECT to bypass OS cache for InnoDB data files
-#innodb_flush_method = O_DIRECT
+# Use O_DSYNC to avoid 'Can't change size of file' errors on WSL2 bind mounts
+innodb_flush_method = O_DSYNC
 # InnoDB buffer pool size
-innodb_buffer_pool_size = 200M
+innodb_buffer_pool_size = 1G
 # Redo log file size
-innodb_log_file_size = 100M
+innodb_log_file_size = 256M
+# Define temporary data file path with a max size
+innodb_temp_data_file_path = ibtmp1:12M:autoextend:max:5G
 
 # --- Cache Settings ---
 # Disable query cache (Incompatible with high concurrency)
