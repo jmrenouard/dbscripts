@@ -133,17 +133,32 @@ clone-test-db: ## Clone the test database repository
 		(cd $(TEST_DB_DIR) && git pull); \
 	fi
 
-inject-employee: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject employees.sql
-	@echo ">> 💉 Injecting employees database..."
+inject-employee-galera: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject employees.sql
+	@echo ">> 💉 Injecting employees database into Galera..."
 	@cd $(TEST_DB_DIR) && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < employees.sql
 	@echo "✅ employees.sql injected into Galera cluster."
 
-inject-sakila: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject sakila database
-	@echo ">> 💉 Injecting sakila schema..."
+inject-sakila-galera: full-galera clone-test-db ## Sequential: Full Galera bootstrap and inject sakila database
+	@echo ">> 💉 Injecting sakila schema into Galera..."
 	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-schema.sql
-	@echo ">> 💉 Injecting sakila data..."
+	@echo ">> 💉 Injecting sakila data into Galera..."
 	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3511 -u root -prootpass < sakila-mv-data.sql
 	@echo "✅ sakila database injected into Galera cluster."
+
+inject-employee-repli: full-repli clone-test-db ## Sequential: Full Replication bootstrap and inject employees.sql
+	@echo ">> 💉 Injecting employees database into Replication (Master)..."
+	@cd $(TEST_DB_DIR) && mariadb -h 127.0.0.1 -P 3411 -u root -prootpass < employees.sql
+	@echo "✅ employees.sql injected into Replication cluster."
+
+inject-sakila-repli: full-repli clone-test-db ## Sequential: Full Replication bootstrap and inject sakila database
+	@echo ">> 💉 Injecting sakila schema into Replication (Master)..."
+	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3411 -u root -prootpass < sakila-mv-schema.sql
+	@echo ">> 💉 Injecting sakila data into Replication (Master)..."
+	@cd $(TEST_DB_DIR)/sakila && mariadb -h 127.0.0.1 -P 3411 -u root -prootpass < sakila-mv-data.sql
+	@echo "✅ sakila database injected into Replication cluster."
+
+inject-employee: inject-employee-galera ## Alias for inject-employee-galera
+inject-sakila: inject-sakila-galera ## Alias for inject-sakila-galera
 
 ## Full Cycle Targets (CI/CD style)
 clean-reports:

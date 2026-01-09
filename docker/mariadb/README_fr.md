@@ -93,10 +93,12 @@ Vous pouvez injecter rapidement des bases de données de test renommées (Employ
 
 | Commande | Description |
 | :--- | :--- |
-| `make inject-employee` | Réinitialise Galera (Full Cycle) et injecte la base `employees` |
-| `make inject-sakila` | Réinitialise Galera (Full Cycle) et injecte la base `sakila` (MV Edition) |
+| `make inject-employee-galera` | Réinitialise Galera (Full Cycle) et injecte `employees` |
+| `make inject-sakila-galera` | Réinitialise Galera (Full Cycle) et injecte `sakila` (MV) |
+| `make inject-employee-repli` | Réinitialise la Réplication (Full Cycle) et injecte `employees` |
+| `make inject-sakila-repli` | Réinitialise la Réplication (Full Cycle) et injecte `sakila` |
 
-> ⚠️ **Note** : Ces commandes exécutent un `make full-galera` au préalable, ce qui **efface toutes les données existantes** dans le cluster Galera avant l'injection.
+> ⚠️ **Note** : Ces commandes exécutent un `make full-galera` ou `make full-repli` au préalable, ce qui **efface toutes les données existantes** dans le cluster cible avant l'injection.
 
 ---
 

@@ -43,8 +43,10 @@ These commands automate the deployment of a clean Galera cluster followed by the
 | Command | Description |
 | :--- | :--- |
 | `make clone-test-db` | Clone or update the `test_db` repository from GitHub. |
-| `make inject-employee`| **Full Cycle**: Reset Galera and inject the `employees` database. |
-| `make inject-sakila`  | **Full Cycle**: Reset Galera and inject the `sakila` (MV Edition) database. |
+| `make inject-employee-galera`| **Full Cycle**: Reset Galera and inject the `employees` database. |
+| `make inject-sakila-galera`  | **Full Cycle**: Reset Galera and inject the `sakila` (MV) database. |
+| `make inject-employee-repli` | **Full Cycle**: Reset Replication and inject `employees` database. |
+| `make inject-sakila-repli`   | **Full Cycle**: Reset Replication and inject `sakila` database. |
 
 ## 🔄 Replication Cluster Commands
 

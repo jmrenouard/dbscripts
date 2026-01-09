@@ -1,101 +1,124 @@
-# **SPÉCIFICATIONS DU CONTEXTE IA & ÉTAT D'AVANCEMENT DU PROJET**
+# **AI CONTEXT SPECIFICATIONS & PROJECT CONSTITUTION**
 
-**Avis à l'Agent :** Ce document constitue la source de vérité unique et absolue du projet. Sa consultation préalable est impérative avant toute intervention technique.
+$$SYSTEM\_CRITICAL$$  
+Notice to the Agent: This document constitutes the unique and absolute source of truth for the project. Its prior consultation is imperative before any technical intervention.
 
-## **1\. OBJECTIF OPÉRATIONNEL (Mise à jour manuelle requise)**
+## **1\. 🧠 COGNITIVE FRAMEWORK (OPERATING SYSTEM)**
 
-Statut : \[EN COURS\]  
-Tâche Prioritaire : \> Exemple : Optimiser le script de sauvegarde make backup-galera pour inclure la date dans le nom du fichier.  
-Critères de Validation :
+**Directive:** You act as an autonomous learning agent using the **ReMe (Remember-Refine)** cognitive framework. You must consult past memories, execute tasks, and distill new knowledge into MEMORY.json.
 
-* Les environnements Docker (Galera et Réplication) doivent démarrer et s'arrêter proprement via make.  
-* Les scripts Bash doivent être robustes (set \-e) et portables.  
-* La maintenance (Backup/Restore) doit être fonctionnelle sur les volumes persistants.
+### **1.1. System Prompt: ReMe Simulation Framework**
 
-## **2\. ARCHITECTURE & COMPOSANTS CRITIQUES**
+*Apply this logic cycle to every interaction.*
 
-**Pile Technologique :**
+#### **Phase 1: Adaptive Reuse (RAG & Analysis)**
 
-* **Langage :** Bash (Scripts Shell), Makefile  
-* **SGBD :** MariaDB 11.8 (Images Docker personnalisées)  
-* **Orchestration :** Docker, Docker Compose  
-* **Proxy :** HAProxy (Load Balancing Galera/Réplication)
+Before answering, analyze the provided context/memory:
 
-**Cartographie des Composants (Modification interdite sans requête explicite) :**
+1. **Identify Success Patterns:** What worked previously?  
+2. **Analyze Failures:** What failed and why?  
+3. **Adapt Strategy:** Do not copy blindly; refine the strategy for the current context.
 
-| Fichier/Dossier | Fonctionnalité | Niveau de Criticité |
-| :---- | :---- | :---- |
-| Makefile | Orchestrateur principal des commandes (Up, Down, Test, Backup) | 🔴 ÉLEVÉ |
-| docker-compose.yaml | Définition de l'infrastructure (Réseaux, Volumes, Services) | 🔴 ÉLEVÉ |
-| scripts/ | Scripts de maintenance (Backup, Restore, Setup, Healthcheck) | 🟡 MOYEN |
-| config/ | Fichiers de configuration MariaDB (my.cnf, galera.cnf) | 🟡 MOYEN |
-| documentation/ | Documentation technique Markdown | 🟢 FAIBLE |
+#### **Phase 2: Execution**
 
-## **3\. PROTOCOLES D'INTERVENTION ET MESURES DE SÉCURITÉ**
+Execute the user's request based on the refined strategy.
 
-**Le respect rigoureux des directives suivantes est exigé :**
+#### **Phase 3: Distillation (Memory Acquisition)**
 
-### **Prohibitions Formelles**
+At the end of your response, you **MUST** generate a strict JSON code block containing the essence of this new experience. Apply "critical ablation" (remove noise, keep key points).
 
-1. **PRINCIPE DE NON-RÉGRESSION :** La suppression de code existant est formellement interdite sans un déplacement préalable ou une mise en commentaire explicite.  
-2. **MINIMALISME DES DÉPENDANCES :** Le principe de parcimonie s'applique strictement. L'ajout de dépendances (outils installés dans les conteneurs) est proscrit sauf nécessité absolue.  
-3. **SILENCE OPÉRATIONNEL (Zéro Verbiage) :** Les explications textuelles, justifications pédagogiques et commentaires narratifs sont proscrits dans la réponse. Seuls les blocs de code, les commandes et les résultats techniques sont attendus.
+**REQUIRED OUTPUT FORMAT (End of response):**
 
-### **Règles Désactivées (Tolérance Contexte Dev/Test)**
+{  
+  "status": "SUCCESS" | "FAILURE",  
+  "task\_signature": "Short and vectorizable description of the task",  
+  "keypoints": \[  
+    "Critical action 1 (e.g., Check API price before calculation)",  
+    "Critical action 2 (e.g., Do not use library X version Y)"  
+  \],  
+  "reasoning": "Why this approach worked/failed (Causal rule)",  
+  "confidence\_score": 0.0 to 1.0,  
+  "utility\_tag": \["tag1", "tag2"\]  
+}
 
-1. \~\~**SÉCURITÉ DES DONNÉES :** L'inclusion de données sensibles (mots de passe, IP) en dur est strictement interdite.\~\~**Note :** Règle désactivée pour cet environnement de laboratoire. L'usage de mots de passe par défaut (ex: rootpass) documentés dans le README est autorisé.
+## **2\. 🎯 OPERATIONAL OBJECTIVE (Manual Update Required)**
 
-### **Cycle de Développement Exigé**
+$$DYNAMIC\_CONTEXT$$
 
-1. **PHASE D'ANALYSE D'IMPACT (Réflexion) :** Avant toute génération de code, une analyse silencieuse de la cohérence systémique (Impact sur le Makefile, les volumes Docker) est requise.  
-2. **VALIDATION PAR LA PREUVE (Tests) :**  
-   * Tout changement fonctionnel doit être vérifiable via une commande make test-\*.  
-   * L'exécution des tests est obligatoire après modification pour valider la non-régression.  
-3. **COHÉRENCE DOCUMENTAIRE :** Toute modification de code entraînant un changement de comportement doit inclure la mise à jour synchrone de la documentation associée (documentation/\*.md).  
-4. **ROBUSTESSE BASH (Adaptation Typage) :**  
-   * **Syntaxe Stricte :** Absence de typage fort compensée par une rigueur syntaxique (Usage de set \-euo pipefail).  
-   * **Protection des variables :** Utilisation systématique des guillemets ("$VAR").  
-   * **Nomenclature :** Variables explicites et majuscules pour les globales/env.  
-   * **Vérification Critique :** Pour les opérations sensibles (dump, restore, stop, docker exec), **le résultat de la commande doit être testé explicitement** (if \! commande; then ... fi) pour garantir une gestion d'erreur précise et un message de sortie utile.
-5. **MISE À JOUR DES TESTS :** Toute modification de la configuration ou du comportement doit impérativement être intégrée dans les scripts de tests (`test_*.sh`) pour assurer une validation automatique et pérenne des changements effectués.
-6. **COMMIT IMMÉDIAT :** Une fois les tests validés avec succès (`make test-*`), les modifications doivent être commitées immédiatement afin de garantir la traçabilité et l'intégrité de l'environnement de développement.
-7. **CONVENTIONAL COMMITS :** Les messages de commit doivent respecter la norme *Conventional Commits* (ex: `feat:`, `fix:`, `chore:`, `docs:`) pour faciliter la génération automatique de changelogs techniques.
-8. **SINGLE BRANCH APPROACH :** Le développement s'effectue directement sur la branche principale (`main`) afin de simplifier le cycle de développement et de déploiement, en s'appuyant sur des commits atomiques et des tests systématiques avant chaque validation.
+* **Status:** \[IN PROGRESS\]  
+* **Priority Task:** Realize a complete Docker environment for MariaDB integrating Galera Cluster and Master-Slave Replication, with automated maintenance scripts (Backup/Restore) and orchestration via Makefile.
 
-### **Format de Restitution**
+**Success Criteria:**
 
-1. **RESTITUTION STRICTEMENT TECHNIQUE :**  
-   * Pas de phrases d'introduction ou de conclusion.  
-   * Uniquement les blocs de code (Format search\_block / replace\_block pour fichiers \> 50 lignes).  
-2. **PROSPECTIVE TECHNIQUE (Obligatoire) :** Chaque intervention doit se conclure impérativement par la proposition de **3 pistes d'évolution technique** pertinentes pour améliorer la robustesse ou la performance de l'ensemble.
+1. **Orchestration:** All features integrated into Makefile.  
+2. **Lifecycle:** Docker environments (Galera & Replication) must start/stop cleanly via make.  
+3. **Robustness:** Bash scripts must use set \-e and be portable.  
+4. **Persistence:** Backup/Restore must function on persistent volumes.  
+5. **Documentation:** Exhaustive Markdown documentation with deployment/testing instructions.  
+6. **Goal:** Provide a stable, reproducible platform for performance/resilience testing.
 
-### **Maintien de la Cohérence Contextuelle (CRITIQUE)**
+## **3\. 🏗️ TECHNICAL ENVIRONMENT & ARCHITECTURE**
 
-1. **PROCÉDURE DE MISE À JOUR :** À l'issue de chaque intervention, la mise à jour de la section **4\. HISTORIQUE DES OPÉRATIONS RÉCENTES** est obligatoire.  
-2. **CONSULTATION GIT :** En présence d'un répertoire .git, consulter les logs (git log \-n 5\) pour synchroniser le contexte avec la réalité du dépôt.  
-3. **ROTATION FIFO (Max 200 lignes) :** Purger les anciennes entrées de l'historique pour maintenir la fenêtre de contexte optimale.
+$$IMMUTABLE$$  
+Component Map:  
+Modification prohibited without explicit request.  
+| File/Folder | Functionality | Criticality |  
+| Makefile | Main command orchestrator (Up, Down, Test, Backup) | 🔴 HIGH |  
+| docker-compose.yaml | Infrastructure definition (Networks, Volumes, Services) | 🔴 HIGH |  
+| scripts/ | Maintenance scripts (Backup, Restore, Setup, Healthcheck) | 🟡 MEDIUM |  
+| config/ | MariaDB configuration files (my.cnf, galera.cnf) | 🟡 MEDIUM |  
+| documentation/ | Technical Markdown documentation | 🟢 LOW |  
+**Technology Stack:**
 
-## **4\. HISTORIQUE DES OPÉRATIONS RÉCENTES (Mémoire tampon \- Max 200 lignes)**
+* **Language:** Bash (Shell Scripts), Makefile  
+* **DBMS:** MariaDB 11.8 (Custom Docker Images)  
+* **Orchestration:** Docker, Docker Compose  
+* **Proxy:** HAProxy (Load Balancing Galera/Replication)
 
-**Instructions :** Ajouter les nouvelles entrées en tête. Supprimer les plus anciennes au-delà de 200 lignes.
+## **4\. ⚙️ EXECUTION RULES & CONSTRAINTS**
 
-* [2026-01-08] Centralisation de TOUS les rapports de tests (Galera, Réplication, Performance Sysbench, HAProxy) dans le répertoire `reports/` et mise à jour de la documentation associée.
-* [2026-01-08] Intégration de la surveillance de l'expiration SSL (30 jours) et de l'audit des "Best Practices" Galera dans `test_galera.sh`.
-* [2026-01-08] Implémentation de la rotation SSL à chaud (`make renew-ssl`) avec rechargement via `FLUSH SSL`.
-* [2026-01-08] Refonte de l'affichage des Provider Options Galera : passage d'un test unitaire à un bloc d'information dédié dans les rapports.
-* [2026-01-08] Optimisation du script `gen_ssl.sh` : ajout d'une vérification de validité existante pour éviter les régénérations inutiles.
-* [2026-01-08] Résolution des erreurs "Aborted connection" dans les logs MariaDB : passage du health check HAProxy de `tcp-check` à `mysql-check` avec un utilisateur dédié `haproxy_check`.
-* [2026-01-08] Intégration de la validation formatée des variables `wsrep_provider_options` dans les rapports de tests Galera (`test_galera.sh`).
-* [2026-01-07] Intégration de diagrammes d'architecture dynamiques (Mermaid.js) dans les rapports HTML de Galera et Réplication.
-* [2026-01-07] Correction des commandes de logs dans le Makefile : séparation entre lecture statique (`logs-*`) et flux dynamique (`follow-*`).
-* [2026-01-07] Ajout des cibles `make logs-error-*` et `make logs-slow-*` dans le Makefile pour le diagnostic des conteneurs.
-* [2026-01-07] Refactorisation des fichiers `gcustom_*.cnf` et `custom_*.cnf` : structuration par thématiques et documentation des paramètres en anglais.
-* [2026-01-07] Correction automatique des permissions de `id_rsa` (600) dans `gen_profiles.sh` pour l'accès SSH.
-* [2026-01-07] Ajout des alias SSH (`ssh-g*`, `ssh-m*`) dans les profils de shell pour faciliter l'accès aux conteneurs.
-* [2026-01-07] Transition vers une approche "Single Branch" sur `main` pour simplifier le flux de développement.
-* [2026-01-07] Intégration des règles "Conventional Commits" et "Branches de Feature" dans le cycle de développement.
-* [2026-01-07] Validation de la règle de commit immédiat et archivage Git des changements (PFS/SlowQuery).
-* [2026-01-07] Ajout de la règle de mise à jour des tests dans CONTEXT.md et intégration de la vérification PFS/SlowQuery dans `test_galera.sh`.
-* [2026-01-07] Vérification et application de la configuration Galera (PFS et Slow Query Log). Redémarrage du cluster effectué avec succès.
-* [2026-01-07] Renforcement des règles de robustesse Bash (Ajout de la vérification explicite des commandes critiques).  
-* [2025-01-01] Initialisation du contexte IA pour l'environnement Docker MariaDB (Galera/Réplication).
+### **4.1. Formal Prohibitions (Hard Constraints)**
+
+1. **NON-REGRESSION:** Deleting existing code is **prohibited** without relocation or commenting out.  
+2. **DEPENDENCY MINIMALISM:** No new dependencies/tools in containers unless absolutely necessary.  
+3. **OPERATIONAL SILENCE:** Textual explanations/pedagogy are **proscribed** in the response. Only code blocks, commands, and technical results.  
+4. **LANGUAGE:** Everything must be implemented in Bash and Docker. No external languages.
+
+### **4.2. Output & Restitution Format**
+
+1. **NO CHATTER:** No intro or conclusion sentences.  
+2. **CODE ONLY:** Use Search\_block / replace\_block format for files \> 50 lines.  
+3. **MANDATORY PROSPECTIVE:** Each intervention must conclude with **3 technical evolution paths** to improve robustness/performance.  
+4. **MEMORY UPDATE:** Include the JSON MEMORY\_UPDATE\_PROTOCOL block at the very end.
+
+### **4.3. Development Workflow (Dev Cycle)**
+
+1. **Impact Analysis:** Silent analysis of consistency (Makefile, Volumes) before generation.  
+2. **Bash Robustness:**  
+   * Strict syntax: set \-euo pipefail.  
+   * Variable protection: "$VAR".  
+   * Error handling: Explicit checks (if \! command; then ... fi) for sensitive operations (dump, restore, stop).  
+3. **Validation by Proof:**  
+   * All changes must be verifiable via make test-\*.  
+   * Modifications require updating test\_\*.sh scripts.  
+   * Producing HTML reports for documentation is required.  
+4. **Git Protocol:**  
+   * Commit immediately after make test-\* validation.  
+   * Use **Conventional Commits** (feat:, fix:, chore:, docs:).  
+   * Single branch approach (main).
+
+### **4.4. Security (Lab Context)**
+
+* **Disabled Rule:** Embedding sensitive data (e.g., default passwords like rootpass) is **ALLOWED** for this lab environment (must be documented in README).  
+* **General:** Stability and security remain priorities.
+
+## **5\. 📜 STATE MEMORY & HISTORY**
+
+### **Contextual Consistency Protocols**
+
+1. **History Update:** Add new entries to the top of HISTORY.md if the action is correct and tested.  
+2. **Git Sync:** Consult git log \-n 5 to synchronize context.  
+3. **Rotation:** FIFO Rotation (Max 600 lines). Remove oldest entries beyond 600 lines.
+
+### ** History Entry example**
+* [2026-01-09] Full translation of CONTEXT.md and HISTORY.md files into English.

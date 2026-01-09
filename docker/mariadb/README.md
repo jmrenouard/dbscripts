@@ -92,10 +92,12 @@ Quickly inject sample databases (Employees, Sakila) into your Galera cluster.
 
 | Command | Description |
 | :--- | :--- |
-| `make inject-employee` | Full Galera reset and inject `employees` database |
-| `make inject-sakila` | Full Galera reset and inject `sakila` (MV Edition) database |
+| `make inject-employee-galera` | Full Galera reset and inject `employees` database |
+| `make inject-sakila-galera` | Full Galera reset and inject `sakila` (MV) database |
+| `make inject-employee-repli` | Full Replication reset and inject `employees` database |
+| `make inject-sakila-repli` | Full Replication reset and inject `sakila` database |
 
-> ⚠️ **Note**: These commands run `make full-galera` first, which **wipes all existing data** in the Galera cluster before injection.
+> ⚠️ **Note**: These commands run `make full-galera` or `make full-repli` first, which **wipes all existing data** in the target cluster before injection.
 
 ---
 

@@ -1,0 +1,19 @@
+{
+  "status": "SUCCESS",
+  "task_signature": "feat: add inject data injection commands for both galera and repli",
+  "keypoints": [
+    "Addition of inject-employee-repli and inject-sakila-repli commands",
+    "Refactoring of inject targets to -galera and -repli suffixes",
+    "Targeting port 3411 (Master) for replication data injection",
+    "Full documentation update for both English and French versions"
+  ],
+  "reasoning": "Symmetry between Galera and Replication environments simplifies the DBA workflow for testing sample datasets.",
+  "confidence_score": 1.0,
+  "utility_tag": [
+    "feat",
+    "inject-employee-repli",
+    "inject-sakila-repli",
+    "galera",
+    "replication"
+  ]
+}
