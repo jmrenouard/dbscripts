@@ -27,6 +27,8 @@ wsrep_cluster_name="galera_cluster"
 wsrep_sst_method=mariabackup
 # Authentication credentials for SST
 wsrep_sst_auth="sst_user:sstpass"
+# Number of threads to use for parallel slave applying
+wsrep_slave_threads=1
 
 # --- Galera Local Node Configuration ---
 # Local node network address
@@ -39,8 +41,8 @@ report_host="serveur1"
 server_id=1
 # Log replication conflicts
 wsrep_log_conflicts=ON
-# Enable detailed conflict logging in provider options
-wsrep_provider_options="cert.log_conflicts=YES;gcache.size=128M;evs.suspect_timeout=PT5S;evs.inactive_timeout=PT15S;evs.install_timeout=PT15S"
+# Enable detailed conflict logging in provider options and tune Flow Control
+wsrep_provider_options="cert.log_conflicts=YES;gcache.size=128M;evs.suspect_timeout=PT5S;evs.inactive_timeout=PT15S;evs.install_timeout=PT15S;gcs.fc_factor=0.8;gcs.fc_limit=32"
 
 # --- Advanced Replication & Networking ---
 # Enforce GTID consistency
@@ -54,7 +56,7 @@ binlog_expire_logs_seconds=172800
 # Redo log flush frequency (0=Performance, 1=ACID)
 innodb_flush_log_at_trx_commit = 0
 # Use O_DIRECT to bypass OS cache for InnoDB data files
-innodb_flush_method = O_DIRECT
+#innodb_flush_method = O_DIRECT
 # InnoDB buffer pool size
 innodb_buffer_pool_size = 200M
 # Redo log file size

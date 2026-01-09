@@ -1,3 +1,4 @@
+* [2026-01-09] Improved Galera cluster resilience: added `wsrep_slave_threads=1` and tuned Flow Control (`gcs.fc_factor=0.8`, `gcs.fc_limit=32`) in `gcustom_*.cnf` files.
 * [2026-01-09] Implemented `make renew-ssl-repli` for zero-downtime SSL rotation on Replication clusters.
 * [2026-01-09] Optimized MariaDB configuration in `gcustom_*.cnf` with recommended parameters (InnoDB buffer/log sizes, `max_connections`, `query_cache`, etc.).
 * [2026-01-09] Added `make inject-*-galera` and `make inject-*-repli` commands to automate full deployment and sample data injection (Employees/Sakila) from github.com/jmrenouard/test_db.
