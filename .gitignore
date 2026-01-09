@@ -112,3 +112,4 @@ docker/mariadb/gbackups_02
 docker/mariadb/gbackups_03
 docker/mariadb/reports/test_*.md
 docker/mariadb/reports/test_*.html
+docker/mariadb/test_db/
