@@ -1,35 +1,40 @@
-# Générateur d'Index de Documentation Markdown
+# Markdown Documentation Index Generator
 
 ## Description
 
-Ce script Python génère automatiquement un index structuré des fichiers de documentation Markdown et une page regroupant toutes les illustrations présentes dans un répertoire de documentation. Il analyse récursivement un répertoire, extrait les métadonnées des fichiers Markdown et produit un rapport organisé par sous-répertoires.
+This Python script automatically generates a structured index of Markdown documentation files and a page grouping all illustrations present in a documentation directory. It recursively analyzes a directory, extracts metadata from Markdown files, and produces a report organized by subdirectories.
 
-## Fonctionnalités principales
+## Key Features
 
-- Analyse récursive d'un répertoire de documentation
-- Extraction des titres, comptage des mots et dates de modification
-- Génération d'un index structuré par sous-répertoires
-- Création d'une page dédiée aux illustrations
-- Personnalisation via arguments en ligne de commande
+- Recursive analysis of a documentation directory
+- Title extraction, word count, and modification dates
+- Structured index generation by subdirectories
+- Creation of a dedicated illustration gallery page
+- Customization via command-line arguments
 
-## Fonctions
+## Functions
 
 ### `get_markdown_title(file_path)`
-Extrait le titre d'un fichier Markdown (premier titre de niveau 1). Utilise le nom du fichier comme titre de secours.
+
+Extracts the title of a Markdown file (first level 1 heading). Uses the filename as a fallback.
 
 ### `count_words(file_path)`
-Compte les mots dans un fichier Markdown en excluant les blocs de code pour une meilleure précision.
+
+Counts words in a Markdown file, excluding code blocks for better accuracy.
 
 ### `get_last_modified(file_path)`
-Récupère la date de dernière modification d'un fichier au format YYYY-MM-DD.
+
+Retrieves the last modification date of a file in YYYY-MM-DD format.
 
 ### `generate_docs_description(docs_dir, exclude_file, base_url)`
-Génère une description structurée des fichiers Markdown, organisée par sous-répertoires, avec liens, titres, nombre de mots et dates de modification.
+
+Generates a structured description of Markdown files, organized by subdirectories, with links, titles, word counts, and modification dates.
 
 ### `generate_illustrations_page(docs_dir, output_file)`
-Crée une page dédiée regroupant toutes les images (PNG, JPG, JPEG, GIF) présentes dans le répertoire de documentation.
 
-## Utilisation
+Creates a dedicated page grouping all images (PNG, JPG, JPEG, GIF) present in the documentation directory.
+
+## Usage
 
 ```bash
 python3 script.py [options]
@@ -37,28 +42,29 @@ python3 script.py [options]
 
 ### Options
 
-- `--docs-dir` : Répertoire contenant les fichiers Markdown (défaut: ./docs)
-- `--output-file` : Nom du fichier de sortie pour l'index (défaut: README.md)
-- `--exclude` : Fichier à exclure de l'index (chemin relatif au répertoire docs)
-- `--base-url` : URL de base pour les liens vers les fichiers
-- `--generate-illustrations` : Active la génération de la page d'illustrations (activé par défaut)
-- `--illustrations-file` : Nom du fichier pour les illustrations (défaut: Illustrations.md)
+- `--docs-dir`: Directory containing Markdown files (default: ./docs)
+- `--output-file`: Output filename for the index (default: README.md)
+- `--exclude`: File to exclude from the index (path relative to docs directory)
+- `--base-url`: Base URL for file links
+- `--generate-illustrations`: Enable illustration page generation (enabled by default)
+- `--illustrations-file`: Filename for illustrations (default: Illustrations.md)
 
-## Format de sortie
+## Output Format
 
-L'index généré est structuré en sections par sous-répertoire, avec un tableau contenant:
-- Liens vers les fichiers
-- Titres extraits
-- Nombre de mots
-- Dates de dernière modification
+The generated index is structured into sections per subdirectory, with a table containing:
 
-La page d'illustrations organise les images par sous-répertoire, avec le nom et l'aperçu de chaque image.
+- File links
+- Extracted titles
+- Word count
+- Last modification dates
 
-## Dépendances
+The illustrations page organizes images by subdirectory, with the name and a preview of each image.
+
+## Dependencies
 
 - Python 3.x
-- Modules standards : os, re, argparse, datetime
+- Standard modules: os, re, argparse, datetime
 
-## Remarques
+## Notes
 
-Le script traite intelligemment les blocs de code pour un comptage de mots plus précis et gère les erreurs potentielles lors de l'accès aux fichiers.
+The script intelligently handles code blocks for more precise word counting and manages potential errors when accessing files.

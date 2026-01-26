@@ -2,29 +2,47 @@
 This index is automatically generated. Documentation is organized by chapters (directories).
 
 ## General Documentation
- * [](./PLANNING.md)
+ * [Markdown Documentation Index Generator](./generate_doc_description.md)
+ * [User Guide: Understanding the New Script Documentation](./user_guide.md)
 
-## SPECIFICATIONS
- * [Technical Specifications: Bash Script Commenting Engine](./SPECIFICATIONS/feature.md)
+## Cassandra
+ * [🔎 DataStax Search: Powerful Integrated Search in DataStax Enterprise](./Cassandra/dse_solr.md)
 
-## TEST_SPECIFICATIONS
- * [Test Scenarios for Bash Script Commenting](./TEST_SPECIFICATIONS/test_scenarios.md)
+## LinuxSystem
+ * [NFS SCRIPTS FOR DB BACKUP](./LinuxSystem/7_nfs.md)
 
-## ansible
- * [Playbook: Add localhost hosts](./ansible/doc_add_localhost_hosts.md)
- * [Playbook: Create Unix user](./ansible/doc_add_user.md)
- * [Playbook: Update Ubuntu Distro](./ansible/doc_distro_upgrade.md)
- * [Playbook: Import S3 dump to RDS](./ansible/doc_import_s3_dump_rds_executor.md)
- * [Playbook: Install GOSS](./ansible/doc_install_goss.md)
- * [Playbook: Install packages](./ansible/doc_install_packages.md)
- * [Playbook: Install Rundeck](./ansible/doc_install_rundeck.md)
- * [Playbook: Install scripts](./ansible/doc_install_scripts.md)
- * [Playbook: Deploy and configure MySQL InnoDB Cluster](./ansible/doc_playbook_innodb_cluster_group.md)
- * [Playbook: Run script](./ansible/doc_run_script.md)
- * [Playbook: Update Ubuntu Distro](./ansible/doc_update_apt_distribution.md)
- * [Playbook: Update RedHat Like Distro](./ansible/doc_update_rh_distribution.md)
+## MariaDB
+ * [Standard Operations: Update System](./MariaDB/1_update.md)
+ * [Standard Operation: Centos MariaDB 10.5 server installation](./MariaDB/1a_install_mariadb_centos.md)
+ * [Standard Operations: Update or install management scripts](./MariaDB/1bis_deploy_scripts.md)
+ * [Standard Operation: Setup firewall on Linux with firewalld or iptables](./MariaDB/2_firewall.md)
+ * [Standard Operation: MariaDB 10.5 server configuration based on  CPU/RAM](./MariaDB/3_config_start.md)
+ * [Standard Operation: Galera Cluster bootstrap](./MariaDB/5_bootstrap_node.md)
+ * [Standard Operation: Adding a new member into a galera Cluster](./MariaDB/6_start_new_node.md)
+ * [Technical Documentation - Point-In-Time Recovery (PITR) with MariaDB Binlogs](./MariaDB/maria-pitr-restore.md)
 
-## documentation
- * [Générateur d'Index de Documentation Markdown](./documentation/generate_doc_description.md)
- * [User Guide: Understanding the New Script Documentation](./documentation/user_guide.md)
+## MongoDB
+ * [Installing MongoDB Community with Docker](./MongoDB/install_mongodb_docker.md)
+ * [MongoDB Audit and Traceability Study](./MongoDB/mongodb_audit_study.md)
+ * [MongoDB Backup Exercise](./MongoDB/mongodb_backup_exercise.md)
+ * [MongoDB bsondump Exercise](./MongoDB/mongodb_bsondump_exercise.md)
+ * [MongoDB Configuration File Documentation](./MongoDB/mongodb_configuration.md)
+ * [MongoDB CRUD Operations](./MongoDB/mongodb_crud_operations.md)
+ * [MongoDB Export Exercise](./MongoDB/mongodb_export_exercise.md)
+ * [MongoDB Import Exercise](./MongoDB/mongodb_import_exercise.md)
+ * [MongoDB Insert Exercise](./MongoDB/mongodb_insert_exercise.md)
+ * [MongoDB mongofiles Exercise](./MongoDB/mongodb_mongofiles_exercise.md)
+ * [MongoDB Prerequisites](./MongoDB/mongodb_prerequisites.md)
+ * [MongoDB Products Overview](./MongoDB/mongodb_products.md)
+ * [MongoDB Restore Exercise](./MongoDB/mongodb_restore_exercise.md)
+ * [MongoDB Status Monitoring Exercise](./MongoDB/mongodb_status_exercise.md)
+ * [MongoDB Top Monitoring Exercise](./MongoDB/mongodb_top_exercise.md)
+
+## PostgreSQL
+ * [Overview of Audit and Traceability Solutions for PostgreSQL](./PostgreSQL/audit_study.md)
+ * [Etcd v3.6: SSL Installation and Configuration on RHEL 8](./PostgreSQL/etcd_install_ssl.md)
+ * [Patroni: Configuration on Red Hat (RHEL 7/8)](./PostgreSQL/patroni_config_rh.md)
+ * [Patroni: HA Behavior Test Cases](./PostgreSQL/patroni_ha_tests.md)
+ * [Patroni: Specific Monitoring](./PostgreSQL/patroni_monitoring.md)
+ * [Patroni: REST API Reference](./PostgreSQL/patroni_rest_api.md)
 

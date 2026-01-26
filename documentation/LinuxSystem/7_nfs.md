@@ -1,75 +1,85 @@
-# NFS SCRIPTS POUR LA SAUVEGARDE BDD
------------------------ 
+# NFS SCRIPTS FOR DB BACKUP
 
-## Environnements cible serveur NFS et clients NFS
-- Serveur NFS en **Ubuntu 20**
-- Client NFS: **Ubuntu 18**, **Ubuntu 20** et **CentOS 7** 
+-----------------------
 
-## Fonctions utilitaires d'installation des paquets **Ubuntu** & **CentOS**
-``setup_ubuntu_nfs_server()``: Installation des paquets dédiés au serveur NFS **Ubuntu 20** 
-``setup_ubuntu_nfs_client()``: Installation des paquets dédiés au client NFS  **Ubuntu 18 et 20**
-``setup_centos_nfs_client()``: Installation des paquets dédiés au serveur NFS **CentOS 7**
+## Target Environments: NFS Server and NFS Clients
 
-## Fonctions utilitaires serveur NFS de gestion des partages NFS **Ubuntu 20**
-``createNfsShare()``: Création d'un partage NFS  ** Ubuntu 20**
-``removeNfsShare()``: Suppression d'un partage NFS  ** Ubuntu 20**
+- NFS Server: **Ubuntu 20**
+- NFS Client: **Ubuntu 18**, **Ubuntu 20**, and **CentOS 7**
 
-## Fonctions utilitaires client NFS de gestion des partages NFS **Ubuntu 18/20** & **CentOS 7**
-``mountNfsShare()``: Installation d'un point de montage NFS
-``umountNfsShare()``: Suppression d'un point de montage NFS
+## Package Installation Utility Functions (**Ubuntu** & **CentOS**)
 
-# Démonstration et validation des procédures
+`setup_ubuntu_nfs_server()`: Installs packages specialized for the NFS server on **Ubuntu 20**.
+`setup_ubuntu_nfs_client()`: Installs packages specialized for the NFS client on **Ubuntu 18 and 20**.
+`setup_centos_nfs_client()`: Installs packages specialized for the NFS client on **CentOS 7**.
 
-# Liste des machines du POC
- - U20  88.80.185.117 - Serveur NFS Ubuntu 20
- - U20 85.159.208.89  - Client NFS Ubuntu 20
- - U18 178.79.173.114 - Client NFS Ubuntu 18
- - C7  178.79.171.254 - Client NFS CentOS 7
+## NFS Server Management Utility Functions (**Ubuntu 20**)
 
-## Configuration d'un serveur NFS **Ubuntu 20**
+`createNfsShare()`: Creates an NFS share on **Ubuntu 20**.
+`removeNfsShare()`: Removes an NFS share on **Ubuntu 20**.
 
-### Détails 
-#### Création de 4 points de montage 
-  - Un par client NFS 
-  - Un partage NFS global à tous les serveurs
+## NFS Client Management Utility Functions (**Ubuntu 18/20** & **CentOS 7**)
 
-### Commandes d'installation des paquets NFS serveur ** Ubuntu 20**
-    
+`mountNfsShare()`: Sets up an NFS mount point.
+`umountNfsShare()`: Removes an NFS mount point.
+
+# Demonstration and Validation of Procedures
+
+# POC Machine List
+
+- U20 88.80.185.117 - Ubuntu 20 NFS Server
+- U20 85.159.208.89  - Ubuntu 20 NFS Client
+- U18 178.79.173.114 - Ubuntu 18 NFS Client
+- C7  178.79.171.254 - CentOS 7 NFS Client
+
+## Configuring an NFS Server on **Ubuntu 20**
+
+### Details
+
+#### Creating 4 Mount Points
+
+- One per NFS client
+- One global NFS share for all servers
+
+### Package Installation Commands (NFS Server **Ubuntu 20**)
+
     ssh root@88.80.185.117
     # source nfs_utils.sh
 
     # setup_ubuntu_nfs_server
     ...
 
-### Commandes d'installation des paquets NFS client  ** Ubuntu 18 ou 20**
-    
+### Package Installation Commands (NFS Client **Ubuntu 18 or 20**)
+
     ssh root@88.80.185.117
     # source nfs_utils.sh
 
     # setup_ubuntu_nfs_client
     ...
 
-### Commandes d'installation des paquets NFS client  ** CentOS 7**
-    
+### Package Installation Commands (NFS Client **CentOS 7**)
+
     ssh root@88.80.185.117
     # source nfs_utils.sh
 
     # setup_centos_nfs_client
     ...
 
-### Commandes de création des partages NFS (Serveur NFS)
+### NFS Share Creation Commands (NFS Server)
+
     ssh root@88.80.185.117
     # source nfs_utils.sh
 
     # createNfsShare /backups/nfscli1 85.159.208.89
     # createNfsShare /backups/nfscli2 178.79.173.114
-    # createNfsShare /backups/nfscli3  178.79.171.254
+    # createNfsShare /backups/nfscli3 178.79.171.254
     # createNfsShare /backups/nfsall 85.159.208.89 178.79.173.114 178.79.171.254
 
     # cat /etc/exportfs
     ...
     
-### Commandes de suppression des partages NFS  (Serveur NFS)
+### NFS Share Removal Commands (NFS Server)
+
     # source nfs_utils.sh
 
     # removeNfsShare /backups/nfscli1
@@ -77,63 +87,69 @@
     # removeNfsShare /backups/nfscli3
     # removeNfsShare /backups/nfsall
 
-### Commandes de montage NFS - serveur nfscli1 **Ubuntu 20**  (Client NFS)
+### NFS Mount Commands - nfscli1 **Ubuntu 20** (NFS Client)
+
     ssh root@nfscli1
     # source nfs_utils.sh
 
     # mountNfsShare 88.80.185.117 /backups/nfscli1 /backups
     # mountNfsShare 88.80.185.117 /backups/nfsall /nfsshare
 
-### Commandes de démontage NFS - serveur nfscli1 **Ubuntu 20**  (Client NFS)
+### NFS Unmount Commands - nfscli1 **Ubuntu 20** (NFS Client)
+
     ssh root@nfscli1
     # source nfs_utils.sh
 
     # umountNfsShare /backups
     # umountNfsShare /nfsshare
 
-### Commandes de montage NFS - serveur nfscli2 **Ubuntu 18**  (Client NFS)
+### NFS Mount Commands - nfscli2 **Ubuntu 18** (NFS Client)
+
     ssh root@nfscli2
     # source nfs_utils.sh
 
     # mountNfsShare 88.80.185.117 /backups/nfscli2 /backups
     # mountNfsShare 88.80.185.117 /backups/nfsall /nfsshare
 
-### Commandes de démontage NFS - serveur nfscli2 **Ubuntu 18**  (Client NFS)
+### NFS Unmount Commands - nfscli2 **Ubuntu 18** (NFS Client)
+
     ssh root@nfscli2
     # source nfs_utils.sh
 
     # umountNfsShare /backups
     # umountNfsShare /nfsshare
 
-### Commandes de montage NFS - serveur nfscli3 **CentOS 7**  (Client NFS)
+### NFS Mount Commands - nfscli3 **CentOS 7** (NFS Client)
+
     ssh root@nfscli3
     # source nfs_utils.sh
 
     # mountNfsShare 88.80.185.117 /backups/nfscli3 /backups
     # mountNfsShare 88.80.185.117 /backups/nfsall /nfsshare
 
-### Commandes de démontage NFS - serveur nfscli3 **CentOS 7**  (Client NFS)
+### NFS Unmount Commands - nfscli3 **CentOS 7** (NFS Client)
+
     ssh root@nfscli3
     # source nfs_utils.sh
 
     # umountNfsShare /backups
     # umountNfsShare /nfsshare
 
-## Les tests réalisés
-    - tentative de montage simple
-                   => entrée fstab ok
-                   => point de montage ok
-    - tentative de montage en double
-                   => Pas de double entrée fstab
-                   => point de montage ok
-    - tentative de démontage
-                   => Plus d'entrée nfs
-    - tentative de démontage en double
-                   => Pas de point de montage
-                   => Plus d'entrée nfs
-    -tentative de montage d'un point d'un autre serveur
-                   => Pas de mauvaise entrée /etc/fstab
-                   => Pas de point de montage
+## Performed Tests
 
-    - tentative lecture et écriture entre les points de montage client OK
-                
+    - Simple mount attempt
+                   => fstab entry ok
+                   => mount point ok
+    - Double mount attempt
+                   => No double fstab entry
+                   => mount point ok
+    - Unmount attempt
+                   => No nfs entry left
+    - Double unmount attempt
+                   => No mount point
+                   => No nfs entry left
+    - Attempt to mount a point from another server
+                   => No wrong /etc/fstab entry
+                   => No mount point
+
+    - Read and write tests between client mount points OK
