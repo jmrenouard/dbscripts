@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "----------------------"
-for mdfile in *.md; do  
-    sh ./genToC.sh $mdfile
+find . -type f -name "*.md" | grep -v "README" | while read -r mdfile; do
+    sh ./genToC.sh "$mdfile"
 done
 echo "----------------------"

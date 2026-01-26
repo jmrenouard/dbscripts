@@ -1,7 +1,16 @@
 # Panorama des solutions d'audit et de traçabilité pour PostgreSQL
 
 ## Table des matières
-- [Panorama des solutions d'audit et de traçabilité pour PostgreSQL](#panorama-des-solutions-daudit-et-de-traçabilité-pour-postgresql)
+- [Solutions d'audit natives de PostgreSQL](#solutions-d'audit-natives-de-postgresql)
+- [pgAudit : L'extension communautaire de référence](#pgaudit-:-l'extension-communautaire-de-référence)
+- [Solutions personnalisées avec triggers](#solutions-personnalisées-avec-triggers)
+- [EDB Postgres Advanced Server : Audit intégré de niveau entreprise](#edb-postgres-advanced-server-:-audit-intégré-de-niveau-entreprise)
+- [Percona Distribution for PostgreSQL](#percona-distribution-for-postgresql)
+- [Comparaison des solutions](#comparaison-des-solutions)
+- [Gestion et bonnes pratiques](#gestion-et-bonnes-pratiques)
+- [Solutions tierces et complémentaires](#solutions-tierces-et-complémentaires)
+- [Recommandations](#recommandations)
+
   - [Table des matières](#table-des-matières)
   - [Solutions d'audit natives de PostgreSQL](#solutions-daudit-natives-de-postgresql)
   - [pgAudit : L'extension communautaire de référence](#pgaudit--lextension-communautaire-de-référence)

@@ -1,49 +1,51 @@
 ---
-description: Pull latest changes, commit with conventional commit format, and push
+description: Synchronize changes with remote using Conventional Commits and pre-push validation.
 ---
 
 # Git Sync with Conventional Commits
 
-This workflow helps you synchronize your changes with the remote repository while maintaining a clean, structured commit history.
+This workflow synchronizes your changes with the remote repository while maintaining a clean, structured commit history and enforcing project governance.
 
-## Steps
+## 🛠️ Implementation
 
-1. **Pull latest changes**
-   Ensure your local branch is up to date and resolve any conflicts if necessary.
+### 1. Pull Latest Changes
 
-   ```bash
-   git pull origin $(git branch --show-current)
-   ```
+Ensure your local branch is up to date.
 
-2. **Stage your changes**
+// turbo
 
-   ```bash
-   git add .
-   ```
+```bash
+git pull origin $(git branch --show-current) --rebase
+```
 
-3. **Commit with Conventional Commit format**
-   // turbo
-   Use the following structure: `<type>(<scope>): <short description>`
+### 2. Stage and Commit
 
-   Types:
-   - `feat`: A new feature
-   - `fix`: A bug fix
-   - `docs`: Documentation only changes
-   - `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
-   - `refactor`: A code change that neither fixes a bug nor adds a feature
-   - `perf`: A code change that improves performance
-   - `test`: Adding missing tests or correcting existing tests
-   - `chore`: Changes to the build process or auxiliary tools and libraries such as documentation generation
+Follow the Conventional Commits format: `<type>(<scope>): <description>`.
 
-   ```bash
-   git commit -m "<type>(<scope>): <description>"
-   ```
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `ci`, `chore`.
 
-4. **Push changes**
+```bash
+git add .
+git commit -m "<type>(<scope>): <description>"
+```
 
-   ```bash
-   git push origin $(git branch --show-current)
-   ```
+### 3. Pre-flight Validation
+
+Run the pre-flight checks before pushing.
+
+```bash
+/release-preflight
+```
+
+### 4. Push Changes
+
+Deploy your changes once validation is complete.
+
+// turbo
+
+```bash
+git push origin $(git branch --show-current)
+```
 
 > [!TIP]
-> Always verify your changes with `git status` and `git diff --cached` before committing.
+> Use `/release-preflight` independently at any time to verify project state.

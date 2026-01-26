@@ -34,7 +34,7 @@ Governance is not static. This document captures the evolutionary patterns and b
 ### 🛠️ Contribution Model
 
 - **Spec-Driven**: Changes start with a specification in `documentation/specifications/`.
-- **Atomic Commits**: Follow Conventional Commits standards.
+- **Atomic Commits**: Follow Conventional Commits standards (see [06_version_management.md](file:///home/jmren/GIT_REPOS/dbscripts/.agent/rules/06_version_management.md)).
 - **Verifiable Proof**: Every PR or change must include verification results (walkthroughs).
 
 ### ✅ Accountability

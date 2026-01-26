@@ -5,6 +5,11 @@
 - [Scripted and remote updates procedure](#scripted-and-remote-updates-procedure)
 - [Update Procedure example remotely](#update-procedure-example-remotely)
 
+  - [Table of contents](#table-of-contents)
+  - [Main document target](#main-document-target)
+  - [Scripted and remote updates procedure](#scripted-and-remote-updates-procedure)
+  - [Update Procedure example remotely](#update-procedure-example-remotely)
+
 ## Main document target
 
 >  * Start a other operationnal node
@@ -101,4 +106,3 @@ ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib
 0
 
 ```
-
