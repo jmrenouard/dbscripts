@@ -12,7 +12,6 @@
 
 ``setup_centos_stunnel_client()``: Installation des paquets dédiés au serveur stunnel **CentOS 7**
 
-
 ## Fonctions utilitaires serveur STUNNEL de gestion des partages STUNNEL **Ubuntu 20**
 ``gen_stunnel_cert()``: Génération du certificat PEM du tunnel TLS  ** Ubuntu 20**
 
@@ -68,14 +67,12 @@
     # gen_stunnel_cert
     # gen_stunnel_server_conf
 
-
     ...
     
 ### Commandes de d'envoi des clés sur les serveurs clients (Serveur STUNNEL)
     ssh root@176.58.120.128
     # source stunnel_utils.sh
     # push_cert_config 178.79.190.100
-
 
 ### Commandes de montage STUNNEL - serveur cli1 **Ubuntu 20**  (Client STUNNEL)
     ssh root@cli1

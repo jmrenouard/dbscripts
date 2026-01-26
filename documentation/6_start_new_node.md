@@ -2,7 +2,7 @@
 
 ## Table of contents
 - [Main document target](#main-document-target)
-- [Scripted and remote update procedure](#scripted-and-remote-update-procedure)
+- [Scripted and remote updates procedure](#scripted-and-remote-updates-procedure)
 - [Update Procedure example remotely](#update-procedure-example-remotely)
 
 ## Main document target

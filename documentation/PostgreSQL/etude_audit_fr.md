@@ -1,17 +1,15 @@
 # Panorama des solutions d'audit et de traçabilité pour PostgreSQL
 
 ## Table des matières
-- [Panorama des solutions d'audit et de traçabilité pour PostgreSQL](#panorama-des-solutions-daudit-et-de-traçabilité-pour-postgresql)
-  - [Table des matières](#table-des-matières)
-  - [Solutions d'audit natives de PostgreSQL](#solutions-daudit-natives-de-postgresql)
-  - [pgAudit : L'extension communautaire de référence](#pgaudit--lextension-communautaire-de-référence)
-  - [Solutions personnalisées avec triggers](#solutions-personnalisées-avec-triggers)
-  - [EDB Postgres Advanced Server : Audit intégré de niveau entreprise](#edb-postgres-advanced-server--audit-intégré-de-niveau-entreprise)
-  - [Percona Distribution for PostgreSQL](#percona-distribution-for-postgresql)
-  - [Comparaison des solutions](#comparaison-des-solutions)
-  - [Gestion et bonnes pratiques](#gestion-et-bonnes-pratiques)
-  - [Solutions tierces et complémentaires](#solutions-tierces-et-complémentaires)
-  - [Recommandations](#recommandations)
+- [Solutions d'audit natives de PostgreSQL](#solutions-d'audit-natives-de-postgresql)
+- [pgAudit : L'extension communautaire de référence](#pgaudit-:-l'extension-communautaire-de-référence)
+- [Solutions personnalisées avec triggers](#solutions-personnalisées-avec-triggers)
+- [EDB Postgres Advanced Server : Audit intégré de niveau entreprise](#edb-postgres-advanced-server-:-audit-intégré-de-niveau-entreprise)
+- [Percona Distribution for PostgreSQL](#percona-distribution-for-postgresql)
+- [Comparaison des solutions](#comparaison-des-solutions)
+- [Gestion et bonnes pratiques](#gestion-et-bonnes-pratiques)
+- [Solutions tierces et complémentaires](#solutions-tierces-et-complémentaires)
+- [Recommandations](#recommandations)
 
 Les solutions d'audit et de traçabilité pour PostgreSQL se déclinent en plusieurs approches, chacune adaptée à des besoins spécifiques en matière de conformité, sécurité et surveillance des opérations. Ce panorama couvre les différentes versions de PostgreSQL (communauté open source), EnterpriseDB (EDB Postgres Advanced Server) et Percona Distribution for PostgreSQL.
 
@@ -146,7 +144,7 @@ EDB Audit offre des capacités spécifiques absentes de la version communautaire
 
 **Postgres Enterprise Manager (PEM)**
 
-PEM est l'outil de gestion d'EDB qui simplifie la configuration de l'audit via une interface graphique. Il permet de : configurer les attributs de logging, définir la fréquence de collecte des logs, spécifier les types d'activités à inclure, gérer la rotation des fichiers, et analyser les logs via un tableau de bord avec filtrage par timestamp, base de données, utilisateur et type de commande.
+PEM est l'outil de gestion d'EDB qui simplifie la configuration de l'audit via une interface graphique. Il permet de : configurer les attributs de logging, définir la fréquence de collecte des logs, spécifier les types d'activités à inclure, gérant la rotation des fichiers, et analyser les logs via un tableau de bord avec filtrage par timestamp, base de données, utilisateur et type de commande.
 
 ## Percona Distribution for PostgreSQL
 
@@ -267,3 +265,6 @@ Pour choisir la solution d'audit appropriée, considérez les critères suivants
 **Pour l'audit au niveau applicatif (modifications de données uniquement)** : Les triggers personnalisés offrent la plus grande flexibilité et peuvent être adaptés précisément aux besoins métier. Utilisez l'approche audit-trigger 91plus comme base.
 
 Dans tous les cas, définissez clairement vos exigences d'audit avant l'implémentation, testez l'impact sur les performances dans un environnement de pré-production, et mettez en place des processus automatisés de rotation et archivage des logs pour gérer le stockage à long terme.
+
+---
+Source: Internal Study - Audit Solutions for PostgreSQL

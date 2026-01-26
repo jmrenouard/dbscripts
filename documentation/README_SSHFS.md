@@ -10,7 +10,6 @@
 ``setup_ubuntu_sshfs_client()``: Installation des paquets dédiés au client SSHFS  **Ubuntu 18 et 20**
 ``setup_centos_sshfs_client()``: Installation des paquets dédiés au serveur SSHFS **CentOS 7**
 
-
 ## Fonctions utilitaires serveur SSHFS de gestion des partages SSHFS **Ubuntu 20**
 ``createSSHFSShare()``: Création d'un partage SSHFS  ** Ubuntu 20**
 ``removeSSHFSShare()``: Suppression d'un partage SSHFS  ** Ubuntu 20**
@@ -66,7 +65,6 @@
 
     # create_sshfs_share backups rw
     # create_sshfs_share share ro
-
 
     # ls -lsh / | grep -E '(share|backups)' 
     ...

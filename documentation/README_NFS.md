@@ -10,7 +10,6 @@
 ``setup_ubuntu_nfs_client()``: Installation des paquets dédiés au client NFS  **Ubuntu 18 et 20**
 ``setup_centos_nfs_client()``: Installation des paquets dédiés au serveur NFS **CentOS 7**
 
-
 ## Fonctions utilitaires serveur NFS de gestion des partages NFS **Ubuntu 20**
 ``createNfsShare()``: Création d'un partage NFS  ** Ubuntu 20**
 ``removeNfsShare()``: Suppression d'un partage NFS  ** Ubuntu 20**
@@ -66,7 +65,6 @@
     # createNfsShare /backups/nfscli2 178.79.173.114
     # createNfsShare /backups/nfscli3  178.79.171.254
     # createNfsShare /backups/nfsall 85.159.208.89 178.79.173.114 178.79.171.254
-
 
     # cat /etc/exportfs
     ...

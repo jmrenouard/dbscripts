@@ -3,8 +3,6 @@
 ## Table des matières
 - [Objectifs du document](#objectifs-du-document)
 - [Procédure de configuration et activation de firewall](#procédure-de-configuration-et-activation-de-firewall)
-- [Exemple de procédure de mise à jour pour OS de type Red Hat](#exemple-de-procédure-de-mise-à-jour-pour-os-de-type-red-hat)
-- [Exemple de procédure de mise à jour pour OS de type Debian](#exemple-de-procédure-de-mise-à-jour-pour-os-de-type-debian)
 - [Exemple de procédure à distance par script](#exemple-de-procédure-à-distance-par-script)
 
 ## Objectifs du document

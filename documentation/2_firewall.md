@@ -1,7 +1,10 @@
 # Standard Operation: Setup firewall on Linux with firewalld or iptables
 
 ## Table of contents
-- [Standard Operation: Setup firewall on Linux with firewalld or iptables](#standard-operation-setup-firewall-on-linux-with-firewalld-or-iptables)
+- [Main document target](#main-document-target)
+- [Scripted and remote update procedure](#scripted-and-remote-update-procedure)
+- [Update Procedure example remotely](#update-procedure-example-remotely)
+
   - [Table of contents](#table-of-contents)
   - [Main document target](#main-document-target)
   - [Scripted and remote update procedure](#scripted-and-remote-update-procedure)
