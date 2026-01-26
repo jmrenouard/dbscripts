@@ -15,6 +15,8 @@ Consistent versioning and a clear changelog are vital for project transparency a
 
 All commits MUST follow the Conventional Commits specification. This enables automated changelog generation and version bumping.
 
+**Atomic Commits**: As soon as a discrete change is completed and verified, it MUST be committed immediately using the proper Conventional Commit type.
+
 **Format**: `<type>(<scope>): <description>`
 
 **Types**:
