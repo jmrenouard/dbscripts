@@ -22,21 +22,21 @@ Perform the complete configuration of Patroni to orchestrate PostgreSQL high ava
 
 ## Systemd Service Configuration
 
-Using a systemd template allows managing multiple instances on the same server if needed.
+A single systemd service is used to manage the Patroni instance.
 
-**File:** `/etc/systemd/system/patroni@.service`
+**File:** `/etc/systemd/system/patroni.service`
 
 ```ini
 [Unit]
-Description=Runners to orchestrate a high-availability PostgreSQL %I
+Description=Runners to orchestrate a high-availability PostgreSQL
 After=syslog.target network.target
 
 [Service]
 Type=simple
 User=postgres
 Group=postgres
-# On RHEL 8, ensure the path to python3 or patroni is correct
-ExecStart=/usr/local/bin/patroni /admin/etc/patroni_%I.yaml
+# Ensure the path to python3 or patroni is correct
+ExecStart=/usr/local/bin/patroni /etc/patroni.yaml
 KillMode=process
 TimeoutSec=30
 Restart=no
@@ -47,14 +47,14 @@ WantedBy=multi-user.target
 
 ## Patroni Parameters (YAML File)
 
-The configuration file defines network interfaces, Etcd connection, and PostgreSQL parameters applied by the DCS.
+The configuration file defines network interfaces, Etcd connection, and PostgreSQL parameters.
 
-**Example File:** `/admin/etc/patroni_tarif.yaml`
+**File:** `/etc/patroni.yaml`
 
 ```yaml
-scope: tarif_cluster
-namespace: /tarif/
-name: tarif-node1
+scope: postgres_cluster
+namespace: /db/
+name: pg-node1
 
 restapi:
   listen: 0.0.0.0:8008
@@ -62,8 +62,6 @@ restapi:
 
 etcd:
   host: 192.168.36.22:2379
-  # username: patroni
-  # password: patroni
 
 bootstrap:
   dcs:
@@ -83,11 +81,10 @@ bootstrap:
         checkpoint_timeout: 30
 
 postgresql:
-  listen: 0.0.0.0:6003
-  connect_address: 192.168.36.15:6003
-  data_dir: /base/tarif
-  config_dir: /base/tarif
-  bin_dir: /usr/pgsql-11/bin  # Adjust based on version (e.g., /usr/pgsql-13/bin on RHEL 8)
+  listen: 0.0.0.0:5432
+  connect_address: 192.168.36.15:5432
+  data_dir: /var/lib/pgsql/data
+  bin_dir: /usr/pgsql-16/bin  # Adjust based on version
   authentication:
     replication:
       username: replication
@@ -108,27 +105,25 @@ log:
 
 ## Automation Script Example
 
-This script dynamically generates the YAML configuration and the systemd service for a given instance.
+This script generates the YAML configuration and starts the systemd service.
 
 ```bash
 #!/bin/sh
-# Usage: ./config_patroni.sh <instance_name> <port>
+# Usage: ./config_patroni.sh <port>
 
-instance=${1:-"tarif"}
-port=${2:-"6003"}
+port=${1:-"5432"}
 api_port=$(($port + 2000))
 SELF_IP=$(hostname -I | awk '{print $1}')
 SUID=$(hostname -s)
 
 # 1. Cleanup and stop
-systemctl stop patroni@${instance} 2>/dev/null
-systemctl disable patroni@${instance} 2>/dev/null
+systemctl stop patroni 2>/dev/null
 
 # 2. YAML file generation
-cat <<EOF > /admin/etc/patroni_${instance}.yaml
-scope: ${instance}_cluster
-namespace: /${instance}/
-name: ${instance}-${SUID}
+cat <<EOF > /etc/patroni.yaml
+scope: pg_cluster
+namespace: /db/
+name: pg-${SUID}
 
 restapi:
   listen: ${SELF_IP}:${api_port}
@@ -151,18 +146,18 @@ bootstrap:
 postgresql:
   listen: 0.0.0.0:${port}
   connect_address: ${SELF_IP}:${port}
-  data_dir: /base/${instance}
-  bin_dir: /usr/pgsql-11/bin
+  data_dir: /var/lib/pgsql/data
+  bin_dir: /usr/pgsql-16/bin
   authentication:
     replication: {username: replication, password: rep_password}
     superuser: {username: postgres, password: postgres_password}
 EOF
 
 # 3. Activation and start
-chown postgres. /admin/etc/patroni_${instance}.yaml
+chown postgres. /etc/patroni.yaml
 systemctl daemon-reload
-systemctl enable patroni@${instance}
-systemctl start patroni@${instance}
+systemctl enable patroni
+systemctl start patroni
 
 echo "Patroni configured. Follow logs: tail -f /var/log/patroni/patroni.log"
 ```

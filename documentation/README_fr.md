@@ -46,7 +46,7 @@ Cet index est généré automatiquement. La documentation est organisée par cha
  * [Etcd v3.6 : Installation et Configuration SSL sur RHEL 8](./PostgreSQL/etcd_install_ssl_fr.md)
  * [Panorama des solutions d'audit et de traçabilité pour PostgreSQL](./PostgreSQL/panorama_solutions_audit_fr.md)
  * [Patroni: Configuration sur Red Hat (RHEL 7/8)](./PostgreSQL/patroni_config_rh_fr.md)
- * [Patroni: Cas de tests de comportement HA](./PostgreSQL/patroni_ha_tests_fr.md)
+ * [Patroni : Cas de tests de comportement HA](./PostgreSQL/patroni_ha_tests_fr.md)
  * [Patroni: Supervision spécifique](./PostgreSQL/patroni_monitoring_fr.md)
  * [Patroni: Référence de l'API REST](./PostgreSQL/patroni_rest_api_fr.md)
 
