@@ -6,7 +6,6 @@ Bienvenue dans la documentation de l'environnement Docker MariaDB. Cet index fou
 
 ## 📋 Table des Matières
 
-- [Index de la Documentation MariaDB 📚](#index-de-la-documentation-mariadb-)
   - [📋 Table des Matières](#-table-des-matières)
   - [🚀 Documentation de Base](#-documentation-de-base)
   - [🛠️ Gestion \& Automatisation](#️-gestion--automatisation)

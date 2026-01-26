@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Target files
-README_EN="README.md"
-README_FR="README_fr.md"
+SCRIPT_DIR=$(dirname "$0")
+README_EN="$SCRIPT_DIR/README.md"
+README_FR="$SCRIPT_DIR/README_fr.md"
 
 # Headers
 {

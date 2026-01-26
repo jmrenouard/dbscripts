@@ -18,8 +18,22 @@ Consistent and bilingual documentation is critical for the `dbscripts` project. 
 
 ### 📝 Structure
 
-- **TOC Placeholder**: Every documentation file MUST include a `## Table of contents` (EN) or `## Table des matières` (FR) section.
-- **TOC Marker**: Use the `<TOC>` marker to indicate where the automated table of contents should be injected by `genToC.sh`.
+- **TOC Placeholder**: Every documentation file MUST include a `## Table of contents
+- [🧠 Rationale](#🧠-rationale)
+- [🛠️ Implementation](#🛠️-implementation)
+- [🌍 Bilingual Parity](#🌍-bilingual-parity)
+- [📝 Structure](#📝-structure)
+- [🚀 Automated Sync](#🚀-automated-sync)
+- [✅ Verification](#✅-verification)
+` (EN) or `## Table des matières
+- [🧠 Rationale](#🧠-rationale)
+- [🛠️ Implementation](#🛠️-implementation)
+- [🌍 Bilingual Parity](#🌍-bilingual-parity)
+- [📝 Structure](#📝-structure)
+- [🚀 Automated Sync](#🚀-automated-sync)
+- [✅ Verification](#✅-verification)
+` (FR) section.
+- **TOC Marker**: Use the `` marker to indicate where the automated table of contents should be injected by `genToC.sh`.
 
 ### 🚀 Automated Sync
 
