@@ -1,21 +1,40 @@
 #!/bin/bash
 
+# Usage: sh genSop.sh <target_hosts> <script_file> [functional_slug]
+# Example: sh genSop.sh lab1 setup_db.sh setup_database
+
 target_hosts=$1
 script_file=$2
-file_md=$3
-[ -z "$file_md" ] && file_md=$(basename ${script_file%.*})
+slug=$3
+force=${force:-0}
 
-[ "$force" = "1" ] && rm -f ${file_md}.md ${file_md}_fr.md
+# If no slug is provided, use the script filename
+[ -z "$slug" ] && slug=$(basename "${script_file%.*}")
 
-echo "GENERATING ${file_md}.md and ${file_md}_fr.md"
-source ../profile
+file_en="${slug}.md"
+file_fr="${slug}_fr.md"
 
-title_en="$(grep '##title_en: ' $script_file | perl -pe 's/^##title_en: //g')"
-title_fr="$(grep '##title_fr: ' $script_file | perl -pe 's/^##title_fr: //g')"
+[ "$force" = "1" ] && rm -f "$file_en" "$file_fr"
 
-goals_en="$(grep '##goals_en: ' $script_file | perl -pe 's/^##goals_en: //g' | perl -pe 's/ \/ /\n/g')"
-goals_fr="$(grep '##goals_fr: ' $script_file | perl -pe 's/^##goals_fr: //g' | perl -pe 's/ \/ /\n/g')"
+echo "GENERATING $file_en and $file_fr"
 
+# Check if profile exists (one level up)
+if [ -f "../profile" ]; then
+    source ../profile
+else
+    echo "Warning: profile not found at ../profile"
+fi
+
+# Metadata extraction
+extract_metadata() {
+    local key=$1
+    grep "##${key}: " "$script_file" | sed "s/^##${key}: //g"
+}
+
+title_en=$(extract_metadata "title_en")
+title_fr=$(extract_metadata "title_fr")
+goals_en=$(extract_metadata "goals_en" | sed 's/ \/ /\n/g')
+goals_fr=$(extract_metadata "goals_fr" | sed 's/ \/ /\n/g')
 
 echo "TITLE EN: $title_en"
 echo "TITLE FR: $title_fr"
@@ -24,78 +43,70 @@ echo "GOALS FR: $goals_fr"
 
 result_content=$(mktemp)
 
-echo "vssh_exec ${target_hosts} ${script_file} 2>&1 | tee $result_content"
+echo "Executing script remotely: vssh_exec ${target_hosts} ${script_file}"
+# Note: vssh_exec must be available in the environment (e.g., from profile)
+vssh_exec "${target_hosts}" "${script_file}" 2>&1 | tee "$result_content"
 
-vssh_exec ${target_hosts} ${script_file} 2>&1 | tee $result_content
-
-if [ ! -f "${file_md}.md" ]; then
-echo "# Standard Operation: $title_en
-
-## Table of contents
-<TOC>
-
-## Main document target
-" > ${file_md}.md
-
-echo "${goals_en}" | while IFS= read -r line; do
-echo ">  * $line"
-done >> ${file_md}.md
-
-echo "## Scripted and remote update procedure
-| Step | Description | User | Command |
-| --- | --- | --- | --- |
-| 1 | Load utilities functions  | root | # source profile |
-| 2 | Execute generic script remotely  | root | # vssh_exec ${target_hosts} ${script_file} |
-| 3 | Check return code | root | echo $? (0) |
-
-##  Update Procedure example remotely
-\`\`\`bash
-# vssh_exec ${target_hosts} ${script_file}">> ${file_md}.md
-
-cat ${result_content} >>${file_md}.md
-
-echo "# echo $?
-0
-
-\`\`\`
-">> ${file_md}.md
+# Generate English Document
+if [ ! -f "$file_en" ]; then
+    {
+        echo "# Standard Operation: $title_en"
+        echo ""
+        echo "## Table of contents"
+        echo "<TOC>"
+        echo ""
+        echo "## Main document target"
+        echo "$goals_en" | while IFS= read -r line; do echo ">  * $line"; done
+        echo ""
+        echo "## Scripted and remote update procedure"
+        echo "| Step | Description | User | Command |"
+        echo "| --- | --- | --- | --- |"
+        echo "| 1 | Load utilities functions  | root | # source profile |"
+        echo "| 2 | Execute generic script remotely  | root | # vssh_exec ${target_hosts} ${script_file} |"
+        echo "| 3 | Check return code | root | echo \$? (0) |"
+        echo ""
+        echo "## Update Procedure example remotely"
+        echo "\`\`\`bash"
+        echo "# vssh_exec ${target_hosts} ${script_file}"
+        cat "$result_content"
+        echo "# echo \$?"
+        echo "0"
+        echo "\`\`\`"
+    } > "$file_en"
 fi
 
-if [ ! -f "${file_md}_fr.md" ]; then
-echo "# Opération Standard : $title_fr
-
-## Table des matières
-<TOC>
-
-## Objectifs du document
-" > ${file_md}_fr.md
-
-echo "${goals_fr}" | while IFS= read -r line; do
-echo ">  * $line"
-done >> ${file_md}_fr.md
-
-echo "## Procédure scriptée à distance via le protocole SSH
-| Etape | Description | Utilisateur | Commande |
-| --- | --- | --- | --- |
-| 1 | Load utilities functions  | root | # source profile |
-| 2 | Execute generic script remotely  | root | # vssh_exec ${target_hosts} ${script_file} |
-| 3 | Vérifier le code retour  | root | echo $? (0) |
-
-##  Exemple de procédure à distance par script
-\`\`\`bash
-# vssh_exec ${target_hosts} ${script_file}">> ${file_md}_fr.md
-
-cat ${result_content} >>${file_md}_fr.md
-
-echo "# echo $?
-0
-
-\`\`\`
-">> ${file_md}_fr.md
+# Generate French Document
+if [ ! -f "$file_fr" ]; then
+    {
+        echo "# Opération Standard : $title_fr"
+        echo ""
+        echo "## Table des matières"
+        echo "<TOC>"
+        echo ""
+        echo "## Objectifs du document"
+        echo "$goals_fr" | while IFS= read -r line; do echo ">  * $line"; done
+        echo ""
+        echo "## Procédure scriptée à distance via le protocole SSH"
+        echo "| Etape | Description | Utilisateur | Commande |"
+        echo "| --- | --- | --- | --- |"
+        echo "| 1 | Chargement des fonctions utilitaires | root | # source profile |"
+        echo "| 2 | Exécution du script générique à distance | root | # vssh_exec ${target_hosts} ${script_file} |"
+        echo "| 3 | Vérifier le code retour | root | echo \$? (0) |"
+        echo ""
+        echo "## Exemple de procédure à distance par script"
+        echo "\`\`\`bash"
+        echo "# vssh_exec ${target_hosts} ${script_file}"
+        cat "$result_content"
+        echo "# echo \$?"
+        echo "0"
+        echo "\`\`\`"
+    } > "$file_fr"
 fi
 
+# Cleanup
+rm -f "$result_content"
 
-sh genToc.sh ${file_md}.md 
-sh genToc.sh ${file_md}_fr.md
-
-sh genReadme.sh
+# Refresh TOCs and Indices
+SCRIPT_DIR=$(dirname "$0")
+sh "$SCRIPT_DIR/genAllToC.sh"
+sh "$SCRIPT_DIR/genReadme.sh"

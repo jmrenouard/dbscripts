@@ -7,7 +7,7 @@ category: tool
 
 ## 🧠 Rationale
 
-Generating documentation directly from script execution ensures that the documentation is accurate and reflects the actual behavior of the automation.
+Generating documentation directly from script metadata ensures accuracy and maintains the bilingual standards of the `dbscripts` project.
 
 ## 🛠️ Implementation
 
@@ -18,11 +18,12 @@ Generating documentation directly from script execution ensures that the documen
 
 ### 🚀 Usage Pattern
 
-To generate a new SOP:
+To generate a new bilingual SOP:
 
 1. **Format the script**: Ensure the Bash script has the required metadata comments.
-2. **Execute Generator**: Run `sh documentation/genSop.sh <host> <script_path>`.
-3. **Result**: This will create `filename.md` and `filename_fr.md` with captured terminal output.
+2. **Execute Generator**: Run `sh documentation/genSop.sh <host> <script_path> <functional_slug>`.
+    - `<functional_slug>` will be used to name the files (English: `<slug>.md`, French: `<slug_fr>.md`).
+3. **Recursive Sync**: Always follow up with `/doc-sync` to integrate the new files into the global indices.
 
 ### 🧩 Script Metadata Example
 
@@ -36,4 +37,4 @@ To generate a new SOP:
 ## ✅ Verification
 
 - Check that the generated `.md` files contain the terminal output from the script execution.
-- Ensure TOCs are correctly injected at the end of the process.
+- run `/doc-sync` and verify the new documents appear in both `README.md` and `README_fr.md`.
