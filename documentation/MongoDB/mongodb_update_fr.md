@@ -10,7 +10,7 @@
 graph TD  
     A[Début] --> B{Check FCV 6.0}  
     B -- Non --> C[Forcer FCV 6.0]  
-    B -- Oui \--\> D\[💾 Snapshot Disque]  
+    B -- Oui --> D[💾 Snapshot Disque]  
     C --> D  
     D --> E[🔄 Mise à jour des Secondaires]  
     E --> F[⚡ Primary Step Down]  
