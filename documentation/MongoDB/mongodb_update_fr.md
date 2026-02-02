@@ -12,7 +12,7 @@ graph TD
     B -- Non --> C[Forcer FCV 6.0]  
     B -- Oui --> D[💾 Snapshot Disque]  
     C --> D  
-    D --> E[🔄 Mise à jour des Secondaires]  --> D
+    D --> E[🔄 Mise à jour d'un Noeud Secondaire]  --> B
     E --> F[⚡ Primary Step Down]  
     F --> G[Mise à jour de l'ex-Primaire]  
     G --> H[🛡️ Finalisation FCV 7.0]  
