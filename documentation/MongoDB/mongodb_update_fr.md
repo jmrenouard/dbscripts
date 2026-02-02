@@ -49,11 +49,9 @@ Cette boucle doit être exécutée pour **chaque membre Secondary**, un par un.
 
 2. **Mise à jour des paquets (OS level) :**  
 
-   ```bash
-   # Debian / Ubuntu  
-   sudo apt-get update && sudo apt-get install \-y mongodb-org  
+   ```bash  
    # RHEL / CentOS  
-   sudo yum update \-y mongodb-org
+   sudo yum update -y mongodb-org
    ```
    
 4. **Redémarrage du service :**  
