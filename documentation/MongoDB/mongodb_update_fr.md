@@ -8,15 +8,15 @@
 
 ```mermaid
 graph TD  
-    A\[Début\] \--\> B{Check FCV 6.0}  
-    B \-- Non \--\> C\[Forcer FCV 6.0\]  
-    B \-- Oui \--\> D\[💾 Snapshot Disque\]  
-    C \--\> D  
-    D \--\> E\[🔄 Mise à jour des Secondaires\]  
-    E \--\> F\[⚡ Primary Step Down\]  
-    F \--\> G\[Mise à jour de l'ex-Primaire\]  
-    G \--\> H\[🛡️ Finalisation FCV 7.0\]  
-    H \--\> I\[📊 Vérifications\]
+    A[Début] --> B{Check FCV 6.0}  
+    B -- Non --> C[Forcer FCV 6.0]  
+    B -- Oui \--\> D\[💾 Snapshot Disque]  
+    C --> D  
+    D --> E[🔄 Mise à jour des Secondaires]  
+    E --> F[⚡ Primary Step Down]  
+    F --> G[Mise à jour de l'ex-Primaire]  
+    G --> H[🛡️ Finalisation FCV 7.0]  
+    H --> I[📊 Vérifications]
 ```
 
 ## **💾 1\. Préparation & Sauvegarde**
