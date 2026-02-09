@@ -1,18 +1,46 @@
 #!/bin/bash
 
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
-[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
-
 source /etc/os-release
 
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
+_NAME="$(basename "$(readlink -f "$0")")"
+NAME="${_NAME}"
 lRC=0
-VERSION=${1:-"10.11"}
-##title_en: Ubuntu MariaDB 10.11 server installation
-##title_fr: Installation du serveur MariaDB 10.11 sur OS Ubuntu  
+VERSION=${1:-"11.8"}
+##title_en: Ubuntu MariaDB 11.8 server installation
+##title_fr: Installation du serveur MariaDB 11.8 sur OS Ubuntu  
 ##goals_en: Package software installation for MariaDB / Related tools installation / Last security packages installation
 ##goals_fr: Installation des packages logiciels pour MariaDB / Installation des logiciels tiers relatif aux bases de données / Installation des dernières versions logicielles
 
-banner "BEGIN SCRIPT: $_NAME"
+banner "BEGIN SCRIPT: ${_NAME}"
 
 find /etc/apt/sources.list.d -type f -iname '*mariadb*.list' -exec rm -f {} \;
 

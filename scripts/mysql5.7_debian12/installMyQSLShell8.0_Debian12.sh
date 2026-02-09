@@ -1,14 +1,45 @@
-#!/bin/bash
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
-# Script d'installation de MySQL Shell 8.0.42 sur Debian 12 (Bookworm)
-# Utilise le paquet .deb officiel pour Debian 12.
-# Ce script doit être exécuté avec des privilèges root (par exemple, via sudo).
+_NAME="$(basename "$(readlink -f "$0")")"
+NAME="${_NAME}"
+my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep -E '(192.168|172.2)'| cut -d/ -f1 | awk '{print $2}'|head -n1)
+
+banner "### Installation de MySQL Shell on Debian 12 ###"
+lRC=0
+
 
 # Vérifier si le script est exécuté en tant que root
 if [[ $EUID -ne 0 ]]; then
-   echo "Ce script doit être exécuté en tant que root ou avec sudo."
-   exit 1
+   error "Ce script doit être exécuté en tant que root ou avec sudo."
 fi
+
 
 # --- Définir les variables ---
 # Version de MySQL Shell à installer
@@ -26,7 +57,8 @@ DOWNLOAD_URL="${DOWNLOAD_BASE_URL}/${PACKAGE_FILE}"
 # Répertoire où télécharger le paquet
 INSTALL_DIR="/usr/src"
 
-echo "--- Début de l'installation de MySQL Shell ${SHELL_VERSION} sur Debian ${DEBIAN_VERSION} ---"
+# banner already called above
+
 
 ###############################################################################
 # 1. Préparation du système et téléchargement du paquet
@@ -112,8 +144,9 @@ else
     echo "Essayez de fermer et rouvrir votre terminal ou de lancer 'source ~/.bashrc' (ou équivalent)."
 fi
 
-echo "--- Fin du script d'installation de MySQL Shell ---"
-echo "Si des erreurs sont survenues, veuillez consulter les messages ci-dessus."
+footer "END SCRIPT: ${_NAME}"
+exit $lRC
+
 echo '[client]
 user=root
 password=security' >> ~/.my.cnf

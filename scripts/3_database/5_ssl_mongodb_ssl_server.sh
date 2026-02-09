@@ -12,15 +12,36 @@
 # UTILS (fonctions simulées pour la portabilité)
 #-------------------------------------------------------------------------------
 # Tente de sourcer les fichiers d'utilitaires s'ils existent
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
-[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
+source /etc/os-release
 
-# Définition des fonctions si elles ne sont pas chargées
-type banner >/dev/null 2>&1 || banner() { echo "====================================="; echo " $1"; echo "====================================="; }
-type footer >/dev/null 2>&1 || footer() { echo "-------------------------------------"; echo " $1"; echo "-------------------------------------"; }
-type info   >/dev/null 2>&1 || info() { echo "[INFO] $1"; }
-type error  >/dev/null 2>&1 || error() { echo "[ERROR] $1"; }
-type cmd    >/dev/null 2>&1 || cmd() { echo "[CMD] > $1"; eval "$1"; return $?; }
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 #-------------------------------------------------------------------------------
 # CONFIGURATION
@@ -37,12 +58,14 @@ CRT_INFO=${2:-"ST=FR/C=FR/L=Rennes/O=Lightpath/OU=DSI"}
 #-------------------------------------------------------------------------------
 # DÉBUT DU SCRIPT
 #-------------------------------------------------------------------------------
-banner "BEGIN SCRIPT: Configuration TLS/SSL pour MongoDB"
+_NAME=$(basename "$(readlink -f "$0")")
+NAME="${_NAME}"
+banner "BEGIN SCRIPT: ${_NAME}"
 
 # Vérification de l'existence du fichier de configuration MongoDB
 if [ ! -f "$CONF_FILE" ]; then
     error "Le fichier de configuration de MongoDB n'a pas été trouvé à l'emplacement $CONF_FILE"
-    footer "END SCRIPT: $_NAME"
+    footer "END SCRIPT: ${_NAME}"
     exit 1
 fi
 
@@ -87,7 +110,7 @@ info "Vérification de la chaîne de certificats..."
 openssl verify -verbose -CAfile ca-cert.pem server-cert.pem
 if [ $? -ne 0 ]; then
     error "La vérification du certificat a échoué. Le certificat serveur n'est pas valide."
-    footer "END SCRIPT: $_NAME"
+    footer "END SCRIPT: ${_NAME}"
     exit 1
 fi
 info "La vérification du certificat est réussie."
@@ -112,7 +135,7 @@ info "Mise à jour du fichier de configuration: $CONF_FILE"
 if grep -q "certificateKeyFile:" "$CONF_FILE"; then
     error "La configuration TLS (certificateKeyFile) semble déjà présente dans $CONF_FILE."
     error "Veuillez vérifier le fichier manuellement avant de continuer."
-    footer "END SCRIPT: $_NAME"
+    footer "END SCRIPT: ${_NAME}"
     exit 1
 fi
 
@@ -138,5 +161,5 @@ lRC=$(($lRC + $?))
 sleep 2
 cmd "systemctl status mongod --no-pager"
 
-footer "END SCRIPT: $_NAME"
+footer "END SCRIPT: ${_NAME}"
 exit $lRC

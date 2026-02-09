@@ -3,7 +3,7 @@ IMAGE_NAME = mariadb_ssh:004
 COMPOSE_GALERA = docker-compose-galera.yml
 COMPOSE_REPLI = docker-compose-repli.yml
 
-.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli test-repli test-galera clean-data clean-galera clean-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli emergency-galera emergency-repli check-galera check-repli
+.PHONY: help build-image up-galera down-galera logs-galera up-repli down-repli logs-repli up-mariadb11-repli down-mariadb11-repli logs-mariadb11-repli test-repli test-galera clean-data clean-galera clean-repli clean-mariadb11-repli full-galera full-repli clone-test-db inject-employee-galera inject-sakila-galera inject-employee-repli inject-sakila-repli inject-employee inject-sakila gen-ssl clean-ssl renew-ssl renew-ssl-galera renew-ssl-repli emergency-galera emergency-repli check-galera check-repli
 
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -71,8 +71,8 @@ logs-galera: ## Follow Galera cluster logs
 	docker compose -f $(COMPOSE_GALERA) logs -f
 
 ## Replication Cluster
-up-repli: build-image gen-ssl down-galera ## Start Replication cluster
-	docker compose -f $(COMPOSE_REPLI) up -d
+up-repli: build-image gen-ssl down-galera ## Start Replication cluster (Legacy)
+	docker compose -f $(COMPOSE_REPLI) --profile repli-legacy up -d
 
 emergency-repli: ## Emergency start of a single Replication node (Usage: make emergency-repli NODE=1|2|3)
 	@if [ -z "$(NODE)" ]; then echo "❌ Error: NODE variable is required (e.g., make emergency-repli NODE=1)"; exit 1; fi
@@ -82,11 +82,24 @@ emergency-repli: ## Emergency start of a single Replication node (Usage: make em
 	echo ">> 🚨 Emergency Starting Node $(NODE) ($$SERVICE)..."; \
 	docker compose -f $(COMPOSE_REPLI) up -d $$SERVICE
 
-down-repli: ## Stop Replication cluster
-	docker compose -f $(COMPOSE_REPLI) down
+down-repli: ## Stop Replication cluster (Legacy)
+	docker compose -f $(COMPOSE_REPLI) --profile repli-legacy down
 
-logs-repli: ## Follow Replication cluster logs
-	docker compose -f $(COMPOSE_REPLI) logs -f
+logs-repli: ## Follow Replication cluster logs (Legacy)
+	docker compose -f $(COMPOSE_REPLI) --profile repli-legacy logs -f
+
+## MariaDB 11 Replication Setup
+up-mariadb11-repli: ## Start MariaDB 11 Replication cluster
+	docker compose -f $(COMPOSE_REPLI) --profile repli-m11 up -d
+
+down-mariadb11-repli: ## Stop MariaDB 11 Replication cluster
+	docker compose -f $(COMPOSE_REPLI) --profile repli-m11 down
+
+logs-mariadb11-repli: ## Follow MariaDB 11 Replication logs
+	docker compose -f $(COMPOSE_REPLI) --profile repli-m11 logs -f
+
+clean-mariadb11-repli: down-mariadb11-repli ## Stop MariaDB 11 Replication and remove data (CAUTION!)
+	rm -rf data/mariadb11
 
 test-repli: ## Run replication tests on the active cluster
 	bash ./test_repli.sh

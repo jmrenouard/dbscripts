@@ -10,37 +10,41 @@ set -e
 # Gère les erreurs dans les pipelines
 set -o pipefail
 
-# --- Définition des couleurs pour les logs ---
-C_RESET='\033[0m'
-C_RED='\033[0;31m'
-C_GREEN='\033[0;32m'
-C_YELLOW='\033[0;33m'
-C_BLUE='\033[0;34m'
-
-# --- Fonctions de logging ---
-# Affiche un message d'information (bleu)
-info() {
-    echo -e "${C_BLUE}[INFO] ${1}${C_RESET}"
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
 }
-
-# Affiche un message de succès (vert)
-success() {
-    echo -e "${C_GREEN}[SUCCESS] ${1}${C_RESET}"
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
 }
+# --- End of Utility Functions ---
 
-# Affiche un message d'avertissement (jaune)
-warn() {
-    echo -e "${C_YELLOW}[WARNING] ${1}${C_RESET}"
-}
+_NAME="$(basename "$(readlink -f "$0")")"
+NAME="${_NAME}"
+lRC=0
 
-# Affiche un message d'erreur (rouge) et quitte le script
-error() {
-    echo -e "${C_RED}[ERROR] ${1}${C_RESET}" >&2
-    exit 1
-}
+banner "BEGIN SCRIPT: ${_NAME}"
 
-# --- Début du script ---
-info "Démarrage du script d'installation de l'environnement Docker..."
 
 # Détermine le répertoire racine du projet (le parent du répertoire 'scripts')
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -54,20 +58,19 @@ info "Vérification des prérequis..."
 if ! command -v docker &> /dev/null; then
     error "Docker n'est pas installé. Veuillez l'installer avant de continuer."
 fi
-success "Docker est installé."
+ok "Docker est installé."
 
 # Vérifie si Docker Compose est installé
 if ! command -v docker-compose &> /dev/null; then
-  sudo apt -y install docker-compose
-  success "Docker Compose a été installé."
+  cmd "sudo apt -y install docker-compose" "Installation de Docker Compose"
 else
-  success "Docker Compose est déjà installé."
+  ok "Docker Compose est déjà installé."
 fi
 # Vérifie si Docker Compose est installé
 if ! command -v docker-compose &> /dev/null; then
     error "Docker Compose n'est pas installé. Veuillez l'installer avant de continuer."
 fi
-success "Docker Compose est installé."
+ok "Docker Compose est installé."
 
 # --- Gestion du fichier de configuration .env ---
 info "Vérification du fichier de configuration .env..."
@@ -82,11 +85,11 @@ if [ ! -f "$ENV_FILE" ]; then
         error "Le fichier modèle '$ENV_EXAMPLE_FILE' est introuvable. Impossible de continuer."
     fi
 
-    cp "$ENV_EXAMPLE_FILE" "$ENV_FILE"
-    success "Le fichier '$ENV_FILE' a été créé."
-    warn "Veuillez vérifier et personnaliser les variables dans '$ENV_FILE' si nécessaire."
+    cmd "cp \"$ENV_EXAMPLE_FILE\" \"$ENV_FILE\"" "Création du fichier .env"
+    ok "Le fichier '$ENV_FILE' a été créé."
+    info "Veuillez vérifier et personnaliser les variables dans '$ENV_FILE' si nécessaire."
 else
-    success "Le fichier de configuration '$ENV_FILE' existe déjà."
+    ok "Le fichier de configuration '$ENV_FILE' existe déjà."
 fi
 
 # --- Lancement de l'environnement Docker ---
@@ -95,18 +98,17 @@ info "Le démarrage peut prendre quelques minutes, en particulier lors du premie
 
 # Se déplace dans le répertoire docker et lance les services en arrière-plan
 cd "$DOCKER_DIR"
-sudo docker-compose up -d
-
-info "La commande 'sudo docker-compose up -d' a été lancée."
+cmd "sudo docker-compose up -d" "Démarrage des conteneurs Docker"
 
 # Charge les variables d'environnement pour afficher l'URL
 set -a
 source "$ENV_FILE"
 set +a
 
-success "Environnement Rundeck démarré avec succès !"
-info "Rundeck devrait être accessible à l'adresse : ${C_YELLOW}${RUNDECK_GRAILS_URL}${C_RESET}"
+ok "Environnement Rundeck démarré avec succès !"
+info "Rundeck devrait être accessible à l'adresse : ${RUNDECK_GRAILS_URL}"
 info "Utilisez 'cd docker && docker-compose logs -f' pour voir les logs."
 info "Utilisez 'cd docker && docker-compose down' pour arrêter l'environnement."
 
-info "Les droits d'exécution ont déjà été ajoutés à ce script."
+footer "END SCRIPT: ${_NAME}"
+exit $lRC

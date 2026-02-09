@@ -16,30 +16,39 @@
 #
 # ==============================================================================
 
-# --- Sourcer les utilitaires si disponibles ---
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
-[ -f "$(pwd)/utils.sh" ] && source "$(pwd)/utils.sh"
+source /etc/os-release
 
-# --- Fonctions utilitaires de base (si non sourcées) ---
-if ! type "banner" &> /dev/null; then
-    banner() { echo "=================================================="; echo "== $1"; echo "=================================================="; }
-    footer() { banner "$1"; }
-    cmd() { 
-        local l_label="$1"
-        shift
-        local l_cmd="$@"
-        echo -e "\n--> $l_label..."
-        eval "$l_cmd"
-        local l_rc=$?
-        if [ $l_rc -eq 0 ]; then
-            echo "[OK] La commande a réussi."
-        else
-            echo "[ERREUR] La commande a échoué avec le code $l_rc."
-        fi
-        return $l_rc
-    }
-    info() { echo "[INFO] $1"; }
-fi
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
+# Replacement for title function used in this script
+title() { title1 "$*"; }
 
 # --- Vérification des privilèges ---
 if [ "$(id -u)" -ne 0 ]; then
@@ -48,9 +57,10 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # --- Début du script ---
-_NAME=$(basename "$0")
+_NAME=$(basename "$(readlink -f "$0")")
+NAME="${_NAME}"
 lRC=0
-banner "DEBUT DU SCRIPT: $_NAME"
+banner "BEGIN SCRIPT: ${_NAME}"
 
 # --- Détection du gestionnaire de paquets ---
 PCKMANAGER="yum"
@@ -152,7 +162,7 @@ lRC=$(($lRC + $?))
 
 
 # --- Fin du script ---
-footer "FIN DU SCRIPT: $_NAME"
+footer "END SCRIPT: ${_NAME}"
 if [ $lRC -eq 0 ]; then
     info "Toutes les vérifications et configurations de base ont été effectuées avec succès."
     info "N'oubliez pas de configurer NTP et de vérifier le système de fichiers (XFS recommandé)."

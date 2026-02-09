@@ -17,10 +17,16 @@ x-template: &template
   networks:
     backend_db:
 
+
 services:
-  # 🟢 Serveur 1
+  # =========================================================================
+  # � REPLICATION LEGACY (Classic setup)
+  # =========================================================================
+
+  # �🟢 Serveur 1
   mariadb_01:
     <<: *template
+    profiles: [ "repli-legacy" ]
     hostname: frm01
     ports:
       - "23001:22"
@@ -39,6 +45,7 @@ services:
   # 🟢 Serveur 2
   mariadb_02:
     <<: *template
+    profiles: [ "repli-legacy" ]
     hostname: frm02
     ports:
       - "23002:22"
@@ -57,9 +64,10 @@ services:
   # 🟢 Serveur 3
   mariadb_03:
     <<: *template
+    profiles: [ "repli-legacy" ]
     hostname: frm03
     ports:
-      - "23003:22" # Correction du port SSH pour suivre la logique (22003 ou 2322 selon votre choix, ici 2322 pour varier)
+      - "23003:22"
       - "3413:3306"
     volumes:
       - "./datadir_03:/var/lib/mysql"
@@ -71,9 +79,11 @@ services:
     networks:
       backend_db:
         ipv4_address: 10.5.0.13
+
   # 🔵 Load Balancer (HAProxy)
   haproxy_repli:
     image: haproxy:latest
+    profiles: [ "repli-legacy" ]
     container_name: haproxy_repli
     restart: unless-stopped
     volumes:
@@ -89,3 +99,78 @@ services:
       - mariadb_01
       - mariadb_02
       - mariadb_03
+
+  # =========================================================================
+  # 🟣 MARIADB 11 REPLICATION (Modern setup)
+  # =========================================================================
+
+  m11_master:
+    image: ${DB_TYPE:-mariadb}:${DB_VERSION:-11.4}
+    profiles: [ "repli-m11" ]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-secret}
+      MYSQL_DATABASE: ${DB_NAME:-testdb}
+    command: >
+      --server-id=1 --log-bin=mysql-bin --relay-log=slave-relay-bin --log-slave-updates --max-connections=200
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb11-repli-master-init:/docker-entrypoint-initdb.d
+      - ./mariadb11-repli.env_example:/.env
+      - ./data/mariadb11/master:/var/lib/mysql
+    networks:
+      - backend_db
+
+  m11_slave1:
+    image: ${DB_TYPE:-mariadb}:${DB_VERSION:-11.4}
+    profiles: [ "repli-m11" ]
+    depends_on:
+      - m11_master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-secret}
+    command: >
+      --server-id=2 --report-host=slave1 --log-bin=mysql-bin --relay-log=slave-relay-bin --log-slave-updates --read-only=1 --max-connections=200
+    volumes:
+      - ./mariadb11-repli-slave-init:/docker-entrypoint-initdb.d
+      - ./mariadb11-repli.env_example:/.env
+      - ./data/mariadb11/slave1:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - backend_db
+
+  m11_slave2:
+    image: ${DB_TYPE:-mariadb}:${DB_VERSION:-11.4}
+    profiles: [ "repli-m11" ]
+    depends_on:
+      - m11_master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-secret}
+    command: >
+      --server-id=3 --report-host=slave2 --log-bin=mysql-bin --relay-log=slave-relay-bin --log-slave-updates --read-only=1 --max-connections=200
+    volumes:
+      - ./mariadb11-repli-slave-init:/docker-entrypoint-initdb.d
+      - ./mariadb11-repli.env_example:/.env
+      - ./data/mariadb11/slave2:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    networks:
+      - backend_db
+
+  m11_slave3:
+    image: ${DB_TYPE:-mariadb}:${DB_VERSION:-11.4}
+    profiles: [ "repli-m11" ]
+    depends_on:
+      - m11_master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-secret}
+    command: >
+      --server-id=4 --report-host=slave3 --log-bin=mysql-bin --relay-log=slave-relay-bin --log-slave-updates --read-only=1 --max-connections=200
+    volumes:
+      - ./mariadb11-repli-slave-init:/docker-entrypoint-initdb.d
+      - ./mariadb11-repli.env_example:/.env
+      - ./data/mariadb11/slave3:/var/lib/mysql
+    ports:
+      - "3309:3306"
+    networks:
+      - backend_db

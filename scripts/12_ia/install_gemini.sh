@@ -8,27 +8,58 @@ set -e
 set -o pipefail
 
 # --- Couleurs et Fonctions ---
-C_RESET='\033[0m'; C_RED='\033[0;31m'; C_GREEN='\033[0;32m'; C_YELLOW='\033[0;33m'; C_BLUE='\033[0;34m'
-info() { echo -e    "${C_BLUE}[INFO   ]${C_RESET}ℹ️ $1"; }
-success() { echo -e "${C_GREEN}[SUCCESS]${C_RESET}✅ $1"; }
-warn() { echo -e    "${C_YELLOW}[WARN   ]${C_RESET}⚠️ $1"; }
-error() { echo -e   "${C_RED}[ERROR  ]${C_RESET}❌ $1" >&2; echo ".... Fin le script avec une erreur"; exit 1; }
-start_script() { echo -e "${C_BLUE}[START  ]${C_RESET}🏁 $1🚀"; }
-end_success() { echo -e "${C_GREEN}[END    ]${C_RESET}🏁 $1"; exit 0; }
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
+_NAME="$(basename "$(readlink -f "$0")")"
+NAME="${_NAME}"
+my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep -E '(192.168|172.2)'| cut -d/ -f1 | awk '{print $2}'|head -n1)
+
 
 # --- Variables de Configuration ---
 NODE_PCK_LIST="nodejs npm"
 GEMINI_PCK="@google/gemini-cli"
 # --- Début du script ---
-start_script "### Installation de Gemini CLI ###"
+banner "### Installation de Gemini CLI ###"
+lRC=0
+
 
 # --- Tests Prérequis ---
 info "Vérification des prérequis..."
 if command -v gemini &>/dev/null; then
     warn "Gemini CLI semble déjà installé."
     gemini --version
-    end_success "Gemini CLI est déjà présent sur le système."
+    gemini --version
+    footer "Gemini CLI est déjà présent sur le système."
+    exit 0
 fi
+
 # --- Vérification et Installation de Node.js ---
 if command -v node &>/dev/null; then
   info "Node.js est déjà installé (version: $(node --version))."
@@ -41,7 +72,7 @@ if command -v node &>/dev/null; then
     # Install Node.js 24 using NodeSource
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
     apt-get install -y nodejs &>/dev/null || error "L'installation de Node.js 24 a échoué."
-    success "Node.js 24 a été installé avec succès."
+    ok "Node.js 24 a été installé avec succès."
   fi
 else
   info "Node.js n'est pas installé. Installation de Node.js 24 en cours..."
@@ -50,7 +81,7 @@ else
   # Install Node.js 24 using NodeSource
   curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
   apt-get install -y nodejs &>/dev/null || error "L'installation de Node.js 24 a échoué."
-  success "Node.js 24 a été installé avec succès."
+  ok "Node.js 24 a été installé avec succès."
 fi
 
 # --- Vérification et Installation de NPM ---
@@ -64,7 +95,7 @@ fi
 # --- Installation de Gemini CLI ---
 info "Installation de Gemini CLI via NPM..."
 npm install -g $GEMINI_PCK &>/dev/null || error "L'installation de Gemini CLI a échoué."
-success "Gemini CLI a été installé avec succès au niveau global."
+ok "Gemini CLI a été installé avec succès au niveau global."
 
 # --- Tests Post-Installation ---
 info "Validation de l'installation de Gemini CLI..."
@@ -74,7 +105,7 @@ fi
 
 info "Version de Gemini CLI installée :"
 gemini --version || error "Impossible d'exécuter 'gemini --version'."
-success "Gemini CLI est installé et fonctionnel."
+ok "Gemini CLI est installé et fonctionnel."
 
 
 info "Installation de l'extension chrome-devtools-mcp..."
@@ -116,4 +147,5 @@ gemini extensions install https://github.com/JayadityaGit/gemini-mentor --consen
 info "Installation de l'extension gemini-cli-ssh-extension..."
 gemini extensions install https://github.com/involvex/gemini-cli-ssh-extension --consent
 
-end_success "Installation de Gemini CLI terminée avec succès."
+footer "Installation de Gemini CLI terminée avec succès."
+exit $lRC

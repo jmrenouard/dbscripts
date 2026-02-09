@@ -1,5 +1,39 @@
 #!/usr/bin/env bash
 
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    eval "$tcmd"
+    local cRC=$?
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
+_NAME="$(basename "$(readlink -f "$0")")"
+NAME="${_NAME}"
+lRC=0
+
+
 generate_generic_service_file()
 {
 systemctl disable redis-server@.service
@@ -262,20 +296,25 @@ rm -f $tmpFile
 export server_ips=${server_ips:"10.45.80.72 10.45.80.71 10.45.80.73"}
 export server_ports="${server_ports:-"$(seq 6379 6381)"}
 
-export my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep '192.168'| cut -d/ -f1 | awk '{print $2}')
-export my_public_ipv4=$(ip a | grep inet | grep 'brd' | grep -v '192.168'| cut -d/ -f1 | awk '{print $2}')
+export my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep '192.168'| cut -d/ -f1 | awk '{print $2}' | head -n 1)
+export my_public_ipv4=$(ip a | grep inet | grep 'brd' | grep -v '192.168'| cut -d/ -f1 | awk '{print $2}' | head -n 1)
+
 
 if [ "$1" = "install" ]; then
 
+banner "BEGIN SCRIPT: ${_NAME}"
+
 instal_redis_packages
+lRC=$(($lRC + $?))
 
 system_tuning_redis
+lRC=$(($lRC + $?))
 
 generate_generic_redis_conf_file
 generate_generic_service_file
 
-systemctl stop redis-server 
-systemctl disable redis-server 
+cmd "systemctl stop redis-server"
+cmd "systemctl disable redis-server"
 
 cleanup_cluster cluster1
 cleanup_cluster cluster2
@@ -285,10 +324,12 @@ generate_config_file 6379 redis-cluster1.conf redis $my_public_ipv4 /var/lib/red
 generate_config_file 6380 redis-cluster2.conf redis $my_public_ipv4 /var/lib/redis-cluster2 /var/log/redis/redis-server-cluster2.log /var/run/redis/redis-server-cluster2.pid
 generate_config_file 6381 redis-cluster3.conf redis $my_public_ipv4 /var/lib/redis-cluster3 /var/log/redis/redis-server-cluster3.log /var/run/redis/redis-server-cluster3.pid
 
-
-
-systemctl start redis-server@cluster1 redis-server@cluster2 redis-server@cluster3
-systemctl status redis-server@cluster1 redis-server@cluster2 redis-server@cluster3
+cmd "systemctl start redis-server@cluster1 redis-server@cluster2 redis-server@cluster3"
+cmd "systemctl status redis-server@cluster1 redis-server@cluster2 redis-server@cluster3"
 
 config_cluster_settings
+lRC=$(($lRC + $?))
+
+footer "END SCRIPT: ${_NAME}"
 fi
+exit $lRC
