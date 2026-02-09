@@ -1,34 +1,54 @@
 #!/bin/bash
+set -euo pipefail
 
-load_lib()
-{
-    libname="$1"
-    if [ -z "$libname" -o "$libname" = "main" ];then 
-        libname="utils.sh"
-    else 
-        libname="utils.$1.sh"
-    fi
-    _DIR="$(dirname "$(readlink -f "$0")")"
-    if [ -f "$_DIR/$libname" ]; then
-        source $_DIR/$libname
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
     else
-        if [ -f "/etc/profile.d/$libname" ]; then
-            source /etc/profile.d/$libname
-        else 
-            echo "No $libname found"
-            exit 127
-        fi
+        error "$descr (RC=$cRC)"
     fi
+    return $cRC
 }
-load_lib main
-load_lib mysql
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+die() { error "$*"; exit 1; }
+ask_yes_or_no() {
+    read -p "$1 ([y]es or [n]o): "
+    case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
+        y|Y|yes) echo "yes";return 0 ;;
+        *)     echo "no"; return 1;;
+    esac
+}
+# --- End of Utility Functions ---
 
-BCK_DIR=/data/backups/mariabackup
-TMP_DIR=/data/backups/tmp
-DATADIR=/var/lib/mysql
-#GZIP_CMD="cat"
-#GZIP_CMD="gzip -cd"
-GZIP_CMD="pigz -cd"
+# --- Configuration ---
+BCK_DIR="${BCK_DIR:-"/data/backups/mariabackup"}"
+TMP_DIR="${TMP_DIR:-"/data/backups/tmp"}"
+DATADIR="${DATADIR:-"/var/lib/mysql"}"
+GZIP_CMD="${GZIP_CMD:-"pigz -cd"}"
+
+# Load external configs
+[ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
 lRC=0
 
 banner "MARIABACKUP RESTORING DB"
@@ -107,30 +127,25 @@ info "$DUMP_FILE will be restored"
 rm -rf "$TMP_DIR/*"
 
 info "CMD: $GZIP_CMD $DUMP_FILE | mbstream -x"
-cd $TMP_DIR
-$GZIP_CMD $DUMP_FILE | mbstream -x
-lRC=$?
-info "PREPARING RESTORE"
-mariabackup --prepare --target-dir=.
+    cmd "cd $TMP_DIR && $GZIP_CMD $DUMP_FILE | mbstream -x" "EXTRACTING BACKUP STREAM"
+    lRC=$?
+    cmd "mariabackup --prepare --target-dir=$TMP_DIR" "PREPARING RESTORE"
+    lRC=$?
+fi
 
-ls -lsh $TMP_DIR
-
-if [ $lRC -eq 0 ]; then
-	#chown -R mysql.mysql $TMP_DIR/*
-	systemctl stop mariadb
-	mv ${DATADIR} ${BCK_DIR}/sav_datadir_$(date +%Y%m%d-%H%M%S)
-	rm -rf $DATADIR/*
-	mkdir -p ${DATADIR}
-	rsync -avz $TMP_DIR/* $DATADIR/
-	chown -R mysql.mysql $DATADIR
-	systemctl start mariadb
-	[ $? -eq 0 ] && rm -rf $TMP_DIR
+if [ "$lRC" -eq 0 ]; then
+    cmd "systemctl stop mariadb" "STOPPING MARIADB"
+    cmd "mv ${DATADIR} ${BCK_DIR}/sav_datadir_$(date +%Y%m%d-%H%M%S)" "ARCHIVING OLD DATADIR"
+    cmd "rm -rf $DATADIR/*" "CLEANING UP DATADIR"
+    cmd "mkdir -p ${DATADIR}" "RECREATING DATADIR"
+    cmd "rsync -avz $TMP_DIR/* $DATADIR/" "RSYNCING RESTORED DATA"
+    cmd "chown -R mysql.mysql $DATADIR" "FIXING PERMISSIONS"
+    cmd "systemctl start mariadb" "STARTING MARIADB"
+    [ $? -eq 0 ] && cmd "rm -rf $TMP_DIR" "CLEANUP TMP DIR"
 fi
 
 lRC=$?
-[ $lRC -eq 0 ] && ok "MARIABACKUP RESTORE OK"
-
-cmd "db_list"
+[ "$lRC" -eq 0 ] && ok "MARIABACKUP RESTORE OK"
 
 info "FINAL CODE RETOUR: $lRC"
 footer "MARIABACKUP RESTORING DB"

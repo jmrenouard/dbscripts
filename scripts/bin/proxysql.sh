@@ -1,4 +1,36 @@
 #!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 #https://github.com/sysown/proxysql/releases/download/v2.1.1/proxysql_2.1.1-ubuntu20_arm64.deb
 #https://github.com/sysown/proxysql/releases/download/v2.1.1/proxysql-2.1.1-1-centos8.x86_64.rpm
@@ -29,7 +61,6 @@ pmysqldump()
 
     mysqldump -P$pport -u$puser -p$ppass -h$phost \
     --skip-triggers --skip-add-drop-table --no-data main 2>/dev/null| grep -E 'CREATE TABLE' | perl -pe 's/CREATE /TRUNCATE /g;s/\(/;/g'
-
 
      mysqldump -P$pport -u$puser -p$ppass -h$phost \
      --no-tablespaces \
@@ -132,5 +163,3 @@ SAVE ADMIN VARIABLES TO DISK;
 PROXYSQL RESTART;
 "
 }
-
-

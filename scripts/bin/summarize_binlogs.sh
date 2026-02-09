@@ -1,10 +1,41 @@
 #!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 BINLOG_FILE=${1:-"mysqld-bin.000035"}
 START_TIME="$2"
 STOP_TIME="$3"
 
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
 if [ "$(global_variables binlog_format)" != "ROW" ]; then
 	error "BINLOG FORMAT SHOULD BE ROW - ACTUAL FORMAT: $(global_variables binlog_format)"
 	exit 127
@@ -22,5 +53,3 @@ else if (match($0, /^(# at) /) && flag==1 && s_count>0) {print " Query Type : "s
 else if (match($0, /^(COMMIT)/)) {print "[Transaction total : " count " Insert(s) : " insert_count " Update(s) : " update_count " Delete(s) : " \
 delete_count "] \n+----------------------+----------------------+----------------------+----------------------+"; \
 count=0;insert_count=0;update_count=0; delete_count=0;s_type=""; s_count=0; flag=0} } '
-
-

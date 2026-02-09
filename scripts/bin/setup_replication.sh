@@ -1,4 +1,36 @@
 #!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 target=${1:-"c4mysql3"}
 muser=replication
@@ -139,7 +171,6 @@ cmd() {
     return $lRC
 }
 
-
 cmd_die()
 {
     cmd "$@"
@@ -161,7 +192,6 @@ scmd()
     sep2
     return $lRC
 }
-
 
 mysql_cmd()
 {
@@ -201,14 +231,12 @@ scmd_die()
     [ $lRC -ne 0 ] && end $lRC
 }
 
-
 # Check some parameters
 
 check_params()
 {
 
     mparams="server_id report_host logbin log_basename relaylog log_slave_updates read_only gtid_mode"
-
 
     checkMysqlTarget
     if [ $? -eq 0 ]; then
@@ -254,7 +282,6 @@ scmd "sudo setenforce 0"
 subtitle "SYNCHRONIZING CREDENTIALS ON $target"
 cmd_die "rsync -av $HOME/.my.cnf root@$target:"
 
-
 subtitle "UNLOCK LOCAL LINUX FIREWALL"
 cmd "sudo /sbin/iptables --flush"
 cmd "sudo /usr/sbin/iptables-save"
@@ -285,7 +312,6 @@ GRANT ALL ON *.* TO '$1'@'$2';" > $tsql
 log_log $tsql
 mysql_cmd $tsql
 }
-
 
 setupRepli()
 {
@@ -342,7 +368,6 @@ setupRepliDump()
 perl -pe "s/CHANGE MASTER TO /CHANGE MASTER TO MASTER_HOST='$mhost', MASTER_USER='$muser', MASTER_PASSWORD='$mpass', /g" \
 | $ssh_cmd mysql -uroot -f
 
-
 execTargetSql "START SLAVE"
 }
 
@@ -357,7 +382,6 @@ SET @@GLOBAL.GTID_MODE = ON;"
 
 subtitle "GTID MODE LOCAL"
 echo "SHOW GLOBAL VARIABLES LIKE 'gtid%'" | mysql | column -t
-
 
 NO_WARN=1 execTargetSql "SET @@GLOBAL.ENFORCE_GTID_CONSISTENCY = WARN; \
 SET @@GLOBAL.ENFORCE_GTID_CONSISTENCY = ON; \
@@ -557,7 +581,6 @@ case "$2" in
         cloneXtrabackup
         ;;
     test|TEST)
-        lRC=0
         checkTarget
         lRC=$(($lRC + $?))
         checkMysqlTarget

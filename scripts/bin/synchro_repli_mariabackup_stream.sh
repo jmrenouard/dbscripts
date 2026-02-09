@@ -1,40 +1,39 @@
 #!/bin/bash
+set -euo pipefail
 
-# ------------------------------------------------------------------------------------
-# Script Name   : synchro_repli_mariabackup_stream.sh
-# Author        : Jean-Marie Renouard (jmrenouard)
-# Date          : 18/09/2025
-# Version       : 1.2
-#
-# Description   :
-# This script is designed to resynchronize a MariaDB 11+ secondary node (slave)
-# from a primary node (master). It automates the backup and restore process
-# using mariadb-backup.
-#
-# The script performs the following actions:
-#   1. Stops the MariaDB service on the secondary node.
-#   2. Cleans up the old data directory and binlogs.
-#   3. Executes mariadb-backup in streaming mode via SSH from the primary server.
-#   4. Prepares the restored backup (`--prepare`).
-#   5. Restarts the MariaDB service.
-#   6. Reconfigures GTID replication based on information from the backup.
-#   7. Checks the replication status.
-#
-# Parameters    :
-#   -e <pass>   : Password for the 'exploit' account on the primary server.
-#   -u <user>   : MariaDB user for the backup (e.g., root).
-#   -r <pass>   : Password for the MariaDB backup user.
-#   -p <project> : Project name (corresponds to the directory in /data/mariadb/).
-#
-# Prerequisites :
-#   - sshpass, mariadb-backup (client), and mbstream must be installed on the secondary node.
-#   - The 'exploit' user must exist on the primary and have sudo rights
-#     to run mariadb-backup.
-#   - SSH access from the secondary to the primary for the 'exploit' user is required.
-#
-# Usage         :
-#   ./resync_mariadb_slave.sh -e 'exploit-pass' -u 'maria-user' -r 'maria-pass' -p 'project'
-# ------------------------------------------------------------------------------------
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
+# Load external configs if available
+[ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
 # Defines a 'Usage' function that displays the script's help message.
 Usage () {
@@ -127,73 +126,39 @@ echo "Have you disabled supervision + maintenance mode for the MariaDB server in
 # Pause the script until the user presses "Enter".
 read pause
 
-# Add the 'exploit' user to the 'mysql' group to give necessary permissions on MariaDB files.
-usermod -G mysql exploit
-# Add the 'exploit' user to the 'sudo' group to allow executing commands with elevated privileges.
-usermod -G sudo exploit
+banner "MARIADB REPLICATION SYNCHRONIZATION"
 
-echo "Stopping MariaDB service..."
-systemctl stop mariadb
+cmd "usermod -aG mysql exploit" "ADDING EXPLOIT TO MYSQL GROUP"
+cmd "usermod -aG sudo exploit" "ADDING EXPLOIT TO SUDO GROUP"
+
+cmd "systemctl stop mariadb" "STOPPING MARIADB SERVICE"
 
 # Move into the data directory.
 cd $DATADIR
 # Recursively delete all files and folders in the data directory and project binlogs.
-echo "Cleaning up data directory and binlogs..."
-rm -rf $DATADIR/* && rm -f /data/binlog/${project}/*
+cmd "rm -rf $DATADIR/*" "CLEANING DATA DIRECTORY"
+cmd "rm -f /data/binlog/${project}/*" "CLEANING BINLOGS"
 
-# Change the owner and group of the current directory to 'exploit'.
-chown -R exploit:exploit .
-# Give read, write, and execute permissions to the owner and group, but none to others.
-chmod -R 770 .
+cmd "chown -R exploit:exploit $DATADIR" "FIXING PERMISSIONS FOR EXPLOIT"
+cmd "chmod -R 770 $DATADIR" "SETTING DIRECTORY MODES"
 
 # Use a subshell to execute the following commands.
-(
-# Switch to the 'exploit' user and execute commands in the "here document" (<<EOF).
-su - exploit <<EOF
-# Execute mariadb-backup on the master server via SSH.
-# sshpass provides the password for non-interactive SSH connection.
-# -o StrictHostKeyChecking=no ignores SSH host key checking.
-# On the remote server, 'echo '$SSHPASS' | sudo -S' passes the password to sudo to run mariadb-backup with root privileges.
-# VAULT_TOKEN is passed as an environment variable for encryption.
-# --stream=xbstream sends the backup as a continuous stream instead of saving it to a file on the master.
-# The stream is then redirected ('|') to the 'mbstream -v -x' command, which extracts it directly into the $DATADIR directory.
-echo "Starting streaming backup from the master..."
-sshpass -p "$SSHPASS" ssh -o StrictHostKeyChecking=no $MASTER_HOST "echo '$SSHPASS' |\
-sudo -S VAULT_TOKEN="${TOKEN}" mariadb-backup --user=$USER_MARIADB --password='$ROOT_MARIADB_PASS' \
---backup --stream=xbstream" | \
-(cd $DATADIR; mbstream -v -x)
-EOF
-)
+cmd "echo \"echo '\$SSHPASS' | sudo -S VAULT_TOKEN='${TOKEN}' mariadb-backup --user=\$USER_MARIADB --password='\$ROOT_MARIADB_PASS' --backup --stream=xbstream\" | sshpass -p \"\$SSHPASS\" ssh -o StrictHostKeyChecking=no \$MASTER_HOST \"bash -s\" | (cd \$DATADIR; mbstream -v -x)" "STARTING STREAMING BACKUP FROM MASTER"
+lRC=$?
 
-# Export the Vault token as an environment variable for the next command.
-export VAULT_TOKEN=${TOKEN}
-# Prepare the restored backup. This step is crucial as it applies logs and makes the data consistent.
-echo "Preparing the restored backup..."
-mariadb-backup --user=$USER_MARIADB --password=$ROOT_MARIADB_PASS --prepare --target-dir=$DATADIR
-
-# Change the owner and group of the directory back to 'mysql', the user under which the MariaDB service runs.
-echo "Reassigning permissions to the mysql user..."
-chown -R mysql:mysql .
-
-# Restart the MariaDB service.
-echo "Starting MariaDB service..."
-systemctl start mariadb.service
-# Check the return code of the previous command. If not 0 (error), display a message and exit.
-[[ $? -ne 0 ]] && {
-       echo "Could not start MariaDB service"
-       exit 1
-}
+cmd "export VAULT_TOKEN=${TOKEN}; mariadb-backup --user=$USER_MARIADB --password=$ROOT_MARIADB_PASS --prepare --target-dir=$DATADIR" "PREPARING RESTORED BACKUP"
+cmd "chown -R mysql:mysql $DATADIR" "REASSIGNING PERMISSIONS TO MYSQL USER"
+cmd "systemctl start mariadb.service" "STARTING MARIADB SERVICE"
+lRC=$?
 
 # Extract replication information (binlog file name, position, GTID) from the file created by mariabackup.
 rfile=$(awk '{print $1}' $DATADIR/mariadb_backup_binlog_info)
 posrfile=$(awk '{print $2}' $DATADIR/mariadb_backup_binlog_info)
 gtid=$(awk '{print $3}' $DATADIR/mariadb_backup_binlog_info)
 
-# Execute a series of SQL commands to reconfigure replication.
-echo "Reconfiguring replication..."
-mariadb -uroot -p"$ROOT_MARIADB_PASS"<<!FIN_SQL!
-stop slave;
-reset slave;
+cmd "mariadb -uroot -p\"$ROOT_MARIADB_PASS\" <<!FIN_SQL!
+STOP SLAVE;
+RESET SLAVE;
 SET GLOBAL gtid_slave_pos='$gtid';
 CHANGE MASTER TO
 MASTER_HOST='$MASTER_HOST',
@@ -203,22 +168,13 @@ MASTER_PORT=$MASTER_PORT,
 MASTER_LOG_FILE='$rfile',
 MASTER_LOG_POS=$posrfile,
 MASTER_USE_GTID = slave_pos;
-start slave;
-!FIN_SQL!
+START SLAVE;
+!FIN_SQL!" "RECONFIGURING REPLICATION"
 
-# Short pause to allow replication to initialize.
 sleep 2s
 
-# Check the replication status and filter for lines containing "Running" to confirm that both threads (IO and SQL) are active.
-echo "Checking replication status..."
-mariadb -uroot -p"$ROOT_MARIADB_PASS" -e "show slave status\G" | grep -i Running
+cmd "mariadb -uroot -p\"$ROOT_MARIADB_PASS\" -e \"show slave status\\G\" | grep -i Running" "CHECKING REPLICATION STATUS"
+lRC=$?
 
-# Check the return code of the 'grep' command. If it found nothing, it means there is a replication problem.
-[[ $? -ne 0 ]] && {
-       echo "Replication problem on the secondary node $HOSTNAME"
-       exit 1
-}
-
-echo "Resynchronization completed successfully."
-
-exit 0
+footer "MARIADB REPLICATION SYNCHRONIZATION"
+exit $lRC

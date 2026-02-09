@@ -1,0 +1,17 @@
+# bootstrap.conf.example
+# Configuration file for Galera Cluster and other database setups
+# Copy this file to /etc/bootstrap.conf and update the values.
+
+# --- Common Settings ---
+# cluster_name="my_database_cluster"
+
+# --- Network Settings ---
+# List of nodes in the cluster (comma separated)
+# node_addresses="10.0.0.1,10.0.0.2,10.0.0.3"
+
+# --- Security / SST Settings ---
+# sst_user="galera_sst_user"
+# sst_password="YOUR_SECURE_PASSWORD_HERE"
+
+# --- Environment Specific ---
+# DB_VERSION="11.4"

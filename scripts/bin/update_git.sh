@@ -1,32 +1,67 @@
 #!/bin/bash
+set -euo pipefail
 
-cd /logiciels/datastax/zeppelin/notebook
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
+TARGET_DIR="/logiciels/datastax/zeppelin/notebook"
+banner "UPDATING GIT REPOSITORY AT $TARGET_DIR"
 
-git status
+if [ ! -d "$TARGET_DIR" ]; then
+    error "Directory $TARGET_DIR not found"
+    exit 1
+fi
 
+cd "$TARGET_DIR"
 
-echo " * delete removed Zeppelin notebooks"
+cmd "git status" "CHECKING GIT STATUS"
+
+info "Cleaning deleted notebooks"
 NBRM=$(git status | grep -E "(supprim|deleted)\s*:"|wc -l)
-if [ $NBRM -gt 0 ]; then
-	git status | grep -E "(supprim|deleted)\s*:" |cut -d: -f2 | xargs -n1 git rm -f
+if [ "$NBRM" -gt 0 ]; then
+	cmd "git status | grep -E \"(supprim|deleted)\s*:\" |cut -d: -f2 | xargs -n1 git rm -f" "REMOVING DELETED FILES"
 else
-	echo "Nothing to delete"
+	info "Nothing to delete"
 fi
 
+info "Adding modified notebooks"
 NBUP=$(git status | grep -E 'modifi.*:'|wc -l)
-
-echo " * Commit modified Zeppelin notebooks"
-if [ $NBUP -gt 0 ]; then
-	git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add
+if [ "$NBUP" -gt 0 ]; then
+	cmd "git status | grep -E 'modifi.*:' | cut -d: -f2 | xargs -n 1 git add" "ADDING MODIFIED FILES"
 else
-	echo "Nothind to update"
+	info "Nothing to update"
 fi
-echo " * Adding new Zeppelin notebooks"
-git add *
-git add */*
-git add */*/*
 
-git commit -m "Newly updates Zeppelin notebook at $(date +%Y%m%d-%H%M%S)"
+cmd "git add *" "ADDING ALL REMAINING FILES"
+cmd "git commit -m \"Newly updates Zeppelin notebook at $(date +%Y%m%d-%H%M%S)\"" "COMMITTING CHANGES"
+cmd "git push" "PUSHING TO REMOTE"
 
-git push
+footer "GIT UPDATE"

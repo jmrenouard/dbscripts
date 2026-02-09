@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # --- Minimal Utility Functions ---
 now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
@@ -11,8 +12,10 @@ cmd() {
     local tcmd="$1"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
+    set +e
     eval "$tcmd"
     local cRC=$?
+    set -e
     if [ $cRC -eq 0 ]; then
         ok "$descr"
     else
@@ -40,16 +43,18 @@ CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 [ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/999_galera_settings.cnf"
 
 DATADIR=/var/lib/mysql/
-cluster_name="generic"
-server_id=$(hostname -s| perl -pe 's/.+?(\d+)/$1/')
-node_name=$(hostname -s)
-private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1| head -n 1)
-[ -z "$private_ip" ] && private_ip=$my_private_ipv4
-node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
-sst_user=galera
-sst_password=kee2iesh1Ohk1puph8
+# --- Cluster Configuration (Defaults) ---
+# It is STRONGLY RECOMMENDED to override these in /etc/bootstrap.conf
+cluster_name="${cluster_name:-"generic"}"
+node_addresses="${node_addresses:-"192.168.56.191,192.168.56.192,192.168.56.193"}"
+sst_user="${sst_user:-"galera"}"
+sst_password="${sst_password:-"kee2iesh1Ohk1puph8"}" # Default (Insecure)
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+
+if [ "$sst_password" = "kee2iesh1Ohk1puph8" ]; then
+    warn "USING DEFAULT INSECURE SST PASSWORD. Please define sst_password in /etc/bootstrap.conf"
+fi
 
 
 ##title_en: Galera Cluster bootstrap
@@ -126,14 +131,14 @@ cmd "chmod 644 $CONF_FILE"
 
 cmd "systemctl stop mariadb"
 
-cmd "rm -f ${DATADIR}/galera.cache ${DATADIR}/grastate.dat ${DATADIR}/gvwstate.dat"
-cmd "/usr/bin/galera_new_cluster"
+cmd "rm -f ${DATADIR}/galera.cache ${DATADIR}/grastate.dat ${DATADIR}/gvwstate.dat" "CLEANUP GALERA STATE"
+cmd "/usr/bin/galera_new_cluster" "BOOTSTRAP NEW CLUSTER"
 
-echo "install soname 'wsrep_info';"| mysql -v
-echo "select * from information_schema.wsrep_status\G" |mysql
-echo "select * from information_schema.wsrep_membership;" | mysql
+cmd "echo \"install soname 'wsrep_info';\"| mysql -v" "INSTALL WSREP_INFO"
+cmd "echo \"select * from information_schema.wsrep_status\G\" |mysql" "CHECK WSREP STATUS"
+cmd "echo \"select * from information_schema.wsrep_membership;\" | mysql" "CHECK WSREP MEMBERSHIP"
 
-cmd "tail -n 30 /var/log/mysql/mysqld.log"
+cmd "tail -n 30 /var/log/mysql/mysqld.log" "SHOW RECENT LOGS"
 #set -x
 for srv in $(echo $node_addresses | tr ',' ' ' ) ;do
 	[ "$private_ip" == "$srv" ] && continue

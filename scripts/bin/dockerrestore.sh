@@ -1,4 +1,36 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 # Support Galera (desync node if needed)
 # Support possition un logbin for PITR recovery with mysqlbinlog
@@ -16,9 +48,7 @@
 # Support HTML report
 
 [ -f "$(dirname $(readlink -f $0))/utils.sh" ] && \
-    source $(dirname $(readlink -f $0))/utils.sh
 [ -f "$(dirname $(readlink -f $0))/../utils.sh" ] && \
-    source $(dirname $(readlink -f $0))/../utils.sh
 
 BCK_DIR=/backups/logical
 GZIP_CMD=pigz
@@ -36,7 +66,6 @@ TARGET_CONFIG=$(to_lower $1)
 MAX_CHECKS=1
 NO_LIMIT_RUN=1
 DOCKER_CLEANUP=1
-lRC=0
 
 GOOD_USER="service-sgbd"
 
@@ -242,7 +271,6 @@ dump_table_count()
     done
 }
 
-
 # SELECT BACKUP FILE
 if [ "${TARGET_CONFIG:0:2}" == '-l' ];then
     [ -d "$BCK_DIR/$2" ] && ls -lshsa $BCK_DIR/$2
@@ -268,7 +296,6 @@ fi
 if [ "${TARGET_CONFIG:0:2}" == '-t' ];then
     if [ -z "$3" ]; then
         title1 "Test BACKUPS INTO in $BCK_DIR/$2"
-        lRC=0
         for gzfile in $( ls -1 $BCK_DIR/$2 | grep -E '.gz$'); do
             sep1
             sep1

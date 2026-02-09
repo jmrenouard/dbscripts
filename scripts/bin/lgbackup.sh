@@ -1,4 +1,37 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
+
 set -o pipefail
 # Support Galera (desync node if needed)
 # Support possition un logbin for PITR recovery with mysqlbinlog
@@ -14,28 +47,6 @@ set -o pipefail
 # Support NRPE generation
 # Support general history file for ELK
 # Support HTML report
-load_lib()
-{
-    libname="$1"
-    if [ -z "$libname" -o "$libname" = "main" ];then 
-        libname="utils.sh"
-    else 
-        libname="utils.$1.sh"
-    fi
-    _DIR="$(dirname "$(readlink -f "$0")")"
-    if [ -f "$_DIR/$libname" ]; then
-        source $_DIR/$libname
-    else
-        if [ -f "/etc/profile.d/$libname" ]; then
-            source /etc/profile.d/$libname
-        else 
-            echo "No $libname found"
-            exit 127
-        fi
-    fi
-}
-load_lib main
-load_lib mysql
 
 BCK_DIR=/data/backups/logical
 GZIP_CMD=pigz
@@ -45,7 +56,6 @@ GALERA_SUPPORT="0"
 KEEP_LAST_N_BACKUPS=5
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
 TARGET_CONFIG=$(to_lower $1)
-lRC=0
 
 banner "LOGICAL BACKUP"
 
@@ -61,7 +71,6 @@ if [ "$1" = "-l" -o "$1" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
 fi
-
 
 if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
     [ -f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup

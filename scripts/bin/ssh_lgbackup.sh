@@ -1,4 +1,36 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -euo pipefail
+
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 # Support Galera (desync node if needed)
 # Support possition un logbin for PITR recovery with mysqlbinlog
@@ -16,9 +48,7 @@
 # Support HTML report
 
 [ -f "$(dirname $(readlink -f $0))/utils.sh" ] && \
-    source $(dirname $(readlink -f $0))/utils.sh
 [ -f "$(dirname $(readlink -f $0))/../utils.sh" ] && \
-    source $(dirname $(readlink -f $0))/../utils.sh
 
 BCK_DIR=/backups/logical
 GZIP_CMD=pigz
@@ -33,7 +63,6 @@ SSH_USER=root
 SSH_HOSTNAME=targetbdd.infra
 
 TARGET_CONFIG=$(to_lower $1)
-lRC=0
 
 GOOD_USER="service-sgbd"
 
@@ -121,7 +150,6 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
 
     info  "Etat Desynchronisation: WSREP_DESYNC($(global_variables wsrep_desync))"
 fi
-
 
 if [ ! -d "$BCK_DIR" ]; then
     info "CREATING DIRECTORY: $BCK_DIR"

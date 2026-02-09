@@ -1,38 +1,55 @@
 #!/bin/bash
+set -euo pipefail
 #set -x
 
-load_lib()
-{
-    libname="$1"
-    if [ -z "$libname" -o "$libname" = "main" ];then 
-        libname="utils.sh"
-    else 
-        libname="utils.$1.sh"
-    fi
-    _DIR="$(dirname "$(readlink -f "$0")")"
-    if [ -f "$_DIR/$libname" ]; then
-        source $_DIR/$libname
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
     else
-        if [ -f "/etc/profile.d/$libname" ]; then
-            source /etc/profile.d/$libname
-        else 
-            echo "No $libname found"
-            exit 127
-        fi
+        error "$descr (RC=$cRC)"
     fi
+    return $cRC
 }
-load_lib main
-load_lib mysql
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+die() { error "$*"; exit 1; }
+# --- End of Utility Functions ---
 
-BCK_DIR=/data/backups/mariabackup
-KEEP_LAST_N_BACKUPS=5
-GZIP_CMD=pigz
-#GZIP_CMD=gzip
-#GZIP_CMD=tee
+# --- Configuration ---
+BCK_DIR="${BCK_DIR:-"/data/backups/mariabackup"}"
+KEEP_LAST_N_BACKUPS="${KEEP_LAST_N_BACKUPS:-5}"
+GZIP_CMD="${GZIP_CMD:-"pigz"}"
 
-if [ -f "/root/.my.cnf" ]; then
-	BACK_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
-	BACK_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+# Load external config if exists
+[ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+[ -f "/etc/mbconfig.sh" ] && source /etc/mbconfig.sh
+
+# Default credentials pattern
+BACK_USER="${BACK_USER:-""}"
+BACK_PASSWORD="${BACK_PASSWORD:-""}"
+
+if [ -f "/root/.my.cnf" ] && [ -z "$BACK_USER" ]; then
+	BACK_USER=$(grep -E '^user' /root/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
+	BACK_PASSWORD=$(grep -E '^password' /root/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 fi
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
 LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
@@ -42,10 +59,6 @@ LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
 lRC=0
 
 banner "MARIABACKUP BACKUP DB"
-if [ -f "/etc/mbconfig.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mbconfig.sh"
-    source /etc/mbconfig.sh
-fi
 if  [ -n "$1" -a -f "/etc/mbconfig_$TARGET_CONFIG.sh" ]; then
     info "LOADING CONFIG FROM /etc/mbconfig_$TARGET_CONFIG.sh"
     source /etc/mbconfig_$TARGET_CONFIG.sh
@@ -76,10 +89,9 @@ fi
 [ -d "$BCK_DIR" ] || mkdir -p $BCK_DIR
 
 info "Backup mariabackup dans le fichier $(basename $BCK_FILE)"
-info "CMD: mariabackup --backup --user=${BACK_USER} --password=XXXXXXX --stream=xbstream | $GZIP_CMD"
 info "DUMP_FILE: $BCK_FILE"
 info "LOG_FILE : $LOG_FILE"
-time mariabackup --backup --user=${BACK_USER} --password=${BACK_PASSWORD} --stream=xbstream 2> $LOG_FILE | $GZIP_CMD > $BCK_FILE
+cmd "mariabackup --backup --user=${BACK_USER} --password=${BACK_PASSWORD} --stream=xbstream 2> $LOG_FILE | $GZIP_CMD > $BCK_FILE" "RUNNING MARIABACKUP"
 lRC=$?
 echo "................."
 tail -n 20 $LOG_FILE

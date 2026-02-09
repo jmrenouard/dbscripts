@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 r""" 
 Script to display the contents of an AWS S3 bucket in a tree structure.
 

@@ -1,13 +1,42 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -euo pipefail
 
-[ -f '/etc/profile.d/utils.sh' ] && source /etc/profile.d/utils.sh
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
+    else
+        error "$descr (RC=$cRC)"
+    fi
+    return $cRC
+}
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 BCK_DIR=/data/backups/logical
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
 TARGET_CONFIG=$(to_lower $1)
-lRC=0
 
 banner "SSH LOGICAL RESTORE"
 
@@ -107,7 +136,6 @@ if [ $? -ne 0 ]; then
     footer "SSH LOGICAL RESTORE"
     exit 2
 fi
-
 
 # check access root before inserting database
 # adding time command

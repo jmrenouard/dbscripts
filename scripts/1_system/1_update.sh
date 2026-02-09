@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 source /etc/os-release
 
@@ -13,8 +14,11 @@ cmd() {
     local tcmd="$1"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
+    # Execute command, capturing exit code but allowing script to continue if it fails (handled by the if block)
+    set +e
     eval "$tcmd"
     local cRC=$?
+    set -e
     if [ $cRC -eq 0 ]; then
         ok "$descr"
     else

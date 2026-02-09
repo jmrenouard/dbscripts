@@ -1,27 +1,36 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -euo pipefail
 
-load_lib()
-{
-    libname="$1"
-    if [ -z "$libname" -o "$libname" = "main" ];then 
-        libname="utils.sh"
-    else 
-        libname="utils.$1.sh"
-    fi
-    _DIR="$(dirname "$(readlink -f "$0")")"
-    if [ -f "$_DIR/$libname" ]; then
-        source $_DIR/$libname
+# --- Minimal Utility Functions ---
+now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
+info() { echo "$(now) INFO: $*" 1>&2; }
+error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
+ok() { info "[SUCCESS] $* [SUCCESS]"; }
+sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
+title1() { sep1; echo "$(now) $*"; sep1; }
+cmd() {
+    local tcmd="$1"
+    local descr=${2:-"$tcmd"}
+    title1 "RUNNING: $descr"
+    set +e
+    eval "$tcmd"
+    local cRC=$?
+    set -e
+    if [ $cRC -eq 0 ]; then
+        ok "$descr"
     else
-        if [ -f "/etc/profile.d/$libname" ]; then
-            source /etc/profile.d/$libname
-        else 
-            echo "No $libname found"
-            exit 127
-        fi
+        error "$descr (RC=$cRC)"
     fi
+    return $cRC
 }
-load_lib main
-load_lib mysql
+banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
+footer() {
+    local lRC=${lRC:-"$?"}
+    info "FINAL EXIT CODE: $lRC"
+    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
+    return $lRC
+}
+# --- End of Utility Functions ---
 
 DBNAME="$1"
 [ -z "$DBNAME" ] && die "NO DATABASE NAME AS PARAMETER"
@@ -44,8 +53,6 @@ KEEP_LAST_N_BACKUPS=5
 BCK_TARGET=$BCK_DIR/$(date +%Y%m%d-%H%M%S)
 
 [ -f "/etc/mdconfig.sh" ] && source /etc/mdconfig.sh
-
-lRC=0
 
 banner "LOGICAL BACKUP WITH MYDUMPER"
 my_status
