@@ -122,13 +122,13 @@ Debezium capture les changements directement dans les WAL (Write Ahead Logs) et 
 4. Basculer l'application une fois que le "Lag" Kafka est proche de zéro.
 
 ### **📈 Architecture Debezium**
-
+```mermaid
 graph LR  
-    PG15\[(PG 15 Source)\] \-- WAL \--\> DBZ\[Debezium Connector\]  
-    DBZ \-- JSON Events \--\> K\[Kafka Cluster\]  
-    K \-- Stream \--\> SNK\[Sink Connector\]  
-    SNK \-- SQL \--\> PG17\[(PG 17 Cible)\]
-
+    PG15[(PG 15 Source)] -- WAL --> DBZ[Debezium Connector]  
+    DBZ -- JSON Events --> K[Kafka Cluster]  
+    K -- Stream --> SNK[Sink Connector]  
+    SNK -- SQL --> PG17[(PG 17 Cible)]
+```
 ## **⚠️ Risques de Sécurité et Continuité**
 
 | Nature du Risque | Outil | Description | Mitigation |
