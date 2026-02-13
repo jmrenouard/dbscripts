@@ -5,7 +5,7 @@ Ce document détaille les stratégies de migration pour basculer d'un cluster Po
 ## **Architecture de Cible (Patroni)**
 
 L'architecture cible repose sur Patroni pour la gestion du cycle de vie des instances et un outil de consensus (DCS) comme Etcd ou Consul pour l'élection du leader.
-
+```mermaid
 graph TD  
     subgraph "Nouveau Cluster Patroni (v17)"  
         N1\[Patroni Node 1 \- Leader\]  
@@ -23,7 +23,7 @@ graph TD
         PP \--\> PG2  
     end  
     LB\[Load Balancer / VIP\] \--\> N1
-
+```
 ## **Étude des Scénarios de Migration**
 
 Le choix de la méthode dépend principalement de la volumétrie des données et de la fenêtre d'indisponibilité (SLA) acceptable.
