@@ -8,21 +8,26 @@ L'architecture cible repose sur Patroni pour la gestion du cycle de vie des inst
 ```mermaid
 graph TD  
     subgraph "Nouveau Cluster Patroni (v17)"  
-        N1\[Patroni Node 1 \- Leader\]  
-        N2\[Patroni Node 2 \- Replica\]  
-        DCS\[(Etcd / Consul)\]  
-        N1 \<--\> DCS  
-        N2 \<--\> DCS  
-        N1 \-- Streaming Replication \--\> N2  
+        N1[Patroni Node 1 \- Leader]  
+        N2[Patroni Node 2 \- Replica]
+        N3[Patroni Node 3 \- Replica]  
+        DC\[(Etcd / Consul)]  
+        N1 <--> DCS  
+        N2 <--> DCS 
+        N3 <--> DCS 
+        N1 -- Streaming Replication --> N2
+        N1 -- Streaming Replication --> N3  
     end  
     subgraph "Ancien Cluster PGPool (v15)"  
-        PG1\[PG 15 Primary\]  
-        PG2\[PG 15 Standby\]  
-        PP\[PGPool-II\]  
-        PP \--\> PG1  
-        PP \--\> PG2  
+        PG1[PG 15 Primary]  
+        PG2[PG 15 Standby]
+        PG3[PG 15 Standby]  
+        PP[PGPool-II]  
+        PP --> PG1  
+        PP --> PG2
+        PP --> PG3  
     end  
-    LB\[Load Balancer / VIP\] \--\> N1
+    LB[Load Balancer / VIP] --> N1
 ```
 ## **Étude des Scénarios de Migration**
 
