@@ -13,8 +13,8 @@ Le striping répartit les segments de données sur plusieurs disques. Pour Postg
 * **Avantage** : Gain de performance quasi linéaire selon le nombre de disques.  
 * **Risque** : **Aucune redondance**. La perte d'un seul disque entraîne la perte de tous les WAL, ce qui rend le crash recovery impossible sans backup.  
 * **Implémentation LVM** :  
-```shell
-# Création du volume avec 3 disques en mode stripe (-i 3\)  
+```
+# Création du volume avec 3 disques en mode stripe (-i 3)  
 lvcreate -i 3 -I 64k -L 100G -n lv_postgres_wal vg_data /dev/sdb /dev/sdc /dev/sdd
 ```
 
@@ -25,7 +25,7 @@ Le RAID 10 combine la rapidité du RAID 0 et la sécurité du RAID 1\. Il néces
 * **Avantage** : Excellentes performances en lecture/écriture et tolérance à la panne (un disque par miroir).  
 * **Usage recommandé** : Environnements de production critique où le débit WAL est très élevé.  
 * **Implémentation LVM** :  
-```shell
+```
 # Création d'un volume RAID 10 (2 stripes, chaque stripe est un miroir)  
  lvcreate --type raid10 -i 2 -L 100G -n lv_postgres\_wal vg\_data
 ```
@@ -44,14 +44,14 @@ Le défi technique réside dans la manière dont ces outils traitent les fichier
 
 Par défaut, pg\_basebackup adopte un comportement de "déréférencement" : il suit le lien et copie les fichiers WAL réels dans un répertoire physique pg\_wal au sein de la destination. Le lien symbolique est alors perdu.
 
-**L'alternative \--waldir (ou \-X stream \--waldir=chemin\_absolu) :** Cette option permet de forcer l'emplacement des WAL lors de la sauvegarde pour reconstruire une structure déportée sur la cible.
+**L'alternative --waldir (ou -X stream --waldir=chemin_absolu) :** Cette option permet de forcer l'emplacement des WAL lors de la sauvegarde pour reconstruire une structure déportée sur la cible.
 
 * **Syntaxe type** :
 
-```shell  
-  pg_basebackup -h localhost -D /var/lib/postgresql/backup/data \  
-                -Fp -X stream \  
-                --waldir=/mnt/dedicated_wal/pg\_wal -P
+```
+pg_basebackup -h localhost -D /var/lib/postgresql/backup/data \
+-Fp -X stream \  
+--waldir=/mnt/dedicated_wal/pg\_wal -P
 ```
 
 * **Contraintes majeures** :  
@@ -59,7 +59,7 @@ Par défaut, pg\_basebackup adopte un comportement de "déréférencement" : il 
   * Le chemin doit être **absolu**.  
   * Si le répertoire existe, il doit impérativement être **vide**.
 
-#### **🔍 Focus sur l'option \-n (--no-clean)**
+#### **🔍 Focus sur l'option -n (--no-clean)**
 
 Par défaut, en cas d'erreur, pg_basebackup supprime les répertoires créés. L'activation de --no-clean modifie ce comportement :
 
@@ -82,7 +82,7 @@ pgbackrest gère nativement les liens symboliques :
 
 ## **📊 Tableau comparatif des fonctionnalités**
 
-| Fonctionnalité | pg\_basebackup (par défaut) | pg\_basebackup (--waldir) | pgbackrest |
+| Fonctionnalité | pg_basebackup (par défaut) | pg\_basebackup (--waldir) | pgbackrest |
 | :---- | :---- | :---- | :---- |
 | **Gestion pg\_wal** | Déréférencement | Cible forcée | Stocke et recrée le lien |
 | **Format supporté** | Plain & Tar | **Plain uniquement** | Tous formats |
@@ -94,7 +94,7 @@ pgbackrest gère nativement les liens symboliques :
 graph TD  
     subgraph "Serveur Source"  
         DATA1[PGDATA /var/lib/postgresql]  
-        WAL1[Disque LVM Stripe /mnt/pg\_wal]  
+        WAL1[Disque LVM Stripe /mnt/pg_wal]  
         DATA1 -- "Lien symbolique" --> WAL1  
     end
 
@@ -105,8 +105,8 @@ graph TD
 
     subgraph "Serveur Restauré"  
         DATA2[PGDATA Restauration]  
-        WAL2_New\[Répertoire WAL /mnt/new_wal]  
-        WAL2_Link\[Lien symbolique RECRÉÉ]  
+        WAL2_New[Répertoire WAL /mnt/new_wal]  
+        WAL2_Link[Lien symbolique RECRÉÉ]  
           
         PGB -->|Cible forcée| WAL2_New  
         PGR -->|Option link-map| WAL2_Link  
