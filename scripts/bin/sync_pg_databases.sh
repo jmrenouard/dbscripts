@@ -3,7 +3,24 @@
 # Script : sync_pg_databases.sh
 # Rôle   : Synchronisation, migration et audit de bases PostgreSQL.
 # Auteur : Expert DevOps / DBA PostgreSQL
-# ==============================================================================
+# #================================#================================#==============
+# Fichier de configuration : config.env
+# #================================#================================#==============
+# Paramètres de connexion à #l'instance PostgreSQL SOURCE
+#SRC_HOST=10.0.0.10
+#SRC_PORT=5432
+#SRC_USER=postgres_admin_src
+#SRC_PASS=SuperSecretPasswordSrc!
+# Paramètres de connexion à l'instance PostgreSQL CIBLE
+#TGT_HOST=10.0.0.20
+#TGT_PORT=5432
+#TGT_USER=postgres_admin_tgt
+#TGT_PASS=SuperSecretPasswordTgt!
+# Base de données cible #spécifique (Optionnel, laisser #vide pour tout synchroniser)
+# Surchargeable avec l'argument #-d ou --database
+#TARGET_DB=my_production_db
+
+#================================#================================#==============
 
 set -euo pipefail
 
