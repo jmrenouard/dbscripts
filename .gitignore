@@ -114,3 +114,5 @@ docker/mariadb/reports/test_*.md
 docker/mariadb/reports/test_*.html
 docker/mariadb/test_db/**
 .agent/**
+MariaDB/docker/mariadb/gdatadir_0*/**
+MariaDB/docker/mariadb/datadir_0*/**
