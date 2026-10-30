@@ -41,13 +41,6 @@ reset_timer()
     unset $(env| grep "LAST_DURATION_$LABEL"|cut -d= -f 1| xargs)
 }
 
-dump_timer()
-{
-    local LABEL=${1:-"GENERIC"}
-    env| grep "START_TIME_$LABEL"
-    env| grep "LAST_DURATION_$LABEL"
-}
-
 get_timer_duration()
 {
     local LAST_RC=$?

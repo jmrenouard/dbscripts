@@ -3,31 +3,50 @@
 
 decypher_file()
 {
-    cdecat="zcat"
-    [ "$GZIP_CMD" = "$(which pigz)" ] && cdecat="$GZIP_CMD -cd"
-    local encFile=$1
-    local keyFile=${2:-"/opt/mysql/.encrypted.cnf"}
+    local encFile="${1:-}"
+    local keyFile="${2:-/opt/mysql/.encrypted.cnf}"
+    local outFile="${3:-$(echo "${encFile}" | sed -E 's/\.enc\.gz$//')}"
+    local algo="${ENCRYPTED_ALGORITHM:-aes-256-cbc}"
+    local gzip_cmd="${GZIP_CMD:-gzip}"
+    local cdecat="zcat"
+    [ "${gzip_cmd}" = "$(which pigz 2>/dev/null || true)" ] && cdecat="${gzip_cmd} -cd"
 
-    [ -f "$1" ] || return 1
+    [ -f "${encFile}" ] || return 1
+    [ -f "${keyFile}" ] || return 1
 
-    local outFile=${3:-"$(echo $encFile | sed -E 's/\.enc\.gz$//')"}
-    [ -z "$ENCRPYTED_ALGORITHM" ] && ENCRPYTED_ALGORITHM="aes-256-cbc"
-    $cdecat $encFile | openssl $ENCRPYTED_ALGORITHM -d -salt -kfile "$keyFile" > $outFile
-    [ $? -eq 0 ] && rm -f $encFile
+    set -o pipefail
+    ${cdecat} "${encFile}" | openssl "${algo}" -d -salt -kfile "${keyFile}" > "${outFile}"
+    local rc=$?
+    if [ ${rc} -eq 0 ] && [ -s "${outFile}" ]; then
+        rm -f "${encFile}"
+        return 0
+    else
+        rm -f "${outFile}"
+        return 1
+    fi
 }
 
 cypher_file()
 {
-    local inFile=$1
-    local keyFile=${2:-"/opt/mysql/.encrypted.cnf"}
-    local outFile=${3:-"${inFile}.enc.gz"}
+    local inFile="${1:-}"
+    local keyFile="${2:-/opt/mysql/.encrypted.cnf}"
+    local outFile="${3:-${inFile}.enc.gz}"
+    local algo="${ENCRYPTED_ALGORITHM:-aes-256-cbc}"
+    local gzip_cmd="${GZIP_CMD:-gzip}"
 
-    [ -f "$1" ] || return 1
+    [ -f "${inFile}" ] || return 1
+    [ -f "${keyFile}" ] || return 1
 
-    [ -z "$ENCRPYTED_ALGORITHM" ] && ENCRPYTED_ALGORITHM="aes-256-cbc"
-
-    cat $inFile | openssl $ENCRPYTED_ALGORITHM -salt -kfile "$keyFile" | $GZIP_CMD >> $outFile
-    [ $? -eq 0 ] && rm -f $inFile
+    set -o pipefail
+    cat "${inFile}" | openssl "${algo}" -salt -kfile "${keyFile}" | ${gzip_cmd} > "${outFile}"
+    local rc=$?
+    if [ ${rc} -eq 0 ] && [ -s "${outFile}" ]; then
+        rm -f "${inFile}"
+        return 0
+    else
+        rm -f "${outFile}"
+        return 1
+    fi
 }
 
 createLogicalVolume() {
@@ -46,11 +65,11 @@ createLogicalVolume() {
     echo "CREATING LOGICAL VOLUME /dev/${vg}/${lv} (SIZE : ${lvsize}) ..."
     mkdir -p ${lvhome}
 
-    if $(grep -q "%" <<< "${lvsize}")
+    if echo "${lvsize}" | grep -q "%"
     then
-        lvcreate -L${lvsize} -n ${lv} ${vg}
-    else
         lvcreate -l${lvsize} -n ${lv} ${vg}
+    else
+        lvcreate -L${lvsize} -n ${lv} ${vg}
     fi
 
     mkfs.${lvfstype} /dev/${vg}/${lv}
@@ -59,17 +78,17 @@ createLogicalVolume() {
     chmod 755 ${lvhome}
 
     # Options de montage
-    if $(grep -q "/home\|/tmp\|/var/log/audit" <<< "${lvhome}")
+    option="${lvfstype}    defaults        0       2"
+    if echo "${lvhome}" | grep -q "/home\|/tmp\|/var/log/audit"
     then
         option="${lvfstype}    nosuid,nodev,noexec        0       2"
-    elif $(grep -q "/var" <<< "${lvhome}")
+    elif echo "${lvhome}" | grep -q "/var"
     then
         option="${lvfstype}    nosuid,nodev        0       2"
-        if $(grep -q "/var/log" <<< "${lvhome}")
+        if echo "${lvhome}" | grep -q "/var/log"
         then
             option="${lvfstype}    defaults        0       2"
         fi
-
     fi
 
     [ `grep -c "^/dev/${vg}/${lv}" /etc/fstab` = 0 ] && \

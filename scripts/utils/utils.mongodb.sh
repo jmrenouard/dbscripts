@@ -30,20 +30,7 @@ export MONGO_URIS="mongodb://localhost:27017"
 # La clé est générée en remplaçant '://' par '_' et ':' par '_'.
 # export INSTANCE_NAME_mongodb_localhost_27017="primary_mongo"
 
-_DIR="$(dirname "$(readlink -f "$0")")"
-# Si vous avez un fichier utils.sh, vous pouvez le sourcer ici
-source $_DIR/utils.sh
-
 # --- Fonctions Utilitaires Internes ---
-
-# Affiche un message d'erreur en rouge
-error() { echo -e "\033[0;31m[ERREUR] $1\033[0m"; }
-
-# Affiche un message de succès en vert
-ok() { echo -e "\033[0;32m[OK] $1\033[0m"; }
-
-# Affiche une information en jaune
-info() { echo -e "\033[0;33m[INFO] $1\033[0m"; }
 
 # Affiche un titre
 title() { echo -e "\n\033[1;34m--- $1 ---\033[0m"; }
@@ -397,8 +384,5 @@ mongo_drop_user() {
     fi
     return $lRC
 }
-
-info "Script d'utilitaires MongoDB chargé."
-info "Commandes disponibles: mongo_status, mongo_info, mongo_dbs, mongo_collections, etc."
 
 # --- Fin du script ---

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-_DIR="$(dirname "$(readlink -f "$0")")"
-source $_DIR/utils.sh
 alias use='psql'
 
 ## Code PostgreSQL
