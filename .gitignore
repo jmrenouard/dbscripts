@@ -116,3 +116,5 @@ docker/mariadb/test_db/**
 .agent/**
 MariaDB/docker/mariadb/gdatadir_0*/**
 MariaDB/docker/mariadb/datadir_0*/**
+__pycache__/
+*.py[cod]
