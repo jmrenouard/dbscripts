@@ -35,7 +35,7 @@ _NAME="$(basename "$(readlink -f "$0")")"
 NAME="${_NAME}"
 
 lRC=0
-zabbix_password="Jiegohkoh6aePh6phu"
+zabbix_password="${ZABBIX_PASSWORD:-${zabbix_password:-}}"
 
 banner "BEGIN SCRIPT: ${_NAME}"
 

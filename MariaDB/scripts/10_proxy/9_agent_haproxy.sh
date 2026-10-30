@@ -37,10 +37,10 @@ my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep -E '(192.168|172.2)'| cut
 
 lRC=0
 galera_user=galera
-galera_password=ohGh7boh7eeg6shuph
+galera_password="${GALERA_PASSWORD:-${galera_password:-}}"
 
 [ -f '/etc/bootstrap.conf' ] && source /etc/bootstrap.conf
-[ -n "$sst_password" ] && galera_password="$sst_password"
+[ -n "${sst_password:-}" ] && galera_password="$sst_password"
 
 banner "BEGIN SCRIPT: ${_NAME}"
 

@@ -1,1 +1,0 @@
-# MongoDB Configuration File Documentation

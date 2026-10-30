@@ -1,1 +1,0 @@
-# MongoDB Status Monitoring Exercise

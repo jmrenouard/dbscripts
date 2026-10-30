@@ -1,40 +1,38 @@
 ---
 trigger: always_on
-description: Rules for maintaining and generating documentation.
+description: Rules for maintaining and generating documentation in English.
 category: governance
 ---
 # 05 - Documentation Standards
 
 ## 🧠 Rationale
 
-Consistent and bilingual documentation is critical for the `dbscripts` project. Automated generation ensures that TOCs and READMEs are always up-to-date across the entire hierarchy.
+Consistent and high-quality documentation is critical for the `dbscripts` project. In accordance with [`AGENTS.md`](../../AGENTS.md), all project documentation, specifications, governance registers, and code comments **MUST be written in English**. Automated generation ensures that Tables of Contents (TOCs) and README indices remain consistently synchronized across the entire hierarchy.
 
 ## 🛠️ Implementation
 
-### 🌍 Bilingual Parity
+### 🌍 Language Standards
 
-- Every standard procedure must have two versions:
-  - **English**: `technical_slug.md` (e.g., `mariadb_config.md`). Contains the technical reference in English.
-  - **French**: `nom_fonctionnel_fr.md` (e.g., `configuration_mariadb_fr.md`). Contains the same reference in French.
-- Use `genSop.sh` to scaffold these from script metadata. It maintains link parity between versions.
+- All canonical procedures, guides, and architectural references MUST be written in **English**: `technical_slug.md` (e.g., `mariadb_config.md`).
+- Existing French files (`*_fr.md`) are retained strictly for backward compatibility, but all new documentation and updates must be authored in English.
+- All governance registers (`docs/ACTION_LOGBOOK.md`, `docs/RCA_REGISTER.md`) must be maintained in English without exception.
 
 ### 📝 Structure
 
-- **TOC Placeholder**: Every documentation file MUST include a `## Table of contents` section.
+- **TOC Placeholder**: Every major documentation file MUST include a `## Table of contents` section.
 - **TOC Marker**: Use the `<TOC>` marker to indicate where the automated table of contents should be injected by `genToC.sh`.
-- **Naming**: French files MUST have the `_fr.md` suffix and use French functional names (slugs).
+- **Naming**: Use clear, lowercase kebab-case or snake_case slugs for English documentation files.
 
 ### 🚀 Automated Sync
 
 - Never update TOCs or the `README.md` indices manually.
-- **Recursive Sync**: The synchronization process is recursive. It scans all subdirectories in `documentation/`.
-- **Double Index**: Two separate indices are generated at the root of the documentation folder:
-  - [README.md](file:///home/jmren/GIT_REPOS/dbscripts/documentation/README.md): English index grouping documents by chapter.
-  - [README_fr.md](file:///home/jmren/GIT_REPOS/dbscripts/documentation/README_fr.md): French index grouping documents by chapter.
-- Use the `/doc-sync` workflow to refresh all documentation assets.
+- **Recursive Sync**: The synchronization process scans all subdirectories in `documentation/`.
+- **Index Generation**: An index is generated at the root of the documentation folder:
+  - `documentation/README.md`: English index grouping documents by chapter.
+- Use the `/doc-sync` workflow to refresh documentation assets.
 
 ## ✅ Verification
 
-- Ensure `genToC.sh` runs without errors on new files.
-- Verify that both `README.md` and `README_fr.md` correctly list files in their respective languages.
+- Ensure `genToC.sh` runs without errors on new markdown files.
+- Verify that `documentation/README.md` correctly lists all documentation files.
 - Validate that all subdirectories are covered by the recursive scan.

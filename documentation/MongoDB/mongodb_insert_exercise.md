@@ -1,1 +1,0 @@
-# MongoDB Insert Exercise
