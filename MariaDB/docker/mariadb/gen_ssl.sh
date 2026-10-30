@@ -70,4 +70,14 @@ chmod 644 "$SSL_DIR/"*.pem
 
 echo ""
 echo "✅ SSL Certificates generated in $SSL_DIR/"
+
+# 4. Generate SSH Keypair for node communication if missing
+if [ ! -f "id_rsa" ] || [ ! -f "id_rsa.pub" ]; then
+    echo ">> 🔑 Generating SSH Keypair..."
+    ssh-keygen -t rsa -b 2048 -f id_rsa -N "" -C "mariadb-docker-dev"
+    chmod 600 id_rsa
+    chmod 644 id_rsa.pub
+fi
+
 echo "=========================================================="
+

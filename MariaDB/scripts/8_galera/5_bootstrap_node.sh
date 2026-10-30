@@ -4,6 +4,7 @@ set -euo pipefail
 # --- Minimal Utility Functions ---
 now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
 info() { echo "$(now) INFO: $*" 1>&2; }
+warn() { echo "$(now) WARN: $*" 1>&2; }
 error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
 ok() { info "[SUCCESS] $* [SUCCESS]"; }
 sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
@@ -39,7 +40,7 @@ my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep -E '(192.168|172.2)'| cut
 lRC=0
 CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
 [ -d "/etc/my.cnf.d/" ] && CONF_FILE="/etc/my.cnf.d/999_galera_settings.cnf"
-[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="//mysqetcl/conf.d/999_galera_settings.cnf"
+[ -d "/etc/mysql/conf.d/" ] && CONF_FILE="/etc/mysql/conf.d/999_galera_settings.cnf"
 [ -d "/etc/mysql/mariadb.conf.d/" ] && CONF_FILE="/etc/mysql/mariadb.conf.d/999_galera_settings.cnf"
 
 DATADIR=/var/lib/mysql/
@@ -48,12 +49,12 @@ DATADIR=/var/lib/mysql/
 cluster_name="${cluster_name:-"generic"}"
 node_addresses="${node_addresses:-"192.168.56.191,192.168.56.192,192.168.56.193"}"
 sst_user="${sst_user:-"galera"}"
-sst_password="${sst_password:-"kee2iesh1Ohk1puph8"}" # Default (Insecure)
+sst_password="${SST_PASSWORD:-${sst_password:-}}"
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 
-if [ "$sst_password" = "kee2iesh1Ohk1puph8" ]; then
-    warn "USING DEFAULT INSECURE SST PASSWORD. Please define sst_password in /etc/bootstrap.conf"
+if [ -z "$sst_password" ]; then
+    warn "NO SST PASSWORD CONFIGURED. Please define sst_password in /etc/bootstrap.conf or SST_PASSWORD env var"
 fi
 
 

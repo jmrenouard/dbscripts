@@ -3,7 +3,7 @@ services:
         image: postgres
         environment:
             POSTGRES_USER: semaphore
-            POSTGRES_PASSWORD: semaphore!
+            POSTGRES_PASSWORD: ${SEMAPHORE_DB_PASS:-semaphore!}
             POSTGRES_DB: semaphore
         volumes:
             - semaphore_postgres:/var/lib/postgresql/data
@@ -20,13 +20,13 @@ services:
             SEMAPHORE_DB_HOST: semaphore_db
             SEMAPHORE_DB_NAME: semaphore
             SEMAPHORE_DB_USER: semaphore
-            SEMAPHORE_DB_PASS: semaphore!
+            SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS:-semaphore!}
             SEMAPHORE_ADMIN: admin
-            SEMAPHORE_ADMIN_PASSWORD: changeme
+            SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD:-changeme}
             SEMAPHORE_ADMIN_NAME: Admin
             SEMAPHORE_ADMIN_EMAIL: admin@localhost
             SEMAPHORE_USE_REMOTE_RUNNER: "True"
-            SEMAPHORE_RUNNER_REGISTRATION_TOKEN: "JNHHHGjQLcBTlPFvQ6LbpOfaplSWb2VImI2jWipyvC4="
+            SEMAPHORE_RUNNER_REGISTRATION_TOKEN: ${SEMAPHORE_RUNNER_REGISTRATION_TOKEN:-}
             ANSIBLE_HOST_KEY_CHECKING: "False"
             SEMAPHORE_DB_OPTIONS: "{\"sslmode\":\"disable\"}"
         volumes:

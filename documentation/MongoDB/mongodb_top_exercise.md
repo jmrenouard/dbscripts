@@ -1,1 +1,0 @@
-# MongoDB Top Monitoring Exercise

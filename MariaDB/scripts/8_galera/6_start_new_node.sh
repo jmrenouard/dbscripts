@@ -46,7 +46,7 @@ private_ip=$(ip a| grep '192.168' |grep inet|awk '{print $2}'| cut -d/ -f1| head
 [ -z "$private_ip" ] && private_ip=$my_private_ipv4
 node_addresses=192.168.56.191,192.168.56.192,192.168.56.193
 sst_user=galera
-sst_password=kee2iesh1Ohk1puph8
+sst_password="${SST_PASSWORD:-${sst_password:-}}"
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
 

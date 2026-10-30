@@ -1,1 +1,0 @@
-# MongoDB mongofiles Exercise

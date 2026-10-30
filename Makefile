@@ -1,9 +1,14 @@
-TOPTARGETS := all clean
+PYTHON ?= python
 
-SUBDIRS := $(wildcard */.)
+.PHONY: all test lint clean
 
-$(TOPTARGETS): $(SUBDIRS)
-$(SUBDIRS):
-        $(MAKE) -C $@ $(MAKECMDGOALS)
+all: test
 
-.PHONY: $(TOPTARGETS) $(SUBDIRS)
+test:
+	$(PYTHON) -m unittest discover -s tests -v
+
+lint:
+	$(PYTHON) -m compileall -q tests docker scripts
+
+clean:
+	$(PYTHON) -c "import pathlib, shutil; [shutil.rmtree(p, ignore_errors=True) for p in pathlib.Path('.').rglob('__pycache__')]; [p.unlink() for p in pathlib.Path('.').rglob('*.py[cod]') if p.is_file()]"

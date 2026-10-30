@@ -1,1 +1,0 @@
-# MongoDB Export Exercise
