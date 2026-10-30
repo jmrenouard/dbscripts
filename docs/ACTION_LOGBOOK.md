@@ -35,6 +35,25 @@ _None._
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-003 — fix: canonical shell utilities consolidation, encryption pipeline safety and system scripts repair (Issue `#8`)
+- **Date**: `2026-10-31T00:50+01:00` | **Status**: `COMPLETED` | **Issue**: `#8`
+- **Request**: Milestone M2 remediation covering:
+  - Finding 13: Purge redundant `output/` directory, remove root utility duplicates (`git.sh`, `network.sh`, `timer.sh`, `is.sh`, `ansible.sh`, `jupyter.sh`), replace root `utils.sh` with a thin 2-line wrapper sourcing `scripts/utils.sh`, deduplicate `dump_timer()` in `scripts/utils/utils.timer.sh`, enrich `scripts/utils.sh` with `warning()`, `sep2()`, and `title2()`.
+  - Finding 3: Secure `cypher_file` and `decypher_file` in `scripts/utils/utils.system.sh` (enable `set -o pipefail`, overwrite `>` instead of append `>>`, check non-empty output `[ -s "$outFile" ]` before deleting input file, fix algorithm typo `ENCRPYTED_ALGORITHM`, initialize `GZIP_CMD` fallback).
+  - Finding 10: Invert `-L` and `-l` flags in `createLogicalVolume` (`-l` for extents/percentage, `-L` for fixed sizes), default initialize mount `option`, remove recursive sourcing in `scripts/utils/utils.pgsql.sh` and `scripts/utils/utils.mongodb.sh`, convert `utils.pgsql.sh` CRLF to LF, and remove noisy greeting in `utils.mongodb.sh`.
+  - Finding 9: Reverse numerical sort `rule_id` (`sort -rn`) in `scripts/bin/accept_client.sh` and `scripts/bin/accept_wsrep.sh` to prevent iptables index shifting bug.
+- **Changes**:
+  - Deleted `output/` directory and root utility files `git.sh`, `network.sh`, `timer.sh`, `is.sh`, `ansible.sh`, `jupyter.sh`.
+  - Replaced root `utils.sh` with a thin wrapper sourcing `scripts/utils.sh`.
+  - Deduplicated `dump_timer()` in `scripts/utils/utils.timer.sh`.
+  - Enriched `scripts/utils.sh` with `warning()`, `sep2()`, `title2()`.
+  - Secured `cypher_file` and `decypher_file` in `scripts/utils/utils.system.sh`.
+  - Fixed LVM flag assignment (`-l` vs `-L`) and mount options in `createLogicalVolume`.
+  - Removed recursive sourcing in `scripts/utils/utils.pgsql.sh` and `scripts/utils/utils.mongodb.sh`, normalized `utils.pgsql.sh` to LF, and removed noisy load messages from `utils.mongodb.sh`.
+  - Added `sort -rn` in `scripts/bin/accept_client.sh` and `scripts/bin/accept_wsrep.sh`.
+  - Extended unit tests in `tests/test_shell_scripts.py` covering all Milestone M2 features.
+- **Result**: Automated unit tests pass for all M2 features (`tests.test_shell_scripts`), bash syntax checks clean across all modified scripts, PR diff character count strictly under 15,000 characters.
+
 ### ACT-002 — chore: repository hygiene, makefile repair and secret sanitization (Issue `#6`)
 - **Date**: `2026-10-31T00:15+01:00` | **Status**: `COMPLETED` | **Issue**: `#6`
 - **Request**: Milestone M1 remediation covering Finding 2 (untrack SSH keypair from git, update .gitignore, add on-the-fly SSH keygen in gen_ssl.sh, parameterize passwords/tokens across docker-compose and shell scripts), Finding 12 (fix root Makefile tab indentation, add working test/lint/clean targets), Finding 15 (remove orphaned AI prompt layers in .github/prompts, SPECIFICATIONS, TEST_SPECIFICATIONS, MariaDB/docker/mariadb/.agent, MEMORY.json; harmonize 05_documentation_standards.md with English standard; preserve root rules for test compliance), and Finding 16 (purge 20 dead/bloat artifacts including Nagios binary check_mysql_health, notebooks/Init.ipynb, reports, 3 zero-byte files, duplicate README_NFS.md, and 12 1-line MongoDB stubs).

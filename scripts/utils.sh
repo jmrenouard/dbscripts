@@ -68,11 +68,17 @@ warn() {
     [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) WARNING: $*">>$TEE_LOG_FILE
     return $lRC
 }
+warning() { warn "$*"; }
 sep1() {
     echo "$(now) -----------------------------------------------------------------------------" 1>&2
     [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) -----------------------------------------------------------------------------" >>$TEE_LOG_FILE
 }
+sep2() {
+    echo "$(now) _____________________________________________________________________________" 1>&2
+    [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) _____________________________________________________________________________" >>$TEE_LOG_FILE
+}
 title1() { sep1; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>$TEE_LOG_FILE; sep1; }
+title2() { sep2; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>$TEE_LOG_FILE; sep2; }
 banner() { start_timer; title1 "START: $*"; info " run as $(whoami)@$(hostname -s)"; }
 footer() {
     local lRC=${lRC:-"$?"}
