@@ -35,6 +35,13 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-014 — feat: promote ansible structure test suite and portable bash detection (Issue `#30`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#30`
+- **Request**: M5.1: Promote `tests/test_ansible_structure.py` into git tracking on `main`, fix portable Git Bash detection in `tests/test_shell_scripts.py:20`.
+- **Changes**: Promoted `tests/test_ansible_structure.py` (7 tests verifying Ansible playbooks, role layout, defaults, handlers, YAML validity); patched `tests/test_shell_scripts.py:20` to prefer `C:/Program Files/Git/bin/bash.exe` on Windows.
+- **Result**: `tests/test_ansible_structure.py` (7/7 pass) and `tests/test_shell_scripts.py` (24/24 pass) execute cleanly; PR diff < 15,000 chars.
+
+
 ### ACT-013 — feat: docker mariadb stack consolidation part 2 (Issue `#28`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#28`
 - **Request**: M4.3 part 2: Move remaining 37 files to `docker/mariadb/`, polish `gen_ssl.sh`, prune `MariaDB/`.

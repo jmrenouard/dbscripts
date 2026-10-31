@@ -11,6 +11,18 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-016 — Windows WSL Bash Launcher Hang in Syntax Check Test Suite
+- **Observed Symptom**: `tests/test_shell_scripts.py` hung during `test_all_shell_scripts_pass_bash_syntax_check` on Windows.
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: Test froze running `subprocess.run([self.bash_path, "-n", script])`.
+  2. *Why*: `cls.bash_path` resolved to `C:\Windows\System32\bash.exe` via `shutil.which`.
+  3. *Why*: `C:\Windows\System32\bash.exe` is the WSL launcher which hangs when called non-interactively without active WSL.
+  4. *Why*: Line 20 lacked the Git Bash check (`C:/Program Files/Git/bin/bash.exe`) used at line 186.
+  5. *Why*: Syntax test class predated cross-platform Windows CI hardening.
+- **Applied Change / Fix**: Aligned line 20 to prefer Git Bash if present, falling back to `shutil.which`.
+- **Result & Non-Regression**: Verified by `tests/test_shell_scripts.py` (24/24 tests pass in ~28s).
+
+
 ### RCA-015 — RFC 5280 Serial Collision and Permissions in gen_ssl.sh
 - **Observed Symptom**: Server/client certs had identical serial 01; private keys were 644; *.req missed *-req.pem.
 - **Applied Fix**: Set -euo pipefail; client serial 02; rm *-req.pem; chmod 600 keys and 644 certs.
@@ -192,6 +204,10 @@
 - **Abandoned**: Attempting to move all 58 Docker files in a single PR (diff exceeded 16,400 chars).
 - **Justification**: 58 file renames produce 13,809 characters, leaving insufficient headroom for registers. Staged into M4.3a (21 files, ~7,997 chars) and M4.3b (37 files, ~9,500 chars) ensuring both PR diffs stay strictly < 15,000 characters.
 
+### IMP-012 — Monolithic Promotion of Test Suites in a Single Pull Request
+- **Abandoned**: Promoting `tests/test_ansible_structure.py` (8,827 chars) and `tests/test_python_scripts.py` (14,315 chars) in a single batch PR.
+- **Justification**: A monolithic PR would generate over 23,000 characters of diff, severely breaching the mandatory repository ceiling of 15,000 characters. Decomposed into Milestone M5.1 (Ansible suite, ~10,000 chars) and Milestone M5.2 (Python suites, modularized).
+
 
 
 
@@ -253,6 +269,11 @@
 ### APP-011 — Static Inspection of gen_ssl.sh
 - **Approximation**: Validates script flags/permissions without live CA generation.
 
+### APP-012 — Static YAML AST and Structure Validation for Ansible Playbooks
+- **Approximation**: Ansible playbooks and role structures are validated using Python `yaml.safe_load` and filesystem directory assertions without executing `ansible-playbook` against live nodes.
+- **Impact & Scope**: Extremely fast execution (< 0.1s) and zero dependency on a live Ansible control node or managed target instances.
+- **Removal Condition**: Laboratory integration tests executing `ansible-playbook --check` or Molecule test runs inside container environments.
+
 
 
 
@@ -310,6 +331,11 @@
 
 ### IDEA-011 — Automated TLS Handshake Verification in Docker
 - **Description**: Container mutual TLS handshake test for generated certificates.
+
+### IDEA-012 — Automated Ansible Linting and Dry-Run Syntax Verification in CI
+- **Target Module**: `ansible/` / `.github/workflows/`
+- **Description**: Integrate `ansible-lint` and `ansible-playbook --syntax-check` into CI workflow container to validate task idempotency, rule deprecations, and module parameters beyond raw YAML syntax.
+- **Priority**: Medium
 
 
 

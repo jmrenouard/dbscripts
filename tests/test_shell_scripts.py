@@ -17,7 +17,7 @@ class TestShellScriptsSyntax(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.bash_path = shutil.which("bash")
+        cls.bash_path = "C:/Program Files/Git/bin/bash.exe" if os.path.isfile("C:/Program Files/Git/bin/bash.exe") else shutil.which("bash")
 
     def _collect_shell_scripts(self) -> list[pathlib.Path]:
         scripts: list[pathlib.Path] = []
