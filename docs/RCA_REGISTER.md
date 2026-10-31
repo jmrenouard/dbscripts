@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-022 — Deprecation of Obsolete Vagrant and Easymysql Documentation
+- **Observed Symptom**: Root `README.md` (226 lines) documented obsolete Vagrant scripts and unmaintained `easymysql`, omitting modern multi-DBMS automation (Galera, Patroni, Ansible, Docker, tests).
+- **5 Whys RCA**: 1. Root README not revised since legacy single-host MySQL tooling; 2. Project evolved into multi-DBMS clustering; 3. Referenced Vagrant wrappers were obsolete/removed; 4. Documentation standards require structured English catalog; 5. Contributors lacked architecture map and test guide.
+- **Applied Fix**: Rewrote `README.md` as structured 90-line English catalog covering layout, DBMS script matrix, Docker quickstarts, and test commands.
+- **Non-Regression**: `python -m unittest discover -s tests -v` (49/49 pass); diff strictly < 15,000 characters.
+
 ### RCA-021 — Redundant Root Directory Governance and Promotion Artifact Accumulation
 - **Observed Symptom**: Repository root contained 8 redundant governance, redirection, and audit files (`PROJECT.md`, `TEST_INFRA.md`, `TEST_READY.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`, `ROADMAP.md`, `03_execution_rules.md`, `04_best_practices.md`) and an empty `sys_result/` directory, causing root bloat and duplicate governance sources.
 - **Root Cause Analysis (5 Whys)**:

@@ -1,225 +1,89 @@
-# DB scripts #
+# Database Scripts Automation (`dbscripts`)
 
-## Example ##
+[![Test Suite](https://img.shields.io/badge/tests-49%20passed-brightgreen.svg)](tests/)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](Makefile)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+[![Governance](https://img.shields.io/badge/governance-strict%20registers-orange.svg)](docs/ACTION_LOGBOOK.md)
 
-![Architecture](https://raw.githubusercontent.com/jmrenouard/dbscripts/master/archi.png)
+Robust, reproducible automation solutions for multi-vendor enterprise database infrastructures across **MariaDB/Galera**, **MySQL**, **PostgreSQL**, **MongoDB**, **Cassandra**, and **Oracle**.
 
+---
 
-## Setup VM Vagrant ##
+## 🏛️ Repository Architecture
+
+| Directory | Scope & Description |
+|---|---|
+| [`scripts/`](scripts/) | Shell & Python scripts for OS hardening, DBMS setup, clustering, backups, and CLI tools. |
+| [`ansible/`](ansible/) | Ansible playbooks and roles for InnoDB Cluster, OS upgrades, and Redis ACL management. |
+| [`docker/`](docker/) | Multi-container labs: 3-node Galera cluster, MySQL replication, PostgreSQL sandboxes. |
+| [`sql/`](sql/) | Diagnostic queries, Performance Schema analysis, maintenance routines, security audits. |
+| [`documentation/`](documentation/) | Technical operational guides in English for Galera, Patroni, MongoDB, and Linux tuning. |
+| [`docs/`](docs/) | Living governance registers: [`ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) and [`RCA_REGISTER.md`](docs/RCA_REGISTER.md). |
+| [`tests/`](tests/) | Automated unit tests (49 tests) verifying shell scripts, Ansible, and Python CLIs. |
+
+---
+
+## 🚀 Multi-DBMS Automation Matrix
+
+| DBMS Platform | Key Entry Point | Usage Description |
+|---|---|---|
+| **MariaDB Galera** | `scripts/8_galera/5_bootstrap_node.sh` | Bootstrap primary Galera cluster node. |
+| **MariaDB Galera** | `scripts/8_galera/6_start_new_node.sh` | Connect node to active Galera cluster (SST). |
+| **MariaDB Backup** | `scripts/bin/mbbackup.sh` | Physical full/incremental backups with Mariabackup. |
+| **MariaDB Restore**| `scripts/bin/mbrestore.sh` | Prepare and restore Mariabackup archives to datadir. |
+| **MySQL Docker**   | `docker/mysql_docker.py` | CLI to manage multi-container MySQL sandboxes. |
+| **MySQL Cluster**  | `ansible/playbook_innodb_cluster_group.yml` | Deploy MySQL InnoDB Cluster with Group Replication. |
+| **MySQL Tools**    | `scripts/bin/mysqldump_database_splitter.py` | Split large mysqldump archives by database. |
+| **PostgreSQL**     | `scripts/7_postgres/1a_install_postgres_centos.sh` | Install & initialize PostgreSQL on RHEL/CentOS. |
+| **PostgreSQL**     | `scripts/7_postgres/4_setup_slave_config.sh` | Configure streaming replication standby nodes. |
+| **MongoDB**        | `scripts/1_system/9_mongodb_system.sh` | Tune kernel limits, disable THP, configure swap. |
+| **Cassandra**      | `cassandra/show_cql_grants.py` | Audit & export CQL permissions on keyspaces/tables. |
+| **Oracle**         | `oracle/ora2mariadb.sh` | Convert Oracle DDL definitions to MariaDB format. |
+
+---
+
+## 🧪 Laboratory & Quickstart
+
+### MariaDB Galera Cluster Lab (3 Nodes + HAProxy)
+```bash
+cd docker/mariadb
+make galera-up       # Launch 3 Galera nodes and HAProxy
+make test-galera     # Run cluster replication tests
+make galera-down     # Teardown containers and clean state
 ```
-# sudo sh installSoft.sh
-# source profile
-# vsetupVMs vstart
-.... Take a long time ....
+
+### PostgreSQL Miniapp Sandbox
+```bash
+docker compose -f docker/miniapps/postgresql/docker-compose.yml up -d
 ```
 
-## Check Vagrant VMs ##
-    # vlist
+### MySQL Container Manager CLI
+```bash
+python docker/mysql_docker.py run --name mysql-lab --port 3306 --version 8.0
+python docker/mysql_docker.py status
+```
 
-## Adding utils.sh on all VM servers ##
-    # vssh_copy mariadb1,mariadb2,mariadb3,mariadb4,haproxy1 ./scripts/utils.sh /etc/profile.d/utils.sh
-    # vssh_copy mariadb1,mariadb2,mariadb3,mariadb4,haproxy1 ./scripts/bin /opt/local root 755
+---
 
-## Running abritary command ##
-    # vssh_cmd mariadb1,mariadb2,mariadb3,mariadb4 "hostname -s" silent
-    # vssh_cmd haproxy1 "hostname -s"
+## ✅ Testing & Quality Assurance
 
-## Executing remotly a script ##
-    # vssh_exec mariadb1,mariadb2,mariadb3,mariadb4 scripts/1_system/2_s silent
-    # vssh_cmd haproxy1 "hostname -s"
+All shell scripts, Ansible YAML files, Python utilities, and governance rules are continuously verified:
 
+```bash
+# Run the complete unit test suite (49 unit tests)
+make test
+# or directly:
+python -m unittest discover -s tests -v
 
-# Easymysql #
-**Helper Bash script for MySQL multi instance management on one server**
+# Run Python compilation check across modules
+make lint
+```
 
-# Purpose #
- This tools is a simple Bash script that help you to
-**clone and manage several MySQL server instances**
-on the same server.
- It supports 6 main features:
+---
 
-- clone
-- destroy
-- start
-- stop
-- restart
-- status
+## 📜 Governance & Workflow
 
-# Prerequirements #
-1. Use a standard Linux and Bash shell
-    - [http://www.linux.com/directory/Distributions](http://www.linux.com/directory/Distributions "Linux Distibution")
-    - [http://www.gnu.org/software/bash/](http://www.gnu.org/software/bash/ "Bash Shell")
-2. Download mysqlutilities
-	-  [http://dev.mysql.com/downloads/utilities/](http://dev.mysql.com/downloads/utilities/ "MySQL Utilities")
-3. A classic MySQL or MariaDb server
-	- [http://dev.mysql.com/downloads/mysql/](http://dev.mysql.com/downloads/mysql/ "MySQL Server")
-	- [https://downloads.mariadb.org/](https://downloads.mariadb.org/ "MariaDB Server")
-
-# Installation #
-
-## Installation from Git ##
-    # git clone https://github.com/jmrenouard/easymysql
-
-## Download Source from GitHub ##
-    # curl https://github.com/jmrenouard/easymysql/archive/master.zip
-    # unzip master.zip
-
-
-## Setup ##
-    # source mysql_functions.sh
-
-# Specific configurations #
-
-This parameters are set at the begin of mysql_functions.sh script.
-## Root Directory for all instances
-    ROOT_DIR=/var/lib
-
-## Type of servers ##
-    TYPE=mysql
-
-## General options for all instances ##
-    GENERAL_OPTIONS="--log-bin=mysql-bin --pid-file=clone.pid --explicit_defaults_for_timestamp --plugin-dir=/usr/lib64/mysql/plugin"
-
-## User used for running mysqld process ##
-    MUSER=mysql
-
-## Password used for root user in all instances ##
-    RPASSWORD=admin
-
-## Main MySQL configuration file ##
-    MAIN_CFG_FILE=/etc/my.cnf
-
-## Include Configuration Directory ##
-    ETC_DIR=/etc/my.cnf.d/
-
-# Basic concepts #
-## Server Identifier ##
-**Identifier** is the only concept your really need to handle all instances.
-
-For example, MySQL instance with id=x gets the following properties:
-
-1. Port: 3306+X
-2. Datadir: /var/lib/mysql + X
-3. Server id: X
-4. Socket: Datadir/mysqlX.sock
-
-## Main functions ##
-
-- Clone a existing and running instance
-
-        mclone < ID DESTINATION > [ < ID SOURCE > ]
-
-- Start one or several MySQL instance
-
-        mstart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
-
-- Stop one or several MySQL instance
-
-        mstart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
-
-- Restart one or several MySQL instance
-
-        mrestart < ID1 > [ < ID2 > ] [ < ID3 > ] ...
-
-- Get status of one, several or all MySQL instances
-
-        mstatus [ < ID1 > ] [ < ID2 > ] ...
-
-- Destroy one or several MySQL instance
-
-        mdestroy < ID1 > [ < ID2 > ] [ < ID3 > ] ...
-
-
-# Examples #
-## Cloning a instance standard 3306 instance ##
-    # source mysql_functions.sh
-    # mclone 1
-
-## Cloning MySQL instance 1 port 3307 ##
-    # source mysql_functions.sh
-    # mclone 2 1
-
-## Destroying MySQL instance 2 ##
-    # source mysql_functions.sh
-    # mdestroy 2
-
-## Getting the status of all MySQL instances ##
-    # source mysql_functions.sh
-    # mstatus
-	ID      DIRECTORY       PORT    STATUS  PID
-	PRI     /var/lib/mysql  3306    ON      2144
-	1       /var/lib/mysql1 3307    ON      3029
-	2       /var/lib/mysql2 3308    ON      3048
-
-## Stopping MySQL instance 2 ##
-	# source mysql_functions.sh
-    # mstop 2
-    # mstatus
-	ID      DIRECTORY       PORT    STATUS  PID
-	PRI     /var/lib/mysql  3306    ON      2144
-	1       /var/lib/mysql1 3307    ON      3029
-	2       /var/lib/mysql2 3308    OFF
-
-## Starting MySQL instance 2 ##
-	# source mysql_functions.sh
-    # mstart 2
-    # mstatus
-	ID      DIRECTORY       PORT    STATUS  PID
-	PRI     /var/lib/mysql  3306    ON      2144
-	1       /var/lib/mysql1 3307    ON      3029
-	2       /var/lib/mysql2 3308    ON      3049
-
-## Restarting MySQL instances 1 2 ##
-	# source mysql_functions.sh
-    # mrestart 1 2
-    # mstatus
-	ID      DIRECTORY       PORT    STATUS  PID
-	PRI     /var/lib/mysql  3306    ON      2144
-	1       /var/lib/mysql1 3307    ON      3029
-	2       /var/lib/mysql2 3308    ON      3049
-
-## Creating  10 MySQL instances at once ##
-	# source mysql_functions.sh
-    # for i in `seq 1 10`; do mclone $i; done
-    # mstatus
-	ID      DIRECTORY       PORT    STATUS  PID
-	PRI     /var/lib/mysql  3306    ON      2144
-	1       /var/lib/mysql1 3307    ON      3029
-	10      /var/lib/mysql10        3316    ON      4018
-	2       /var/lib/mysql2 3308    ON      3048
-	3       /var/lib/mysql3 3309    ON      3562
-	4       /var/lib/mysql4 3310    ON      3627
-	5       /var/lib/mysql5 3311    ON      3692
-	6       /var/lib/mysql6 3312    ON      3757
-	7       /var/lib/mysql7 3313    ON      3822
-	8       /var/lib/mysql8 3314    ON      3887
-	9       /var/lib/mysql9 3315    ON      3952
-
-## Stopping 10 first MySQL instances ##
-	# source mysql_functions.sh
-    # mstart `seq 1 10`
-
-## Destroying 10 MySQL instances ##
-	# source mysql_functions.sh
-    # mdestroy `seq 1 10`
-
-## Getting a mysql client on MySQL instances 7 ##
-	# source mysql_functions.sh
-    # mclient 7
-    mysql> ...
-
-## Requesting from a mysql client on MySQL instances 4 ##
-	# source mysql_functions.sh
-    # mclient 4 select @@server_id
-    @@server_id
-    4
-
-# Support easymysql script #
-## Bugs report ##
-  [https://github.com/jmrenouard/easymysql/issues](https://github.com/jmrenouard/easymysql/issues "Fill an issue")
-
-## Pull request ##
-  [https://github.com/jmrenouard/easymysql/pulls](https://github.com/jmrenouard/easymysql/pulls "Pull Request")
-
-## Send an email ##
-  jmrenouard@gmail.com
+This project adheres strictly to the GitHub lifecycle and living governance registers:
+- Every contribution requires a dedicated issue, branch, validated tests, and atomic PR.
+- All Pull Requests must remain strictly under **15,000 characters** in diff size.
+- Updates must be logged in [`docs/ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) and [`docs/RCA_REGISTER.md`](docs/RCA_REGISTER.md).
