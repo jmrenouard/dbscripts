@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-019 — Testing Infrastructure Architecture Documentation Gap
+- **Observed Symptom**: Testing framework architecture and 4-tier matrix were documented in untracked artifacts.
+- **5 Whys RCA**: Automated tests were newly added in M5; formal architecture docs were needed; `TEST_INFRA.md` required promotion.
+- **Applied Fix**: Promoted `TEST_INFRA.md` documenting philosophy, 4 tiers, 18-finding matrix, and execution commands.
+- **Non-Regression**: `python -m unittest discover -s tests -v` (49/49 pass).
+
 ### RCA-018 — Python CLI and Utility Scripts Verification Coverage Gap
 - **Observed Symptom**: Python tooling in `scripts/bin/` lacked regression tests, risking logic bugs (Finding 18) and memory exhaustion (Finding 11).
 - **5 Whys RCA**: Regressions occurred without automated tests; CLI tools were run ad-hoc; no unittest discovery existed in CI; M5 test architecture was needed.
@@ -230,6 +236,11 @@
 - **Justification**: The raw diff of the file alone is 14,315 characters. Together with required logbook and RCA updates, the PR diff reaches 15,354 characters, violating the `< 15,000` limit.
 - **Adopted Pattern**: Staged promotion across two atomic PRs: Sub-Batch M5.2a (`test_python_docker.py`, ~4,600 chars diff) and Sub-Batch M5.2b (`test_python_scripts.py`, ~12,200 chars diff).
 
+### IMP-015 — Monolithic Test Infrastructure and Readiness Promotion in Single PR
+- **Abandoned Lead**: Committing `TEST_INFRA.md` and `TEST_READY.md` together in a single PR.
+- **Justification**: Combined diff would exceed ~28,000 characters (> 15,000 char limit).
+- **Adopted Direction**: Partitioned M5.3 into M5.3a (`TEST_INFRA.md`) and M5.3b (`TEST_READY.md` + `PROJECT.md`).
+
 ### IMP-014 — Heavy AWS S3/RDS Mocking Frameworks for Static CLI Tests
 - **Abandoned**: Using `moto` or `boto3-mock` for testing standalone CLI utilities.
 - **Justification**: Large dependencies slow test discovery and create fragility. Pure stdlib `unittest` and `importlib.util` inspection is faster and dependency-free.
@@ -310,8 +321,10 @@
 - **Impact & Scope**: Fast unit execution (<0.3s) while validating parameter forwarding and date ranges.
 - **Removal Condition**: Laboratory performance benchmarks on large CSV/SQL dumps.
 
-
-
+### APP-015 — Static Feature Coverage Mapping in Infrastructure Documentation
+- **Approximation**: `TEST_INFRA.md` specifies a static mapping between test files, methods, and audit findings.
+- **Impact & Scope**: Serves as architectural baseline for developers and CI runners.
+- **Removal Condition**: Dynamic coverage collection via automated CI test reporter.
 
 ---
 
@@ -381,6 +394,12 @@
 ### IDEA-014 — Property-Based Testing for SQL Splitters (Hypothesis)
 - **Description**: Add `hypothesis` tests generating random SQL streams to assert splitters never crash or leak descriptors.
 - **Priority**: Low
+
+### IDEA-015 — Automated Test Matrix Generator for Documentation
+- **Target Module**: `.github/workflows/` / `tests/`
+- **Description**: Add CI script parsing test docstrings to auto-update the coverage matrix in `TEST_INFRA.md`.
+- **Priority**: Low
+
 
 
 
