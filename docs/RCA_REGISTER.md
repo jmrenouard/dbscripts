@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-015 — RFC 5280 Serial Collision and Permissions in gen_ssl.sh
+- **Observed Symptom**: Server/client certs had identical serial 01; private keys were 644; *.req missed *-req.pem.
+- **Applied Fix**: Set -euo pipefail; client serial 02; rm *-req.pem; chmod 600 keys and 644 certs.
+- **Non-Regression**: test_shell_scripts.py passes.
+
+
 ### RCA-014 — Ansible Role Naming Mismatch and Missing Handlers
 - **Observed Symptom**: Playbook failed on mismatched `mysql_server`, missing `include_vars`, undefined handlers.
 - **Applied Fix**: Aligned role to `mysql_servers`, moved playbook to `ansible/`, added handlers/defaults, cleaned tasks.
@@ -182,6 +188,13 @@
 ### IMP-010 — Monolithic MariaDB/ Tree Consolidation
 - **Abandoned**: Moving 79 files in one PR. Staged into M4.2 and M4.3.
 
+### IMP-011 — Two-Part Partitioning of Docker Tree Consolidation
+- **Abandoned**: Attempting to move all 58 Docker files in a single PR (diff exceeded 16,400 chars).
+- **Justification**: 58 file renames produce 13,809 characters, leaving insufficient headroom for registers. Staged into M4.3a (21 files, ~7,997 chars) and M4.3b (37 files, ~9,500 chars) ensuring both PR diffs stay strictly < 15,000 characters.
+
+
+
+
 
 
 
@@ -237,6 +250,11 @@
 ### APP-010 — Default Node IP Fallback in Galera Bootstrap
 - **Approximation**: `5_bootstrap_node.sh` falls back to `my_private_ipv4` if `private_ip` is unset.
 
+### APP-011 — Static Inspection of gen_ssl.sh
+- **Approximation**: Validates script flags/permissions without live CA generation.
+
+
+
 
 ---
 
@@ -289,4 +307,9 @@
 - **Priority**: High
 ### IDEA-010 — Molecule Testing for MySQL and Galera Clusters
 - **Description**: Molecule test scenarios for MySQL/Galera roles.
+
+### IDEA-011 — Automated TLS Handshake Verification in Docker
+- **Description**: Container mutual TLS handshake test for generated certificates.
+
+
 
