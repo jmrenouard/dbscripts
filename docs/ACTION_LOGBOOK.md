@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-020 — docs(readme): rewrite README as structured English repository catalog (Issue `#42`)
+- **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#42`
+- **Request**: Milestone C2 / Requirement R2: Rewrite root `README.md` as structured English repository catalog (~80–120 lines) documenting repository layout, multi-DBMS automation scripts, Docker labs, and test execution.
+- **Changes**: Rewrote root `README.md` (90 lines) as structured catalog: repository architecture table (7 dirs), Multi-DBMS Automation Matrix (MariaDB/Galera, MySQL, PostgreSQL, MongoDB, Cassandra, Oracle), Docker lab quickstarts, and test commands (`make test`, `make lint`, `python -m unittest discover -s tests -v`); updated `docs/ACTION_LOGBOOK.md` and `docs/RCA_REGISTER.md` (RCA-022, IDEA-016).
+- **Result**: All 49 unit tests pass (100% green); root README clean; PR diff strictly under 15,000 characters; merged to `main` via PR `#43`.
+
 ### ACT-019 — chore(root): clean root directory redundant governance files and directories (Issue `#40`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#40`
 - **Request**: Milestone C1 / Requirement R1: Clean repository root by removing 8 redundant governance and temporary files (`PROJECT.md`, `TEST_INFRA.md`, `TEST_READY.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`, `ROADMAP.md`, `03_execution_rules.md`, `04_best_practices.md`), prune empty directory `sys_result/`, preserve canonical rules in `.agent/rules/` and `utils.sh`, configure `.gitattributes` to bound deletion diff size, and update `tests/test_project_governance_rules.py`.
