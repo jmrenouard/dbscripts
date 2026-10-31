@@ -37,8 +37,8 @@ Robust, reproducible automation solutions for multi-vendor enterprise database i
 | **PostgreSQL**     | `scripts/7_postgres/1a_install_postgres_centos.sh` | Install & initialize PostgreSQL on RHEL/CentOS. |
 | **PostgreSQL**     | `scripts/7_postgres/4_setup_slave_config.sh` | Configure streaming replication standby nodes. |
 | **MongoDB**        | `scripts/1_system/9_mongodb_system.sh` | Tune kernel limits, disable THP, configure swap. |
-| **Cassandra**      | `cassandra/show_cql_grants.py` | Audit & export CQL permissions on keyspaces/tables. |
-| **Oracle**         | `oracle/ora2mariadb.sh` | Convert Oracle DDL definitions to MariaDB format. |
+| **Cassandra**      | `scripts/bin/show_cql_grants.py` | Audit & export CQL permissions on keyspaces/tables. |
+| **Oracle**         | `scripts/bin/ora2mariadb.sh` | Convert Oracle DDL definitions to MariaDB format. |
 
 ---
 
@@ -47,20 +47,26 @@ Robust, reproducible automation solutions for multi-vendor enterprise database i
 ### MariaDB Galera Cluster Lab (3 Nodes + HAProxy)
 ```bash
 cd docker/mariadb
-make galera-up       # Launch 3 Galera nodes and HAProxy
+make up-galera       # Launch 3 Galera nodes and HAProxy
 make test-galera     # Run cluster replication tests
-make galera-down     # Teardown containers and clean state
+make down-galera     # Teardown containers and clean state
 ```
 
-### PostgreSQL Miniapp Sandbox
+### MySQL Replication Cluster Lab
 ```bash
-docker compose -f docker/miniapps/postgresql/docker-compose.yml up -d
+docker compose -f docker/mysql_replication/docker-compose.yml up -d
+```
+
+### PostgreSQL Kubernetes Sandbox
+```bash
+kubectl apply -f docker/miniapps/postgres-deployment.yaml
 ```
 
 ### MySQL Container Manager CLI
 ```bash
-python docker/mysql_docker.py run --name mysql-lab --port 3306 --version 8.0
-python docker/mysql_docker.py status
+python docker/mysql_docker.py start mysql-lab --db_type mysql --version 8.0
+python docker/mysql_docker.py list
+python docker/mysql_docker.py stop mysql-lab
 ```
 
 ---

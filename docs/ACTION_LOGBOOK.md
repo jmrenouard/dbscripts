@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-021 — refactor(scripts): reorganize root scripts and purge non-DBMS sandboxes (Issue `#44`)
+- **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#44`
+- **Request**: Milestone C3 / Requirement R3: Move single-file root dirs into scripts/bin/ (cassandra, oracle), purge non-DBMS applications (IA, drupal, odoo, n8n, wikijs, wordpress), configure .gitattributes diff bounding, and update README.md paths and authentic quickstart commands.
+- **Changes**: Moved `cassandra/show_cql_grants.py` and `oracle/ora2mariadb.sh` to `scripts/bin/` with executable permissions and pruned empty root directories; purged non-DBMS sandboxes (`scripts/12_ia/`, Drupal, Odoo, `docker/n8n/`, `docker/wikijs/`, WordPress manifests and `web-service.yaml`) retaining only PostgreSQL in `docker/miniapps/`; added `.gitattributes` `-diff` rules for purged paths to bound PR diff size; updated `README.md` matrix paths and authentic quickstart commands (`make up-galera`, MySQL replication compose, PostgreSQL K8s manifest, `mysql_docker.py start/list/stop`); updated `docs/ACTION_LOGBOOK.md` and `docs/RCA_REGISTER.md` (RCA-023, APP-018).
+- **Result**: All 49 unit tests pass (100% green); compilation passes with 0 errors; PR diff strictly under 15,000 characters.
+
 ### ACT-020 — docs(readme): rewrite README as structured English repository catalog (Issue `#42`)
 - **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#42`
 - **Request**: Milestone C2 / Requirement R2: Rewrite root `README.md` as structured English repository catalog (~80–120 lines) documenting repository layout, multi-DBMS automation scripts, Docker labs, and test execution.

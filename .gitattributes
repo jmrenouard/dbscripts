@@ -6,3 +6,11 @@ POTENTIAL_ISSUES.md -diff
 ROADMAP.md -diff
 03_execution_rules.md -diff
 04_best_practices.md -diff
+scripts/12_ia/** -diff
+scripts/4_sandbox/2_drupal_install.sh -diff
+scripts/4_sandbox/13_odoo_centos.sh -diff
+scripts/4_sandbox/13_odoo_ubuntu.sh -diff
+docker/n8n/** -diff
+docker/wikijs/** -diff
+docker/miniapps/wordpress-* -diff
+docker/miniapps/web-service.yaml -diff
