@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-017 — docs(test): promote test infrastructure documentation (Issue `#36`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#36`
+- **Request**: M5.3a: Promote test infrastructure documentation (`TEST_INFRA.md`) to `main`.
+- **Changes**: Promoted `TEST_INFRA.md` defining testing philosophy, 4-tier methodology, 18-finding coverage matrix, and CLI execution commands across all 5 test modules.
+- **Result**: All 49 discovered unit tests pass (100% green); PR diff strictly < 15,000 characters.
+
 ### ACT-016 — feat: promote python CLI and helper scripts test suite (Issue `#34`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#34`
 - **Request**: M5.2b: Promote `tests/test_python_scripts.py` to git tracking on `main` (Findings 11, 16, 18).
