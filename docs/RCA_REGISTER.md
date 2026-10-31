@@ -80,6 +80,12 @@
 - **Applied Fix**: Added `[ -f "$_CONF_FILE" ]` guard in `utils.sh`; closed truncated loops in `reboot_and_wait.sh` and `update_and_reboot.sh`; fixed quotes in `8_redis.sh` and `3_install_agent_filebeat.sh`; cleaned duplicate `case` in `ssh_xtrabackup_tar_replication_setup.sh`; removed orphaned `fi` in `mbrestore.sh`.
 - **Non-Regression**: `test_all_shell_scripts_pass_bash_syntax_check` (193/193 pass).
 
+### RCA-009 — Shell Parameter Expansion Unbound Crash & Bracket Typo
+- **Observed Symptom**: `mbbackup.sh:83` crashed with `[-f: command not found`; backup/restore scripts aborted on unguarded `$1` under `set -u`.
+- **5 Whys RCA**: Missing space between `[` and `-f`; positional and environment parameters referenced bare instead of default expansion.
+- **Applied Fix**: Fixed `[ -f` space in `mbbackup.sh`; guarded `${1:-}`, `${TARGET_CONFIG:-}`, `${2:-}` across `mbbackup.sh`, `mbrestore.sh`, `lgbackup.sh`, `lgrestore.sh`.
+- **Non-Regression**: `test_mbbackup_typo_bracket_spacing`.
+
 ---
 
 ## 2. Technical Dead-Ends & Abandoned Leads (`IMP-XXX`)

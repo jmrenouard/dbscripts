@@ -2,37 +2,8 @@
 set -euo pipefail
 #set -x
 
-# --- Minimal Utility Functions ---
-now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
-info() { echo "$(now) INFO: $*" 1>&2; }
-error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
-ok() { info "[SUCCESS] $* [SUCCESS]"; }
-sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
-title1() { sep1; echo "$(now) $*"; sep1; }
-cmd() {
-    local tcmd="$1"
-    local descr=${2:-"$tcmd"}
-    title1 "RUNNING: $descr"
-    set +e
-    eval "$tcmd"
-    local cRC=$?
-    set -e
-    if [ $cRC -eq 0 ]; then
-        ok "$descr"
-    else
-        error "$descr (RC=$cRC)"
-    fi
-    return $cRC
-}
-banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
-footer() {
-    local lRC=${lRC:-"$?"}
-    info "FINAL EXIT CODE: $lRC"
-    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
-    return $lRC
-}
-die() { error "$*"; exit 1; }
-# --- End of Utility Functions ---
+_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${_DIR}/../utils.sh"
 
 # --- Configuration ---
 BCK_DIR="${BCK_DIR:-"/data/backups/mariabackup"}"
@@ -59,17 +30,18 @@ LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
 lRC=0
 
 banner "MARIABACKUP BACKUP DB"
-if  [ -n "$1" -a -f "/etc/mbconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/mbconfig_$TARGET_CONFIG.sh"
-    source /etc/mbconfig_$TARGET_CONFIG.sh
+TARGET_CONFIG="${TARGET_CONFIG:-""}"
+if  [ -n "${1:-}" -a -f "/etc/mbconfig_${TARGET_CONFIG}.sh" ]; then
+    info "LOADING CONFIG FROM /etc/mbconfig_${TARGET_CONFIG}.sh"
+    source "/etc/mbconfig_${TARGET_CONFIG}.sh"
 fi
 
-if [ "$1" = "-l" -o "$1" = "--list" ]; then
+if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
 fi
 
-if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
+if [ "${1:-}" = "-a" -o "${1:-}" = "--addcrontab" ]; then
     [ -f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
     echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/bin/mbbackup.sh" | tee /etc/cron.d/mbbackup
     chmod 644 /etc/cron.d/mbbackup
@@ -79,8 +51,8 @@ if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
     exit 0
 fi
 
-if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
-    [-f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
+if [ "${1:-}" = "-r" -o "${1:-}" = "--removecrontab" ]; then
+    [ -f "/etc/cron.d/mbbackup" ] && rm -f /etc/cron.d/mbbackup
     ls -lsh /etc/cron.d
     systemctl restart cron
     exit 0
