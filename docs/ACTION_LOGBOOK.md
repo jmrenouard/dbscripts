@@ -35,6 +35,14 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-012 — feat: docker tree consolidation part 1 (Issue `#26`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#26`
+- **Request**: M4.3 part 1: Docker stacks move (mysql_replication & documentation).
+- **Changes**: Moved 21 files (`MariaDB/docker/mysql_replication/` and `documentation/` to `docker/`).
+- **Result**: Tests pass, PR diff 7,997 chars (< 15,000 limit).
+
+
+
 ### ACT-011 — feat: ansible cluster architecture & scripts consolidation (Issue `#24`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#24`
 - **Request**: M4.2: Ansible Cluster & Scripts Consolidation (Findings 8 & 14).
