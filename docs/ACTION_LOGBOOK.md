@@ -35,6 +35,13 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-022 — docs(ansible): consolidate playbook documentation into single README matrix (Issue `#46`)
+- **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#46`
+- **Request**: Milestone C4 / Requirement R4: Consolidate 24 fragmented doc files (`ansible/doc_*.md` and `*_fr.md`) into a single English `ansible/README.md` matrix and usage guide, configure `.gitattributes` diff bounding, and remove doc files.
+- **Changes**: Created `ansible/README.md` (15-playbook inventory matrix, layout, 4 workflow guides, test commands); removed 24 `ansible/doc_*.md` files via `git rm`; appended `ansible/doc_*.md -diff` to `.gitattributes`; updated `docs/ACTION_LOGBOOK.md` and `docs/RCA_REGISTER.md` (RCA-024, APP-019).
+- **Result**: All 49 unit tests pass (100% green); compilation clean; PR diff < 15,000 characters; closes `#46`.
+
+
 ### ACT-021 — refactor(scripts): reorganize root scripts and purge non-DBMS sandboxes (Issue `#44`)
 - **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#44`
 - **Request**: Milestone C3 / Requirement R3: Move single-file root dirs into scripts/bin/ (cassandra, oracle), purge non-DBMS applications (IA, drupal, odoo, n8n, wikijs, wordpress), configure .gitattributes diff bounding, and update README.md paths and authentic quickstart commands.

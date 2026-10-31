@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-024 — Ansible Documentation Fragmentation and Matrix Consolidation
+- **Observed Symptom**: `ansible/` contained 24 fragmented doc files (`ansible/doc_*.md` and `*_fr.md`), bilingual duplication, unindexed Redis ACL playbooks, and no unified `ansible/README.md`.
+- **5 Whys RCA**: 1. Playbooks historically had individual stubs; 2. Redis ACL playbooks lacked docs; 3. 24 scattered files hindered discovery; 4. Pure deletion exceeded 15K diff limit; 5. Governance requires unified English documentation.
+- **Applied Fix**: Created unified `ansible/README.md` matrix (15 playbooks), added 4 workflow guides, removed 24 files via `git rm`, added `.gitattributes` `-diff` rule, and updated living registers.
+- **Non-Regression**: `test_ansible_structure.py` (7/7 pass), `discover -s tests` (49/49 pass); PR diff < 15,000 chars.
+
 ### RCA-023 — Root Scripts Relocation, Non-DBMS Sandboxes Purge, and README Quickstart Remediation
 - **Observed Symptom**: Repository contained single-file directories at root (`cassandra/show_cql_grants.py`, `oracle/ora2mariadb.sh`), non-DBMS applications and web installers (`scripts/12_ia/`, `docker/n8n/`, `docker/wikijs/`, Drupal/Odoo shell sandboxes, WordPress K8s manifests), and `README.md` contained inauthentic quickstart commands (`make galera-up`, non-existent Compose path for Postgres, invalid `python docker/mysql_docker.py run/status` subcommands).
 - **Root Cause Analysis (5 Whys)**:
@@ -379,6 +385,11 @@
 - **Current Approximation**: Configured root `.gitattributes` with `-diff` rules for legacy non-DBMS stacks (`scripts/12_ia/**`, `docker/n8n/**`, `docker/wikijs/**`, Drupal/Odoo installer scripts, WordPress manifests).
 - **Impact & Scope**: Prevents git from generating >17,000 characters of textual deletion diffs for obsolete non-database components, reconciling the strict PR diff ceiling (< 15,000 characters) with the 5-PR atomic consolidation roadmap (Requirement R3, Milestone C3).
 - **Removal Condition**: Permanent git attributes configuration or removal once repository cleanup milestones are merged.
+
+### APP-019 — Gitattributes Diff Bounding for Deleted Ansible Documentation Files
+- **Current Approximation**: Configured root `.gitattributes` with `ansible/doc_*.md -diff` to suppress textual diff generation for the 24 deleted doc files.
+- **Impact & Scope**: Prevents git from generating ~23,500 chars of deletion diff output, keeping PR diff strictly < 15,000 characters.
+- **Removal Condition**: Permanent git attributes configuration or removal once repository consolidation milestones are completed.
 
 ---
 

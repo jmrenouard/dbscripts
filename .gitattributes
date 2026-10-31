@@ -14,3 +14,4 @@ docker/n8n/** -diff
 docker/wikijs/** -diff
 docker/miniapps/wordpress-* -diff
 docker/miniapps/web-service.yaml -diff
+ansible/doc_*.md -diff
