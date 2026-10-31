@@ -35,6 +35,13 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-013 — feat: docker mariadb stack consolidation part 2 (Issue `#28`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#28`
+- **Request**: M4.3 part 2: Move remaining 37 files to `docker/mariadb/`, polish `gen_ssl.sh`, prune `MariaDB/`.
+- **Changes**: Moved 37 files to `docker/mariadb/`; pruned `MariaDB/`; hardened `gen_ssl.sh` (set -euo pipefail, serial 02, cleanup, chmod 600); added tests.
+- **Result**: Unit tests pass, PR diff < 15,000 chars.
+
+
 ### ACT-012 — feat: docker tree consolidation part 1 (Issue `#26`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#26`
 - **Request**: M4.3 part 1: Docker stacks move (mysql_replication & documentation).
