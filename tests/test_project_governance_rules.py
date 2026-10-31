@@ -18,16 +18,18 @@ class TestProjectGovernanceRules(unittest.TestCase):
         gov_rule_md = ROOT / ".agents" / "rules" / "project-governance.md"
         git_rule_md = ROOT / ".agents" / "rules" / "git-workflow.md"
         gh_rule_md = ROOT / ".agents" / "rules" / "github-workflow.md"
-        exec_rule_md = ROOT / "03_execution_rules.md"
-        bp_rule_md = ROOT / "04_best_practices.md"
+        exec_rule_md = ROOT / ".agent" / "rules" / "03_execution_rules.md"
+        bp_rule_md = ROOT / ".agent" / "rules" / "04_best_practices.md"
 
         self.assertTrue(agents_md.is_file(), "AGENTS.md must exist at repository root")
         self.assertTrue(workspace_agents_md.is_file(), ".agents/AGENTS.md must exist")
         self.assertTrue(gov_rule_md.is_file(), ".agents/rules/project-governance.md must exist")
         self.assertTrue(git_rule_md.is_file(), ".agents/rules/git-workflow.md must exist")
         self.assertTrue(gh_rule_md.is_file(), ".agents/rules/github-workflow.md must exist")
-        self.assertTrue(exec_rule_md.is_file(), "03_execution_rules.md must exist at root")
-        self.assertTrue(bp_rule_md.is_file(), "04_best_practices.md must exist at root")
+        self.assertTrue(exec_rule_md.is_file(), ".agent/rules/03_execution_rules.md must exist")
+        self.assertTrue(bp_rule_md.is_file(), ".agent/rules/04_best_practices.md must exist")
+        self.assertFalse((ROOT / "03_execution_rules.md").exists(), "03_execution_rules.md must not exist at root")
+        self.assertFalse((ROOT / "04_best_practices.md").exists(), "04_best_practices.md must not exist at root")
 
         agents_content = agents_md.read_text(encoding="utf-8")
         gov_content = gov_rule_md.read_text(encoding="utf-8")
@@ -83,26 +85,49 @@ class TestProjectGovernanceRules(unittest.TestCase):
         self.assertIn("IDEA-001", content)
 
     def test_roadmap_and_potential_issues_consolidated_in_english(self) -> None:
-        """Verify ROADMAP.md and POTENTIAL_ISSUES.md redirect to living registers and enforce English."""
-        roadmap_path = ROOT / "ROADMAP.md"
-        potential_issues_path = ROOT / "POTENTIAL_ISSUES.md"
-        planning_path = ROOT / "PLANNING.md"
+        """Verify governance consolidation: obsolete root files removed, living registers active in English."""
+        obsolete_root_files = (
+            "ROADMAP.md",
+            "POTENTIAL_ISSUES.md",
+            "PLANNING.md",
+            "PROJECT.md",
+            "TEST_INFRA.md",
+            "TEST_READY.md",
+            "03_execution_rules.md",
+            "04_best_practices.md",
+        )
+        for filename in obsolete_root_files:
+            self.assertFalse(
+                (ROOT / filename).exists(),
+                f"Obsolete root file {filename} must not exist at root",
+            )
+
+        expected_root_files = (
+            "README.md",
+            "AGENTS.md",
+            "Makefile",
+            "Changelog",
+            "LICENSE",
+            "VERSION",
+        )
+        for filename in expected_root_files:
+            self.assertTrue(
+                (ROOT / filename).is_file(),
+                f"{filename} must exist at repository root",
+            )
+
+        root_md_files = {p.name for p in ROOT.glob("*.md")}
+        self.assertEqual(
+            root_md_files,
+            {"README.md", "AGENTS.md"},
+            "Root *.md files must strictly be README.md and AGENTS.md",
+        )
+
         logbook_path = ROOT / "docs" / "ACTION_LOGBOOK.md"
         agents_path = ROOT / "AGENTS.md"
-
-        self.assertTrue(roadmap_path.is_file(), "ROADMAP.md must exist as redirection pointer")
-        self.assertTrue(potential_issues_path.is_file(), "POTENTIAL_ISSUES.md must exist as redirection pointer")
-        self.assertTrue(planning_path.is_file(), "PLANNING.md must exist as redirection pointer")
-
-        roadmap_content = roadmap_path.read_text(encoding="utf-8")
-        potential_issues_content = potential_issues_path.read_text(encoding="utf-8")
-        planning_content = planning_path.read_text(encoding="utf-8")
         logbook_content = logbook_path.read_text(encoding="utf-8")
         agents_content = agents_path.read_text(encoding="utf-8")
 
-        self.assertIn("docs/ACTION_LOGBOOK.md", roadmap_content)
-        self.assertIn("docs/RCA_REGISTER.md", potential_issues_content)
-        self.assertIn("docs/ACTION_LOGBOOK.md", planning_content)
         self.assertIn("Strategic Roadmap & Milestones", logbook_content)
         self.assertIn("English", agents_content)
 

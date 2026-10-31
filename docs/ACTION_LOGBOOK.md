@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-019 — chore(root): clean root directory redundant governance files and directories (Issue `#40`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#40`
+- **Request**: Milestone C1 / Requirement R1: Clean repository root by removing 8 redundant governance and temporary files (`PROJECT.md`, `TEST_INFRA.md`, `TEST_READY.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`, `ROADMAP.md`, `03_execution_rules.md`, `04_best_practices.md`), prune empty directory `sys_result/`, preserve canonical rules in `.agent/rules/` and `utils.sh`, configure `.gitattributes` to bound deletion diff size, and update `tests/test_project_governance_rules.py`.
+- **Changes**: Removed empty directory `sys_result/` from filesystem; created root `.gitattributes` with `-diff` directives for the 8 obsolete files to strictly bound PR diff size; removed 8 redundant files via `git rm`; preserved canonical `.agent/rules/03_execution_rules.md` and `04_best_practices.md`; updated `tests/test_project_governance_rules.py` to assert canonical rules and assert root `*.md` files are strictly `{"README.md", "AGENTS.md"}`; updated `docs/ACTION_LOGBOOK.md` and `docs/RCA_REGISTER.md` (RCA-021, APP-017 / APP-008).
+- **Result**: All 49 unit tests pass (100% green); root directory clean; PR diff strictly under 15,000 characters; merged to `main` via PR `#41`.
+
 ### ACT-018 — docs(test): certify repository readiness and finalize project index (Issue `#38`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#38`
 - **Request**: M5.3b: Promote `TEST_READY.md` and `PROJECT.md` certifying 49/49 passing tests and completing Milestone M5.
