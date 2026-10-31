@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-007 — fix: errexit in shell utils and parameter guarding (M3 Remediation) (Issue `#16`)
+- **Date**: `2026-10-31T04:10+01:00` | **Status**: `COMPLETED` | **Issue**: `#16`
+- **Request**: M3 Remediation: fix errexit in `utils.sh` separators; guard `SSH_CMD` and `$2` in `utils.mysql.sh`; bind `TARGET_CONFIG` in `mbbackup.sh`/`mbrestore.sh`; guard options in `ssh_xtrabackup_tar_replication_setup.sh`; add 3 tests.
+- **Changes**: Updated `utils.sh`, `utils.mysql.sh`, 5 `scripts/bin` scripts, and `tests/test_shell_scripts.py`.
+- **Result**: Regression tests pass, governance rules pass, PR diff strictly < 15,000 chars.
+
 ### ACT-006 — feat: shell script mass sourcing and variable guarding (M3.1 Batch 2) (Issue `#14`)
 - **Date**: `2026-10-31T03:22+01:00` | **Status**: `COMPLETED` | **Issue**: `#14`
 - **Request**: M3.1 Batch 2: standardize canonical sourcing (`_DIR=...; source .../utils.sh`) in `mbbackup.sh`, `mbrestore.sh`, `lgbackup.sh`, `lgrestore.sh`; resolve typo `[-f` in `mbbackup.sh:83`; guard unbound variables under `set -u` (`${1:-}`, `${TARGET_CONFIG:-}`, `${2:-}`).

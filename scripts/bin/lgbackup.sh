@@ -20,7 +20,7 @@ set -o pipefail
 # Support general history file for ELK
 # Support HTML report
 
-BCK_DIR=/data/backups/logical
+BCK_DIR="${BCK_DIR:-"/data/backups/logical"}"
 GZIP_CMD=pigz
 #GZIP_CMD=gzip
 #GZIP_CMD=tee
@@ -40,7 +40,7 @@ if  [ -n "${1:-}" -a -f "/etc/lgconfig_${TARGET_CONFIG}.sh" ]; then
     source "/etc/lgconfig_${TARGET_CONFIG}.sh"
 fi
 if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
-    ls -lsht $BCK_DIR
+    [ -d "$BCK_DIR" ] && ls -lsht "$BCK_DIR" || echo "No backup directory $BCK_DIR"
     exit 0
 fi
 
