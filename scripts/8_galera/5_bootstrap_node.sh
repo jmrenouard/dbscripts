@@ -52,6 +52,7 @@ sst_user="${sst_user:-"galera"}"
 sst_password="${SST_PASSWORD:-${sst_password:-}}"
 
 [ -f "/etc/bootstrap.conf" ] && source /etc/bootstrap.conf
+private_ip="${private_ip:-$my_private_ipv4}"
 
 if [ -z "$sst_password" ]; then
     warn "NO SST PASSWORD CONFIGURED. Please define sst_password in /etc/bootstrap.conf or SST_PASSWORD env var"

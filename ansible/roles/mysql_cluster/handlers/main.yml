@@ -1,0 +1,6 @@
+---
+- name: Restart mysql for cluster config
+  ansible.builtin.service:
+    name: mysql
+    state: restarted
+  listen: Restart mysql for cluster config

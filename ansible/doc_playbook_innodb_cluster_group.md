@@ -5,7 +5,7 @@ This playbook deploys and configures a MySQL InnoDB cluster.
 ## Roles
 
 - **common**: Prepares the base servers.
-- **mysql_server**: Installs MySQL Server.
+- **mysql_servers**: Installs MySQL Server.
 - **mysql_cluster**: Configures and initializes the InnoDB Cluster.
 
 ## Variables

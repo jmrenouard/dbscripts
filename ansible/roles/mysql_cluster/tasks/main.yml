@@ -1,11 +1,6 @@
 # roles/mysql_cluster/tasks/main.yml
 # Configure MySQL InnoDB Cluster (Group Replication)
 
-- name: Inclure les variables spécifiques au groupe mysql_servers
-  ansible.builtin.include_vars:
-    file: ../../group_vars/mysql_servers.yml
-  # Ou utilisez directement les variables si définies dans l'inventaire [all:vars]
-
 - name: Créer le fichier de configuration InnoDB Cluster via template
   ansible.builtin.template:
     src: innodb_cluster.cnf.j2
@@ -151,12 +146,3 @@
     var: final_cluster_status.stdout_lines
   when: inventory_hostname == groups['mysql_servers'][0]
   tags: [mysql_cluster, cluster_check, debug]
-
-
-# --- Handlers spécifiques au cluster (si nécessaire) ---
-# handlers:
-#   - name: Restart mysql for cluster config
-#     ansible.builtin.service:
-#       name: mysql
-#       state: restarted
-#     listen: Restart mysql for cluster config

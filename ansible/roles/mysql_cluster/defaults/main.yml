@@ -1,0 +1,6 @@
+---
+mysql_port: 3306
+mysql_cluster_port: 33061
+mysql_cluster_user: clusteradmin
+mysql_cluster_password: clusterpassword
+mysql_cluster_group_name: myCluster
