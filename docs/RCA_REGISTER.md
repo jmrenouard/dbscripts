@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-021 — Redundant Root Directory Governance and Promotion Artifact Accumulation
+- **Observed Symptom**: Repository root contained 8 redundant governance, redirection, and audit files (`PROJECT.md`, `TEST_INFRA.md`, `TEST_READY.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`, `ROADMAP.md`, `03_execution_rules.md`, `04_best_practices.md`) and an empty `sys_result/` directory, causing root bloat and duplicate governance sources.
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: The root directory accumulated historical audit notes, test certification files, and root duplicate rule files.
+  2. *Why*: Milestones M1-M5 generated certification artifacts in the root directory during iterative promotion.
+  3. *Why*: Redirection stubs (`ROADMAP.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`) were kept temporarily during migration to `docs/ACTION_LOGBOOK.md` and `docs/RCA_REGISTER.md`.
+  4. *Why*: Canonical rules were already inscribed in `.agent/rules/` (`03_execution_rules.md`, `04_best_practices.md`), making root copies redundant.
+  5. *Why*: `tests/test_project_governance_rules.py` was asserting the existence of root files rather than canonical `.agent/rules/` paths.
+- **Applied Change / Fix**: Purged empty `sys_result/`, added `.gitattributes` to bound deletion diffs, removed 8 redundant root files with `git rm`, repointed `tests/test_project_governance_rules.py` to canonical `.agent/rules/` files, and asserted that root `*.md` files are strictly `{"README.md", "AGENTS.md"}` and only canonical root files exist.
+- **Result & Non-Regression**: Verified by `python -m unittest discover -s tests -v` (49/49 pass); root directory contains only canonical files; zero broken links.
+
 ### RCA-020 — Test Suite Readiness Baseline Stale Documentation
 - **Observed Symptom**: `TEST_READY.md` reflected early defect detection baseline rather than green certification.
 - **5 Whys RCA**: Initial test docs tracked early failures; milestones M1-M4 are completed; green certification was required.
@@ -341,6 +352,11 @@
 - **Approximation**: Tests execute locally via standard library `unittest` on Windows / developer workstations.
 - **Impact & Scope**: Provides fast (< 31s) deterministic verification without remote lab runner dependencies.
 - **Removal Condition**: Matrix execution on GitHub Actions across Ubuntu, macOS, and Windows runners.
+
+### APP-017 (Cleanup Plan APP-008) — Gitattributes Diff Bounding for Legacy Documentation Deletions
+- **Current Approximation**: Configured root `.gitattributes` setting `-diff` on 8 obsolete documentation and audit files (`PROJECT.md`, `TEST_INFRA.md`, `TEST_READY.md`, `PLANNING.md`, `POTENTIAL_ISSUES.md`, `ROADMAP.md`, `03_execution_rules.md`, `04_best_practices.md`) during bulk deletion.
+- **Impact & Scope**: Prevents git from emitting full multi-thousand-character textual deletion diffs, reconciling the strict PR diff ceiling (< 15,000 characters) with the 5-PR atomic consolidation roadmap (Requirement R1, Milestone C1).
+- **Removal Condition**: Permanent git attributes configuration or removal once repository cleanup milestones are merged.
 
 
 ---
