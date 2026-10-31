@@ -20,13 +20,13 @@ if [ -f "/etc/mbconfig.sh" ]; then
     info "LOADING CONFIG FROM /etc/mbconfig.sh"
     source /etc/mbconfig.sh
 fi
-TARGET_CONFIG="${TARGET_CONFIG:-""}"
+TARGET_CONFIG=$(to_lower "${1:-}")
 if  [ -n "${1:-}" -a -f "/etc/mbconfig_${TARGET_CONFIG}.sh" ]; then
     info "LOADING CONFIG FROM /etc/mbconfig_${TARGET_CONFIG}.sh"
     source "/etc/mbconfig_${TARGET_CONFIG}.sh"
 fi
 if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
-	ls -lsht $BCK_DIR
+	[ -d "$BCK_DIR" ] && ls -lsht "$BCK_DIR" || echo "No backup directory $BCK_DIR"
 	exit 0
 fi
 

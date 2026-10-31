@@ -4,7 +4,7 @@ set -euo pipefail
 _DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${_DIR}/../utils.sh"
 
-BCK_DIR=/data/backups/logical
+BCK_DIR="${BCK_DIR:-"/data/backups/logical"}"
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
@@ -22,7 +22,7 @@ if  [ -n "${1:-}" -a -f "/etc/lgconfig_${TARGET_CONFIG}.sh" ]; then
 fi
 
 if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
-    ls -lsht $BCK_DIR
+    [ -d "$BCK_DIR" ] && ls -lsht "$BCK_DIR" || echo "No backup directory $BCK_DIR"
     exit 0
 fi
 GALERA_SUPPORT=$(galera_is_enabled)

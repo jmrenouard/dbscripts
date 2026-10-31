@@ -70,14 +70,16 @@ warn() {
 warning() { warn "$*"; }
 sep1() {
     echo "$(now) -----------------------------------------------------------------------------" 1>&2
-    [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) -----------------------------------------------------------------------------" >>$TEE_LOG_FILE
+    [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) -----------------------------------------------------------------------------" >>"$TEE_LOG_FILE"
+    return 0
 }
 sep2() {
     echo "$(now) _____________________________________________________________________________" 1>&2
-    [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) _____________________________________________________________________________" >>$TEE_LOG_FILE
+    [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) _____________________________________________________________________________" >>"$TEE_LOG_FILE"
+    return 0
 }
-title1() { sep1; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>$TEE_LOG_FILE; sep1; }
-title2() { sep2; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>$TEE_LOG_FILE; sep2; }
+title1() { sep1; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>"$TEE_LOG_FILE"; sep1; return 0; }
+title2() { sep2; echo "$(now) $*" 1>&2; [ -n "${TEE_LOG_FILE:-}" ] && echo "$(now) $*">>"$TEE_LOG_FILE"; sep2; return 0; }
 banner() { start_timer; title1 "START: $*"; info " run as $(whoami)@$(hostname -s)"; }
 footer() {
     local lRC=${lRC:-"$?"}

@@ -30,14 +30,14 @@ LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
 lRC=0
 
 banner "MARIABACKUP BACKUP DB"
-TARGET_CONFIG="${TARGET_CONFIG:-""}"
+TARGET_CONFIG=$(to_lower "${1:-}")
 if  [ -n "${1:-}" -a -f "/etc/mbconfig_${TARGET_CONFIG}.sh" ]; then
     info "LOADING CONFIG FROM /etc/mbconfig_${TARGET_CONFIG}.sh"
     source "/etc/mbconfig_${TARGET_CONFIG}.sh"
 fi
 
 if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
-    ls -lsht $BCK_DIR
+    [ -d "$BCK_DIR" ] && ls -lsht "$BCK_DIR" || echo "No backup directory $BCK_DIR"
     exit 0
 fi
 

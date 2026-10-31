@@ -1,4 +1,5 @@
 #!/bin/bash
+SSH_CMD="${SSH_CMD:-}"
 
 tlog()
 {
@@ -13,25 +14,25 @@ change_user_ssl()
 my_status()
 {
     local lRC=0
-    $SSH_CMD mysqladmin ping 2>&1 | grep -qiE '(error|commande introuvable|command not found)'
-    lRC=$(reverse_rc $?)
-    if [ $lRC -eq 0 ]; then
-        ok "mysql server is running ...."
-        return 0
+    local out=""
+    out="$(${SSH_CMD:-} mysqladmin ping 2>&1)" || true
+    if echo "$out" | grep -qiE '(error|commande introuvable|command not found)' || [ -z "$out" ]; then
+        error "mysql server is stopped ...."
+        return 1
     fi
-    error "mysql server is stopped ...."
-    return 1
+    ok "mysql server is running ...."
+    return 0
 }
 
 raw_mysql()
 {
     local lDB=${DB:-"mysql"}
-    if [ -z "$SSH_CMD" ];then
-        mysql -Nrs -e "$*" $lDB 
-        return $?
+    if [ -z "${SSH_CMD:-}" ];then
+        mysql -Nrs -e "$*" $lDB 2>/dev/null || return $?
+        return 0
     fi
-    echo "$*" |$SSH_CMD mysql -Nrs $lDB #${MYSQL_OPTION:-""} 
-    return $?
+    echo "$*" |${SSH_CMD:-} mysql -Nrs $lDB 2>/dev/null || return $?
+    return 0
 }
 
 db_list()
@@ -293,10 +294,11 @@ perform_ms()
 
 global_variables()
 {
-    res=$(raw_mysql "show global variables like '$1'" | perl -pe 's/^.*?\s+(.*)$/$1/')
+    local res=""
+    res=$(raw_mysql "show global variables like '${1:-}'" 2>/dev/null | perl -pe 's/^.*?\s+(.*)$/$1/' || true)
 
-    [ -z "$res" -a -n "$2" ] && res="$2"
-    echo -n $res
+    [ -z "$res" -a -n "${2:-}" ] && res="${2:-}"
+    echo -n "$res"
 }
 
 set_global_variables()

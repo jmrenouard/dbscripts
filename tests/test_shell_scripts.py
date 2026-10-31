@@ -162,6 +162,15 @@ class TestShellScriptsSafety(unittest.TestCase):
                     "MariaDB/docker/mariadb/id_rsa must not be tracked in git",
                 )
 
+    def test_mysql_utils_guarding_under_set_u(self) -> None:
+        """Verify my_status and galera_is_enabled execute under set -u without crashes (Finding 1)."""
+        if not BASH: self.skipTest("no bash")
+        cmd = 'set -euo pipefail; unset SSH_CMD; source scripts/utils.sh; my_status >/dev/null 2>&1 || true; res=$(galera_is_enabled 2>&1); echo "GALERA_RES=$res"'
+        res = subprocess.run([BASH, "-c", cmd], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"MySQL utils failed under set -u: {res.stderr}")
+        for v in ("unbound variable", "SSH_CMD", "$2"): self.assertNotIn(v, res.stderr)
+        self.assertIn("GALERA_RES=0", res.stdout)
+
 
 BASH = "C:/Program Files/Git/bin/bash.exe" if os.path.isfile("C:/Program Files/Git/bin/bash.exe") else shutil.which("bash")
 
@@ -262,6 +271,14 @@ class TestShellScriptsIntegration(unittest.TestCase):
             "scripts/utils/utils.pgsql.sh must have UNIX LF line endings without CRLF",
         )
 
+    def test_canonical_utils_separators_and_titles_under_errexit_without_log_file(self) -> None:
+        """Verify banner, sep1, sep2, title1, and title2 execute with RC 0 without TEE_LOG_FILE (Finding 1)."""
+        if not BASH: self.skipTest("no bash")
+        cmd = 'set -euo pipefail; unset TEE_LOG_FILE; source scripts/utils.sh; sep1; sep2; title1 "T1"; title2 "T2"; banner "TB"; echo "ALL_HELPERS_SUCCESS"'
+        res = subprocess.run([BASH, "-c", cmd], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"Helper failed under errexit: {res.stderr}")
+        self.assertIn("ALL_HELPERS_SUCCESS", res.stdout)
+
 
 class TestShellScriptsWorkflows(unittest.TestCase):
     """Tier 4: Real-world operational workflows (firewall deletion, LVM flags, cypher_file, PITR)."""
@@ -361,6 +378,15 @@ class TestShellScriptsWorkflows(unittest.TestCase):
             r'sed\s+"0,/.*BINLOG_GTID_FILE.*/d"',
             "maria-pitr-restore.sh must not drop starting binlog using sed 0,/.../d",
         )
+
+    def test_backup_restore_cli_list_startup_under_set_e(self) -> None:
+        """Verify CLI invocations -l on backup/restore scripts execute without crashing (Finding 1)."""
+        if not BASH: self.skipTest("no bash")
+        for s in ("mbbackup.sh", "mbrestore.sh", "lgbackup.sh", "lgrestore.sh"):
+            p = ROOT / "scripts" / "bin" / s
+            self.assertTrue(p.is_file(), f"{s} must exist")
+            r = subprocess.run([BASH, p.as_posix(), "-l"], cwd=ROOT, capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, f"CLI '{s} -l' crashed: {r.stderr}")
 
 
 if __name__ == "__main__":

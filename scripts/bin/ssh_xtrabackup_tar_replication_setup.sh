@@ -74,8 +74,13 @@ BACKUP_TOOL="xtrabackup"
 TAR_BACKUP_PATH="/tmp/mysql_backup.tar.gz"
 # Ajout de l'argument pour spécifier le chemin vers le répertoire de données
 MYSQL_DATA_DIR="/var/lib/mysql"
+BACKUP_DIR="${BACKUP_DIR:-"/tmp/mysql_backup"}"
+PRIMARY_HOST="${PRIMARY_HOST:-""}"
+REPLICATION_USER="${REPLICATION_USER:-""}"
+REPLICATION_PASSWORD="${REPLICATION_PASSWORD:-""}"
 
 while [[ "$#" -gt 0 ]]; do
+    [ $# -ge 2 ] || { echo "Option $1 requires an argument"; exit 1; }
     case $1 in
         -t|--backup-tool)
             BACKUP_TOOL="$2"
@@ -115,7 +120,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Vérification des variables requises
-if [ -z "$PRIMARY_HOST" ] || [ -z "$REPLICATION_USER" ] || [ -z "$REPLICATION_PASSWORD" ] || [ -z "$BACKUP_TOOL" ]; then
+if [ -z "${PRIMARY_HOST:-}" ] || [ -z "${REPLICATION_USER:-}" ] || [ -z "${REPLICATION_PASSWORD:-}" ] || [ -z "${BACKUP_TOOL:-}" ]; then
     echo "Erreur : Vous devez spécifier les arguments --primary-host (-h), --replication-user (-u), --replication-password (-P) et --backup-tool (-t)."
     exit 1
 fi

@@ -86,6 +86,12 @@
 - **Applied Fix**: Fixed `[ -f` space in `mbbackup.sh`; guarded `${1:-}`, `${TARGET_CONFIG:-}`, `${2:-}` across `mbbackup.sh`, `mbrestore.sh`, `lgbackup.sh`, `lgrestore.sh`.
 - **Non-Regression**: `test_mbbackup_typo_bracket_spacing`.
 
+### RCA-010 — Errexit in Shell Utils and Unbound Module Variables
+- **Observed Symptom**: `banner` aborted under `set -e` when `TEE_LOG_FILE` was unset; `my_status` and `galera_is_enabled` crashed with unbound variable errors under `set -u`.
+- **5 Whys RCA**: `sep1()` evaluated `[ -n "${TEE_LOG_FILE:-}" ]` as last command, returning 1; `SSH_CMD` was referenced bare; ping pipelines lacked error tolerance.
+- **Applied Fix**: Appended `return 0` to separators; initialized default `SSH_CMD`; guarded `${SSH_CMD:-}` and `${2:-}`; captured ping `|| true`; bound `TARGET_CONFIG=$(to_lower "${1:-}")`.
+- **Non-Regression**: Verified by 3 regression tests in `tests/test_shell_scripts.py`.
+
 ---
 
 ## 2. Technical Dead-Ends & Abandoned Leads (`IMP-XXX`)
@@ -114,6 +120,11 @@
 - **Abandoned**: Refactoring all 166 shell scripts in a single pull request.
 - **Justification**: Exceeds the 15,000 character PR diff ceiling mandated by governance rules (`AGENTS.md`).
 - **Adopted Pattern**: Staged sub-batches with targeted unit test coverage per batch.
+
+### IMP-006 — Inlined Fallback Functions Instead of Canonical Return Codes
+- **Abandoned**: Duplicating safe function stubs locally inside each binary.
+- **Justification**: Reintroduces duplicate boilerplate and leads to library drift.
+- **Adopted Pattern**: Canonical modular utilities with explicit `return 0` and default variable expansions (`${VAR:-}`).
 
 ---
 
@@ -144,6 +155,11 @@
 - **Impact & Scope**: Core backup and replication binaries use canonical sourcing; remaining scripts use isolated utilities.
 - **Removal Condition**: Full migration of all shell scripts across subsequent milestones.
 
+### APP-006 — Graceful Service Health Check Fallbacks
+- **Approximation**: `my_status` and `galera_is_enabled` report stopped when mysqld is unreachable rather than failing with fatal script aborts.
+- **Impact & Scope**: Prevents CLI scripts and test harnesses from crashing unexpectedly on cold nodes.
+- **Removal Condition**: Formal health-check daemon reporting node state via unix socket.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -171,4 +187,9 @@
 ### IDEA-005 — Automated ShellCheck Linting in CI
 - **Target Module**: `.github/workflows/` / `tests/`
 - **Description**: Integrate ShellCheck AST analysis into GitHub Actions matrix to prevent syntax truncation and unquoted variable regressions.
+- **Priority**: High
+
+### IDEA-006 — Subshell Environment Isolation Harness
+- **Target Module**: `tests/` / `scripts/`
+- **Description**: Subshell tests validating all 193 shell scripts under strict `set -euo pipefail`.
 - **Priority**: High
