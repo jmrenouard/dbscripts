@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-016 — feat: promote python CLI and helper scripts test suite (Issue `#34`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#34`
+- **Request**: M5.2b: Promote `tests/test_python_scripts.py` to git tracking on `main` (Findings 11, 16, 18).
+- **Changes**: Promoted `tests/test_python_scripts.py` (10 tests: splitters O(1) streaming/collision, artifacts, S3 tree parsing, CSV days, mygenconf CLI args).
+- **Result**: `tests/test_python_scripts.py` passes 10/10 tests; combined Python tests 14/14 pass; PR diff < 15,000 chars.
+
 ### ACT-015 — feat: promote python docker manager test suite (Issue `#32`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#32`
 - **Request**: M5.2a: Promote `tests/test_python_docker.py` into git tracking on `main` to verify Finding 7 (AST syntax validation, secrets generation, base image preservation, bash alias arguments) while keeping PR diff < 15,000 chars.
