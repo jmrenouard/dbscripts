@@ -9,7 +9,7 @@ ok() { info "[SUCCESS] $* [SUCCESS]"; }
 sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
 title1() { sep1; echo "$(now) $*"; sep1; }
 cmd() {
-    local tcmd="$1"
+    local tcmd="${1:-}"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
     set +e
@@ -36,7 +36,7 @@ BCK_DIR=/data/backups/logical
 #GZIP_CMD="cat"
 #GZIP_CMD="gzip -cd"
 GZIP_CMD="pigz -cd"
-TARGET_CONFIG=$(to_lower $1)
+TARGET_CONFIG=$(to_lower "${1:-}")
 
 banner "SSH LOGICAL RESTORE"
 
@@ -44,19 +44,19 @@ if [ -f "/etc/mybackupbdd/ssh_lgconfig.conf" ]; then
     info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig.conf"
     source /etc/mybackupbdd/ssh_lgconfig.conf
 fi
-if  [ -n "$1" -a -f "/etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf" ]; then
-    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf"
-    source /etc/mybackupbdd/ssh_lgconfig_$TARGET_CONFIG.conf
+if  [ -n "${1:-}" -a -f "/etc/mybackupbdd/ssh_lgconfig_${TARGET_CONFIG}.conf" ]; then
+    info "LOADING CONFIG FROM /etc/mybackupbdd/ssh_lgconfig_${TARGET_CONFIG}.conf"
+    source "/etc/mybackupbdd/ssh_lgconfig_${TARGET_CONFIG}.conf"
 fi
 
-SSH_CMD="ssh -q -i $SSH_PRIVATE_KEY $SSH_USER@$SSH_HOSTNAME"
+SSH_CMD="ssh -q -i ${SSH_PRIVATE_KEY:-} ${SSH_USER:-}@${SSH_HOSTNAME:-}"
 
-if [ -z "$SSH_HOSTNAME" ]; then
-    error "SSH LOGICAL RESTORE FAILED: WRONG CONFIG FOR $TARGET_CONFIG...."
+if [ -z "${SSH_HOSTNAME:-}" ]; then
+    error "SSH LOGICAL RESTORE FAILED: WRONG CONFIG FOR ${TARGET_CONFIG}...."
     lRC=2 footer "SSH LOGICAL RESTORE"
     exit 2
 fi
-if [ "$2" = "-l" -o "$2" = "--list" ]; then
+if [ "${2:-}" = "-l" -o "${2:-}" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
 fi
@@ -74,7 +74,7 @@ if [ "$GALERA_SUPPORT" = "1" ]; then
     exit 2
 fi
 
-DUMP_FILE=$2
+DUMP_FILE="${2:-}"
 if [ -n "$DUMP_FILE" -a ! -f "$DUMP_FILE" ]; then
     DUMP_FILE="$BCK_DIR/$DUMP_FILE"
 fi
@@ -105,7 +105,7 @@ if [ ! -f "$DUMP_FILE" ]; then
     lRC=127 footer "SSH LOGICAL RESTORE"
 fi
 
-if [ "$3" != "-f" -a "$3" != "--force" ]; then
+if [ "${3:-}" != "-f" -a "${3:-}" != "--force" ]; then
     title1 "FILE TO RESTORE: $(basename $DUMP_FILE)"
     ls -lsht $DUMP_FILE
     info "Do you really want to restore $DUMP_FILE ON $SSH_HOSTNAME ?"

@@ -9,7 +9,7 @@ ok() { info "[SUCCESS] $* [SUCCESS]"; }
 sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
 title1() { sep1; echo "$(now) $*"; sep1; }
 cmd() {
-    local tcmd="$1"
+    local tcmd="${1:-}"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
     set +e
@@ -61,14 +61,14 @@ MARIADB="/usr/bin/mariadb"              # Modify if necessary
 BINLOG_PATTERN="log_bin*"  # Modify if necessary
 
 # Check if required parameters are provided
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+if [ -z "${1:-}" ] || [ -z "${2:-}" ] || [ -z "${3:-}" ]; then
     echo "[ERROR] Usage: $0 <binlog_path> <stop_date (YYYY-MM-DD)> <stop_time (HH:MM:SS)>"
     exit 1
 fi
 
-BINLOG_PATH="$1"   # Store the binlog file directory path
-STOP_DATE="$2"      # Store the recovery end date
-STOP_TIME="$3"      # Store the recovery end time
+BINLOG_PATH="${1:-}"   # Store the binlog file directory path
+STOP_DATE="${2:-}"      # Store the recovery end date
+STOP_TIME="${3:-}"      # Store the recovery end time
 STOP_DATETIME="$STOP_DATE $STOP_TIME" # Construct the complete recovery timestamp
 
 echo "[INFO] Script execution started"
@@ -76,7 +76,7 @@ echo "[INFO] Binlog path: $BINLOG_PATH"
 echo "[INFO] Stop datetime: $STOP_DATETIME"
 
 # Retrieve the current GTID position
-GTID_EXECUTED=$($MARIADB -Nrs -e "SHOW VARIABLES LIKE 'gtid_current_pos'" | awk '{print $2}')
+GTID_EXECUTED=$($MARIADB -Nrs -e "SHOW VARIABLES LIKE 'gtid_current_pos'" | cut -f2)
 
 echo "[INFO] Executed GTID: $GTID_EXECUTED"
 
@@ -100,7 +100,7 @@ fi
 
 # Find binlog files after the one containing the GTID
 echo "[INFO] Searching for binlog files after the GTID..."
-BINLOG_FILES=$(ls -1 "$BINLOG_PATH"/$BINLOG_PATTERN | sed "0,/$(basename $BINLOG_GTID_FILE)/d" )
+BINLOG_FILES=$(ls -1 "$BINLOG_PATH"/$BINLOG_PATTERN | sed -n "/$(basename "$BINLOG_GTID_FILE")/,\$p" )
 
 echo "[INFO] Binlog files after the GTID:"
 echo "$BINLOG_FILES"

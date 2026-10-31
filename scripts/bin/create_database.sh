@@ -9,7 +9,7 @@ ok() { info "[SUCCESS] $* [SUCCESS]"; }
 sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
 title1() { sep1; echo "$(now) $*"; sep1; }
 cmd() {
-    local tcmd="$1"
+    local tcmd="${1:-}"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
     set +e
@@ -32,7 +32,7 @@ footer() {
 }
 # --- End of Utility Functions ---
 
-DB=$1
+DB="${1:-}"
 PASSWD_OWNER="${2:-"$(pwgen -1 32)"}"
 PASSWD_RW="${3:-"$(pwgen -1 32)"}"
 PASSWD_RO="${4:-"$(pwgen -1 32)"}"
