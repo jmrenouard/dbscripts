@@ -9,8 +9,8 @@ def split_mysqldump(file_path):
     open_file = gzip.open if file_path.endswith('.gz') else open
     with open_file(file_path, 'rb') as dump_file:
         current_db = None
-        db_content = []
-        output_folder = os.path.splitext(file_path)[0]
+        current_out = None
+        output_folder = f"{file_path}_split"
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -19,39 +19,26 @@ def split_mysqldump(file_path):
         for line in dump_file:
             line = line.decode('utf-8', errors='ignore')
             if line.startswith('-- Current Database:'):
-                # Write the previous database to a file if it exists
-                if current_db is not None:
-                    db_content.append(f"--\n-- End Dump: {current_db}\n--\n")
-                    print(f"Écriture de la base de données précédente : {current_db}")
-                    append_database_to_file(output_folder, current_db, db_content)
-                    db_content = []
-                
-                # Extract the database name from the line
+                if current_out:
+                    current_out.close()
                 current_db = line.split('`')[1]
                 print(f"Détection de la base de données courante : {current_db}")
-                db_content.append(line)  # Keep the Current Database line
+                current_out = gzip.open(os.path.join(output_folder, f"{current_db}.sql.gz"), 'wt', encoding='utf-8')
+                current_out.write(line)
                 continue
 
             if line.startswith('-- Dump completed on'):
-                # Write the last database to a file
-                if current_db is not None:
-                    db_content.append(f"--\n-- End Dump: {current_db}\n--\n")
-                    print(f"Fin du dump détectée, écriture de la base de données : {current_db}")
-                    db_content.append(line)
-                    append_database_to_file(output_folder, current_db, db_content)
-                    db_content = []
-                    current_db = None
+                if current_out:
+                    current_out.write(line)
+                    current_out.close()
+                    current_out = None
                 continue
 
-            # Append the line to the current database content
-            if current_db is not None:
-                db_content.append(line)
+            if current_out:
+                current_out.write(line)
 
-        # Write the last database if the dump does not end with '-- Dump completed on'
-        if current_db is not None and db_content:
-            db_content.append(f"--\n-- End Dump: {current_db}\n--\n")
-            print(f"Écriture de la dernière base de données : {current_db}")
-            append_database_to_file(output_folder, current_db, db_content)
+        if current_out:
+            current_out.close()
 
 
 def append_database_to_file(output_folder, db_name, db_content):

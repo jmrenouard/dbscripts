@@ -9,9 +9,8 @@ def split_table_dump(file_path):
     open_file = gzip.open if file_path.endswith('.gz') else open
     with open_file(file_path, 'rb') as dump_file:
         current_table = None
-        structure_content = []
-        data_content = []
-        output_folder = os.path.splitext(file_path)[0]
+        current_file = None
+        output_folder = f"{file_path}_split"
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -20,41 +19,26 @@ def split_table_dump(file_path):
         for line in dump_file:
             line = line.decode('utf-8', errors='ignore')
             if line.startswith('-- Table structure for table'):
-                # Write the previous table's structure and data to files if they exist
-                if current_table is not None:
-                    structure_content.append("--\n")
-                    data_content.append("--\n")
-                    print(f"Écriture de la table précédente : {current_table}")
-                    write_table_to_file(output_folder, current_table, structure_content, data_content)
-                    structure_content = []
-                    data_content = []
-
-                # Extract the table name from the line
+                if current_file:
+                    current_file.close()
                 current_table = line.split('`')[1]
                 print(f"Détection de la table courante : {current_table}")
-                structure_content.append(line)  # Keep the Table structure line
+                current_file = gzip.open(os.path.join(output_folder, f"{current_table}_structure.sql.gz"), 'wt', encoding='utf-8')
+                current_file.write(line)
                 continue
 
             if line.startswith('-- Dumping data for table'):
-                if current_table is not None:
-                    structure_content.append("--\n")
-                    print(f"Fin de la structure de la table : {current_table}")
-                data_content.append(line)  # Keep the Dumping data line
+                if current_file:
+                    current_file.close()
+                current_file = gzip.open(os.path.join(output_folder, f"{current_table}_data.sql.gz"), 'wt', encoding='utf-8')
+                current_file.write(line)
                 continue
 
-            # Append the line to the current table structure or data content
-            if current_table is not None:
-                if structure_content and not data_content:
-                    structure_content.append(line)
-                elif data_content:
-                    data_content.append(line)
+            if current_file:
+                current_file.write(line)
 
-        # Write the last table if the dump does not end with '--'
-        if current_table is not None:
-            structure_content.append("--\n")
-            data_content.append("--\n")
-            print(f"Écriture de la dernière table : {current_table}")
-            write_table_to_file(output_folder, current_table, structure_content, data_content)
+        if current_file:
+            current_file.close()
 
 
 def write_table_to_file(output_folder, table_name, structure_content, data_content):
