@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-008 — feat: shell pitr restore engine and parameter guards (Issue `#18`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#18`
+- **Request**: M4 Shell fixes: PITR chronological sort, binlog inclusion; parameter guards under `set -u`.
+- **Changes**: Parameter guards (`${1:-}`, `${TARGET_CONFIG}`, `${doit:-0}`), `sort` order, `sed -n "/pattern/,\$p"`, `cut` vs `awk`.
+- **Result**: `test_shell_scripts.py` passes 23/23 tests, PR diff < 15,000 chars.
+
 ### ACT-007 — fix: errexit in shell utils and parameter guarding (M3 Remediation) (Issue `#16`)
 - **Date**: `2026-10-31T04:10+01:00` | **Status**: `COMPLETED` | **Issue**: `#16`
 - **Request**: M3 Remediation: fix errexit in `utils.sh` separators; guard `SSH_CMD` and `$2` in `utils.mysql.sh`; bind `TARGET_CONFIG` in `mbbackup.sh`/`mbrestore.sh`; guard options in `ssh_xtrabackup_tar_replication_setup.sh`; add 3 tests.

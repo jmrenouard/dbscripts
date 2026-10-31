@@ -9,7 +9,7 @@ ok() { info "[SUCCESS] $* [SUCCESS]"; }
 sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
 title1() { sep1; echo "$(now) $*"; sep1; }
 cmd() {
-    local tcmd="$1"
+    local tcmd="${1:-}"
     local descr=${2:-"$tcmd"}
     title1 "RUNNING: $descr"
     set +e
@@ -43,22 +43,22 @@ MYSQL_USER=$(grep -E '^user' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 MYSQL_PASSWORD=$(grep -E '^password' $HOME/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 
 DATE_RESTORE=$(date +"%Y-%m-%d %H:%M:%S")
-[ -n "$1" -a -n "$2" ] && DATE_RESTORE=$(date -d "$1 $2" +"%Y-%m-%d %H:%M:%S")
+[ -n "${1:-}" -a -n "${2:-}" ] && DATE_RESTORE=$(date -d "${1:-} ${2:-}" +"%Y-%m-%d %H:%M:%S")
 
 DIR_RESTORE="${BACKDIR}/restore_$(echo $DATE_RESTORE | tr ' ' '_' | tr ':' '-')"
 echo "RESTORE DIR: $DIR_RESTORE"
 
 # Récupération de la dernière sauvegarde full
-LAST_BASE_BACK=$(find ${BACKDIR}/base -mindepth 1 -maxdepth 1 -type d ! -newermt "$DATE_RESTORE" | sort -n | tail -1)
+LAST_BASE_BACK=$(find ${BACKDIR}/base -mindepth 1 -maxdepth 1 -type d ! -newermt "$DATE_RESTORE" | sort | tail -1)
 
 # Récupération des incrémentales correspondantes
-LASTEST_INCR_BASK=$(find ${BACKDIR}/incr -mindepth 2 -maxdepth 2 -type d ! -newermt "$DATE_RESTORE" | sort -n | grep "$(basename $LAST_BASE_BACK)")
+LASTEST_INCR_BASK=$(find ${BACKDIR}/incr -mindepth 2 -maxdepth 2 -type d ! -newermt "$DATE_RESTORE" | sort | grep "$(basename "$LAST_BASE_BACK")" || true)
 
 echo "Base backup : $LAST_BASE_BACK"
 echo "Incr backups : $LASTEST_INCR_BASK"
 
 # Si une variable $doit valant 1 existe alors on exécute réellement la restauration
-[ "$doit" = "1" ] || exit 0
+[ "${doit:-0}" = "1" ] || exit 0
 
 # Vérification que nous sommes pas à la racine
 [ "$DIR_RESTORE" = '/' ] && exit 1

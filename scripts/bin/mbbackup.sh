@@ -23,7 +23,7 @@ if [ -f "/root/.my.cnf" ] && [ -z "$BACK_USER" ]; then
 	BACK_PASSWORD=$(grep -E '^password' /root/.my.cnf|head -n1| cut -d= -f2| xargs -n1)
 fi
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).xbstream.gz
-LOG_FILE=$(echo $BCK_FILE|perl -pe 's/(.+).xbstream.gz/$1.log/g')
+LOG_FILE="${BCK_FILE%.xbstream.gz}.log"
 
 
 
@@ -97,7 +97,7 @@ info "BACKUP DIRECTORY: $BCK_DIR"
 info "BACKUP FILE NAME: $(basename $BCK_FILE)"
 info "BACKUP FILE SUM : $(basename $BCK_FILE.sha256sum)"
 info "BACKUP FILE LOG : $(basename $LOG_FILE)"
-info "BACKUP FILE SIZE: $(du -sh $BCK_FILE| awk '{print $1}')"
+info "BACKUP FILE SIZE: $(du -sh $BCK_FILE| cut -f1)"
 info "FINAL CODE RETOUR: $lRC"
 footer "MARIABACKUP BACKUP DB"
 exit $lRC

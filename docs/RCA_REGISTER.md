@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-011 — MariaDB PITR Restore Chronological Sorting and GTID Binlog Deletion Bug
+- **Observed Symptom**: `pitr-restore.sh` used `sort -n` misordering ISO directory names; `maria-pitr-restore.sh` used `sed '0,/pattern/d'` deleting starting binlog with `GTID_EXECUTED`.
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: Incremental binary logs were skipped or misordered during PITR.
+  2. *Why*: `sort -n` treats alphabetic prefixes as 0; `sed '0,/pattern/d'` deletes up to match.
+  3. *Why*: `GTID_EXECUTED` position is in starting binlog; deleting it breaks GTID continuity.
+  4. *Why*: Scripts lacked parameter guards (`${1:-}`, `${2:-}`) under `set -u`.
+  5. *Why*: No unit tests validated chronological order or GTID binlog retention.
+- **Applied Change / Fix**: Changed `sort -n` to lexicographical `sort`, added `|| true`, replaced `sed '0,/pattern/d'` with `sed -n "/\$(basename \"\$BINLOG_GTID_FILE\")/,\$p"`, and guarded parameters (`${1:-}`, `${TARGET_CONFIG}`).
+- **Result & Non-Regression**: Verified by `test_pitr_restore_sorting_and_binlog_inclusion` and `test_unbound_variable_guarding_under_set_u`.
+
 ### RCA-004 — Silent Data Loss and Pipeline Failure Masking in Backup Encryption
 - **Observed Symptom**: In `scripts/utils/utils.system.sh`, `cypher_file` piped `cat | openssl | gzip >> $outFile` and followed with `[ $? -eq 0 ] && rm -f $inFile`. When `openssl` failed (invalid key, corrupt cipher), without `pipefail`, `$?` returned the exit code of `gzip` (0), causing the unencrypted original source file to be permanently deleted with zero bytes of ciphertext written. Furthermore, repeated runs appended `>>` rather than overwrote `>`.
 - **Root Cause Analysis (5 Whys)**:
@@ -126,6 +137,10 @@
 - **Justification**: Reintroduces duplicate boilerplate and leads to library drift.
 - **Adopted Pattern**: Canonical modular utilities with explicit `return 0` and default variable expansions (`${VAR:-}`).
 
+### IMP-007 — Numerical Sorting and Address Deletion in PITR Pipelines
+- **Abandoned**: Using `sort -V` or `sed '1,/pattern/d'` for binary log filtering.
+- **Justification**: `sort -V` is non-POSIX. `sed '1,/pattern/d'` drops starting binlog. POSIX `sed -n '/pattern/,$p'` preserves GTID continuity.
+
 ---
 
 ## 3. Current Approximations & Simplifying Assumptions (`APP-XXX`)
@@ -160,6 +175,11 @@
 - **Impact & Scope**: Prevents CLI scripts and test harnesses from crashing unexpectedly on cold nodes.
 - **Removal Condition**: Formal health-check daemon reporting node state via unix socket.
 
+### APP-007 — Incremental Directory Discovery via Find Fallback
+- **Approximation**: `pitr-restore.sh` searches for incremental directories using `find ... | sort || true` to prevent `pipefail` errors when no incrementals exist.
+- **Impact & Scope**: Prevents script crash when restoring full backups without incremental chains.
+- **Removal Condition**: Catalog-based restore metadata verification.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -192,4 +212,9 @@
 ### IDEA-006 — Subshell Environment Isolation Harness
 - **Target Module**: `tests/` / `scripts/`
 - **Description**: Subshell tests validating all 193 shell scripts under strict `set -euo pipefail`.
+- **Priority**: High
+
+### IDEA-007 — Automated PITR Multi-Node Verification Harness
+- **Target Module**: `tests/` / `scripts/bin/`
+- **Description**: Add Docker-based verification harness that provisions primary DB, executes transactions, creates backup, injects writes, and validates `maria-pitr-restore.sh`.
 - **Priority**: High

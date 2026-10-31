@@ -132,7 +132,7 @@ fi
 
 # Étape 9 : Trouver les fichiers binlog après le fichier contenant le GTID
 echo "[INFO] Recherche des fichiers binlog après le GTID..."
-BINLOG_FILES=$(ls -1 "$BINLOG_PATH"/log_bin* | sed "0,/$(basename $BINLOG_GTID_FILE)/d" )
+BINLOG_FILES=$(ls -1 "$BINLOG_PATH"/log_bin* | sed -n "/$(basename "$BINLOG_GTID_FILE")/,\$p" )
 
 echo "[INFO] Fichiers binlog après le GTID :"
 echo "$BINLOG_FILES"
