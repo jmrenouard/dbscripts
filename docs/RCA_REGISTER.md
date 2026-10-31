@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-023 — Root Scripts Relocation, Non-DBMS Sandboxes Purge, and README Quickstart Remediation
+- **Observed Symptom**: Repository contained single-file directories at root (`cassandra/show_cql_grants.py`, `oracle/ora2mariadb.sh`), non-DBMS applications and web installers (`scripts/12_ia/`, `docker/n8n/`, `docker/wikijs/`, Drupal/Odoo shell sandboxes, WordPress K8s manifests), and `README.md` contained inauthentic quickstart commands (`make galera-up`, non-existent Compose path for Postgres, invalid `python docker/mysql_docker.py run/status` subcommands).
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: Historical repository growth accumulated standalone utility scripts at the repository root and heterogeneous non-database application sandboxes.
+  2. *Why*: Root directories `cassandra/` and `oracle/` each contained only a single utility script that belonged in canonical `scripts/bin/`.
+  3. *Why*: Applications like Drupal, Odoo, N8N, WikiJS, and WordPress were introduced as test targets but diluted the core multi-DBMS automation focus.
+  4. *Why*: Quickstart documentation in `README.md` was authored with inverted or outdated command syntax rather than verifying against actual Makefiles and argparse CLI definitions.
+  5. *Why*: Unified deletion of all non-DBMS files generated >17,000 characters of diff, threatening the strict 15,000 character PR diff ceiling without git attributes optimization.
+- **Applied Change / Fix**: Moved `cassandra/show_cql_grants.py` and `oracle/ora2mariadb.sh` to `scripts/bin/` (setting executable permissions), purged non-DBMS directories (`scripts/12_ia/`, `docker/n8n/`, `docker/wikijs/`) and files (Drupal, Odoo, WordPress manifests including `web-service.yaml`), configured `.gitattributes` `-diff` rules for purged paths, updated `README.md` matrix paths, and remediated quickstart commands to use authentic targets (`make up-galera`, authentic MySQL replication Compose, PostgreSQL K8s manifest, and `mysql_docker.py start/list/stop`).
+- **Result & Non-Regression**: Verified by `python -m unittest discover -s tests -v` (49/49 pass); `scripts/bin/` compiles cleanly with zero errors; PR diff strictly under 15,000 characters.
+
 ### RCA-022 — Deprecation of Obsolete Vagrant and Easymysql Documentation
 - **Observed Symptom**: Root `README.md` (226 lines) documented obsolete Vagrant scripts and unmaintained `easymysql`, omitting modern multi-DBMS automation (Galera, Patroni, Ansible, Docker, tests).
 - **5 Whys RCA**: 1. Root README not revised since legacy single-host MySQL tooling; 2. Project evolved into multi-DBMS clustering; 3. Referenced Vagrant wrappers were obsolete/removed; 4. Documentation standards require structured English catalog; 5. Contributors lacked architecture map and test guide.
@@ -364,6 +375,10 @@
 - **Impact & Scope**: Prevents git from emitting full multi-thousand-character textual deletion diffs, reconciling the strict PR diff ceiling (< 15,000 characters) with the 5-PR atomic consolidation roadmap (Requirement R1, Milestone C1).
 - **Removal Condition**: Permanent git attributes configuration or removal once repository cleanup milestones are merged.
 
+### APP-018 — Gitattributes Diff Bounding for Purged Non-DBMS Stacks and Sandboxes
+- **Current Approximation**: Configured root `.gitattributes` with `-diff` rules for legacy non-DBMS stacks (`scripts/12_ia/**`, `docker/n8n/**`, `docker/wikijs/**`, Drupal/Odoo installer scripts, WordPress manifests).
+- **Impact & Scope**: Prevents git from generating >17,000 characters of textual deletion diffs for obsolete non-database components, reconciling the strict PR diff ceiling (< 15,000 characters) with the 5-PR atomic consolidation roadmap (Requirement R3, Milestone C3).
+- **Removal Condition**: Permanent git attributes configuration or removal once repository cleanup milestones are merged.
 
 ---
 
