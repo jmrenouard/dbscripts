@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-010 — feat: python docker manager security and cli helper utilities (Issue `#22`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#22`
+- **Request**: M4 Python fixes: secrets in mysql_docker, s3 TiB/PiB support, csv days_range, mygenconf args.
+- **Changes**: Updated docker/mysql_docker.py, tree_s3.py, genere_csv.py, mygenconf_mysql.py.
+- **Result**: test_python_scripts.py passes 14/14 tests, PR diff < 15,000 chars.
+
 ### ACT-009 — feat: dump splitters collision prevention and streaming contract (Issue `#20`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#20`
 - **Request**: M4 Splitters: collision-safe directory names and O(1) streaming in mysqldump splitters.
