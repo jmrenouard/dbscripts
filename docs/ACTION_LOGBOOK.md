@@ -29,11 +29,17 @@
 
 ## 1. Ongoing Actions (`IN PROGRESS`)
 
-_None._
+*None currently in progress.*
 
 ---
 
 ## 2. Completed Actions (`COMPLETED`)
+
+### ACT-005 — feat: shell script mass sourcing and syntax fixes (M3.1 Batch 1) (Issue `#12`)
+- **Date**: `2026-10-31T03:10+01:00` | **Status**: `COMPLETED` | **Issue**: `#12`
+- **Request**: M3.1 Batch 1: safe config check in `scripts/utils.sh`, repo-wide syntax fixes in `reboot_and_wait.sh`, `update_and_reboot.sh`, `8_redis.sh`, `3_install_agent_filebeat.sh`, `mbrestore.sh`, remove dangling continuations in `dockerrestore.sh` & `ssh_lgbackup.sh`, safe Vault token grep in `synchro_repli_mariabackup_stream.sh`, duplicate case cleanup in `ssh_xtrabackup_tar_replication_setup.sh`.
+- **Changes**: Updated `scripts/utils.sh`, 4 system/sandbox/postgres scripts, 5 bin scripts (`dockerrestore.sh`, `ssh_lgbackup.sh`, `synchro_repli_mariabackup_stream.sh`, `ssh_xtrabackup_tar_replication_setup.sh`, `mbrestore.sh`).
+- **Result**: `test_all_shell_scripts_pass_bash_syntax_check` passes 193/193 scripts (100% OK), targeted safety/integration tests pass, PR diff < 15,000 chars.
 
 ### ACT-004 — fix: canonical utils sourcing and decryption edge cases (Issue `#10`)
 - **Date**: `2026-10-31T01:45+01:00` | **Status**: `COMPLETED` | **Issue**: `#10`

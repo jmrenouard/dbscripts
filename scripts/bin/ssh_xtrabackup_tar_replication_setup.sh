@@ -82,7 +82,6 @@ while [[ "$#" -gt 0 ]]; do
             shift # past argument
             shift # past value
             ;;
-    case $1 in
         -d|--data-dir)
             MYSQL_DATA_DIR="$2"
             shift # past argument
@@ -93,7 +92,6 @@ while [[ "$#" -gt 0 ]]; do
             shift # past argument
             shift # past value
             ;;
-    case $1 in
         -h|--primary-host)
             PRIMARY_HOST="$2"
             shift # past argument

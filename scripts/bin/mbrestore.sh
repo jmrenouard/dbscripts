@@ -131,7 +131,6 @@ info "CMD: $GZIP_CMD $DUMP_FILE | mbstream -x"
     lRC=$?
     cmd "mariabackup --prepare --target-dir=$TMP_DIR" "PREPARING RESTORE"
     lRC=$?
-fi
 
 if [ "$lRC" -eq 0 ]; then
     cmd "systemctl stop mariadb" "STOPPING MARIADB"

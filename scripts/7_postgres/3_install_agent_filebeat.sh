@@ -89,7 +89,7 @@ cmd "filebeat modules list"
 cmd "filebeat modules enable system postgresql"
 lRC=$(($lRC + $?))
 
-sed -i -e "/var.path/d" -e /pgsql/d' /etc/filebeat/modules.d/postgresql.yml
+sed -i -e "/var.path/d" -e "/pgsql/d" /etc/filebeat/modules.d/postgresql.yml
 echo "        var.paths:
             - /var/lib/pgsql/13/data/log/*
 ">> /etc/filebeat/modules.d/postgresql.yml
