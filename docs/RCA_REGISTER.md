@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-013 — Insecure Password Generation and Image Deletion in Docker Manager
+- **Observed Symptom**: `mysql_docker.py` used non-cryptographic `random.choice`, crashed on `except e:`, and deleted base images.
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: `random` is non-cryptographic; `except e:` is invalid in Python 3; base images were removed.
+  2. *Why*: Script lacked `secrets` module and attempted to delete image on container teardown.
+  3. *Why*: Container remove routine called `docker_client.images.remove` by default.
+  4. *Why*: Subcommand `info` called `generate_bash_alias` with missing password argument.
+  5. *Why*: No unit test suite existed for Python Docker management.
+- **Applied Change / Fix**: Replaced with `secrets.choice`, `except Exception as e:`, removed image deletion, and passed password to alias generator.
+- **Result & Non-Regression**: Verified by `test_mysql_docker_*` (4 tests pass OK).
+
 ### RCA-012 — Dump Splitter Directory Collision and High Memory Buffering
 - **Observed Symptom**: mysqldump splitters collided on extensionless files and buffered multi-gigabyte dumps in memory lists causing out-of-memory errors.
 - **Root Cause Analysis (5 Whys)**:
@@ -156,6 +167,10 @@
 - **Abandoned**: Loading entire database contents into memory lists before gzip compression.
 - **Justification**: Causes out-of-memory errors on large dumps. Direct streaming to gzip handles operates in O(1) memory.
 
+### IMP-009 — Docker Image Teardown in Local Management Scripts
+- **Abandoned**: Deleting base Docker images (`docker_client.images.remove`) during environment cleanup.
+- **Justification**: Base images (e.g., `mysql:8.0`) are shared across containers; deleting them forces costly re-downloads.
+
 ---
 
 ## 3. Current Approximations & Simplifying Assumptions (`APP-XXX`)
@@ -200,6 +215,11 @@
 - **Impact & Scope**: Supports standard mysqldump and mariadb-dump outputs.
 - **Removal Condition**: Full SQL AST grammar parser.
 
+### APP-009 — AST and Regex Inspection for Docker Commands
+- **Approximation**: Unit tests inspect AST and source code without requiring a running Docker daemon.
+- **Impact & Scope**: Ensures multi-platform test execution on local dev and CI.
+- **Removal Condition**: Full Docker daemon E2E test harness.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -243,3 +263,8 @@
 - **Target Module**: `scripts/bin/`
 - **Description**: Multiprocessing dump splitter to decompress, parse, and recompress tables concurrently across CPU cores.
 - **Priority**: Medium
+
+### IDEA-009 — Ephemeral Containerized Database Testing Harness
+- **Target Module**: `docker/` / `tests/`
+- **Description**: Add pytest fixtures running lightweight containerized MySQL/MariaDB instances with ephemeral ports.
+- **Priority**: High

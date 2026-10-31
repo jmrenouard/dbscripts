@@ -102,10 +102,19 @@ def generate_my_cnf(config):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate my.cnf configuration file.")
+    parser.add_argument("--port", type=int, default=defaults['port'])
+    parser.add_argument("--server-id", type=int, default=defaults['server_id'])
+    parser.add_argument("--buffer-pool-size", default=defaults['innodb_buffer_pool_size'])
+    parser.add_argument("--datadir", default=defaults['mysql_dir'])
     args = parser.parse_args()
 
-    # Génération du fichier my.cnf
-    generate_my_cnf(defaults)
+    config = dict(defaults)
+    config['port'] = args.port
+    config['server_id'] = args.server_id
+    config['innodb_buffer_pool_size'] = args.buffer_pool_size
+    config['mysql_dir'] = args.datadir
+
+    generate_my_cnf(config)
 
 
 if __name__ == "__main__":

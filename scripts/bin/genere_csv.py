@@ -115,7 +115,7 @@ def generate_random_datetime(start_date, end_date):
     random_time = datetime.time(random.randint(0, 23), random.randint(0, 59), random.randint(0, 59))
     return datetime.datetime.combine(random_date, random_time)
 
-def generate_csv(filename, num_rows):
+def generate_csv(filename, num_rows, days_range=60):
     """
     Generate a CSV file with random data.
     
@@ -130,10 +130,10 @@ def generate_csv(filename, num_rows):
     - status: Random status
     - immat: Random registration number
     """
-    start_date = datetime.date.today() - datetime.timedelta(days=60)
+    start_date = datetime.date.today() - datetime.timedelta(days=days_range)
     end_date = datetime.date.today()
     
-    with open(filename, 'w', newline='') as csvfile:
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['id', 'client_name', 'insertion_time', 'status', 'immat']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -160,7 +160,7 @@ def main(filename='elastic_table_data.csv', num_rows=1000000, days_range=60):
         num_rows (int): Number of rows to generate
         days_range (int): Number of days in the past for date generation
     """
-    generate_csv(filename, num_rows)
+    generate_csv(filename, num_rows, days_range=days_range)
     print(f"CSV file '{filename}' generated successfully with {num_rows} rows.")
 
 if __name__ == "__main__":

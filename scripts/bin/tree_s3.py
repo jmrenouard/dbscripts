@@ -58,7 +58,7 @@ def filter_s3_output(s3_output, regex):
 
 def parse_size(size_str, unit):
     # Parse the size string and convert it to bytes
-    size_map = {"Bytes": 1, "KiB": 1024, "MiB": 1024**2, "GiB": 1024**3}
+    size_map = {"Bytes": 1, "KiB": 1024, "MiB": 1024**2, "GiB": 1024**3, "TiB": 1024**4, "PiB": 1024**5}
     return float(size_str) * size_map.get(unit, 1)
 
 def build_tree(s3_output):
@@ -82,7 +82,7 @@ def build_tree(s3_output):
                     current_level = current_level[part]
 
                 # Store size and date information for the final file
-                if '.' in path_parts[-1]:
+                if not path.endswith('/'):
                     current_level['_info'] = {'date': date, 'size': size}
                     current_level['_size'] += size_value
                     # Update file count for all parent directories
@@ -103,8 +103,8 @@ def build_tree(s3_output):
 
 def print_tree(tree, prefix=""):
     for key, subtree in tree.items():
-        if key == '_info':
-            continue  # Skip the '_info' key as it stores metadata, not a tree node
+        if key.startswith('_'):
+            continue  # Skip internal metadata keys (_info, _files, _dirs, _size)
 
         # If the current node is a directory, print its total size and counts
         if isinstance(subtree, dict) and subtree['_info'] is None:

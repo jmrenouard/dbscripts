@@ -1,5 +1,5 @@
 import argparse
-import random
+import secrets
 import string
 import os
 from docker import from_env
@@ -11,7 +11,7 @@ script_dir=Path(__file__).resolve().parent
 def generate_password(length=64):
     """Generate a random password."""
     chars = string.ascii_letters + string.digits
-    return ''.join(random.choice(chars) for _ in range(length))
+    return ''.join(secrets.choice(chars) for _ in range(length))
 
 def find_free_port():
     """Find a free port for forwarding that is not 3306."""
@@ -87,7 +87,7 @@ def launch_container(env_name, db_type, version, username, password, debug=False
         return    
     except docker.errors.NotFound:
       print(f"{container_name} not found")
-    except e:
+    except Exception as e:
       print(f"Erreur: {e}")
       return
  
@@ -119,9 +119,8 @@ def launch_container(env_name, db_type, version, username, password, debug=False
         print(f"Error launching container: {e}")
     
     if 'container' in locals() and container:
-        if 'container' in locals() and container:
-            create_my_cnf(env_name, username, password, port=port)
-            generate_bash_alias(env_name, port, password)
+        create_my_cnf(env_name, username, password, port=port)
+        generate_bash_alias(env_name, port, password)
 
 def stop_container(env_name, debug=False):
     """Stop a Docker container."""
@@ -150,14 +149,6 @@ def remove_environment(env_name, debug=False):
     except Exception as e:
         print(f"Error removing container: {e}")
 
-    # Remove image
-    try:
-        image_name = f"{container.image.tags[0]}"
-        docker_client.images.remove(image=image_name, force=True)
-        print(f"Image {image_name} removed successfully.")
-    except Exception as e:
-        print(f"Error removing image: {e}")
-
     # Remove .my.cnf file
     if os.path.exists(my_cnf_path):
         os.remove(my_cnf_path)
@@ -172,7 +163,7 @@ def remove_environment(env_name, debug=False):
                 lines = f.readlines()
             with open(bashrc_path, 'w') as f:
                 for line in lines:
-                    if f"{env_name}" not in line and line.strip():
+                    if not line.startswith(f"alias {env_name}=") and line.strip():
                         f.write(line)
             # If the bashrc file is now empty, delete it
             if os.path.getsize(bashrc_path) == 0:
@@ -180,8 +171,6 @@ def remove_environment(env_name, debug=False):
                 print(f"{bashrc_path} was empty and has been removed.")
             else:
                 print(f"Alias for {env_name} removed from {bashrc_path}.")
-    except Exception as e:
-        print(f"Error removing alias: {e}")
     except Exception as e:
         print(f"Error removing alias: {e}")
 
@@ -273,7 +262,7 @@ def main(debug=False):
         remove_environment(args.env_name, debug=args.debug)
     elif args.command == "info":
         create_my_cnf(args.env_name, args.username, args.password, port=args.port)
-        generate_bash_alias(args.env_name, args.port)
+        generate_bash_alias(args.env_name, args.port, args.password)
     else:
         parser.print_help()
 
