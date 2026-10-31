@@ -162,6 +162,17 @@ class TestShellScriptsSafety(unittest.TestCase):
                     "MariaDB/docker/mariadb/id_rsa must not be tracked in git",
                 )
 
+    def test_docker_tree_consolidation_and_gen_ssl(self) -> None:
+        """Verify MariaDB/ removal and gen_ssl security polish (Finding 14)."""
+        self.assertFalse((ROOT / "MariaDB").exists(), "MariaDB/ directory must be pruned")
+        self.assertTrue((ROOT / "docker" / "mariadb" / "Dockerfile").is_file())
+        gen_ssl = (ROOT / "docker" / "mariadb" / "gen_ssl.sh").read_text(encoding="utf-8")
+        self.assertIn("set -euo pipefail", gen_ssl)
+        self.assertIn("-set_serial 02", gen_ssl)
+        self.assertIn('rm -f "$SSL_DIR/"*-req.pem', gen_ssl)
+        self.assertIn('chmod 600 "$SSL_DIR/"*key*.pem', gen_ssl)
+        self.assertIn('chmod 644 "$SSL_DIR/"*cert*.pem', gen_ssl)
+
     def test_mysql_utils_guarding_under_set_u(self) -> None:
         """Verify my_status and galera_is_enabled execute under set -u without crashes (Finding 1)."""
         if not BASH: self.skipTest("no bash")

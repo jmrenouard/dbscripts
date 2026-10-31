@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Script to generate SSL certificates for MariaDB Cluster
 # Highly inspired by MariaDB documentation and best practices
@@ -59,14 +60,15 @@ openssl req -newkey rsa:2048 -nodes -days 3650 \
 openssl x509 -req -in "$SSL_DIR/client-req.pem" -days 3650 \
     -CA "$SSL_DIR/ca-cert.pem" \
     -CAkey "$SSL_DIR/ca-key.pem" \
-    -set_serial 01 \
+    -set_serial 02 \
     -out "$SSL_DIR/client-cert.pem"
 
 # Cleanup requests
-rm -f "$SSL_DIR/"*.req "$SSL_DIR/"*.csr
+rm -f "$SSL_DIR/"*-req.pem "$SSL_DIR/"*.req "$SSL_DIR/"*.csr
 
 # Set permissions
-chmod 644 "$SSL_DIR/"*.pem
+chmod 644 "$SSL_DIR/"*cert*.pem
+chmod 600 "$SSL_DIR/"*key*.pem
 
 echo ""
 echo "✅ SSL Certificates generated in $SSL_DIR/"
