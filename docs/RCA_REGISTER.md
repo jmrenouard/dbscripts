@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-020 — Test Suite Readiness Baseline Stale Documentation
+- **Observed Symptom**: `TEST_READY.md` reflected early defect detection baseline rather than green certification.
+- **5 Whys RCA**: Initial test docs tracked early failures; milestones M1-M4 are completed; green certification was required.
+- **Applied Fix**: Updated `TEST_READY.md` to certify all 49 tests passing across all 5 test modules.
+- **Non-Regression**: `python -m unittest discover -s tests -v` (49/49 pass).
+
 ### RCA-019 — Testing Infrastructure Architecture Documentation Gap
 - **Observed Symptom**: Testing framework architecture and 4-tier matrix were documented in untracked artifacts.
 - **5 Whys RCA**: Automated tests were newly added in M5; formal architecture docs were needed; `TEST_INFRA.md` required promotion.
@@ -236,6 +242,11 @@
 - **Justification**: The raw diff of the file alone is 14,315 characters. Together with required logbook and RCA updates, the PR diff reaches 15,354 characters, violating the `< 15,000` limit.
 - **Adopted Pattern**: Staged promotion across two atomic PRs: Sub-Batch M5.2a (`test_python_docker.py`, ~4,600 chars diff) and Sub-Batch M5.2b (`test_python_scripts.py`, ~12,200 chars diff).
 
+### IMP-016 — Monolithic Milestone M5 Single PR Promotion
+- **Abandoned Lead**: Promoting all test files and documentation in a single PR.
+- **Justification**: Combined diff exceeds 50,000 chars (> 15,000 limit).
+- **Adopted Direction**: Executed M5 via sequential atomic PRs: M5.1, M5.2a, M5.2b, M5.3a, M5.3b.
+
 ### IMP-015 — Monolithic Test Infrastructure and Readiness Promotion in Single PR
 - **Abandoned Lead**: Committing `TEST_INFRA.md` and `TEST_READY.md` together in a single PR.
 - **Justification**: Combined diff would exceed ~28,000 characters (> 15,000 char limit).
@@ -326,6 +337,12 @@
 - **Impact & Scope**: Serves as architectural baseline for developers and CI runners.
 - **Removal Condition**: Dynamic coverage collection via automated CI test reporter.
 
+### APP-016 — Local Single-Host Execution of Test Discovery
+- **Approximation**: Tests execute locally via standard library `unittest` on Windows / developer workstations.
+- **Impact & Scope**: Provides fast (< 31s) deterministic verification without remote lab runner dependencies.
+- **Removal Condition**: Matrix execution on GitHub Actions across Ubuntu, macOS, and Windows runners.
+
+
 ---
 
 
@@ -399,6 +416,12 @@
 - **Target Module**: `.github/workflows/` / `tests/`
 - **Description**: Add CI script parsing test docstrings to auto-update the coverage matrix in `TEST_INFRA.md`.
 - **Priority**: Low
+
+### IDEA-016 — Badge Integration for Real-Time Test Suite Pass Metrics
+- **Target Module**: `README.md` / `.github/workflows/`
+- **Description**: Add dynamic test status badge to root `README.md` reflecting 100% passing tests (49/49).
+- **Priority**: Low
+
 
 
 

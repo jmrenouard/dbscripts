@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-018 — docs(test): certify repository readiness and finalize project index (Issue `#38`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#38`
+- **Request**: M5.3b: Promote `TEST_READY.md` and `PROJECT.md` certifying 49/49 passing tests and completing Milestone M5.
+- **Changes**: Promoted `TEST_READY.md` documenting 100% green certification across all 5 test modules; updated `PROJECT.md` marking M5 and all sub-batches DONE.
+- **Result**: All 49 tests pass (100% green); zero untracked files on `main`; PR diff strictly < 15,000 characters.
+
 ### ACT-017 — docs(test): promote test infrastructure documentation (Issue `#36`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#36`
 - **Request**: M5.3a: Promote test infrastructure documentation (`TEST_INFRA.md`) to `main`.
