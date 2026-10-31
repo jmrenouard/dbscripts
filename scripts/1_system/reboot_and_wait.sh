@@ -49,8 +49,11 @@ i=0
 while [ "$i" != "$CYCLE" ]; do
 	$SSH_CMD -q exit 
 	if [ $? -eq 0 ]; then
+		break
+	fi
+	sleep 5s
+	i=$((i + 1))
+done
+
 footer "END SCRIPT: ${_NAME}"
 exit $lRC
-
-
-

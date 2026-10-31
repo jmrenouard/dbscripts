@@ -228,9 +228,9 @@ config_cluster_settings()
 {
 tmpFile=$(mktemp)
 (
-echo "#!/bin/env bash
-
-redis-cli --cluster create \\"
+echo "#!/bin/env bash"
+echo ""
+echo "redis-cli --cluster create \\"
 for srv in $server_ips;do
    for port in $server_ports; do
       echo  -n "$srv:$port "
@@ -293,8 +293,8 @@ fi
 rm -f $tmpFile
 }
 
-export server_ips=${server_ips:"10.45.80.72 10.45.80.71 10.45.80.73"}
-export server_ports="${server_ports:-"$(seq 6379 6381)"}
+export server_ips="${server_ips:-"10.45.80.72 10.45.80.71 10.45.80.73"}"
+export server_ports="${server_ports:-"$(seq 6379 6381)"}"
 
 export my_private_ipv4=$(ip a | grep inet | grep 'brd' | grep '192.168'| cut -d/ -f1 | awk '{print $2}' | head -n 1)
 export my_public_ipv4=$(ip a | grep inet | grep 'brd' | grep -v '192.168'| cut -d/ -f1 | awk '{print $2}' | head -n 1)

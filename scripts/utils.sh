@@ -5,11 +5,10 @@
 if [ "$0" != "-bash" -a "$0" != "/bin/bash" -a "$0" != "/bin/sh" -a "$0" != "-bash" -a "$0" != "bash" -a "$0" != "-su" ]; then
     _DIR="$(dirname "$(readlink -f "$0")")"
     _NAME="$(basename "$(readlink -f "$0")")"
-    _CONF_FILE=$(readlink -f "${_DIR}/../etc/$(basename ${_NAME} .sh).conf")
-    if [ -f "$_CONF_FILE" ];then
-        source $_CONF_FILE
-    else
-        mkdir -p $(dirname "$_CONF_FILE")
+    _CONF_FILE="${_DIR}/../etc/$(basename "${_NAME}" .sh).conf"
+    if [ -f "$_CONF_FILE" ]; then
+        _CONF_FILE="$(readlink -f "$_CONF_FILE")"
+        source "$_CONF_FILE"
     fi
 else
     _DIR="$(readlink -f ".")"

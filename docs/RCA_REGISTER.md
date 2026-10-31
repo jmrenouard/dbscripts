@@ -74,6 +74,12 @@
 - **Applied Fix**: Changed `[ -s ]` to `[ -f ]`, added collision guards.
 - **Non-Regression**: `test_decypher_file_empty_zero_byte_safety`.
 
+### RCA-008 — Shell Script Sourcing Failures and Syntax Interrupts
+- **Observed Symptom**: Sourcing `scripts/utils.sh` aborted on environments where `/etc` does not exist due to unguarded `readlink -f`. In addition, 5 shell scripts failed `bash -n` compilation due to truncated while loops and unescaped quotes.
+- **5 Whys RCA**: `utils.sh` called `readlink -f` without checking file existence; scripts in `1_system`, `4_sandbox`, `7_postgres`, and `bin/mbrestore.sh` had syntax truncation.
+- **Applied Fix**: Added `[ -f "$_CONF_FILE" ]` guard in `utils.sh`; closed truncated loops in `reboot_and_wait.sh` and `update_and_reboot.sh`; fixed quotes in `8_redis.sh` and `3_install_agent_filebeat.sh`; cleaned duplicate `case` in `ssh_xtrabackup_tar_replication_setup.sh`; removed orphaned `fi` in `mbrestore.sh`.
+- **Non-Regression**: `test_all_shell_scripts_pass_bash_syntax_check` (193/193 pass).
+
 ---
 
 ## 2. Technical Dead-Ends & Abandoned Leads (`IMP-XXX`)
@@ -97,6 +103,11 @@
 - **Abandoned**: Testing sourcing via regex / `bash -n` only.
 - **Justification**: Misses runtime exit aborts during shell sourcing.
 - **Adopted Pattern**: Subshell runtime tests via `subprocess.run([bash, "-c", ...])`.
+
+### IMP-005 — Monolithic Single-PR Shell Mass Refactoring
+- **Abandoned**: Refactoring all 166 shell scripts in a single pull request.
+- **Justification**: Exceeds the 15,000 character PR diff ceiling mandated by governance rules (`AGENTS.md`).
+- **Adopted Pattern**: Staged sub-batches with targeted unit test coverage per batch.
 
 ---
 
@@ -122,6 +133,11 @@
 - **Impact & Scope**: Benign warning in local dev; Linux environments have `ip`.
 - **Removal Condition**: Guard network discovery with `command -v ip`.
 
+### APP-005 — Staged Utility Sourcing Migration
+- **Approximation**: Phase 1 migrates critical `scripts/bin/` scripts to canonical `utils.sh`, with subsequent batches covering secondary utilities.
+- **Impact & Scope**: Core backup and replication binaries use canonical sourcing; remaining scripts use isolated utilities.
+- **Removal Condition**: Full migration of all shell scripts across subsequent milestones.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -145,3 +161,8 @@
 - **Target Module**: `.github/workflows/`
 - **Description**: Run test suite across Bash versions and dash/sh in CI.
 - **Priority**: Medium
+
+### IDEA-005 — Automated ShellCheck Linting in CI
+- **Target Module**: `.github/workflows/` / `tests/`
+- **Description**: Integrate ShellCheck AST analysis into GitHub Actions matrix to prevent syntax truncation and unquoted variable regressions.
+- **Priority**: High

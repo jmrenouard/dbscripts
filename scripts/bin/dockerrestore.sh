@@ -47,9 +47,6 @@ footer() {
 # Support general history file for ELK
 # Support HTML report
 
-[ -f "$(dirname $(readlink -f $0))/utils.sh" ] && \
-[ -f "$(dirname $(readlink -f $0))/../utils.sh" ] && \
-
 BCK_DIR=/backups/logical
 GZIP_CMD=pigz
 #GZIP_CMD=gzip
@@ -62,7 +59,7 @@ SSH_PRIVATE_KEY=/root/.ssh/id_rsa
 SSH_USER=root
 SSH_HOSTNAME=targetbdd.infra
 DATADIR_TMP_DOCKER="/backups/docker/tmp"
-TARGET_CONFIG=$(to_lower $1)
+TARGET_CONFIG=$(to_lower "${1:-}")
 MAX_CHECKS=1
 NO_LIMIT_RUN=1
 DOCKER_CLEANUP=1
