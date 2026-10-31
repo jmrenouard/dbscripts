@@ -1,36 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# --- Minimal Utility Functions ---
-now() { echo "$(date "+%F %T %Z")($(hostname -s))"; }
-info() { echo "$(now) INFO: $*" 1>&2; }
-error() { echo "$(now) ERROR: $*" 1>&2; return 1; }
-ok() { info "[SUCCESS] $* [SUCCESS]"; }
-sep1() { echo "$(now) -----------------------------------------------------------------------------"; }
-title1() { sep1; echo "$(now) $*"; sep1; }
-cmd() {
-    local tcmd="$1"
-    local descr=${2:-"$tcmd"}
-    title1 "RUNNING: $descr"
-    set +e
-    eval "$tcmd"
-    local cRC=$?
-    set -e
-    if [ $cRC -eq 0 ]; then
-        ok "$descr"
-    else
-        error "$descr (RC=$cRC)"
-    fi
-    return $cRC
-}
-banner() { title1 "START: $*"; info "run as $(whoami)@$(hostname -s)"; }
-footer() {
-    local lRC=${lRC:-"$?"}
-    info "FINAL EXIT CODE: $lRC"
-    [ $lRC -eq 0 ] && title1 "END: $* SUCCESSFUL" || title1 "END: $* FAILED"
-    return $lRC
-}
-# --- End of Utility Functions ---
+_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${_DIR}/../utils.sh"
 
 set -o pipefail
 # Support Galera (desync node if needed)
@@ -55,7 +27,7 @@ GZIP_CMD=pigz
 GALERA_SUPPORT="0"
 KEEP_LAST_N_BACKUPS=5
 BCK_FILE=$BCK_DIR/backup_$(date +%Y%m%d-%H%M%S).sql.gz
-TARGET_CONFIG=$(to_lower $1)
+TARGET_CONFIG=$(to_lower "${1:-}")
 
 banner "LOGICAL BACKUP"
 
@@ -63,16 +35,16 @@ if [ -f "/etc/lgconfig.sh" ]; then
     info "LOADING CONFIG FROM /etc/lgconfig.sh"
     source /etc/lgconfig.sh
 fi
-if  [ -n "$1" -a -f "/etc/lgconfig_$TARGET_CONFIG.sh" ]; then
-    info "LOADING CONFIG FROM /etc/lgconfig_$TARGET_CONFIG.sh"
-    source /etc/lgconfig_$TARGET_CONFIG.sh
+if  [ -n "${1:-}" -a -f "/etc/lgconfig_${TARGET_CONFIG}.sh" ]; then
+    info "LOADING CONFIG FROM /etc/lgconfig_${TARGET_CONFIG}.sh"
+    source "/etc/lgconfig_${TARGET_CONFIG}.sh"
 fi
-if [ "$1" = "-l" -o "$1" = "--list" ]; then
+if [ "${1:-}" = "-l" -o "${1:-}" = "--list" ]; then
     ls -lsht $BCK_DIR
     exit 0
 fi
 
-if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
+if [ "${1:-}" = "-a" -o "${1:-}" = "--addcrontab" ]; then
     [ -f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
     echo "${3:-"00"} ${2:-"02"} * * * root bash /opt/local/bin/lgbackup.sh" | tee /etc/cron.d/lgbackup
     chmod 644 /etc/cron.d/lgbackup
@@ -82,7 +54,7 @@ if [ "$1" = "-a" -o "$1" = "--addcrontab" ]; then
     exit 0
 fi
 
-if [ "$1" = "-r" -o "$1" = "--removecrontab" ]; then
+if [ "${1:-}" = "-r" -o "${1:-}" = "--removecrontab" ]; then
     [ -f "/etc/cron.d/lgbackup" ] && rm -f /etc/cron.d/lgbackup
     ls -lsh /etc/cron.d
     systemctl restart cron

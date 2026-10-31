@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-006 — feat: shell script mass sourcing and variable guarding (M3.1 Batch 2) (Issue `#14`)
+- **Date**: `2026-10-31T03:22+01:00` | **Status**: `COMPLETED` | **Issue**: `#14`
+- **Request**: M3.1 Batch 2: standardize canonical sourcing (`_DIR=...; source .../utils.sh`) in `mbbackup.sh`, `mbrestore.sh`, `lgbackup.sh`, `lgrestore.sh`; resolve typo `[-f` in `mbbackup.sh:83`; guard unbound variables under `set -u` (`${1:-}`, `${TARGET_CONFIG:-}`, `${2:-}`).
+- **Changes**: Refactored `scripts/bin/mbbackup.sh`, `scripts/bin/mbrestore.sh`, `scripts/bin/lgbackup.sh`, `scripts/bin/lgrestore.sh` to remove 30-line boilerplate and use canonical utils with guarded parameters.
+- **Result**: `test_mbbackup_typo_bracket_spacing` PASS, syntax check PASS across all 193 scripts, PR diff < 15,000 chars.
+
 ### ACT-005 — feat: shell script mass sourcing and syntax fixes (M3.1 Batch 1) (Issue `#12`)
 - **Date**: `2026-10-31T03:10+01:00` | **Status**: `COMPLETED` | **Issue**: `#12`
 - **Request**: M3.1 Batch 1: safe config check in `scripts/utils.sh`, repo-wide syntax fixes in `reboot_and_wait.sh`, `update_and_reboot.sh`, `8_redis.sh`, `3_install_agent_filebeat.sh`, `mbrestore.sh`, remove dangling continuations in `dockerrestore.sh` & `ssh_lgbackup.sh`, safe Vault token grep in `synchro_repli_mariabackup_stream.sh`, duplicate case cleanup in `ssh_xtrabackup_tar_replication_setup.sh`.
