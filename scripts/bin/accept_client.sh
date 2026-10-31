@@ -33,7 +33,7 @@ footer() {
 # --- End of Utility Functions ---
 
 export PATH=/sbin:$PATH
-for rule_id in $(iptables --list --line-numbers | grep -E 'REJECT.*(mysql|3306)' | awk '{print $1}' | sort -rn); do
+for rule_id in $(iptables --list INPUT --line-numbers | grep -E 'REJECT.*(mysql|3306)' | awk '{print $1}' | sort -rn); do
 	iptables -D INPUT "$rule_id"
 done
 iptables -L

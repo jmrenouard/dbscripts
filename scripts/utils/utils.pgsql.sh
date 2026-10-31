@@ -46,7 +46,7 @@ pginstances()
         return $?
     fi
     for port in $TRUSTED_PG_PORTS; do
-        is tport $port
+        netstat -ltn 2>/dev/null | grep -E ":${port}\s" | grep -q 'LISTEN'
         [ $? -ne 0 ] && continue
         echo $(pgGetVal INSTANCE_NAME_$port)
     done
@@ -105,7 +105,7 @@ pginfo_old()
 (
 	echo -e "INSTANCE\tPGDATA\tPORT\tDATA_VERSION\tRUNNING_VERSION\tSIZE\tSTATUS"
 	for port in $TRUSTED_PG_PORTS; do
-		is tport $port
+		netstat -ltn 2>/dev/null | grep -E ":${port}\s" | grep -q 'LISTEN'
 		[ $? -ne 0 ] && continue
 		ins=$(pgGetVal INSTANCE_NAME_$port)
 		PGDATA=$(psql -p $port -U postgres -Ant -c "show data_directory")
@@ -129,7 +129,7 @@ pginfo()
         port=$(ls -tr1 $dd/postgresql*.conf | xargs -n 1 grep port | perl -ne '/^\s*#.*$/ or print' | perl -pe 's/(.*)\s*#.*/$1/g' | perl -ne '/^\s*$/ or print' | tail -n 1 | cut -d= -f 2 | xargs -n 1)
         [ -z "$port" ] && port=5432
         ins=$(pgGetVal INSTANCE_NAME_$port)
-        is tport $port
+        netstat -ltn 2>/dev/null | grep -E ":${port}\s" | grep -q 'LISTEN'
         if [ $? -ne 0 ]; then
              PGDATA=$dd
              FULL_VERSION="UNKOWN"
@@ -444,7 +444,7 @@ pgdiskinfo()
         echo -e "SIZE_USED_ARCHIVE\tSIZE_TOTAL_ARCHIVE\t"
     fi
     for port in $TRUSTED_PG_PORTS; do
-        is tport $port
+        netstat -ltn 2>/dev/null | grep -E ":${port}\s" | grep -q 'LISTEN'
         [ $? -ne 0 ] && continue
         ins=$(pgGetVal INSTANCE_NAME_$port)
         PGDATA=$(psql -p $port -U postgres -Ant -c "show data_directory")
@@ -1532,7 +1532,7 @@ ALTER FOREIGN TABLE public.$table SET SCHEMA $schema;"
 pgport()
 {
 	local port=0
-	is number $1
+	echo "${1:-}" | grep -qE '^[0-9]+$'
 	if [ $? -eq 0 ];then
 		echo $1
 		return 0
@@ -1738,7 +1738,7 @@ pgcheckbackup()
     local ins=${1:-""}
     local db=${2:-"$ins"}
     local maxFile=${3:-"2"}
-    is user postgres 
+    [ "$(whoami)" = "postgres" ]
     [ $? -eq 0 ] || return 127
     local tmpFile=$(mktemp)
      dbname=$ins
@@ -2011,7 +2011,7 @@ pgsupchecks()
         echo "Some errors: "
         echo $failMsg
     fi
-    is user root
+    [ "$(whoami)" = "root" ]
     [ $? -eq 0 ] && chown postgres. /tmp/sup*.status /tmp/postgres*.status
     return $lRC
 }
@@ -2598,7 +2598,7 @@ scrstop()
 pginstall_backup_tools()
 {
 
-is user root
+[ "$(whoami)" = "root" ]
 [ $? -eq 0 ] || return 255
 info "Clean des caches YUM"
 yum clean all
@@ -2610,7 +2610,7 @@ info "Install. terminee"
 pgsetup_admin_arbo()
 {
 
-is user root
+[ "$(whoami)" = "root" ]
 [ $? -eq 0 ] || return 255
 info "Creation de l'arborescence standard /admin avec logs, etc et scripts"
 mkdir -p /admin/etc /admin/logs /admin/scripts
@@ -2633,7 +2633,7 @@ help_runas()
 
 pgsetup_purge_directory()
 {
-    is user root
+    [ "$(whoami)" = "root" ]
     [ $? -eq 0 ] || return 255
 
     local folder=$1
@@ -2650,7 +2650,7 @@ pgsetup_purge_directory()
 pgsetup_pg_back_conf()
 {
 
-is user root
+[ "$(whoami)" = "root" ]
 [ $? -eq 0 ] || return 255
 local instance=$1
 local port=$2
@@ -2729,13 +2729,6 @@ info "Contenu de la crontab Postgres"
 crontab -l -u postgres
 }
 
-if is not equal "${BASH_SOURCE[0]}" "$0"; then
-    export -f is
-else
-    is "${@}"
-    exit $?
-fi
-
 pg_backall()
 {
     for ins in $(pginstances); do
@@ -2745,20 +2738,12 @@ pg_backall()
 
 pggen_psqlrc()
 {
-is user postgres
+[ "$(whoami)" = "postgres" ]
 [ $? -eq 0 ] || return 255
 
 echo "\set PROMPT1 '%[%033[1;31m%]%`hostname -s`%[%033[0m%]:%[%033[33m%]%> %[%033[1;34m%]%n%[%033[0m%]@%[%033[31m%]%/%[%033[0m%]%R%[%033[0m%]%# '"> $HOME/.psqlrc
 echo "\set AUTOCOMMIT on" >> $HOME/.psqlrc
 }
-pggen_psqlrc
-
-is user postgres
-if [ $? -eq 0 ]; then
-	export PS1='\[\e[m\]$PROJECT_ENV\[\e[m\]-\[\e[1;35m\][\[\e[m\]\[\e[1;34m\]\u\[\e[m\]\[\e[1m\]@\[\e[m\]\[\e[1;31m\]\h\[\e[m\] \[\e[0;33m\]\[\e[36m\]\w\[\e[m\]\[\e[1;35m\]]\[\e[m\]\[\e[0;33m\]\\$\[\e[m\] '
-else
-	export PS1='\[\e[m\]$PROJECT_ENV\[\e[m\]-\[\e[1;35m\][\[\e[m\]\[\e[1;34m\]\u\[\e[m\]\[\e[1m\]@\[\e[m\]\[\e[1;31m\]\h\[\e[m\] \[\e[0;33m\]\[\e[36m\]\w\[\e[m\]\[\e[1;35m\]]\[\e[m\]\[\e[0;33m\] #\[\e[m\] '
-fi
 
 #===============================
 #Creation d'un publisher pour la replication logique à partir d'un fichier d'exclusion de tables 

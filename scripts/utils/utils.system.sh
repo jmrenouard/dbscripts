@@ -14,10 +14,12 @@ decypher_file()
     [ -f "${encFile}" ] || return 1
     [ -f "${keyFile}" ] || return 1
 
+    ([ -z "${outFile}" ] || [ "${encFile}" = "${outFile}" ] || ([ -e "${outFile}" ] && [ "${encFile}" -ef "${outFile}" ])) && return 1
+
     set -o pipefail
     ${cdecat} "${encFile}" | openssl "${algo}" -d -salt -kfile "${keyFile}" > "${outFile}"
     local rc=$?
-    if [ ${rc} -eq 0 ] && [ -s "${outFile}" ]; then
+    if [ ${rc} -eq 0 ] && [ -f "${outFile}" ]; then
         rm -f "${encFile}"
         return 0
     else
@@ -36,6 +38,8 @@ cypher_file()
 
     [ -f "${inFile}" ] || return 1
     [ -f "${keyFile}" ] || return 1
+
+    ([ -z "${outFile}" ] || [ "${inFile}" = "${outFile}" ] || ([ -e "${outFile}" ] && [ "${inFile}" -ef "${outFile}" ])) && return 1
 
     set -o pipefail
     cat "${inFile}" | openssl "${algo}" -salt -kfile "${keyFile}" | ${gzip_cmd} > "${outFile}"
@@ -125,4 +129,19 @@ check_all_nrpe_conf()
         echo ""
 
     done
+}
+
+# Non-fatal compatibility shim for legacy 'is' assertions
+is() {
+    case "${1:-}" in
+        not) shift; ! is "$@" ;;
+        user) [ "$(whoami)" = "${2:-}" ] ;;
+        eq*) [ "${2:-}" = "${3:-}" ] ;;
+        empty) [ -z "${2:-}" ] ;;
+        number) echo "${2:-}" | grep -qE '^[0-9]+(\.[0-9]+)?$' ;;
+        *port*) netstat -ltn 2>/dev/null | grep -E ":${2:-}\s" | grep -q 'LISTEN' ;;
+        file) [ -f "${2:-}" ] ;;
+        dir*) [ -d "${2:-}" ] ;;
+        *) return 1 ;;
+    esac
 }

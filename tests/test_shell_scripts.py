@@ -163,8 +163,22 @@ class TestShellScriptsSafety(unittest.TestCase):
                 )
 
 
+BASH = "C:/Program Files/Git/bin/bash.exe" if os.path.isfile("C:/Program Files/Git/bin/bash.exe") else shutil.which("bash")
+
+
 class TestShellScriptsIntegration(unittest.TestCase):
     """Tier 3: Cross-feature integration, canonical sourcing contracts, and dangling continuations."""
+
+    def test_canonical_utils_sourcing_runtime_execution(self) -> None:
+        if not BASH: self.skipTest("no bash")
+        for t in ("utils.sh", "scripts/utils.sh"):
+            self.assertEqual(subprocess.run([BASH, "-c", f'source {t} && [ "${{UTILS_IS_LOADED:-0}}" = "1" ]'], cwd=ROOT, capture_output=True, text=True).returncode, 0)
+
+    def test_canonical_utils_exported_functions(self) -> None:
+        if not BASH: self.skipTest("no bash")
+        r = subprocess.run([BASH, "-c", "source utils.sh && type info warn warning sep2 title2 dump_timer"], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0)
+        for f in ("info", "warn", "warning", "sep2", "title2", "dump_timer"): self.assertIn(f"{f} is a function", r.stdout)
 
     def test_no_dangling_sourcing_lines_in_bin_scripts(self) -> None:
         """Verify dockerrestore.sh and ssh_lgbackup.sh do not contain broken dangling '&& \\' lines (Finding 5)."""
@@ -251,6 +265,14 @@ class TestShellScriptsIntegration(unittest.TestCase):
 
 class TestShellScriptsWorkflows(unittest.TestCase):
     """Tier 4: Real-world operational workflows (firewall deletion, LVM flags, cypher_file, PITR)."""
+
+    def test_accept_client_scopes_input_chain(self) -> None:
+        self.assertRegex((ROOT / "scripts" / "bin" / "accept_client.sh").read_text(encoding="utf-8", errors="ignore"), r"iptables\s+--list\s+INPUT\s+--line-numbers")
+
+    def test_decypher_file_empty_zero_byte_safety(self) -> None:
+        if not BASH: self.skipTest("no bash")
+        c = "set -e; source scripts/utils/utils.system.sh; D=$(mktemp -d); trap 'rm -rf \"$D\"' EXIT; cd \"$D\"; touch e; echo pass123 > k; cypher_file e k e.enc && [ -f e.enc ] && [ ! -f e ]; decypher_file e.enc k r && [ -f r ] && [ ! -f e.enc ] && [ ! -s r ]; ! decypher_file r k r; echo bad > b; touch f; cypher_file f k f.enc && ! decypher_file f.enc b c && [ -f f.enc ] && [ ! -f c ]"
+        self.assertEqual(subprocess.run([BASH, "-c", c], cwd=ROOT, capture_output=True, text=True).returncode, 0)
 
     def test_iptables_reverse_numerical_sort(self) -> None:
         """Verify accept_client.sh and accept_wsrep.sh sort rule_ids in reverse numerical order (Finding 9)."""
