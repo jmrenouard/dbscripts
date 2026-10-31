@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-012 — Dump Splitter Directory Collision and High Memory Buffering
+- **Observed Symptom**: mysqldump splitters collided on extensionless files and buffered multi-gigabyte dumps in memory lists causing out-of-memory errors.
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: Large database dumps crashed splitter with Out Of Memory errors.
+  2. *Why*: Scripts accumulated dump lines in a memory list (`db_content = []`) before writing to disk.
+  3. *Why*: Memory-buffered write was used instead of streaming line-by-line to active file handles.
+  4. *Why*: Output directory `os.path.splitext(file_path)[0]` stripped extension, colliding with input file on extensionless filenames.
+  5. *Why*: No unit tests validated output collision safety or streaming memory contract.
+- **Applied Change / Fix**: Set `output_folder = f"{file_path}_split"` and streamed lines directly to active `gzip.open` file handles.
+- **Result & Non-Regression**: Verified by `test_mysqldump_splitters_output_dir_collision_prevention` and `test_mysqldump_splitters_streaming_memory_contract`.
+
 ### RCA-011 — MariaDB PITR Restore Chronological Sorting and GTID Binlog Deletion Bug
 - **Observed Symptom**: `pitr-restore.sh` used `sort -n` misordering ISO directory names; `maria-pitr-restore.sh` used `sed '0,/pattern/d'` deleting starting binlog with `GTID_EXECUTED`.
 - **Root Cause Analysis (5 Whys)**:
@@ -141,6 +152,10 @@
 - **Abandoned**: Using `sort -V` or `sed '1,/pattern/d'` for binary log filtering.
 - **Justification**: `sort -V` is non-POSIX. `sed '1,/pattern/d'` drops starting binlog. POSIX `sed -n '/pattern/,$p'` preserves GTID continuity.
 
+### IMP-008 — In-Memory Buffering of Large Dumps in Splitter Utilities
+- **Abandoned**: Loading entire database contents into memory lists before gzip compression.
+- **Justification**: Causes out-of-memory errors on large dumps. Direct streaming to gzip handles operates in O(1) memory.
+
 ---
 
 ## 3. Current Approximations & Simplifying Assumptions (`APP-XXX`)
@@ -180,6 +195,11 @@
 - **Impact & Scope**: Prevents script crash when restoring full backups without incremental chains.
 - **Removal Condition**: Catalog-based restore metadata verification.
 
+### APP-008 — Line-by-Line Splitter Parsing Heuristic
+- **Approximation**: Splitters identify database and table boundaries using standard SQL comment prefixes (`-- Current Database:`, `-- Table structure`).
+- **Impact & Scope**: Supports standard mysqldump and mariadb-dump outputs.
+- **Removal Condition**: Full SQL AST grammar parser.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -218,3 +238,8 @@
 - **Target Module**: `tests/` / `scripts/bin/`
 - **Description**: Add Docker-based verification harness that provisions primary DB, executes transactions, creates backup, injects writes, and validates `maria-pitr-restore.sh`.
 - **Priority**: High
+
+### IDEA-008 — Parallel Multi-Core Dump Splitter Engine
+- **Target Module**: `scripts/bin/`
+- **Description**: Multiprocessing dump splitter to decompress, parse, and recompress tables concurrently across CPU cores.
+- **Priority**: Medium

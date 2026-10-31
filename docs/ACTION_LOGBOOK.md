@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-009 — feat: dump splitters collision prevention and streaming contract (Issue `#20`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#20`
+- **Request**: M4 Splitters: collision-safe directory names and O(1) streaming in mysqldump splitters.
+- **Changes**: Updated mysqldump_database_splitter.py and mysqldump_table_splitter.py to stream to gzip.
+- **Result**: test_mysqldump_splitters_* pass, PR diff < 15,000 chars.
+
 ### ACT-008 — feat: shell pitr restore engine and parameter guards (Issue `#18`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#18`
 - **Request**: M4 Shell fixes: PITR chronological sort, binlog inclusion; parameter guards under `set -u`.
