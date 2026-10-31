@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-018 — Python CLI and Utility Scripts Verification Coverage Gap
+- **Observed Symptom**: Python tooling in `scripts/bin/` lacked regression tests, risking logic bugs (Finding 18) and memory exhaustion (Finding 11).
+- **5 Whys RCA**: Regressions occurred without automated tests; CLI tools were run ad-hoc; no unittest discovery existed in CI; M5 test architecture was needed.
+- **Applied Fix**: Promoted `tests/test_python_scripts.py` (10 tests: compilation, CLI flags, memory streaming, S3 units, CSV generation).
+- **Non-Regression**: `tests/test_python_scripts.py` (10/10 pass).
+
 ### RCA-017 — Python Test Suite Monolithic Diff Ceiling Breach Risk
 - **Observed Symptom**: Adding the original monolithic `tests/test_python_scripts.py` (14,315 diff chars) alongside mandatory registers exceeded the strict 15,000 character PR diff ceiling (15,354 chars total).
 - **Root Cause Analysis (5 Whys)**:
@@ -224,6 +230,10 @@
 - **Justification**: The raw diff of the file alone is 14,315 characters. Together with required logbook and RCA updates, the PR diff reaches 15,354 characters, violating the `< 15,000` limit.
 - **Adopted Pattern**: Staged promotion across two atomic PRs: Sub-Batch M5.2a (`test_python_docker.py`, ~4,600 chars diff) and Sub-Batch M5.2b (`test_python_scripts.py`, ~12,200 chars diff).
 
+### IMP-014 — Heavy AWS S3/RDS Mocking Frameworks for Static CLI Tests
+- **Abandoned**: Using `moto` or `boto3-mock` for testing standalone CLI utilities.
+- **Justification**: Large dependencies slow test discovery and create fragility. Pure stdlib `unittest` and `importlib.util` inspection is faster and dependency-free.
+
 
 
 
@@ -295,6 +305,11 @@
 - **Impact & Scope**: Extremely fast execution (< 0.02s) without requiring a running Docker daemon or privileged socket access in CI environments.
 - **Removal Condition**: Live integration testing with ephemeral Docker daemon in dedicated integration containers.
 
+### APP-014 — In-Memory Temporary Directories for Dump Splitter & CSV Tests
+- **Approximation**: `test_genere_csv` uses `tempfile.TemporaryDirectory` with 10 sample rows rather than large datasets.
+- **Impact & Scope**: Fast unit execution (<0.3s) while validating parameter forwarding and date ranges.
+- **Removal Condition**: Laboratory performance benchmarks on large CSV/SQL dumps.
+
 
 
 
@@ -361,6 +376,10 @@
 ### IDEA-013 — Ephemeral Testcontainers Integration for Python Docker Manager
 - **Target Module**: `tests/` / `docker/`
 - **Description**: Add optional integration test suite using Testcontainers-Python to spin up real MySQL containers and validate `mysql_docker.py` lifecycle commands end-to-end when a Docker daemon is detected.
+- **Priority**: Low
+
+### IDEA-014 — Property-Based Testing for SQL Splitters (Hypothesis)
+- **Description**: Add `hypothesis` tests generating random SQL streams to assert splitters never crash or leak descriptors.
 - **Priority**: Low
 
 
