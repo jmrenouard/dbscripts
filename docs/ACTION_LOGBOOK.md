@@ -35,6 +35,15 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-011 — feat: ansible cluster architecture & scripts consolidation (Issue `#24`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#24`
+- **Request**: M4.2: Ansible Cluster & Scripts Consolidation (Findings 8 & 14).
+- **Changes**: Moved playbook/doc to `ansible/`; added handlers/defaults; cleaned tasks; moved 19 scripts; guarded `private_ip`.
+- **Result**: `test_ansible_structure.py` passes 7/7, PR diff < 15K chars.
+
+
+
+
 ### ACT-010 — feat: python docker manager security and cli helper utilities (Issue `#22`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#22`
 - **Request**: M4 Python fixes: secrets in mysql_docker, s3 TiB/PiB support, csv days_range, mygenconf args.

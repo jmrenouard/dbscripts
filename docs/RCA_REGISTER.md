@@ -11,6 +11,14 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-014 — Ansible Role Naming Mismatch and Missing Handlers
+- **Observed Symptom**: Playbook failed on mismatched `mysql_server`, missing `include_vars`, undefined handlers.
+- **Applied Fix**: Aligned role to `mysql_servers`, moved playbook to `ansible/`, added handlers/defaults, cleaned tasks.
+- **Non-Regression**: `test_ansible_structure.py` (7/7 pass).
+
+
+
+
 ### RCA-013 — Insecure Password Generation and Image Deletion in Docker Manager
 - **Observed Symptom**: `mysql_docker.py` used non-cryptographic `random.choice`, crashed on `except e:`, and deleted base images.
 - **Root Cause Analysis (5 Whys)**:
@@ -171,6 +179,12 @@
 - **Abandoned**: Deleting base Docker images (`docker_client.images.remove`) during environment cleanup.
 - **Justification**: Base images (e.g., `mysql:8.0`) are shared across containers; deleting them forces costly re-downloads.
 
+### IMP-010 — Monolithic MariaDB/ Tree Consolidation
+- **Abandoned**: Moving 79 files in one PR. Staged into M4.2 and M4.3.
+
+
+
+
 ---
 
 ## 3. Current Approximations & Simplifying Assumptions (`APP-XXX`)
@@ -220,7 +234,12 @@
 - **Impact & Scope**: Ensures multi-platform test execution on local dev and CI.
 - **Removal Condition**: Full Docker daemon E2E test harness.
 
+### APP-010 — Default Node IP Fallback in Galera Bootstrap
+- **Approximation**: `5_bootstrap_node.sh` falls back to `my_private_ipv4` if `private_ip` is unset.
+
+
 ---
+
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
 
@@ -268,3 +287,6 @@
 - **Target Module**: `docker/` / `tests/`
 - **Description**: Add pytest fixtures running lightweight containerized MySQL/MariaDB instances with ephemeral ports.
 - **Priority**: High
+### IDEA-010 — Molecule Testing for MySQL and Galera Clusters
+- **Description**: Molecule test scenarios for MySQL/Galera roles.
+

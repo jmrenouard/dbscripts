@@ -12,7 +12,7 @@
   hosts: mysql_servers
   become: yes
   roles:
-    - role: mysql_server # Appliquer le rôle d'installation MySQL
+    - role: mysql_servers # Appliquer le rôle d'installation MySQL
 
 - name: Configurer et initialiser InnoDB Cluster
   hosts: mysql_servers
@@ -21,20 +21,7 @@
   roles:
     - role: mysql_cluster # Appliquer le rôle de configuration du cluster
   handlers:
-    # Définir les handlers ici s'ils ne sont pas dans roles/xxx/handlers/main.yml
-    - name: Restart mysql
-      ansible.builtin.service:
-        name: mysql
-        state: restarted
-      listen: Restart mysql # Écoute les notifications avec ce nom
-
-    - name: Restart mysql for cluster config
-      ansible.builtin.service:
-        name: mysql
-        state: restarted
-      listen: Restart mysql for cluster config # Handler spécifique si besoin
-
-    # Handler pour le rôle common (si notify est utilisé là-bas)
     - name: Remount filesystems
       ansible.builtin.command: mount -a
       listen: Remount filesystems
+

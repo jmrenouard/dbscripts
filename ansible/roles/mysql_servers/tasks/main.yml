@@ -63,15 +63,6 @@
     allow_downgrade: yes # Nécessaire si une version plus récente était installée
   notify: Restart mysql # Déclencher un redémarrage après l'installation/mise à jour
   tags: [mysql, mysql_install]
-  environment:
-    # Préseeder le mot de passe root pour éviter l'invite interactive (moins sécurisé que mysql_user)
-    # DEBIAN_FRONTEND: noninteractive # Peut être nécessaire
-    # Note: Cette méthode de préseed est moins fiable/sécurisée que le module mysql_user ensuite.
-    # Elle est laissée ici comme alternative si mysql_user pose problème initialement.
-    # mysql-community-server/root-pass: password {{ mysql_root_password }}
-    # mysql-community-server/re-root-pass: password {{ mysql_root_password }}
-    # mysql-community-server/remove-test-db: boolean true
-    pass:
 
 - name: Installer MySQL Shell (requis pour dba.create_cluster)
   ansible.builtin.apt:
@@ -162,13 +153,4 @@
     login_password: "{{ mysql_root_password }}"
     filter: flush_privileges # Action spécifique pour recharger
   tags: [mysql, mysql_secure]
-
-
-# --- Handlers ---
-# handlers:
-#   - name: Restart mysql
-#     ansible.builtin.service:
-#       name: mysql
-#       state: restarted
-#     listen: Restart mysql
 
