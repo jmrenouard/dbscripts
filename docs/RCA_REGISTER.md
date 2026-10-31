@@ -11,6 +11,17 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-017 — Python Test Suite Monolithic Diff Ceiling Breach Risk
+- **Observed Symptom**: Adding the original monolithic `tests/test_python_scripts.py` (14,315 diff chars) alongside mandatory registers exceeded the strict 15,000 character PR diff ceiling (15,354 chars total).
+- **Root Cause Analysis (5 Whys)**:
+  1. *Why*: The pull request diff exceeded 15,000 characters.
+  2. *Why*: `tests/test_python_scripts.py` was 13,824 bytes with 14 tests across Docker, CLI scripts, and helpers in one file.
+  3. *Why*: Combining tests for container orchestration (`docker/`) and CLI utilities (`scripts/bin/`) created an oversized test module.
+  4. *Why*: Register updates for logbook and RCA add ~1,000 to 1,400 characters per PR.
+  5. *Why*: The repository governance rule strictly limits all PR diffs to `< 15,000` characters (`git diff main...HEAD | wc -c`).
+- **Applied Change / Fix**: Partitioned the Python test suite modularly into `tests/test_python_docker.py` (Sub-Batch M5.2a, ~4,600 chars diff) and `tests/test_python_scripts.py` (Sub-Batch M5.2b, ~12,200 chars diff).
+- **Result & Non-Regression**: Verified by `tests/test_python_docker.py` (4/4 tests pass in <0.02s) and diff size comfortably under 15,000 limit.
+
 ### RCA-016 — Windows WSL Bash Launcher Hang in Syntax Check Test Suite
 - **Observed Symptom**: `tests/test_shell_scripts.py` hung during `test_all_shell_scripts_pass_bash_syntax_check` on Windows.
 - **Root Cause Analysis (5 Whys)**:
@@ -208,6 +219,11 @@
 - **Abandoned**: Promoting `tests/test_ansible_structure.py` (8,827 chars) and `tests/test_python_scripts.py` (14,315 chars) in a single batch PR.
 - **Justification**: A monolithic PR would generate over 23,000 characters of diff, severely breaching the mandatory repository ceiling of 15,000 characters. Decomposed into Milestone M5.1 (Ansible suite, ~10,000 chars) and Milestone M5.2 (Python suites, modularized).
 
+### IMP-013 — Monolithic Single-PR Promotion of All Python Tests
+- **Abandoned**: Attempting to promote all 14 Python tests in a single file `tests/test_python_scripts.py` in one PR.
+- **Justification**: The raw diff of the file alone is 14,315 characters. Together with required logbook and RCA updates, the PR diff reaches 15,354 characters, violating the `< 15,000` limit.
+- **Adopted Pattern**: Staged promotion across two atomic PRs: Sub-Batch M5.2a (`test_python_docker.py`, ~4,600 chars diff) and Sub-Batch M5.2b (`test_python_scripts.py`, ~12,200 chars diff).
+
 
 
 
@@ -274,6 +290,11 @@
 - **Impact & Scope**: Extremely fast execution (< 0.1s) and zero dependency on a live Ansible control node or managed target instances.
 - **Removal Condition**: Laboratory integration tests executing `ansible-playbook --check` or Molecule test runs inside container environments.
 
+### APP-013 — AST Inspection for Python Docker Exception Handling and Arguments
+- **Approximation**: `test_python_docker.py` parses `docker/mysql_docker.py` AST and inspects source patterns rather than executing Docker daemon commands.
+- **Impact & Scope**: Extremely fast execution (< 0.02s) without requiring a running Docker daemon or privileged socket access in CI environments.
+- **Removal Condition**: Live integration testing with ephemeral Docker daemon in dedicated integration containers.
+
 
 
 
@@ -336,6 +357,11 @@
 - **Target Module**: `ansible/` / `.github/workflows/`
 - **Description**: Integrate `ansible-lint` and `ansible-playbook --syntax-check` into CI workflow container to validate task idempotency, rule deprecations, and module parameters beyond raw YAML syntax.
 - **Priority**: Medium
+
+### IDEA-013 — Ephemeral Testcontainers Integration for Python Docker Manager
+- **Target Module**: `tests/` / `docker/`
+- **Description**: Add optional integration test suite using Testcontainers-Python to spin up real MySQL containers and validate `mysql_docker.py` lifecycle commands end-to-end when a Docker daemon is detected.
+- **Priority**: Low
 
 
 

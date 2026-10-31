@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-015 — feat: promote python docker manager test suite (Issue `#32`)
+- **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#32`
+- **Request**: M5.2a: Promote `tests/test_python_docker.py` into git tracking on `main` to verify Finding 7 (AST syntax validation, secrets generation, base image preservation, bash alias arguments) while keeping PR diff < 15,000 chars.
+- **Changes**: Created `tests/test_python_docker.py` defining `TestPythonDockerManager` with 4 tests covering `mysql_docker.py` error handling, password generation via `secrets`, shared image preservation, and parameter passing.
+- **Result**: `tests/test_python_docker.py` executes 4/4 passing tests in <0.02s; PR diff strictly < 15,000 characters.
+
 ### ACT-014 — feat: promote ansible structure test suite and portable bash detection (Issue `#30`)
 - **Date**: `2026-10-31` | **Status**: `COMPLETED` | **Issue**: `#30`
 - **Request**: M5.1: Promote `tests/test_ansible_structure.py` into git tracking on `main`, fix portable Git Bash detection in `tests/test_shell_scripts.py:20`.
