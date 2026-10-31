@@ -35,6 +35,12 @@ _None._
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-004 — fix: canonical utils sourcing and decryption edge cases (Issue `#10`)
+- **Date**: `2026-10-31T01:45+01:00` | **Status**: `COMPLETED` | **Issue**: `#10`
+- **Request**: M2 Remediation: resolve sourcing abort in `utils.pgsql.sh`, replace `is`, fix 0-byte decryption, add collision guards, scope `accept_client.sh:36`.
+- **Changes**: Fixed `utils.pgsql.sh` (deleted lines 2732-2737, 2754, 2756-2761); updated `utils.system.sh` (collision guards, `[ -f ]`, `is()` shim); scoped `accept_client.sh:36`; replaced `is` in `dockerrestore.sh`; added tests.
+- **Result**: 16 M2 tests pass (100% OK), PR diff < 15,000 chars.
+
 ### ACT-003 — fix: canonical shell utilities consolidation, encryption pipeline safety and system scripts repair (Issue `#8`)
 - **Date**: `2026-10-31T00:50+01:00` | **Status**: `COMPLETED` | **Issue**: `#8`
 - **Request**: Milestone M2 remediation covering:

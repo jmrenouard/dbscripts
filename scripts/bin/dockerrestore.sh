@@ -341,9 +341,9 @@ if [ "${TARGET_CONFIG:0:2}" == '-t' ];then
 
     title1 "CHECKING DOCKER IMAGE $(to_lower $VENDOR) $(to_lower $MAJOR_VERSION)"
     docker images | grep -E "$(to_lower $VENDOR)\s+$(to_lower $MAJOR_VERSION)"
-    if is not equal $? 0;then
+    if [ $? -ne 0 ]; then
         docker pull $(to_lower $VENDOR):$(to_lower $MAJOR_VERSION)
-        is equals 0 $? && bash $0 $*
+        [ $? -eq 0 ] && bash $0 $*
         exit 27
     fi
     ok "GET THE RIGTH IMAGE $(to_lower $VENDOR) - $(to_lower $MAJOR_VERSION)"
@@ -374,7 +374,7 @@ if [ "${TARGET_CONFIG:0:2}" == '-t' ];then
     DOCKER_ID=$(docker ps | grep $2 | awk '{print $1}')
 
     title2 "DOCKER ID: $DOCKER_ID"
-    if is equals "" $DOCKER_ID; then
+    if [ -z "$DOCKER_ID" ]; then
         die "NO DOCKER ID FOUND"
     fi
     start_timer INJECT

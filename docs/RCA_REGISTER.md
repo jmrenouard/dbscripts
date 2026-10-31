@@ -62,6 +62,18 @@
 - **Applied Change / Fix**: Integrated `AGENTS.md`, `.agents/rules/project-governance.md`, `docs/ACTION_LOGBOOK.md`, and `docs/RCA_REGISTER.md` with redirection pointers in `ROADMAP.md`, `POTENTIAL_ISSUES.md`, and `PLANNING.md`.
 - **Result & Non-Regression**: Automated unit tests in `tests/test_project_governance_rules.py` validate rule files and living registers.
 
+### RCA-006 — Fatal Shell Exit Sourcing Utilities
+- **Observed Symptom**: `source utils.sh` exited with 127 (`is: not found`).
+- **5 Whys RCA**: `utils.pgsql.sh:2732` called `exit $?` on missing `is`.
+- **Applied Fix**: Removed exit block, converted `is` to POSIX tests.
+- **Non-Regression**: `test_canonical_utils_sourcing_runtime_execution`.
+
+### RCA-007 — Plaintext Deletion Decrypting 0-Byte Files
+- **Observed Symptom**: Decrypting valid 0-byte ciphertext exited 1.
+- **5 Whys RCA**: `decypher_file` checked `[ -s ]`, purging 0-byte output.
+- **Applied Fix**: Changed `[ -s ]` to `[ -f ]`, added collision guards.
+- **Non-Regression**: `test_decypher_file_empty_zero_byte_safety`.
+
 ---
 
 ## 2. Technical Dead-Ends & Abandoned Leads (`IMP-XXX`)
@@ -80,6 +92,11 @@
 - **Abandoned Approach**: Accumulating independent bash scripts without standard syntax checks or automated test harnesses.
 - **Technical & Security Justification**: Without automated test isolation and linting, scripts risk silent breakage when database versions advance (e.g. MariaDB 11.x, PostgreSQL 17/18, MySQL 9.x changes).
 - **Adopted Pattern**: Modularized scripts with `set -euo pipefail`, explicit argument parsing, and structured test suites.
+
+### IMP-004 — Static String Tests for Sourced Libraries
+- **Abandoned**: Testing sourcing via regex / `bash -n` only.
+- **Justification**: Misses runtime exit aborts during shell sourcing.
+- **Adopted Pattern**: Subshell runtime tests via `subprocess.run([bash, "-c", ...])`.
 
 ---
 
@@ -100,6 +117,11 @@
 - **Impact & Scope**: Suitable for local automation development; production environments require distributed hosts, secrets management, and custom network routing.
 - **Removal Condition**: Migration to distributed multi-node integration test harnesses.
 
+### APP-004 — Network Interface Fallback
+- **Approximation**: `scripts/utils/utils.network.sh` warns on missing `ip` on non-Linux hosts.
+- **Impact & Scope**: Benign warning in local dev; Linux environments have `ip`.
+- **Removal Condition**: Guard network discovery with `command -v ip`.
+
 ---
 
 ## 4. Unimplemented Ideas & Strategic Roadmap (`IDEA-XXX`)
@@ -118,3 +140,8 @@
 - **Target Module**: `tests/` / `docker/`
 - **Description**: Provide an automated multi-topology test runner executing syntax validation, container startup, data sync verification, and teardown across MariaDB, MySQL, PostgreSQL, MongoDB, and Cassandra.
 - **Priority**: High
+
+### IDEA-004 — Multi-Shell Runtime CI Matrix
+- **Target Module**: `.github/workflows/`
+- **Description**: Run test suite across Bash versions and dash/sh in CI.
+- **Priority**: Medium
