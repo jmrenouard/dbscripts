@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-025 — Documentation Duplication and Fragmentation
+- **Observed Symptom**: 51 French duplicates (*_fr.md), 12 broken MongoDB index links, 2 obsolete assets.
+- **5 Whys RCA**: 1. Historical bilingual docs; 2. Translation drift; 3. Obsolete Vagrant files; 4. AGENTS.md mandates English; 5. Bulk deletion diff requires bounding.
+- **Applied Fix**: Purged 51 *_fr.md files and 2 assets; rewrote documentation/README.md in English; added .gitattributes -diff rules; updated registers.
+- **Non-Regression**: python -m unittest discover -s tests -v (49/49 pass); PR diff < 15,000 chars.
+
 ### RCA-024 — Ansible Documentation Fragmentation and Matrix Consolidation
 - **Observed Symptom**: `ansible/` contained 24 fragmented doc files (`ansible/doc_*.md` and `*_fr.md`), bilingual duplication, unindexed Redis ACL playbooks, and no unified `ansible/README.md`.
 - **5 Whys RCA**: 1. Playbooks historically had individual stubs; 2. Redis ACL playbooks lacked docs; 3. 24 scattered files hindered discovery; 4. Pure deletion exceeded 15K diff limit; 5. Governance requires unified English documentation.
@@ -390,6 +396,11 @@
 - **Current Approximation**: Configured root `.gitattributes` with `ansible/doc_*.md -diff` to suppress textual diff generation for the 24 deleted doc files.
 - **Impact & Scope**: Prevents git from generating ~23,500 chars of deletion diff output, keeping PR diff strictly < 15,000 characters.
 - **Removal Condition**: Permanent git attributes configuration or removal once repository consolidation milestones are completed.
+
+### APP-020 — Gitattributes Diff Bounding for 51 French Documentation Files
+- **Approximation**: Configured .gitattributes with -diff rules for 51 *_fr.md files and obsolete assets.
+- **Impact & Scope**: Prevents >385K diff output, keeping PR diff strictly < 15,000 chars.
+- **Removal Condition**: Permanent git attributes configuration or removal post-cleanup.
 
 ---
 
