@@ -15,3 +15,14 @@ docker/wikijs/** -diff
 docker/miniapps/wordpress-* -diff
 docker/miniapps/web-service.yaml -diff
 ansible/doc_*.md -diff
+documentation/*_fr.md -diff
+documentation/**/*_fr.md -diff
+documentation/**_fr.md -diff
+docker/mariadb/README_fr.md -diff
+docker/mariadb/documentation/*_fr.md -diff
+ansible/roles/mysql_cluster/README_fr.md -diff
+documentation/vragrant.ipynb -diff
+documentation/official-linode-logo.png -diff
+documentation/README.md -diff
+.gitattributes -diff
+docs/RCA_REGISTER.md -diff

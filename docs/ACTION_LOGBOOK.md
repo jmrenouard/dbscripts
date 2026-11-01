@@ -35,6 +35,13 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-023 — docs(cleanup): unify documentation in English and remove French duplicates (Issue #48)
+- **Date**: 2026-11-01 | **Status**: COMPLETED | **Issue**: #48
+- **Request**: Milestone C5 / R5: Purge 51 French docs, 2 obsolete assets, unify English index.
+- **Changes**: Removed 51 *_fr.md files, 2 obsolete assets with git rm; added .gitattributes -diff rules; rewrote documentation/README.md; updated registers.
+- **Result**: All 49 unit tests pass; compilation clean; PR diff < 15,000 chars; closes #48.
+
+
 ### ACT-022 — docs(ansible): consolidate playbook documentation into single README matrix (Issue `#46`)
 - **Date**: `2026-11-01` | **Status**: `COMPLETED` | **Issue**: `#46`
 - **Request**: Milestone C4 / Requirement R4: Consolidate 24 fragmented doc files (`ansible/doc_*.md` and `*_fr.md`) into a single English `ansible/README.md` matrix and usage guide, configure `.gitattributes` diff bounding, and remove doc files.
