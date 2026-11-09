@@ -19,14 +19,15 @@ These rules apply **without exception** to every session and agent on **Database
 ## 2. Mandatory GitHub Workflow (Required for Every Request)
 
 For **every request**, the agent **MUST systematically** execute the GitHub lifecycle:
-1. **GitHub Issue**: Open an issue with `gh issue create --title "<type>: <title>" --body "..."` and retrieve `#<id>`.
-2. **Dedicated Branch**: Create `<type>/issue-<id>-<slug>` from `main`.
-3. **Tests & Validation**: Verify test targets locally (`python3 -m unittest discover -s tests -v`).
-4. **Update Registers**: Update [`docs/ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) and [`docs/RCA_REGISTER.md`](docs/RCA_REGISTER.md) before committing.
-5. **Commit & Push**: Atomic Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`) referencing `Closes #<id>`, PR diff `< 15,000` chars, and push.
-6. **Pull Request**: Open PR via `gh pr create --base main --head <branch> --title "..." --body "Closes #<id>"`.
-7. **Merge**: Merge via `gh pr merge <pr-id> --merge --delete-branch` and sync `main`.
-8. **Close Issue**: Detail verification in comment (`gh issue comment <id> --body "..."`) and close (`gh issue close <id>`).
+0. **GitHub Issue (`gh issue create`)**: Open an issue with `gh issue create --title "<type>: <title>" --body "..."` (strictly in English) and retrieve `#<id>`.
+1. **Dedicated Branch**: Create `<type>/issue-<id>-<slug>` from `main`.
+2. **Tests & Validation**: Verify test targets locally (`python3 -m unittest discover -s tests -v`). All code and SQL comments must strictly be in English. Update [`docs/ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) and [`docs/RCA_REGISTER.md`](docs/RCA_REGISTER.md) before committing.
+3. **Rigorous Staging (`git add`)**: Stage only tracked files (`git add`); exclude temporary dumps and artifacts.
+4. **Structured Commit (`git commit`)**: Atomic Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`) in English referencing `Closes #<id>`, keeping PR diff `< 15,000` chars.
+5. **Branch Push (`git push`)**: Push branch to remote (`git push -u origin <branch>`).
+6. **Pull Request (`gh pr create`)**: Open PR via `gh pr create --base main --head <branch> --title "..." --body "Closes #<id>"` (strictly in English).
+7. **Merge (`gh pr merge`)**: Merge via `gh pr merge <pr-id> --merge --delete-branch` with a merge commit message strictly in English, and sync `main`.
+8. **Close Issue (`gh issue close`)**: Detail verification in comment strictly in English (`gh issue comment <id> --body "..."`) and close (`gh issue close <id>`).
 
 ---
 
@@ -45,3 +46,15 @@ Systematically update [`docs/RCA_REGISTER.md`](docs/RCA_REGISTER.md) on every re
 2. **Technical Dead-Ends (`IMP-XXX`)**: Rejected technical directions with justification.
 3. **Current Approximations (`APP-XXX`)**: Simplifications, heuristics, or laboratory mocks.
 4. **Unimplemented Ideas (`IDEA-XXX`)**: Future strategic proposals for the roadmap.
+
+---
+
+## 5. Mandatory English-Only Policy for GitHub and Code
+
+All GitHub artifacts, messages, and source code across the Database Scripts Automation repository MUST be strictly in English:
+1. **GitHub Issues**: Every issue title, description, and discussion comment (`gh issue create`) MUST be strictly in English.
+2. **Pull Requests (PRs)**: Every PR title, description, and review comment (`gh pr create`) MUST be strictly in English.
+3. **PR Merges & Issue Comments**: Every PR merge commit message (`gh pr merge`) and issue closing comment (`gh issue close --comment "..."` or `gh issue comment`) MUST be strictly in English.
+4. **Git Commit Messages**: All commit messages (Conventional Commits) MUST be strictly in English.
+5. **Source Code & SQL Comments**: All comments in Python, Bash, SQL, Ansible playbooks, and Dockerfiles MUST be strictly written in English. French code and script comments are strictly forbidden.
+6. **Zero French on GitHub**: Zero French is allowed in any GitHub interactions, issue discussions, PR reviews, merge messages, or issue closing comments.

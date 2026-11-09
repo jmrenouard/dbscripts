@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package and Attach Deliverables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(cat VERSION | tr -d '[:space:]')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Bundle Multi-Deliverables
+        run: |
+          mkdir -p dist
+          tar --exclude-vcs --exclude='.agents' --exclude='.agent' --exclude='tests' --exclude='__pycache__' \
+              -czvf "dist/dbscripts-${{ env.VERSION }}.tar.gz" \
+              scripts ansible docker sql documentation docs README.md LICENSE VERSION Makefile Changelog
+          zip -r "dist/dbscripts-${{ env.VERSION }}.zip" \
+              scripts ansible docker sql documentation docs README.md LICENSE VERSION Makefile Changelog \
+              -x "*.git*" -x "*__pycache__*" -x "tests/*"
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*

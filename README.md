@@ -1,5 +1,7 @@
 # Database Scripts Automation (`dbscripts`)
 
+[![GitHub Release](https://img.shields.io/github/v/release/jmrenouard/dbscripts?style=flat-square&logo=github)](https://github.com/jmrenouard/dbscripts/releases/latest)
+[![CI](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml/badge.svg)](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml)
 [![Test Suite](https://img.shields.io/badge/tests-49%20passed-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](Makefile)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)

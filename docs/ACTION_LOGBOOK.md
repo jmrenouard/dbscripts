@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-024 — ci(release): add CI and release workflows, README badges, and tag v1.0.0
+- **Date**: 2026-11-10 | **Status**: COMPLETED
+- **Request**: Milestone 4: Add GitHub Actions CI workflow, release workflow bundling tarball with SHA256SUMS.txt, update README badges, and tag v1.0.0.
+- **Changes**: Added `.github/workflows/ci.yml` and `.github/workflows/release.yml`; updated `README.md` with Release and CI badges; tagged initial release `v1.0.0`.
+- **Result**: All 49 unit tests pass (100% green); verify_release_system.py passes 100% of M4 checks.
+
 ### ACT-023 — docs(cleanup): unify documentation in English and remove French duplicates (Issue #48)
 - **Date**: 2026-11-01 | **Status**: COMPLETED | **Issue**: #48
 - **Request**: Milestone C5 / R5: Purge 51 French docs, 2 obsolete assets, unify English index.
