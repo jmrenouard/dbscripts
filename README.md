@@ -2,12 +2,21 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/jmrenouard/dbscripts?style=flat-square&logo=github)](https://github.com/jmrenouard/dbscripts/releases/latest)
 [![CI](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml/badge.svg)](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-dbscripts.lightpath.fr-blue.svg)](https://dbscripts.lightpath.fr/)
 [![Test Suite](https://img.shields.io/badge/tests-49%20passed-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](Makefile)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Governance](https://img.shields.io/badge/governance-strict%20registers-orange.svg)](docs/ACTION_LOGBOOK.md)
 
 Robust, reproducible automation solutions for multi-vendor enterprise database infrastructures across **MariaDB/Galera**, **MySQL**, **PostgreSQL**, **MongoDB**, **Cassandra**, and **Oracle**.
+
+## 📚 Documentation Portal
+
+Structured Diátaxis documentation is published at [dbscripts.lightpath.fr](https://dbscripts.lightpath.fr/) and sourced from [docs/index.md](docs/index.md):
+- [Tutorials (`docs/01-tutorials/`)](docs/01-tutorials/index.md) — Isolated Docker sandbox labs
+- [How-To Guides (`docs/02-how-to-guides/`)](docs/02-how-to-guides/index.md) — ASD-STE100 Issue 9 runbooks
+- [Reference (`docs/03-reference/`)](docs/03-reference/index.md) — Verified CLIs, parameters, ports, and error matrix
+- [Explanation (`docs/04-explanation/`)](docs/04-explanation/index.md) — Architecture overview and ADRs
 
 ---
 
