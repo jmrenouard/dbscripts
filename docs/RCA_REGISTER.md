@@ -422,6 +422,11 @@
 - **Impact & Scope**: Guarantees zero broken links on `main` after PR 3a while keeping each PR diff comfortably below `15,000` chars.
 - **Removal Condition**: Completed when PR 3b lands all four STE How-To guides and `database-alert-and-error-matrix.md`.
 
+### APP-025 — Project Technical Noun Vocabulary for ASD-STE100 How-To Guides (PR 3b)
+- **Approximation**: Structural STE rules (`<= 20` words, imperative mood, active voice, no contractions/banned modals/semicolons) pass 100% (`0` errors, `0` warnings), using DBMS technical terms (`galera`, `mariabackup`, `wsrep`, `redis`, `iptables`) permitted under STE Rule 1.5/1.12.
+- **Impact & Scope**: Runbooks stay deterministic and readable for DBAs; domain terms can be formalized in `.vale.ini` custom vocabulary in PR 4a.
+- **Removal Condition**: Permanent technical dictionary scoping maintained in `.vale.ini` and STE test assertions.
+
 ---
 
 
