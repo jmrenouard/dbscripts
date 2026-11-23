@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-032 — French SSHFS Documentation and Stale Binary `.docx` Artifact (`Issue #82` / PR 3a)
+- **Observed Symptom**: `documentation/LinuxSystem/README_SSHFS.md` remained in French (with swapped mount/unmount commands in two sections), and an unreferenced French binary `documentation/LinuxSystem/README_SSHFS.docx` duplicated the markdown guide.
+- **5 Whys RCA**: 1. Legacy `LinuxSystem` SSHFS notes predated the repository English-only policy; 2. An exported `.docx` binary remained tracked alongside the markdown file without references; 3. Copy-pasted snippets swapped `mount_` and `umount_` in `SSHFScli1` unmount and `SSHFScli3` mount sections; 4. Translating all legacy guides in one PR exceeded the 15,000-char diff cap.
+- **Applied Fix**: Translated `documentation/LinuxSystem/README_SSHFS.md` into English preserving all function names and commands, fixed the swapped `mount_`/`umount_` snippets, and removed `documentation/LinuxSystem/README_SSHFS.docx`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-031 — Stale `.agent/` References, Personal `file://` URIs, and Missing Repo-Wide Link/Anchor Gate (`Issue #80` / PR 2c)
 - **Observed Symptom**: `.agent/` rules, skills, and workflows referenced deleted `task.md`, `ROADMAP.md`, `README_fr.md`, non-existent `/compliance-sentinel`, and personal `/home/jmren/...` `file://` URIs, while `tests/test_diataxis_documentation.py` checked only `docs/` relative links.
 - **5 Whys RCA**: 1. `.agent/` assets retained legacy workstation links and pre-consolidation governance paths; 2. `test_diataxis_documentation.py` only validated `docs/` without scanning `documentation/`, `docker/mariadb/`, `ansible/`, `.agent/`, `.agents/`, or `README.md` for broken relative targets, `file://` URIs, or broken `#anchor` links.
