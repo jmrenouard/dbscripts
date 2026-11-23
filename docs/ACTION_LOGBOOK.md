@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-029 — docs(how-to): add ASD-STE100 How-To guides and database alert matrix (Issue `#58`, PR 3b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#58`
+- **Request**: Add 4 procedural STE How-To guides, database troubleshooting error matrix, and quadrant index updates (PR 3b).
+- **Changes**: Created 4 `02-how-to-guides/` runbooks, `database-alert-and-error-matrix.md`, updated `02-how-to-guides/index.md`, `03-reference/index.md`, `ACTION_LOGBOOK.md`, and `RCA_REGISTER.md`.
+- **Result**: `ste_check.py --mode procedural --lang en` (`0` errors, `0` warnings), `diataxis_check.py` (`0` broken links), `make lint`, and `make test` (49/49) pass; diff `< 15,000` chars.
+
 ### ACT-028 — docs(tutorials): add MariaDB Galera and MySQL Docker lab tutorials (Issue `#56`, PR 3a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#56`
 - **Request**: Add hands-on Diataxis tutorials for MariaDB Galera and MySQL Docker CLI sandboxes (PR 3a).
