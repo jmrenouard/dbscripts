@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-031 — docs(mkdocs): add mkdocs.yml navigation and README documentation portal links (Issue `#62`, PR 4b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#62`
+- **Request**: Configure `mkdocs.yml` Material navigation and add Documentation Portal badge/links to root `README.md` (PR 4b).
+- **Changes**: Added `mkdocs.yml` (6 top nav tabs + virtual docs + `scripts/mkdocs_hooks.py`), updated `README.md`, `ACTION_LOGBOOK.md`, and `RCA_REGISTER.md`.
+- **Result**: `mkdocs build --strict` (`1.75s`), `build_versioned_docs.py --main-ref WORKTREE --tags v1.0.0`, `diataxis_check.py --strict --check-ste --lang en`, `make lint`, and `make test` (49/49) pass; diff `< 15,000` chars.
+
 ### ACT-030 — docs(portal): add portal index, assets, styles, and Docs-as-Code configs (Issue `#60`, PR 4a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#60`
 - **Request**: Add `docs/index.md`, SVG branding, CSS/KaTeX assets, Docs-as-Code toolchain configs, and `.gitignore` updates (PR 4a).

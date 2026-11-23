@@ -1,0 +1,148 @@
+site_name: Database Scripts Automation (dbscripts)
+site_description: Multi-vendor database automation for MariaDB Galera, MySQL, PostgreSQL, MongoDB, Cassandra, Ansible, and Docker labs
+site_url: https://dbscripts.lightpath.fr/
+repo_name: jmrenouard/dbscripts
+repo_url: https://github.com/jmrenouard/dbscripts
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Jean-Marie Renouard &middot; LightPath
+
+docs_dir: docs
+exclude_docs: |
+  *.kdbx
+  *.keyx
+  *.pid
+  *.log
+  .env
+  .env.*
+  *.pem
+  *.key
+
+hooks:
+  - scripts/mkdocs_hooks.py
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jmrenouard/dbscripts
+      name: dbscripts on GitHub
+    - icon: fontawesome/solid/globe
+      link: https://www.lightpath.fr
+      name: LightPath
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - 01-tutorials/index.md
+      - MariaDB Galera Docker Lab: 01-tutorials/01-mariadb-galera-docker-lab.md
+      - MySQL Docker CLI Sandbox: 01-tutorials/02-mysql-docker-cli-sandbox.md
+  - How-To Guides:
+      - 02-how-to-guides/index.md
+      - Deployment:
+          - Deploy MariaDB Galera Cluster: 02-how-to-guides/deployment/deploy-mariadb-galera-cluster.md
+      - Operations:
+          - Back Up, Restore, and Rotate TLS: 02-how-to-guides/operations/backup-restore-and-ssl-rotation.md
+      - Incident Response:
+          - Recover Galera Quorum and PITR: 02-how-to-guides/incident-response/recover-galera-quorum-and-pitr.md
+      - Security:
+          - Harden Firewall, TLS, and Redis ACLs: 02-how-to-guides/security/harden-firewall-tls-and-redis-acl.md
+  - Reference:
+      - 03-reference/index.md
+      - CLI & Scripts:
+          - Scripts and CLI Reference: 03-reference/cli-and-scripts/scripts-and-cli-reference.md
+      - Configuration:
+          - Automation Parameters and Ports: 03-reference/configuration/automation-parameters-and-ports.md
+      - Troubleshooting Codes:
+          - Database Alert and Error Matrix: 03-reference/troubleshooting-codes/database-alert-and-error-matrix.md
+      - Module Catalogs:
+          - Ansible Playbooks: ansible-playbooks.md
+          - Docker MariaDB Lab: docker-mariadb-lab.md
+          - Operational Guides Index: guides/README.md
+  - Explanation:
+      - 04-explanation/index.md
+      - Architecture Overview:
+          - Multi-DB Automation Architecture: 04-explanation/architecture-overview/multi-db-automation-architecture.md
+      - Design Decisions:
+          - ADR-001 Diátaxis & MkDocs Publishing: 04-explanation/design-decisions/adr-001-diataxis-versioned-mkdocs-publishing.md
+      - Repository Overview: overview.md
+  - Releases & Governance:
+      - Changelog: CHANGELOG.md
+      - Action Logbook: ACTION_LOGBOOK.md
+      - RCA Register: RCA_REGISTER.md

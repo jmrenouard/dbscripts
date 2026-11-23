@@ -432,6 +432,11 @@
 - **Impact & Scope**: Ensures `diataxis_check.py --strict` resolves every link on disk (`0` errors) before and after `mkdocs.yml` lands in PR 4b.
 - **Removal Condition**: Permanent dual compatibility with static checkers and `scripts/mkdocs_hooks.py`.
 
+### APP-027 — Compact `mkdocs.yml` Nav Indexing Legacy `guides/` via `guides/README.md` (PR 4b)
+- **Approximation**: `mkdocs.yml` lists `guides/README.md` instead of enumerating all 26 legacy `documentation/` subpages individually in `nav`, while `scripts/mkdocs_hooks.py` still serves and builds all `guides/` pages and images cleanly under `--strict`.
+- **Impact & Scope**: Keeps navigation scannable across 6 Diataxis tabs (`v1.0.0` and `main` build cleanly in ~`1.1s–1.8s`).
+- **Removal Condition**: Incremental migration of legacy `documentation/` pages directly into `docs/01-tutorials/`..`04-explanation/`.
+
 ---
 
 
