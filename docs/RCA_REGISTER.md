@@ -442,6 +442,11 @@
 - **Impact & Scope**: Keeps both PR diffs well below `15,000` chars with zero weakened checks and zero external dependencies beyond `pyyaml` in `ci.yml`.
 - **Removal Condition**: Optional consolidation or Vale CLI enforcement inside `docs-ci.yml` when needed.
 
+### APP-029 — Python Config Validation in `docs-ci.yml` Without External Node/Go Linters (PR 5b)
+- **Approximation**: `docs-ci.yml` executes `tests/test_diataxis_documentation.py`, `tests/test_diataxis_ste.py`, and `mkdocs build --strict` in Python 3.12, validating `.vale.ini` and `.markdownlint.json` schema/settings without installing Node `markdownlint-cli` or Go `vale` binaries on CI runners.
+- **Impact & Scope**: Fast zero-external-binary CI runs (`requirements-docs.txt` + `pyyaml`) while keeping local Vale/markdownlint configs ready for editors.
+- **Removal Condition**: Add optional `vale`/`markdownlint` CI job steps if full prose-style linting is enforced remotely.
+
 ---
 
 
