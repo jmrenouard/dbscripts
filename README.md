@@ -3,7 +3,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/jmrenouard/dbscripts?style=flat-square&logo=github)](https://github.com/jmrenouard/dbscripts/releases/latest)
 [![CI](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml/badge.svg)](https://github.com/jmrenouard/dbscripts/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-dbscripts.lightpath.fr-blue.svg)](https://dbscripts.lightpath.fr/)
-[![Test Suite](https://img.shields.io/badge/tests-63%20passed-brightgreen.svg)](tests/)
+[![Test Suite](https://img.shields.io/badge/tests-68%20passed-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](Makefile)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Governance](https://img.shields.io/badge/governance-strict%20registers-orange.svg)](docs/ACTION_LOGBOOK.md)
@@ -30,7 +30,7 @@ Structured Diátaxis documentation is published at [dbscripts.lightpath.fr](http
 | [`sql/`](sql/) | Diagnostic queries, Performance Schema analysis, maintenance routines, security audits. |
 | [`documentation/`](documentation/) | Technical operational guides in English for Galera, Patroni, MongoDB, and Linux tuning. |
 | [`docs/`](docs/) | Living governance registers: [`ACTION_LOGBOOK.md`](docs/ACTION_LOGBOOK.md) and [`RCA_REGISTER.md`](docs/RCA_REGISTER.md). |
-| [`tests/`](tests/) | Automated unit tests (63 tests) verifying shell scripts, Ansible, and Python CLIs. |
+| [`tests/`](tests/) | Automated unit tests (68 tests) verifying shell scripts, Ansible, and Python CLIs. |
 
 ---
 
@@ -87,7 +87,7 @@ python docker/mysql_docker.py stop mysql-lab
 All shell scripts, Ansible YAML files, Python utilities, and governance rules are continuously verified:
 
 ```bash
-# Run the complete unit test suite (63 unit tests)
+# Run the complete unit test suite (68 unit tests)
 make test
 # or directly:
 python -m unittest discover -s tests -v

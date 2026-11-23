@@ -122,6 +122,7 @@ nav:
           - Deploy MariaDB Galera Cluster: 02-how-to-guides/deployment/deploy-mariadb-galera-cluster.md
       - Operations:
           - Back Up, Restore, and Rotate TLS: 02-how-to-guides/operations/backup-restore-and-ssl-rotation.md
+          - Test Scripts in Containers: 02-how-to-guides/operations/test-scripts-in-containers.md
       - Incident Response:
           - Recover Galera Quorum and PITR: 02-how-to-guides/incident-response/recover-galera-quorum-and-pitr.md
       - Security:

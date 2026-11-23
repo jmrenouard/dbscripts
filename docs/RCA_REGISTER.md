@@ -557,6 +557,11 @@
 - **Impact & Scope**: Guarantees `0` skipped tests in standard CI (`ci.yml`) where Docker builds are omitted, while enabling full end-to-end container verification locally when `RUN_DOCKER_SCRIPT_TESTS=1`.
 - **Removal Condition**: Enable `RUN_DOCKER_SCRIPT_TESTS=1` unconditionally once CI runners cache `dbscripts-script-tests:latest`.
 
+### APP-034 — Manual Final `unittest` Count Synchronization Across Portal Docs (`Issue #104`, PR 6c)
+- **Approximation**: `README.md`, `docs/index.md`, and `docs/04-explanation/architecture-overview/multi-db-automation-architecture.md` display the exact verified `68`-test count updated manually after PR 6b merged.
+- **Impact & Scope**: Eliminates stale `49`/`63` test metrics across the documentation portal while keeping PR 6c well below `15,000` diff chars.
+- **Removal Condition**: Replace static badge/table counts with generated build metadata if `mkdocs_hooks.py` computes live test discovery counts in the future.
+
 ---
 
 

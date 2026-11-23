@@ -15,7 +15,7 @@ Automation for **MariaDB/Galera**, **MySQL**, **PostgreSQL**, **MongoDB**, **Cas
 <div class="dbscripts-metrics">
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">6 Platforms</span><span class="dbscripts-metric-label">MariaDB · MySQL · PG · Mongo · Cassandra · Oracle</span></div>
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">15 Playbooks</span><span class="dbscripts-metric-label">InnoDB Cluster · S3-to-RDS · Redis ACLs</span></div>
-  <div class="dbscripts-metric"><span class="dbscripts-metric-value">63 Unit Tests</span><span class="dbscripts-metric-label">unittest · bash -n · YAML &amp; AST</span></div>
+  <div class="dbscripts-metric"><span class="dbscripts-metric-value">68 Unit Tests</span><span class="dbscripts-metric-label">unittest · bash -n · YAML &amp; AST</span></div>
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">4 Quadrants</span><span class="dbscripts-metric-label">Diátaxis · ASD-STE100 Issue 9</span></div>
 </div>
 
@@ -34,7 +34,7 @@ Automation for **MariaDB/Galera**, **MySQL**, **PostgreSQL**, **MongoDB**, **Cas
 
 -   :material-wrench-outline:{ .lg .middle } **2. How-To Guides** — ASD-STE100 Issue 9 runbooks
 
-    [Index](02-how-to-guides/index.md) · [Deploy Galera](02-how-to-guides/deployment/deploy-mariadb-galera-cluster.md) · [Backup & TLS](02-how-to-guides/operations/backup-restore-and-ssl-rotation.md) · [Quorum & PITR](02-how-to-guides/incident-response/recover-galera-quorum-and-pitr.md) · [Firewall & ACLs](02-how-to-guides/security/harden-firewall-tls-and-redis-acl.md)
+    [Index](02-how-to-guides/index.md) · [Deploy Galera](02-how-to-guides/deployment/deploy-mariadb-galera-cluster.md) · [Backup & TLS](02-how-to-guides/operations/backup-restore-and-ssl-rotation.md) · [Test Scripts](02-how-to-guides/operations/test-scripts-in-containers.md) · [Quorum & PITR](02-how-to-guides/incident-response/recover-galera-quorum-and-pitr.md) · [Firewall & ACLs](02-how-to-guides/security/harden-firewall-tls-and-redis-acl.md)
 
 -   :material-table-search:{ .lg .middle } **3. Reference** — CLIs, ports, and error matrix
 
