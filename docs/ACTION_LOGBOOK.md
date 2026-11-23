@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-037 — fix(docs): fix Redis ACL vars, Reference ports/Makefile, banner, Changelog, and test counts (Issue `#74`, PR 1b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#74` | **Branch**: `fix/issue-74-docs-accuracy-counts`
+- **Request**: Fix Redis ACL password rotation vars, clarify HAProxy ports and `docker/mysql_replication/Makefile` targets, drop stale count from `header-banner.svg`, update `Changelog`, and sync `63` test count across portal docs (PR 1b).
+- **Changes**: Updated `harden-firewall-tls-and-redis-acl.md`, `automation-parameters-and-ports.md`, `scripts-and-cli-reference.md`, `header-banner.svg`, `Changelog`, `README.md`, `docs/index.md`, `multi-db-automation-architecture.md`, and `RCA-028`.
+- **Result**: `compileall`, `unittest` (`63/63`, `0` skipped), `ste_check.py --mode procedural`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-036 — fix(docs): enable Material icons, CI triggers, and HTML rendering checks (Issue `#72`, PR 1a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#72` | **Branch**: `fix/issue-72-docs-icons-ci`
 - **Request**: Enable `pymdownx.emoji` Material icons in `mkdocs.yml`, add virtual README triggers to Docs CI/publish workflows, and enforce HTML SVG/shortcode/alert rendering checks in tests (PR 1a).

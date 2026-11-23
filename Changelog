@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reinforced Conventional Commits standards.
 - Initialized automated version management and changelog governance.
 - Added `/release` workflow for automated release handling.
+- Diátaxis 4-quadrant portal, ASD-STE100 checks, and versioned MkDocs Material IONOS publishing.
+
+### Fixed
+
+- Material icon shortcodes (`pymdownx.emoji`), Redis ACL rotation variables, and Docs CI/publish triggers.
 
 ## [1.0.0] - 2026-01-26
 
