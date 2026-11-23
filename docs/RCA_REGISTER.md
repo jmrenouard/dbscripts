@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-026 — Shallow `ci.yml` Checkout Empty Tag List (`Issue #68` / `PR #69`)
+- **Observed Symptom**: `test_build_versioned_docs_unit_and_guards` failed in `ci.yml` (`AssertionError: 'v1.0.0' not found in []`).
+- **5 Whys RCA**: 1. `ci.yml` uses `actions/checkout` default `fetch-depth: 1`; 2. Git tags are omitted in shallow PR clones; 3. Unit test queried real `git tag --list` on `REPO_ROOT`.
+- **Applied Fix**: Mocked `subprocess.check_output` in `test_build_versioned_docs_unit_and_guards` to test semver filtering and descending sort deterministically (`E2E` validates real `v1.0.0` under `docs-ci.yml` with `fetch-depth: 0`).
+- **Non-Regression**: `unittest` passes in both bare shallow `ci.yml` mode and full-history `docs-ci.yml` venv.
+
 ### RCA-025 — Documentation Duplication and Fragmentation
 - **Observed Symptom**: 51 French duplicates (*_fr.md), 12 broken MongoDB index links, 2 obsolete assets.
 - **5 Whys RCA**: 1. Historical bilingual docs; 2. Translation drift; 3. Obsolete Vagrant files; 4. AGENTS.md mandates English; 5. Bulk deletion diff requires bounding.
@@ -446,6 +452,11 @@
 - **Approximation**: `docs-ci.yml` executes `tests/test_diataxis_documentation.py`, `tests/test_diataxis_ste.py`, and `mkdocs build --strict` in Python 3.12, validating `.vale.ini` and `.markdownlint.json` schema/settings without installing Node `markdownlint-cli` or Go `vale` binaries on CI runners.
 - **Impact & Scope**: Fast zero-external-binary CI runs (`requirements-docs.txt` + `pyyaml`) while keeping local Vale/markdownlint configs ready for editors.
 - **Removal Condition**: Add optional `vale`/`markdownlint` CI job steps if full prose-style linting is enforced remotely.
+
+### APP-030 — Optional `mkdocs` E2E Skip Guard in Core CI (`ci.yml`) & PR 6a/6b Split
+- **Approximation**: Split PR 6 into atomic PR 6a (`tests/test_mkdocs_publishing.py` + `docs-ci.yml`) and PR 6b (`.github/workflows/docs-publish.yml` + `tests/test_docs_publish_workflow.py`) to keep every PR `< 15,000` diff chars, while `test_build_versioned_docs_end_to_end_worktree_and_v100` calls `self.skipTest` when `mkdocs` is absent in `ci.yml` (`pyyaml` only).
+- **Impact & Scope**: Core `ci.yml` runs all pure-Python hook, builder, and workflow tests in seconds without installing MkDocs, while `docs-ci.yml` and `docs-publish.yml` run the full E2E build (`0` skipped).
+- **Removal Condition**: Permanent lightweight CI split between `ci.yml` and `docs-ci.yml`/`docs-publish.yml`.
 
 ---
 
