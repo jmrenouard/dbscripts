@@ -412,6 +412,11 @@
 - **Impact & Scope**: Allows older tags lacking `mkdocs.yml` or Diataxis quadrants to render cleanly under the current Material theme without mutating Git tags or requiring dynamic server routing.
 - **Removal Condition**: Permanent release-publishing pattern while Apache `.htaccess` static hosting on IONOS is used.
 
+### APP-023 — Incremental Diataxis Portal Phasing for 15K Diff Budget (PR 2)
+- **Approximation**: Lands quadrant `index.md` stubs, Reference matrices, and Explanation pages before `docs/index.md` (PR 4a), keeping every PR `< 15,000` diff chars without `.gitattributes -diff`.
+- **Impact & Scope**: `diataxis_check.py docs` notes only `docs/index.md` absent until PR 4a; zero broken links exist on `main`.
+- **Removal Condition**: Removed automatically when PR 4a lands `docs/index.md`.
+
 ---
 
 

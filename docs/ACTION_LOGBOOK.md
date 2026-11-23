@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-027 — docs(diataxis): add quadrant indexes, reference matrices, and explanations (Issue `#54`, PR 2)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#54`
+- **Request**: Add Diataxis quadrant indexes, Reference CLI/config tables, Architecture overview, and ADR-001 (PR 2).
+- **Changes**: Created 8 Markdown files under `docs/01-tutorials/`..`docs/04-explanation/`; updated `ACTION_LOGBOOK.md` and `RCA_REGISTER.md`.
+- **Result**: `make lint`, `make test` (49/49), and `diataxis_check.py` (0 broken links) pass; diff `< 15,000` chars.
+
 ### ACT-026 — feat(docs): add versioned MkDocs Material site builder (Issue `#52`, PR 1b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#52`
 - **Request**: Implement `scripts/build_versioned_docs.py` for multi-version IONOS Apache publishing (PR 1b).
