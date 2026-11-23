@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-034 — test(docs): add MkDocs publishing unit and E2E test suite (Issue `#68`, PR 6a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#68`
+- **Request**: Add `tests/test_mkdocs_publishing.py` and run it in `docs-ci.yml` (PR 6a).
+- **Changes**: Added `tests/test_mkdocs_publishing.py` (5 `unittest` tests: `mkdocs.yml`, hooks, builder, `WORKTREE`+`v1.0.0` E2E); updated `docs-ci.yml` and `APP-030`.
+- **Result**: `make lint`, bare `make test`, and MkDocs venv `unittest` (`60/60`, `0` skipped) pass; diff `< 15,000` chars.
+
 ### ACT-033 — ci(docs): add documentation CI workflow and Diataxis/Docs-as-Code test suite (Issue `#66`, PR 5b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#66`
 - **Request**: Add `.github/workflows/docs-ci.yml` and `tests/test_diataxis_documentation.py` validating quadrants, links, genre guardrails, and configs (PR 5b).

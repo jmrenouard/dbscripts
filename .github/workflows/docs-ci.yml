@@ -17,6 +17,7 @@ on:
       - ".github/workflows/docs-ci.yml"
       - "tests/test_diataxis_documentation.py"
       - "tests/test_diataxis_ste.py"
+      - "tests/test_mkdocs_publishing.py"
   pull_request:
     branches: ["main"]
     paths: *doc_paths
@@ -49,7 +50,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-docs.txt pyyaml
-      - name: Run Diataxis and STE unit tests
-        run: python -m unittest tests/test_diataxis_documentation.py tests/test_diataxis_ste.py -v
+      - name: Run Diataxis, STE, and MkDocs publishing unit tests
+        run: python -m unittest tests/test_diataxis_documentation.py tests/test_diataxis_ste.py tests/test_mkdocs_publishing.py -v
       - name: Build MkDocs site in strict mode
         run: mkdocs build --strict

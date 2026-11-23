@@ -447,6 +447,11 @@
 - **Impact & Scope**: Fast zero-external-binary CI runs (`requirements-docs.txt` + `pyyaml`) while keeping local Vale/markdownlint configs ready for editors.
 - **Removal Condition**: Add optional `vale`/`markdownlint` CI job steps if full prose-style linting is enforced remotely.
 
+### APP-030 — Optional `mkdocs` E2E Skip Guard in Core CI (`ci.yml`) & PR 6a/6b Split
+- **Approximation**: Split PR 6 into atomic PR 6a (`tests/test_mkdocs_publishing.py` + `docs-ci.yml`) and PR 6b (`.github/workflows/docs-publish.yml` + `tests/test_docs_publish_workflow.py`) to keep every PR `< 15,000` diff chars, while `test_build_versioned_docs_end_to_end_worktree_and_v100` calls `self.skipTest` when `mkdocs` is absent in `ci.yml` (`pyyaml` only).
+- **Impact & Scope**: Core `ci.yml` runs all pure-Python hook, builder, and workflow tests in seconds without installing MkDocs, while `docs-ci.yml` and `docs-publish.yml` run the full E2E build (`0` skipped).
+- **Removal Condition**: Permanent lightweight CI split between `ci.yml` and `docs-ci.yml`/`docs-publish.yml`.
+
 ---
 
 
