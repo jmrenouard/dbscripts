@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-046 — docs(postgres): remove base64 images from physical backup guide (Issue `#92`, PR 4c)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#92` | **Branch**: `docs/issue-92-strip-backup-base64`
+- **Request**: Replace `![][image1..4]` inline references with `RPO`, `RTO`, `PITR`, and `WAL`, and remove the 4 inline base64 PNG definitions from `documentation/PostgreSQL/backup_physique.md` (PR 4c, Pass 1b).
+- **Changes**: Replaced `![][image1..4]` with plain acronyms and removed `[image1..4]: <data:image/png;base64,...>` definitions in `documentation/PostgreSQL/backup_physique.md`, and logged `RCA-037`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-045 — docs(postgres): strip raw French citations from physical backup guide (Issue `#90`, PR 4b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#90` | **Branch**: `docs/issue-90-strip-backup-citations`
 - **Request**: Strip the 32 raw French search citation lines (`consulté le mai 6, 2026`) and `Sources des citations` heading from `documentation/PostgreSQL/backup_physique.md` (PR 4b, Pass 1a).
