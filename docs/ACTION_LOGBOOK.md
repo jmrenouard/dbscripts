@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-051 — test(scripts): add full script coverage and container contract suite (Issue `#102`, PR 6b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#102` | **Branch**: `feat/issue-102-script-coverage-howto`
+- **Request**: Add `tests/test_all_scripts_coverage.py` verifying discovery, LF line endings, syntax, `utils*.sh` sourcing, `docker/script_tests` contracts, and optional live Docker execution (`PR 6b`, split ahead of PR 6c docs/portal sync to stay `< 15,000` chars).
+- **Changes**: Added `tests/test_all_scripts_coverage.py` (`3` test methods covering `>= 190` scripts, `8` `utils*.sh` libraries, `Dockerfile`/`run_all_script_tests.sh`/`Makefile` contracts, and `RUN_DOCKER_SCRIPT_TESTS=1`) and logged `APP-033`.
+- **Result**: `unittest` (`68/68`, `0` skipped), `RUN_DOCKER_SCRIPT_TESTS=1` live container suite (`3/3`, `0` failed), `diataxis_check.py --strict --check-ste --lang en`, `mkdocs build --strict`, and `compileall` pass; diff `< 15,000` chars.
+
 ### ACT-050 — feat(docker): add Debian container script test harness (Issue `#100`, PR 6a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#100` | **Branch**: `feat/issue-100-container-script-harness`
 - **Request**: Add lightweight Debian Bookworm Slim container test harness (`docker/script_tests/{Dockerfile,run_all_script_tests.sh,Makefile}`) testing all scripts under `scripts/` (`PR 6a`).
