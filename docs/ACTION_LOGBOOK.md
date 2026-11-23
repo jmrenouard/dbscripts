@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-032 — test(docs): add ASD-STE100 Issue 9 verifier and procedural test suite (Issue `#64`, PR 5a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#64`
+- **Request**: Add automated stdlib `unittest` verification for ASD-STE100 Issue 9 compliance across all How-To guides (PR 5a).
+- **Changes**: Added `tests/test_diataxis_ste.py` (rule checks + positive/negative unit cases); updated `ACTION_LOGBOOK.md` and `RCA_REGISTER.md`.
+- **Result**: `make lint` and `make test` (`52/52` pass) succeed; diff `< 15,000` chars.
+
 ### ACT-031 — docs(mkdocs): add mkdocs.yml navigation and README documentation portal links (Issue `#62`, PR 4b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#62`
 - **Request**: Configure `mkdocs.yml` Material navigation and add Documentation Portal badge/links to root `README.md` (PR 4b).
