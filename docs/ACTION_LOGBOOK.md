@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-042 — docs(guides): translate Stunnel backup guide to English (Issue `#84`, PR 3b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#84` | **Branch**: `docs/issue-84-translate-stunnel-guide`
+- **Request**: Translate `documentation/LinuxSystem/README_STUNNEL.md` into English preserving all function names and command snippets (PR 3b).
+- **Changes**: Translated `documentation/LinuxSystem/README_STUNNEL.md` into concise English and logged `RCA-033`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-041 — docs(guides): translate SSHFS guide to English and remove stale docx (Issue `#82`, PR 3a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#82` | **Branch**: `docs/issue-82-translate-sshfs-guide`
 - **Request**: Translate `documentation/LinuxSystem/README_SSHFS.md` to English preserving all function names and command snippets, and remove stale `documentation/LinuxSystem/README_SSHFS.docx` (PR 3a).

@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-033 — Legacy French Stunnel Backup Guide (`Issue #84` / PR 3b)
+- **Observed Symptom**: `documentation/LinuxSystem/README_STUNNEL.md` remained in French with mismatched server/client labels (`setup_centos_stunnel_client()` labeled as server) and unclosed backticks on `push_cert_config`.
+- **5 Whys RCA**: 1. Legacy `LinuxSystem` Stunnel notes predated the repository English-only policy; 2. Copy-pasted headings left `serveur` instead of `client` on `setup_centos_stunnel_client()` and unclosed ```` ``push_cert_config ```` formatting; 3. Splitting from PR 3a kept the diff under 15,000 characters.
+- **Applied Fix**: Translated `documentation/LinuxSystem/README_STUNNEL.md` into concise English preserving every function name and command snippet, corrected the `CentOS 7` client label, and closed the `push_cert_config` backticks.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-032 — French SSHFS Documentation and Stale Binary `.docx` Artifact (`Issue #82` / PR 3a)
 - **Observed Symptom**: `documentation/LinuxSystem/README_SSHFS.md` remained in French (with swapped mount/unmount commands in two sections), and an unreferenced French binary `documentation/LinuxSystem/README_SSHFS.docx` duplicated the markdown guide.
 - **5 Whys RCA**: 1. Legacy `LinuxSystem` SSHFS notes predated the repository English-only policy; 2. An exported `.docx` binary remained tracked alongside the markdown file without references; 3. Copy-pasted snippets swapped `mount_` and `umount_` in `SSHFScli1` unmount and `SSHFScli3` mount sections; 4. Translating all legacy guides in one PR exceeded the 15,000-char diff cap.
