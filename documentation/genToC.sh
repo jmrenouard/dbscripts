@@ -1,22 +1,24 @@
 #!/bin/bash
+set -euo pipefail
 
-tgt=$1
+tgt="${1:-}"
 
-[ -f "$tgt" ] || exit 127
+[ -n "$tgt" ] && [ -f "$tgt" ] || exit 127
+
+tmpFile=$(mktemp)
+trap 'rm -f "$tmpFile"' EXIT
 
 echo "Generate TOC for $tgt file"
-perl -i -ne '/^- \[.*\]\(\#/ or print' $tgt 
+perl -i -ne '/^- \[.*\]\(\#/ or print' "$tgt"
 
-tmpFile=/tmp/temp.TXT
-[ -f "$tmpFile" ] && rm -f $tmpFile
-grep -E '^##' $tgt | grep -vE '(Table )' | while IFS= read -r chapter; do
-    chapter=$(echo $chapter | sed -E 's/#//g;s/^\s+//g')
-    nchapter=$(echo $chapter | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr '#' ' ')
-    echo "- [${chapter}](#${nchapter})"
-done > $tmpFile
+{ grep -E '^##' "$tgt" || true; } | { grep -vE '(Table )' || true; } | while IFS= read -r chapter; do
+    chapter=$(printf '%s\n' "$chapter" | sed -E 's/^#+[[:space:]]*//')
+    nchapter=$(printf '%s\n' "$chapter" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:] _-' | tr ' ' '-')
+    printf -- '- [%s](#%s)\n' "$chapter" "$nchapter"
+done > "$tmpFile"
 
-perl -i -pe 's/<TOC>//g;s/(## Table des matières)/$1\n<TOC>\n/g;s/(## Table of contents*)/$1\n<TOC>\n/g' $tgt
+perl -i -pe 's/<TOC>//g;s/(## Table of contents)[ \t]*/$1\n<TOC>\n/gi' "$tgt"
 
-perl -MFile::Slurp -pe 'BEGIN {$r = read_file("/tmp/temp.TXT"); chomp($r)}  s/<TOC>/$r/ge' -i $tgt
+TOC_FILE="$tmpFile" perl -i -pe 'BEGIN { open my $fh, "<", $ENV{TOC_FILE} or die $!; local $/; $r = <$fh>; close $fh; chomp($r); } s/<TOC>/$r/g' "$tgt"
 
-perl -i -ane '$n=(@F==0) ? $n+1 : 0; print if $n<=1' $tgt
+perl -i -ane '$n=(@F==0) ? $n+1 : 0; print if $n<=1' "$tgt"
