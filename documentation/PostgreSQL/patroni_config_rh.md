@@ -4,7 +4,7 @@
 - [Procedure Objective](#procedure-objective)
 - [Prerequisites](#prerequisites)
 - [Systemd Service Configuration](#systemd-service-configuration)
-- [Patroni Parameters (YAML File)](#patroni-parameters-(yaml-file))
+- [Patroni Parameters (YAML File)](#patroni-parameters-yaml-file)
 - [Automation Script Example](#automation-script-example)
 - [RHEL 7 vs RHEL 8 Differences](#rhel-7-vs-rhel-8-differences)
 
@@ -49,6 +49,9 @@ WantedBy=multi-user.target
 
 The configuration file defines network interfaces, Etcd connection, and PostgreSQL parameters.
 
+> [!WARNING]
+> Replace `<REPLACE_WITH_STRONG_PASSWORD>`, `<REPLICATION_PASSWORD>`, and `<SUPERUSER_PASSWORD>` with strong, randomly generated secrets before deployment. Never commit real credentials or use default passwords in production.
+
 **File:** `/etc/patroni.yaml`
 
 ```yaml
@@ -88,10 +91,10 @@ postgresql:
   authentication:
     replication:
       username: replication
-      password: MyPassword123
+      password: "<REPLACE_WITH_STRONG_PASSWORD>"
     superuser:
       username: postgres
-      password: postgres
+      password: "<REPLACE_WITH_STRONG_PASSWORD>"
 
 tags:
   nofailover: false
@@ -149,8 +152,8 @@ postgresql:
   data_dir: /var/lib/pgsql/data
   bin_dir: /usr/pgsql-16/bin
   authentication:
-    replication: {username: replication, password: rep_password}
-    superuser: {username: postgres, password: postgres_password}
+    replication: {username: replication, password: "<REPLICATION_PASSWORD>"}
+    superuser: {username: postgres, password: "<SUPERUSER_PASSWORD>"}
 EOF
 
 # 3. Activation and start

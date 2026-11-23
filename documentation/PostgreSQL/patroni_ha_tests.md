@@ -2,11 +2,11 @@
 
 ## Table of contents
 - [Procedure Objective](#procedure-objective)
-- [Log Analysis /var/log/patroni/patroni.log](#log-analysis-/var/log/patroni/patroni.log)
-- [Standby Server Tests (Stop/Reboot/Kill)](#standby-server-tests-(stop/reboot/kill))
-- [Primary Server Tests (Stop/Reboot/Kill)](#primary-server-tests-(stop/reboot/kill))
-- [Standby Node Isolation Tests (TCP Blocking)](#standby-node-isolation-tests-(tcp-blocking))
-- [Primary Node Isolation Tests (TCP Blocking)](#primary-node-isolation-tests-(tcp-blocking))
+- [Log Analysis /var/log/patroni/patroni.log](#log-analysis-varlogpatronipatronilog)
+- [Standby Server Tests (Stop/Reboot/Kill)](#standby-server-tests-stoprebootkill)
+- [Primary Server Tests (Stop/Reboot/Kill)](#primary-server-tests-stoprebootkill)
+- [Standby Node Isolation Tests (TCP Blocking)](#standby-node-isolation-tests-tcp-blocking)
+- [Primary Node Isolation Tests (TCP Blocking)](#primary-node-isolation-tests-tcp-blocking)
 
 > This document describes the test procedures to validate the High Availability (HA) behavior of a PostgreSQL cluster managed by Patroni.
 

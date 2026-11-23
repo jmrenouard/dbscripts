@@ -106,7 +106,7 @@ Quickly inject sample databases (Employees, Sakila) into your Galera cluster.
 
 Dedicated scripts handle both logical (SQL) and physical (Binary) backups.
 
-### 3.1 Logical Backup (mariadb-dump)
+### 4.1 Logical Backup (mariadb-dump)
 
 Compressed SQL dumps using `pigz`.
 
@@ -114,7 +114,7 @@ Compressed SQL dumps using `pigz`.
 - **Replication**: `make backup-repli [DB=name]` (Performed on a Slave)
 - **Restore**: `make restore-galera FILE=xxx.sql.gz` or `make restore-repli FILE=xxx.sql.gz`
 
-### 3.2 Physical Backup (MariaBackup)
+### 4.2 Physical Backup (MariaBackup)
 
 Fast binary backups for large datasets.
 
@@ -129,7 +129,7 @@ Fast binary backups for large datasets.
 
 Validate cluster health and features through automated scripts.
 
-### 4.1 Galera Cluster Testing
+### 5.1 Galera Cluster Testing
 
 Verifies node connectivity, synchronous replication, DDL propagation, and conflict resolution.
 
@@ -137,7 +137,7 @@ Verifies node connectivity, synchronous replication, DDL propagation, and confli
 make test-galera
 ```
 
-### 4.2 Replication Testing
+### 5.2 Replication Testing
 
 Checks Master/Slave status and verifies data consistency across all slaves.
 

@@ -6,7 +6,7 @@
 - [Etcd Monitoring](#etcd-monitoring)
 - [Patroni Monitoring](#patroni-monitoring)
 - [PostgreSQL Monitoring](#postgresql-monitoring)
-- [Replication Lag Check (SQL)](#replication-lag-check-(sql))
+- [Replication Lag Check (SQL)](#replication-lag-check-sql)
 
 > This document describes the monitoring procedures for the complete HaProxy / Patroni / Etcd / PostgreSQL solution.
 

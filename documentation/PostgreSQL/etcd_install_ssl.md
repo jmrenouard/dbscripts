@@ -2,15 +2,15 @@
 
 ## Table of contents
 - [Procedure Objective](#procedure-objective)
-- [1. Etcd v3.6 Binary Installation](#1.-etcd-v3.6-binary-installation)
-- [2. SSL/TLS Certificate Generation](#2.-ssl/tls-certificate-generation)
+- [1. Etcd v3.6 Binary Installation](#1-etcd-v36-binary-installation)
+- [2. SSL/TLS Certificate Generation](#2-ssltls-certificate-generation)
 - [File Architecture](#file-architecture)
-- [3. Systemd Service Configuration (etcd3)](#3.-systemd-service-configuration-(etcd3))
-- [4. Cluster Control (API v3)](#4.-cluster-control-(api-v3))
-- [5. Security and Authentication (v3)](#5.-security-and-authentication-(v3))
+- [3. Systemd Service Configuration (etcd3)](#3-systemd-service-configuration-etcd3)
+- [4. Cluster Control (API v3)](#4-cluster-control-api-v3)
+- [5. Security and Authentication (v3)](#5-security-and-authentication-v3)
 - [Enable Authentication](#enable-authentication)
-- [User Management (Expect Script)](#user-management-(expect-script))
-- [6. Key/Value Operations (API v3)](#6.-key/value-operations-(api-v3))
+- [User Management (Expect Script)](#user-management-expect-script)
+- [6. Key/Value Operations (API v3)](#6-keyvalue-operations-api-v3)
 
 > This document describes the secure deployment of a 3-node Etcd v3.6 cluster on Red Hat Enterprise Linux 8 with SSL/TLS encryption.
 

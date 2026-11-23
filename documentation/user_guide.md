@@ -4,7 +4,7 @@ Welcome to the newly documented Bash utility scripts! This guide will help you u
 
 ## Overview
 
-Every script in the `output/` directory has been enhanced with two types of standardized comment blocks:
+Every script in the `scripts/utils/` directory (loaded via `scripts/utils.sh`) has been enhanced with two types of standardized comment blocks:
 1.  **File Header**: A block at the very top of each script that describes the file's overall purpose.
 2.  **Function Header**: A block just before each function that details what that specific function does.
 
