@@ -123,3 +123,8 @@ __pycache__/
 **/id_rsa*
 *.key
 *.pem
+
+# Docs build outputs
+site/
+site_dist/
+.vale/

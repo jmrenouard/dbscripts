@@ -1,0 +1,15 @@
+/* LightPath dbscripts MkDocs Material Theme Overrides */
+[data-md-color-scheme="slate"] { --md-accent-fg-color: #00f2fe; --md-accent-fg-color--transparent: rgba(0,242,254,0.12); }
+[data-md-color-scheme="default"] { --md-accent-fg-color: #0088cc; --md-accent-fg-color--transparent: rgba(0,136,204,0.1); }
+.dbscripts-hero { border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,136,204,0.28); margin-bottom: 1.5rem; background: #070d18; }
+.dbscripts-hero img { display: block; width: 100%; height: auto; }
+.dbscripts-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.9rem; margin: 1.25rem 0 1.75rem; }
+.dbscripts-metric { border-radius: 10px; padding: 0.9rem 1rem; border: 1px solid rgba(0,136,204,0.28); background: linear-gradient(135deg, rgba(0,136,204,0.08), rgba(0,242,254,0.04)); }
+.dbscripts-metric-value { display: block; font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--md-accent-fg-color); }
+.dbscripts-metric-label { display: block; font-size: 0.78rem; opacity: 0.85; margin-top: 0.2rem; }
+.dbscripts-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin: 1rem 0 1.75rem; }
+.md-typeset .grid.cards > ul > li { border-radius: 12px; border-color: rgba(0,136,204,0.24); transition: transform 180ms ease, border-color 180ms ease; }
+.md-typeset .grid.cards > ul > li:hover { transform: translateY(-2px); border-color: var(--md-accent-fg-color); }
+.md-typeset table:not([class]) { font-variant-numeric: tabular-nums; border-radius: 8px; }
+.md-typeset table:not([class]) th { background-color: rgba(0,136,204,0.12); }
+.arithmatex { overflow-x: auto; max-width: 100%; }

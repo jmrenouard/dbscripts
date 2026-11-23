@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 280" width="1260" height="280" fill="none" role="img" aria-label="dbscripts Banner">
+  <defs>
+    <linearGradient id="bBg" x1="0" y1="0" x2="1260" y2="280" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#080c14"/><stop offset="55%" stop-color="#0d1726"/><stop offset="100%" stop-color="#081a18"/></linearGradient>
+    <linearGradient id="bAcc" x1="230" y1="60" x2="660" y2="120" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#34d399"/><stop offset="55%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+  </defs>
+  <rect x="2" y="2" width="1256" height="276" rx="18" fill="url(#bBg)" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="2"/>
+  <g transform="translate(54,38) scale(1.1)">
+    <rect x="4" y="4" width="112" height="112" rx="26" fill="#0f172a" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="2"/>
+    <ellipse cx="60" cy="36" rx="28" ry="10" fill="#0b1320" stroke="#22d3ee" stroke-width="3"/>
+    <path d="M32 36V84C32 90 44.5 94 60 94C75.5 94 88 90 88 84V36" stroke="#10b981" stroke-width="3"/>
+    <path d="M32 52C32 58 44.5 62 60 62C75.5 62 88 58 88 52M32 68C32 74 44.5 78 60 78C75.5 78 88 74 88 68" stroke="#38bdf8" stroke-width="2.5"/>
+  </g>
+  <text x="220" y="54" fill="#a7f3d0" font-family="Consolas,monospace" font-size="12" font-weight="700">MULTI-DBMS AUTOMATION &amp; HA LABS</text>
+  <text x="220" y="114" fill="#f8fafc" font-family="Inter,Segoe UI,sans-serif" font-size="52" font-weight="800">db<tspan fill="url(#bAcc)">scripts</tspan></text>
+  <text x="220" y="148" fill="#cbd5e1" font-family="Inter,Segoe UI,sans-serif" font-size="15">MariaDB Galera · MySQL InnoDB Cluster · PostgreSQL · MongoDB · Cassandra · Ansible · Docker</text>
+  <g font-family="Consolas,monospace" font-size="12" font-weight="700">
+    <rect x="54" y="196" width="268" height="48" rx="10" fill="#0f172a" stroke="#0ea5e9" stroke-opacity="0.55"/><text x="72" y="225" fill="#38bdf8">01 · scripts/utils &amp; bin/</text>
+    <rect x="348" y="196" width="268" height="48" rx="10" fill="#17130c" stroke="#f59e0b" stroke-opacity="0.55"/><text x="366" y="225" fill="#fbbf24">02 · ansible/ 15 Playbooks</text>
+    <rect x="642" y="196" width="268" height="48" rx="10" fill="#0b1a18" stroke="#10b981" stroke-opacity="0.55"/><text x="660" y="225" fill="#34d399">03 · docker/ Galera Labs</text>
+    <rect x="936" y="196" width="268" height="48" rx="10" fill="#131426" stroke="#818cf8" stroke-opacity="0.55"/><text x="954" y="225" fill="#a5b4fc">04 · 49 unittest &amp; bash -n</text>
+  </g>
+</svg>
