@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-037 — Inline Base64 PNG Bloat in Physical Backup Guide (`Issue #92` / PR 4c)
+- **Observed Symptom**: `documentation/PostgreSQL/backup_physique.md` embedded 4 inline `[image1..4]: <data:image/png;base64,...>` blocks (5,360 bytes) for `RPO`, `RTO`, `PITR`, and `WAL` acronym badges.
+- **5 Whys RCA**: 1. Rich-text export replaced acronym text spans with inline base64 PNGs; 2. Inline base64 payloads inflate git history and Markdown parsing; 3. Splitting from PR 4b kept every PR diff strictly `< 15,000` chars.
+- **Applied Fix**: Replaced `![][image1..4]` with `RPO`, `RTO`, `PITR`, and `WAL`, and deleted all 4 `[image1..4]` base64 definitions from `documentation/PostgreSQL/backup_physique.md`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-036 — Raw French Search Citation Bloat in Physical Backup Guide (`Issue #90` / PR 4b)
 - **Observed Symptom**: `documentation/PostgreSQL/backup_physique.md` contained 32 raw French search-result citation lines (`consulté le mai 6, 2026`) adding 7,739 characters of bloat alongside 5,360 characters of inline base64 PNGs.
 - **5 Whys RCA**: 1. Rich-text/AI web export appended raw search citation footnotes and embedded base64 images directly into the Markdown file; 2. Removing citations, base64 blocks, and inline image references together exceeded 16,600 diff characters (over the 15,000-char PR cap).
