@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-045 — docs(postgres): strip raw French citations from physical backup guide (Issue `#90`, PR 4b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#90` | **Branch**: `docs/issue-90-strip-backup-citations`
+- **Request**: Strip the 32 raw French search citation lines (`consulté le mai 6, 2026`) and `Sources des citations` heading from `documentation/PostgreSQL/backup_physique.md` (PR 4b, Pass 1a).
+- **Changes**: Removed lines 89-122 from `documentation/PostgreSQL/backup_physique.md` (splitting base64 image removal into PR 4c to stay `< 15,000` chars) and logged `RCA-036`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-044 — docs(postgres): rename WAL disk guide and translate to English (Issue `#88`, PR 4a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#88` | **Branch**: `docs/issue-88-rename-translate-wal-disk`
 - **Request**: Rename `documentation/PostgreSQL/perfromance_wal_disk.md` to `performance_wal_disk.md`, translate it to concise English, and update `documentation/README.md` line 40 (PR 4a).
