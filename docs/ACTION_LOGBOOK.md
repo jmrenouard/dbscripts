@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-044 — docs(postgres): rename WAL disk guide and translate to English (Issue `#88`, PR 4a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#88` | **Branch**: `docs/issue-88-rename-translate-wal-disk`
+- **Request**: Rename `documentation/PostgreSQL/perfromance_wal_disk.md` to `performance_wal_disk.md`, translate it to concise English, and update `documentation/README.md` line 40 (PR 4a).
+- **Changes**: Renamed via `git mv`, translated `documentation/PostgreSQL/performance_wal_disk.md` into English (fixing escaped underscores inside code blocks), updated `documentation/README.md`, and logged `RCA-035`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-043 — docs(postgres): rewrite PG sync guide as clean English technical spec (Issue `#86`, PR 3c)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#86` | **Branch**: `docs/issue-86-pg-sync-spec`
 - **Request**: Rewrite `documentation/PostgreSQL/spec_sync_pg_databases.md` from a raw French AI prompt into a clean English technical specification verified against `scripts/bin/sync_pg_databases.sh` (PR 3c).
