@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-025 — feat(docs): add MkDocs Material build hooks (Issue `#50`, PR 1a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#50`
+- **Request**: Provision IONOS secrets (`Step 0`) and add `scripts/mkdocs_hooks.py` (PR 1a).
+- **Changes**: Set 5 IONOS secrets; added `scripts/mkdocs_hooks.py`; logged `APP-021`.
+- **Result**: `make lint` and `make test` (49/49) pass; hook tests pass; diff `< 15,000` chars.
+
 ### ACT-024 — ci(release): add CI and release workflows, README badges, and tag v1.0.0
 - **Date**: 2026-11-10 | **Status**: COMPLETED
 - **Request**: Milestone 4: Add GitHub Actions CI workflow, release workflow bundling tarball with SHA256SUMS.txt, update README badges, and tag v1.0.0.
