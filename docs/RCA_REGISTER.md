@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-034 — Raw French AI Prompt in PostgreSQL Sync Specification (`Issue #86` / PR 3c)
+- **Observed Symptom**: `documentation/PostgreSQL/spec_sync_pg_databases.md` contained a raw French AI generation prompt instead of an English technical specification matching `scripts/bin/sync_pg_databases.sh`.
+- **5 Whys RCA**: 1. The original script prompt was committed directly as documentation; 2. Prompt prose differed from implemented script behavior (e.g., actual `--source`/`--target` regex `user:pass@host:port`, `--disable-triggers`, no `--help` flag); 3. Translating alongside SSHFS and Stunnel exceeded the 15,000-char PR diff cap.
+- **Applied Fix**: Rewrote `documentation/PostgreSQL/spec_sync_pg_databases.md` into a concise English technical specification verified line-by-line against `scripts/bin/sync_pg_databases.sh`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-033 — Legacy French Stunnel Backup Guide (`Issue #84` / PR 3b)
 - **Observed Symptom**: `documentation/LinuxSystem/README_STUNNEL.md` remained in French with mismatched server/client labels (`setup_centos_stunnel_client()` labeled as server) and unclosed backticks on `push_cert_config`.
 - **5 Whys RCA**: 1. Legacy `LinuxSystem` Stunnel notes predated the repository English-only policy; 2. Copy-pasted headings left `serveur` instead of `client` on `setup_centos_stunnel_client()` and unclosed ```` ``push_cert_config ```` formatting; 3. Splitting from PR 3a kept the diff under 15,000 characters.
