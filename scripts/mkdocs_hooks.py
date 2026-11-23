@@ -141,7 +141,8 @@ def rewrite_relative_links(
         mk = _CODE_SPAN_RE.sub(lambda m: (spans.append(m[0]), f"\x00IC{len(spans) - 1}\x00")[1], seg)
 
         def _md(m: re.Match[str]) -> str:
-            if (len(mk[: m.start()]) - len(mk[: m.start()].rstrip("\\"))) & 1:
+            pre = m.string[: m.start()]
+            if (len(pre) - len(pre.rstrip("\\"))) & 1:
                 return m[0]
             b, lbl, raw = m[1], _MD_LINK_RE.sub(_md, m[2]), m[3].strip()
             ang = raw.startswith("<") and ">" in raw
@@ -201,8 +202,8 @@ def on_config(config: Any) -> Any:
     if url := os.environ.get("DBSCRIPTS_DOCS_SITE_URL", "").strip():
         config.site_url = url.rstrip("/") + "/"
     config.edit_uri = "edit/main/docs/" if _ref() == "main" else ""
-    if isinstance(mdx := getattr(config, "mdx_configs", None), dict):
-        mdx.setdefault("toc", {}).setdefault("slugify", gfm_slugify)
+    if isinstance(mdx := getattr(config, "mdx_configs", None), dict) and isinstance(toc := mdx.setdefault("toc", {}), dict) and not toc.get("slugify"):
+        toc["slugify"] = gfm_slugify
     dd = Path(config.docs_dir)
     if getattr(config, "nav", None):
         config.nav = prune_nav_for_existing_files(config.nav, dd, dd.parent)
