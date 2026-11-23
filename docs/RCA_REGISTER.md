@@ -407,6 +407,11 @@
 - **Impact & Scope**: Preserves root `*.md` strictly as `{"README.md", "AGENTS.md"}`, avoids duplicating `documentation/` into `docs/`, and builds immutable historical tags without rewriting Git history.
 - **Removal Condition**: Permanent MkDocs architecture until all legacy `documentation/` guides are migrated into native `docs/` Diataxis quadrants and `docs-publish.yml` installs `requirements-docs.txt`.
 
+### APP-022 — Overlay-Based Historical Tag Builds & Static IONOS Rewrite Rules
+- **Approximation**: `scripts/build_versioned_docs.py` extracts immutable release tags (`v1.0.0`) via `git archive` and overlays current `mkdocs.yml`, hooks, stylesheets (`ALWAYS_OVERLAY_FILES`), and missing portal fallbacks (`FALLBACK_OVERLAY_FILES`) before generating static `.htaccess` and HTML redirects.
+- **Impact & Scope**: Allows older tags lacking `mkdocs.yml` or Diataxis quadrants to render cleanly under the current Material theme without mutating Git tags or requiring dynamic server routing.
+- **Removal Condition**: Permanent release-publishing pattern while Apache `.htaccess` static hosting on IONOS is used.
+
 ---
 
 

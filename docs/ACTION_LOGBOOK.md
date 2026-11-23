@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-026 — feat(docs): add versioned MkDocs Material site builder (Issue `#52`, PR 1b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#52`
+- **Request**: Implement `scripts/build_versioned_docs.py` for multi-version IONOS Apache publishing (PR 1b).
+- **Changes**: Added `scripts/build_versioned_docs.py` (`versions.json`, `.htaccess`, HTML redirects, safe zip extraction, private-file & protected-dir guards, snapshot overlays); added `APP-022`.
+- **Result**: `make lint` and `make test` (49/49) pass; builder unit tests pass; diff `< 15,000` chars.
+
 ### ACT-025 — feat(docs): add MkDocs Material build hooks (Issue `#50`, PR 1a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#50`
 - **Request**: Provision IONOS secrets (`Step 0`) and add `scripts/mkdocs_hooks.py` (PR 1a).
