@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-043 — docs(postgres): rewrite PG sync guide as clean English technical spec (Issue `#86`, PR 3c)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#86` | **Branch**: `docs/issue-86-pg-sync-spec`
+- **Request**: Rewrite `documentation/PostgreSQL/spec_sync_pg_databases.md` from a raw French AI prompt into a clean English technical specification verified against `scripts/bin/sync_pg_databases.sh` (PR 3c).
+- **Changes**: Rewrote `documentation/PostgreSQL/spec_sync_pg_databases.md` documenting exact CLI flags (`-c`/`--config`, `-s`/`--source`, `-t`/`--target`, `-d`/`--database`), config variables, 6 pipeline stages, and audit behavior, and logged `RCA-034`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-042 — docs(guides): translate Stunnel backup guide to English (Issue `#84`, PR 3b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#84` | **Branch**: `docs/issue-84-translate-stunnel-guide`
 - **Request**: Translate `documentation/LinuxSystem/README_STUNNEL.md` into English preserving all function names and command snippets (PR 3b).
