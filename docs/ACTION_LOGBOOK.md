@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-047 — docs(postgres): translate physical backup overview and tool sections to English (Issue `#94`, PR 5a1)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#94` | **Branch**: `docs/issue-94-translate-backup-tools`
+- **Request**: Translate the overview and physical backup tool architecture sections (`pg_basebackup`, `pgBackRest`, `WAL-G`, `pg_probackup`, `Barman`) of `documentation/PostgreSQL/backup_physique.md` into English (PR 5a1, Pass 2a).
+- **Changes**: Translated lines 1-42 of `documentation/PostgreSQL/backup_physique.md` into structured English (stripping dangling citation numbers and preserving filename) and logged `RCA-038`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-046 — docs(postgres): remove base64 images from physical backup guide (Issue `#92`, PR 4c)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#92` | **Branch**: `docs/issue-92-strip-backup-base64`
 - **Request**: Replace `![][image1..4]` inline references with `RPO`, `RTO`, `PITR`, and `WAL`, and remove the 4 inline base64 PNG definitions from `documentation/PostgreSQL/backup_physique.md` (PR 4c, Pass 1b).
