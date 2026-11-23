@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-035 — ci(docs): add IONOS versioned MkDocs deployment workflow (Issue `#70`, PR 6b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#70`
+- **Request**: Add `.github/workflows/docs-publish.yml` (`verify-and-build` + `deploy-ionos` via SFTP) and `tests/test_docs_publish_workflow.py` (PR 6b).
+- **Changes**: Added `.github/workflows/docs-publish.yml` (SHA-40 pinned actions, `sftp_only: true`, explicit `.htaccess` upload, live `curl` checks) and `tests/test_docs_publish_workflow.py` (3 `unittest` contract/security checks); updated `.github/workflows/docs-ci.yml` and `APP-031`.
+- **Result**: `compileall`, bare `unittest` (`63/63`), and MkDocs venv `unittest` (`63/63`, `0` skipped) pass; diff `< 15,000` chars.
+
 ### ACT-034 — test(docs): add MkDocs publishing unit and E2E test suite (Issue `#68`, PR 6a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#68`
 - **Request**: Add `tests/test_mkdocs_publishing.py` and run it in `docs-ci.yml` (PR 6a).
