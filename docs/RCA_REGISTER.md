@@ -547,6 +547,11 @@
 - **Impact & Scope**: Safe zero-downtime site updates over port-22 SFTP without requiring shell/SSH access; removed legacy pages require manual cleanup if ever deprecated.
 - **Removal Condition**: Only if hosting moves to an rsync/shell-enabled target or object storage bucket.
 
+### APP-032 — Isolated `/tmp` Sandbox Stubs in Container Script Harness (`Issue #100`, PR 6a)
+- **Approximation**: `docker/script_tests/run_all_script_tests.sh` injects ephemeral `/tmp` `PYTHONPATH` stubs (`mysql.connector`, `fire`, `win32crypt`), `PERL5LIB` stubs (`Nagios::DBD::MySQL::{Server,Cluster}`), and `PATH` CLI mocks (`cqlsh`, `aws`, `mysql`) while installing `python3-yaml` in `Dockerfile`.
+- **Impact & Scope**: Keeps the test image minimal (~125 MB) without Windows DPAPI (`pywin32`), CPAN Nagios modules, or live DB/cloud servers while achieving 225/225 container smoke checks (`0 failed`).
+- **Removal Condition**: Replace individual stubs only if dedicated multi-container integration jobs install full vendor SDKs.
+
 ---
 
 
@@ -625,6 +630,11 @@
 - **Target Module**: `README.md` / `.github/workflows/`
 - **Description**: Add dynamic test status badge to root `README.md` reflecting 100% passing tests (49/49).
 - **Priority**: Low
+
+### IDEA-017 — Add `-h` / `--help` Flag Handler to `sync_pg_databases.sh`
+- **Target Module**: `scripts/bin/sync_pg_databases.sh`
+- **Description**: Add standard `-h` / `--help` option handling before dependency checks so operators and container tests can inspect flags without triggering an unknown-option failure (exit `1`).
+- **Priority**: Medium
 
 
 

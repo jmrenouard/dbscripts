@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-050 — feat(docker): add Debian container script test harness (Issue `#100`, PR 6a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#100` | **Branch**: `feat/issue-100-container-script-harness`
+- **Request**: Add lightweight Debian Bookworm Slim container test harness (`docker/script_tests/{Dockerfile,run_all_script_tests.sh,Makefile}`) testing all scripts under `scripts/` (`PR 6a`).
+- **Changes**: Added `docker/script_tests/Dockerfile` (`debian:bookworm-slim`, `python3-yaml`, non-root `tester`), `docker/script_tests/run_all_script_tests.sh` (`225` syntax, sourcing, Python smoke, Perl, and behavioral checks), and `docker/script_tests/Makefile` (`build`, `test`, `test-one`, `clean`); logged `APP-032` and `IDEA-017`.
+- **Result**: `make -C docker/script_tests build && make -C docker/script_tests test` (`225/225` checks, `0 failed`), `unittest` (`65/65`, `0` skipped), `compileall`, `diataxis_check.py`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-049 — test(docs): enforce English-only docs and ban inline base64 images (Issue `#98`, PR 5b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#98` | **Branch**: `test/issue-98-english-docs-guard`
 - **Request**: Add a regression test in `tests/test_diataxis_documentation.py` scanning `docs/` (excluding `ACTION_LOGBOOK.md`/`RCA_REGISTER.md`) and `documentation/` for French prose phrases and `data:image/` inline base64 dumps (PR 5b).
