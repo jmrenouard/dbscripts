@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-030 — docs(portal): add portal index, assets, styles, and Docs-as-Code configs (Issue `#60`, PR 4a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#60`
+- **Request**: Add `docs/index.md`, SVG branding, CSS/KaTeX assets, Docs-as-Code toolchain configs, and `.gitignore` updates (PR 4a).
+- **Changes**: Added `docs/index.md`, `docs/assets/{logo,header-banner}.svg`, `docs/stylesheets/extra.css`, `docs/javascripts/katex.js`, `requirements-docs.txt`, `.vale.ini`, `.markdownlint.json`; updated `.gitignore`, `ACTION_LOGBOOK.md`, and `RCA_REGISTER.md`.
+- **Result**: `diataxis_check.py docs --strict --check-ste --lang en` (`0` errors, `0` warnings across 18 files), `make lint`, and `make test` (49/49) pass; diff `< 15,000` chars.
+
 ### ACT-029 — docs(how-to): add ASD-STE100 How-To guides and database alert matrix (Issue `#58`, PR 3b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#58`
 - **Request**: Add 4 procedural STE How-To guides, database troubleshooting error matrix, and quadrant index updates (PR 3b).

@@ -427,6 +427,11 @@
 - **Impact & Scope**: Runbooks stay deterministic and readable for DBAs; domain terms can be formalized in `.vale.ini` custom vocabulary in PR 4a.
 - **Removal Condition**: Permanent technical dictionary scoping maintained in `.vale.ini` and STE test assertions.
 
+### APP-026 — Relative On-Disk Targets in `docs/index.md` Paired with Hook Rewriting (PR 4a)
+- **Approximation**: `docs/index.md` links root and legacy targets (`../README.md`, `../Changelog`, `../ansible/README.md`, `../docker/mariadb/README.md`, `../documentation/README.md`) rather than virtual `overview.md`/`guides/` paths until `scripts/mkdocs_hooks.py` rewrites them during MkDocs build.
+- **Impact & Scope**: Ensures `diataxis_check.py --strict` resolves every link on disk (`0` errors) before and after `mkdocs.yml` lands in PR 4b.
+- **Removal Condition**: Permanent dual compatibility with static checkers and `scripts/mkdocs_hooks.py`.
+
 ---
 
 
