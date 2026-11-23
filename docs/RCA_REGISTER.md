@@ -458,6 +458,11 @@
 - **Impact & Scope**: Core `ci.yml` runs all pure-Python hook, builder, and workflow tests in seconds without installing MkDocs, while `docs-ci.yml` and `docs-publish.yml` run the full E2E build (`0` skipped).
 - **Removal Condition**: Permanent lightweight CI split between `ci.yml` and `docs-ci.yml`/`docs-publish.yml`.
 
+### APP-031 — Additive Two-Pass SFTP Deployment Over IONOS (`docs-publish.yml`, Issue `#70` / PR 6b)
+- **Approximation**: `deploy-ionos` uses `wlixcc/SFTP-Deploy-Action` with `sftp_only: true` and two additive passes (`./` plus explicit `.htaccess`) instead of `delete_remote_files: true` (`rm -rf` over non-interactive SSH, which IONOS SFTP accounts restrict).
+- **Impact & Scope**: Safe zero-downtime site updates over port-22 SFTP without requiring shell/SSH access; removed legacy pages require manual cleanup if ever deprecated.
+- **Removal Condition**: Only if hosting moves to an rsync/shell-enabled target or object storage bucket.
+
 ---
 
 
