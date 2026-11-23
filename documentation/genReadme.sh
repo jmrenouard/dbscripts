@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Target file
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+cd "$SCRIPT_DIR"
 README_EN="$SCRIPT_DIR/README.md"
 
 # Header
