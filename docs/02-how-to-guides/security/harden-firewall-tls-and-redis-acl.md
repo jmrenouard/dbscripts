@@ -35,7 +35,7 @@ ansible-playbook ansible/add_redis_user.yaml -e "user=app_ro email=ops@example.c
 4. Rotate an active Redis ACL password:
 
 ```bash
-ansible-playbook ansible/change_redis_user_password.yaml -e "user=app_ro password=<new-secret>"
+ansible-playbook ansible/change_redis_user_password.yaml -e "redis_username=app_ro redis_password=<new-secret>"
 ```
 
 ## Verification Check

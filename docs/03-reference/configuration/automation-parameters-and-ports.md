@@ -23,7 +23,7 @@ Environment variables, config files, and multi-DB ports.
 | `/etc/bootstrap.conf` | Shell vars | `cluster_name`, `node_addresses`, `sst_user`, `sst_password`, `DB_VERSION`. |
 | `/etc/my.cnf.d/999_galera_settings.cnf` | INI | Galera config (`/etc/mysql/conf.d/` or `mariadb.conf.d/`). |
 | `/etc/{mb,lg}config*.sh`, `<env>.my.cnf` | Shell / INI (`0600`) | Backup overrides; `mysql_docker.py` client config. |
-| `docker/mariadb/haproxy-{galera,repli}.cfg` | HAProxy | Galera `3306`; Repli `3306` (W), `3307` (R); stats `8404`. |
+| `docker/mariadb/haproxy-{galera,repli}.cfg` | HAProxy | Galera `3306` (stats `8404`); Repli container `3306` (W) / `3307` (R) / `8404` (stats) -> host `3406` / `3407` / `8405`. |
 
 | Component | Protocol | Port | Purpose |
 |---|---|---|---|

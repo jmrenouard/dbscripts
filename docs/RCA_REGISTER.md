@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-028 — Redis ACL Var Mismatch, Incomplete Port/Makefile Tables, and Stale Test Counts (`Issue #74` / PR 1b)
+- **Observed Symptom**: `harden-firewall-tls-and-redis-acl.md` passed `user=`/`password=` instead of `redis_username`/`redis_password` to `change_redis_user_password.yaml`, Reference docs omitted HAProxy host port mappings (`3406`/`3407`/`8405`) and `docker/mysql_replication/Makefile` targets (`inject`, `mt`, `mts`, `mtf`), and `header-banner.svg`, `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md` showed stale `49` test counts.
+- **5 Whys RCA**: 1. `change_redis_user_password.yaml` declares `redis_username`/`redis_password` unlike `add_redis_user.yaml`/`delete_redis_user.yaml` (`user`); 2. Reference tables summarized container ports and basic Compose targets without reading `docker-compose-repli.yml` and `docker/mysql_replication/Makefile`; 3. Test count grew from `49` to `63` across PR 5/6 without updating portal counters or making `header-banner.svg` evergreen.
+- **Applied Fix**: Corrected Redis ACL rotation `-e` variables, clarified HAProxy container-to-host ports and MySQL replication targets, removed hardcoded `49` from `header-banner.svg`, updated `Changelog`, and synchronized `63` across `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md`.
+- **Non-Regression**: `unittest` (`63/63`, `0` skipped), `compileall`, `ste_check.py`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass.
+
 ### RCA-027 — Unrendered Material Icons and Missing Docs Workflow Triggers (`Issue #72` / PR 1a)
 - **Observed Symptom**: Material icon shortcodes (``:material-school-outline:{ .lg .middle }``) on `docs/index.md` rendered as raw literal text in built HTML, and `docs-ci.yml`/`docs-publish.yml` omitted `ansible/README.md` and `docker/mariadb/README.md` from `paths:` triggers.
 - **5 Whys RCA**: 1. `mkdocs.yml` omitted `pymdownx.emoji` (`material.extensions.emoji.twemoji` and `to_svg`); 2. Without `pymdownx.emoji`, `attr_list` left ``{ .lg .middle }`` unattached as literal text; 3. `test_mkdocs_publishing.py` asserted `main/index.html` existence without parsing generated HTML DOM; 4. Virtual README files injected by `scripts/mkdocs_hooks.py` were omitted from workflow `paths:` filters.

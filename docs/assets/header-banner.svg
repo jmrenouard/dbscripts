@@ -17,6 +17,6 @@
     <rect x="54" y="196" width="268" height="48" rx="10" fill="#0f172a" stroke="#0ea5e9" stroke-opacity="0.55"/><text x="72" y="225" fill="#38bdf8">01 · scripts/utils &amp; bin/</text>
     <rect x="348" y="196" width="268" height="48" rx="10" fill="#17130c" stroke="#f59e0b" stroke-opacity="0.55"/><text x="366" y="225" fill="#fbbf24">02 · ansible/ 15 Playbooks</text>
     <rect x="642" y="196" width="268" height="48" rx="10" fill="#0b1a18" stroke="#10b981" stroke-opacity="0.55"/><text x="660" y="225" fill="#34d399">03 · docker/ Galera Labs</text>
-    <rect x="936" y="196" width="268" height="48" rx="10" fill="#131426" stroke="#818cf8" stroke-opacity="0.55"/><text x="954" y="225" fill="#a5b4fc">04 · 49 unittest &amp; bash -n</text>
+    <rect x="936" y="196" width="268" height="48" rx="10" fill="#131426" stroke="#818cf8" stroke-opacity="0.55"/><text x="954" y="225" fill="#a5b4fc">04 · unittest &amp; bash -n</text>
   </g>
 </svg>
