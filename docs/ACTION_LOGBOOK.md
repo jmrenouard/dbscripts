@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-036 — fix(docs): enable Material icons, CI triggers, and HTML rendering checks (Issue `#72`, PR 1a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#72` | **Branch**: `fix/issue-72-docs-icons-ci`
+- **Request**: Enable `pymdownx.emoji` Material icons in `mkdocs.yml`, add virtual README triggers to Docs CI/publish workflows, and enforce HTML SVG/shortcode/alert rendering checks in tests (PR 1a).
+- **Changes**: Updated `mkdocs.yml` (`pymdownx.emoji` with `twemoji` and `to_svg`), `.github/workflows/{docs-ci,docs-publish}.yml` (`ansible/README.md`, `docker/mariadb/README.md` paths), `tests/test_mkdocs_publishing.py`, `tests/test_docs_publish_workflow.py`, and `RCA-027`.
+- **Result**: `compileall`, `unittest` (`63/63`, `0` skipped), `mkdocs build --strict`, and `diataxis_check.py docs --strict --check-ste --lang en` pass; diff `< 15,000` chars.
+
 ### ACT-035 — ci(docs): add IONOS versioned MkDocs deployment workflow (Issue `#70`, PR 6b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#70`
 - **Request**: Add `.github/workflows/docs-publish.yml` (`verify-and-build` + `deploy-ionos` via SFTP) and `tests/test_docs_publish_workflow.py` (PR 6b).

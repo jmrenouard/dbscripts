@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-027 — Unrendered Material Icons and Missing Docs Workflow Triggers (`Issue #72` / PR 1a)
+- **Observed Symptom**: Material icon shortcodes (``:material-school-outline:{ .lg .middle }``) on `docs/index.md` rendered as raw literal text in built HTML, and `docs-ci.yml`/`docs-publish.yml` omitted `ansible/README.md` and `docker/mariadb/README.md` from `paths:` triggers.
+- **5 Whys RCA**: 1. `mkdocs.yml` omitted `pymdownx.emoji` (`material.extensions.emoji.twemoji` and `to_svg`); 2. Without `pymdownx.emoji`, `attr_list` left ``{ .lg .middle }`` unattached as literal text; 3. `test_mkdocs_publishing.py` asserted `main/index.html` existence without parsing generated HTML DOM; 4. Virtual README files injected by `scripts/mkdocs_hooks.py` were omitted from workflow `paths:` filters.
+- **Applied Fix**: Configured `pymdownx.emoji` in `mkdocs.yml`, added HTML SVG/raw-shortcode/alert checks in `tests/test_mkdocs_publishing.py`, and added `ansible/README.md` and `docker/mariadb/README.md` to `paths:` in `docs-ci.yml` and `docs-publish.yml` with assertions in `tests/test_docs_publish_workflow.py`.
+- **Non-Regression**: `unittest` (`63/63`, `0` skipped), `compileall`, `mkdocs build --strict`, and `diataxis_check.py docs --strict --check-ste --lang en` pass.
+
 ### RCA-026 — Shallow `ci.yml` Checkout Empty Tag List (`Issue #68` / `PR #69`)
 - **Observed Symptom**: `test_build_versioned_docs_unit_and_guards` failed in `ci.yml` (`AssertionError: 'v1.0.0' not found in []`).
 - **5 Whys RCA**: 1. `ci.yml` uses `actions/checkout` default `fetch-depth: 1`; 2. Git tags are omitted in shallow PR clones; 3. Unit test queried real `git tag --list` on `REPO_ROOT`.
