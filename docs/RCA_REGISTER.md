@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-035 — Misspelled French PostgreSQL WAL Disk Guide (`Issue #88` / PR 4a)
+- **Observed Symptom**: `documentation/PostgreSQL/perfromance_wal_disk.md` had a filename typo (`perfromance`), French prose/diagram labels, and escaped `\_` artifacts inside fenced code blocks.
+- **5 Whys RCA**: 1. Initial guide filename misspelled `performance`; 2. Content was authored in French before the English-only rule; 3. Rich-text export escaped underscores inside command blocks.
+- **Applied Fix**: Renamed to `documentation/PostgreSQL/performance_wal_disk.md` via `git mv`, translated all text and Mermaid labels to English, removed code-block underscore escapes, and updated `documentation/README.md`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-034 — Raw French AI Prompt in PostgreSQL Sync Specification (`Issue #86` / PR 3c)
 - **Observed Symptom**: `documentation/PostgreSQL/spec_sync_pg_databases.md` contained a raw French AI generation prompt instead of an English technical specification matching `scripts/bin/sync_pg_databases.sh`.
 - **5 Whys RCA**: 1. The original script prompt was committed directly as documentation; 2. Prompt prose differed from implemented script behavior (e.g., actual `--source`/`--target` regex `user:pass@host:port`, `--disable-triggers`, no `--help` flag); 3. Translating alongside SSHFS and Stunnel exceeded the 15,000-char PR diff cap.

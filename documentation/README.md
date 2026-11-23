@@ -37,5 +37,5 @@ Canonical technical documentation, standard operation sheets, and architectural 
 - [Patroni High Availability Test Cases](PostgreSQL/patroni_ha_tests.md)
 - [Patroni Health and Metrics Monitoring](PostgreSQL/patroni_monitoring.md)
 - [Patroni REST API Reference](PostgreSQL/patroni_rest_api.md)
-- [PostgreSQL WAL Disk Performance Optimization](PostgreSQL/perfromance_wal_disk.md)
+- [PostgreSQL WAL Disk Performance Optimization](PostgreSQL/performance_wal_disk.md)
 - [Specification: PostgreSQL Multi-Database Synchronization](PostgreSQL/spec_sync_pg_databases.md)
