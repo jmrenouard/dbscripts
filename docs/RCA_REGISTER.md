@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-039 — Remaining French Matrix and Comparison Sections in Physical Backup Guide (`Issue #96` / PR 5a2)
+- **Observed Symptom**: Lines 43-87 of `documentation/PostgreSQL/backup_physique.md` (pgBackRest comparison matrix, physical vs. logical comparison, and recommendations) remained in French with dangling numeric footnote suffixes.
+- **5 Whys RCA**: 1. Pass 2a translated the upper half (`lines 1-42`) to stay strictly below 15,000 diff chars; 2. Completing the second half in PR 5a2 finishes 100% English coverage across `documentation/` before enabling the CI English-only regression check in PR 5b.
+- **Applied Fix**: Translated lines 43-87 of `documentation/PostgreSQL/backup_physique.md` into concise English, stripped dangling numeric footnote suffixes, and preserved the `backup_physique.md` filename referenced by `documentation/README.md`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-038 — French Physical Backup Overview and Tool Sections (`Issue #94` / PR 5a1)
 - **Observed Symptom**: The top half of `documentation/PostgreSQL/backup_physique.md` (introduction and `pg_basebackup`, `pgBackRest`, `WAL-G`, `pg_probackup`, `Barman` sections) remained in French with dangling numeric footnote suffixes (`1`, `2`, `3`, `4`, `6`, `10`, `11`, `19`, `21`, `22`).
 - **5 Whys RCA**: 1. Original guide was written in French before the English-only policy; 2. Translating all 8,766 cleaned bytes in one commit risked hitting the 15,000-character PR diff limit.

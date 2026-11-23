@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-048 — docs(postgres): translate physical backup matrix and recommendations to English (Issue `#96`, PR 5a2)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#96` | **Branch**: `docs/issue-96-translate-backup-matrix`
+- **Request**: Complete English translation of `documentation/PostgreSQL/backup_physique.md` (comparison matrix, physical vs. logical backups, and operational recommendations) while preserving the filename (PR 5a2, Pass 2b).
+- **Changes**: Translated lines 43-87 of `documentation/PostgreSQL/backup_physique.md` into structured English (stripping remaining dangling citation suffixes) and logged `RCA-039`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-047 — docs(postgres): translate physical backup overview and tool sections to English (Issue `#94`, PR 5a1)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#94` | **Branch**: `docs/issue-94-translate-backup-tools`
 - **Request**: Translate the overview and physical backup tool architecture sections (`pg_basebackup`, `pgBackRest`, `WAL-G`, `pg_probackup`, `Barman`) of `documentation/PostgreSQL/backup_physique.md` into English (PR 5a1, Pass 2a).

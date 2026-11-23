@@ -40,48 +40,48 @@ It provides three incremental modes: `DELTA`, `PAGE` (WAL scan), and `PTRACK` (k
 
 `Barman` supports transfers over `rsync` or PostgreSQL streaming replication and offers high visibility through a centralized catalog. While it supports parallelism and cloud object storage (`barman-cloud`), it cannot resume an interrupted backup like `pgBackRest`. It remains well suited for complex on-premises topologies managed by traditional DBA teams.
 
-## **Comparaison des Outils Physiques sur la Base des Critères pgBackRest**
+## Physical Backup Tool Comparison (pgBackRest Criteria)
 
-Le tableau suivant synthétise les capacités de chaque solution selon les standards d'exigence définis par pgBackRest.
+The table below summarizes each tool's capabilities against the requirements baseline set by `pgBackRest`.
 
-| Critères de Comparaison | pg\_basebackup | pgBackRest | WAL-G | pg\_probackup | Barman |
-| :---- | :---- | :---- | :---- | :---- | :---- |
-| **Parallélisme (Backup/Restore)** | Limité 7 | Complet 11 | Complet 15 | Complet 19 | Oui (v2.2+) |
-| **Compression (lz4, zstd)** | Supporté 7 | Natif 11 | Natif 15 | Supporté 19 | gzip, lz4, zstd |
-| **Opération Distante** | Réplication 7 | TLS/SSH custom 11 | SSH / Cloud 3 | SSH natif 21 | SSH / Réplication |
-| **Dépôts Multiples** | Non | Supporté 11 | Expérimental 25 | Via Catalogue 19 | Géo-redondance |
-| **Sauvegarde Incrémentale** | Bloc (v17+) 7 | Bloc 11 | Page (Delta) 3 | Page / Ptrack 19 | Fichier / Bloc |
-| **Rétention / Expiration** | Manuel | Auto 11 | Auto 26 | Flexible 19 | Centralisée |
-| **Intégrité (Checksums)** | Non 7 | Systématique 11 | Flag verify 27 | Validation 19 | barman check |
-| **Page Checksums** | Non | Validation live 14 | Flag verify 27 | checkdb 21 | Via PG |
-| **Reprise de Sauvegarde** | Non | Oui (Resume) 11 | Upload partiel 17 | Non 23 | Non 22 |
-| **Restauration Delta** | Non | Oui 14 | Oui 17 | Oui 21 | Non (Full) 3 |
-| **WAL Push/Get Asynchrone** | Non | Oui 11 | Oui 17 | Non 21 | Oui 22 |
-| **Tablespace / Liens** | Supporté 7 | Complet (Remap) 11 | Partiel 28 | Supporté 22 | Supporté (Remap) |
-| **Stockage Objet (S3/Azure)** | Manuel / v17+ | Natif 11 | Natif 3 | Version Pro 21 | barman-cloud |
-| **Chiffrement** | Non | AES-256 11 | GPG/Libsodium 15 | AES-256 29 | Externe (GPG) |
-| **Compatibilité Versions** | Toutes | 10 dernières 11 | 9.5+ 30 | 11+ 21 | Multi-versions |
+| Comparison Criteria | `pg_basebackup` | `pgBackRest` | `WAL-G` | `pg_probackup` | `Barman` |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Parallelism (Backup/Restore)** | Limited | Full | Full | Full | Yes (v2.2+) |
+| **Compression (`lz4`, `zstd`)** | Supported | Native | Native | Supported | `gzip`, `lz4`, `zstd` |
+| **Remote Operation** | Replication | Custom TLS/SSH | SSH / Cloud | Native SSH | SSH / Replication |
+| **Multiple Repositories** | No | Supported | Experimental | Via Catalog | Geo-redundancy |
+| **Incremental Backup** | Block (v17+) | Block | Page (Delta) | Page / PTRACK | File / Block |
+| **Retention / Expiration** | Manual | Automatic | Automatic | Flexible | Centralized |
+| **Integrity (Checksums)** | No | Systematic | `verify` flag | Validation | `barman check` |
+| **Page Checksums** | No | Live validation | `verify` flag | `checkdb` | Via PostgreSQL |
+| **Backup Resume** | No | Yes | Partial upload | No | No |
+| **Delta Restore** | No | Yes | Yes | Yes | No (Full) |
+| **Async WAL Push/Get** | No | Yes | Yes | No | Yes |
+| **Tablespaces / Symlinks** | Supported | Full (Remap) | Partial | Supported | Supported (Remap) |
+| **Object Storage (S3/Azure)** | Manual / v17+ | Native | Native | Pro edition | `barman-cloud` |
+| **Encryption** | No | AES-256 | GPG/Libsodium | AES-256 | External (GPG) |
+| **Version Compatibility** | All | Last 10 major | 9.5+ | 11+ | Multi-version |
 
-## **Sauvegarde Physique vs Sauvegarde Logique (pg\_dump / pg\_dumpall)**
+## Physical Backup vs. Logical Backup (`pg_dump` / `pg_dumpall`)
 
-Pour une stratégie complète, il faut distinguer ces outils physiques de la sauvegarde logique représentée par pg\_dump (une base) et pg\_dumpall (tout le cluster incluant rôles et tablespaces).31
+A complete protection strategy pairs physical backup tools with logical backups via `pg_dump` (single database) and `pg_dumpall` (full cluster including roles and tablespaces).
 
-### **Avantages de l'Approche Logique**
+### Advantages of Logical Backups
 
-* **Indépendance et Portabilité** : Les dumps SQL peuvent être restaurés sur des versions plus récentes ou des architectures CPU différentes.2  
-* **Granularité** : Permet de restaurer une seule table ou un schéma spécifique.2  
-* **Taille** : Souvent 20% à 50% plus petits car ils n'incluent pas les index et éliminent le "bloat".2
+- **Independence and Portability**: SQL dumps restore across newer PostgreSQL versions and different CPU architectures.
+- **Granularity**: Restores a single table or specific schema selectively.
+- **Compact Size**: Often 20% to 50% smaller because dumps exclude index data and remove table bloat.
 
-### **Limitations Critiques**
+### Critical Limitations
 
-* **Performance** : La restauration est extrêmement lente (reconstruction des index, validation des contraintes).2 Pour 1 To, là où un restore physique prend 2h, un restore logique peut prendre 30h.4  
-* **Pas de PITR** : Un dump est une photo fixe. Seule la sauvegarde physique permet de restaurer à une seconde précise entre deux sauvegardes.1
+- **Restore Speed**: Recovery is slow due to index rebuilds and constraint checks. For 1 TB, physical restore takes ~2h while logical restore can take ~30h.
+- **No PITR**: A logical dump is a static point-in-time snapshot; only physical backups with WAL archiving support exact-second recovery between backups.
 
-## **Recommandations Opérationnelles**
+## Operational Recommendations
 
-1. **Priorité Cloud/Kubernetes** : **WAL-G** est le choix stratégique pour son architecture légère et son intégration S3 native.3  
-2. **Gestion Multi-Serveurs Classique** : **Barman** reste idéal pour centraliser la sécurité de dizaines d'instances "on-premise".24  
-3. **Bases de Données Géantes (\>1 To)** : **pgBackRest** ou **pg\_probackup** (avec PTRACK) sont nécessaires pour leurs performances de parallélisme et de gestion des blocs modifiés.11  
-4. **Tests et Migrations** : **pg\_dump** demeure indispensable pour les montées de version et les environnements de développement.4
+1. **Cloud / Kubernetes Priority**: Choose **`WAL-G`** for lightweight Go binaries and native S3 streaming.
+2. **Classic Multi-Server Fleet**: Choose **`Barman`** to centralize backups across dozens of on-premises instances.
+3. **Very Large Databases (> 1 TB)**: Choose **`pgBackRest`** or **`pg_probackup`** (with `PTRACK`) for parallel throughput and block-level incrementals.
+4. **Testing and Migrations**: Keep **`pg_dump`** for major upgrades, schema extraction, and development environments.
 
-En 2026, la meilleure stratégie est hybride : sauvegarde physique quotidienne pour le RTO, archivage WAL pour le PITR, et dumps logiques hebdomadaires pour la flexibilité.1
+The optimal strategy combines daily physical backups for fast RTO, continuous WAL archiving for PITR, and weekly logical dumps for portability.
