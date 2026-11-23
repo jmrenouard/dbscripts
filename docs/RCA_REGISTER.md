@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-026 — Shallow `ci.yml` Checkout Empty Tag List (`Issue #68` / `PR #69`)
+- **Observed Symptom**: `test_build_versioned_docs_unit_and_guards` failed in `ci.yml` (`AssertionError: 'v1.0.0' not found in []`).
+- **5 Whys RCA**: 1. `ci.yml` uses `actions/checkout` default `fetch-depth: 1`; 2. Git tags are omitted in shallow PR clones; 3. Unit test queried real `git tag --list` on `REPO_ROOT`.
+- **Applied Fix**: Mocked `subprocess.check_output` in `test_build_versioned_docs_unit_and_guards` to test semver filtering and descending sort deterministically (`E2E` validates real `v1.0.0` under `docs-ci.yml` with `fetch-depth: 0`).
+- **Non-Regression**: `unittest` passes in both bare shallow `ci.yml` mode and full-history `docs-ci.yml` venv.
+
 ### RCA-025 — Documentation Duplication and Fragmentation
 - **Observed Symptom**: 51 French duplicates (*_fr.md), 12 broken MongoDB index links, 2 obsolete assets.
 - **5 Whys RCA**: 1. Historical bilingual docs; 2. Translation drift; 3. Obsolete Vagrant files; 4. AGENTS.md mandates English; 5. Bulk deletion diff requires bounding.

@@ -141,7 +141,8 @@ class TestMkDocsPublishing(unittest.TestCase):
         b = _load("build_versioned_docs_test", BUILDER_PATH)
         self.assertEqual(b.parse_semver_tag("v1.0.0"), (1, 0, 0))
         self.assertIsNone(b.parse_semver_tag("main"))
-        self.assertIn("v1.0.0", b.discover_release_tags(REPO_ROOT))
+        with mock.patch.object(b.subprocess, "check_output", return_value="v1.0.0\nbad\nv1.10.0\n"):
+            self.assertEqual(b.discover_release_tags(REPO_ROOT), ["v1.10.0", "v1.0.0"])
         man = b.build_versions_manifest(["v1.0.0", "v1.2.0", "v1.10.0"], include_main=True)
         self.assertEqual([e["version"] for e in man], ["v1.10.0", "v1.2.0", "v1.0.0", "main"])
         self.assertEqual((man[0]["aliases"], man[-1]["aliases"]), (["latest"], ["dev"]))
