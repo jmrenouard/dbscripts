@@ -1,59 +1,50 @@
 #!/bin/bash
+set -euo pipefail
 
-# Target files
-SCRIPT_DIR=$(dirname "$0")
+# Target file
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+cd "$SCRIPT_DIR"
 README_EN="$SCRIPT_DIR/README.md"
-README_FR="$SCRIPT_DIR/README_fr.md"
 
-# Headers
+# Header
 {
     echo "# List of Standard Operation Sheets"
     echo "This index is automatically generated. Documentation is organized by chapters (directories)."
     echo ""
 } > "$README_EN"
 
-{
-    echo "# Liste des fiches d'opérations standards (SOP)"
-    echo "Cet index est généré automatiquement. La documentation est organisée par chapitres (répertoires)."
-    echo ""
-} > "$README_FR"
-
-# Function to process files in a directory for a specific language
+# Process markdown files in a directory for English documentation
 process_directory() {
-    dir="$1"
-    lang="$2" # "en" or "fr"
-    output_file="$3"
-    header_name="$4"
+    local dir="${1:-}"
+    local output_file="${2:-}"
+    local header_name="${3:-}"
+    local files
 
-    if [ "$lang" = "fr" ]; then
-        files=$(find "$dir" -maxdepth 1 -type f -name '*_fr.md' ! -name 'README*' | sort)
-    else
-        files=$(find "$dir" -maxdepth 1 -type f -name '*.md' ! -name '*_fr.md' ! -name 'README*' | sort)
-    fi
+    files=$(find "$dir" -maxdepth 1 -type f -name '*.md' ! -name '*_fr.md' ! -name 'README*' | sort)
 
     if [ -n "$files" ]; then
         echo "## $header_name" >> "$output_file"
-        echo "$files" | while read -r mdf; do
+        printf '%s\n' "$files" | while IFS= read -r mdf; do
             # Extract title from first line (stripping markdown #)
-            title=$(head -1 "$mdf" | sed 's/^#* //')
-            echo " * [$title]($mdf)" >> "$output_file"
+            local title rel_path
+            title=$(head -n 1 "$mdf" | sed 's/^#* //')
+            rel_path="${mdf#./}"
+            echo " * [$title]($rel_path)" >> "$output_file"
         done
         echo "" >> "$output_file"
     fi
 }
 
 # 1. Global / Root documentation
-process_directory "." "en" "$README_EN" "General Documentation"
-process_directory "." "fr" "$README_FR" "Documentation Générale"
+process_directory "." "$README_EN" "General Documentation"
 
 # 2. Subdirectories (Chapters)
-# Find all directories that contain at least one .md file, excluding . itself
 directories=$(find . -maxdepth 1 -type d ! -name "." ! -name ".*" | sort)
 
-for dir in $directories; do
+while IFS= read -r dir; do
+    [ -n "$dir" ] || continue
     dir_name=$(basename "$dir")
-    process_directory "$dir" "en" "$README_EN" "$dir_name"
-    process_directory "$dir" "fr" "$README_FR" "$dir_name"
-done
+    process_directory "$dir" "$README_EN" "$dir_name"
+done <<< "$directories"
 
-echo "Generated $README_EN and $README_FR"
+echo "Generated $README_EN"

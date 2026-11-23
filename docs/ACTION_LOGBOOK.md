@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-039 — fix(docs): harden legacy documentation shell scripts (Issue `#78`, PR 2b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#78` | **Branch**: `fix/issue-78-harden-legacy-doc-scripts`
+- **Request**: Harden `documentation/gen{ToC,AllToC,Readme,Sop}.sh` with LF line endings, `set -euo pipefail`, quoted variables, `mktemp` traps, GFM anchor punctuation stripping, Perl stdlib TOC replacement (no `File::Slurp`), `./` stripping, and English-only output (PR 2b).
+- **Changes**: Hardened `documentation/genToC.sh`, `documentation/genAllToC.sh`, `documentation/genReadme.sh`, `documentation/genSop.sh`, and added `RCA-030`.
+- **Result**: `bash -n`, LF checks, temp-dir execution of `genSop.sh`/`genAllToC.sh`/`genReadme.sh`/`genToC.sh`, `compileall`, `unittest` (`63/63`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-038 — docs(guides): fix broken anchors, headings, READMEs, and secret placeholders (Issue `#76`, PR 2a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#76` | **Branch**: `docs/issue-76-fix-anchors-guides`
 - **Request**: Fix Ansible Redis rotation vars, remove obsolete French links (`README_fr.md`, `INDEX_fr.md`), fix MariaDB README sub-headings and Galera CIDR, resolve 14 broken PostgreSQL anchors, replace weak Patroni example passwords with placeholders + warning, and update stale paths in `user_guide.md` and `generate_doc_description.md` (PR 2a).
