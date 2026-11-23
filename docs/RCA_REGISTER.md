@@ -437,6 +437,11 @@
 - **Impact & Scope**: Keeps navigation scannable across 6 Diataxis tabs (`v1.0.0` and `main` build cleanly in ~`1.1s–1.8s`).
 - **Removal Condition**: Incremental migration of legacy `documentation/` pages directly into `docs/01-tutorials/`..`04-explanation/`.
 
+### APP-028 — Split CI Test & Workflow PR 5 (`5a`/`5b`) and Regex STE Heuristics (PR 5a)
+- **Approximation**: `tests/test_diataxis_ste.py` validates ASD-STE100 Issue 9 structural syntax rules via stdlib regexes separately from PR 5b's `.github/workflows/docs-ci.yml` + `tests/test_diataxis_documentation.py`.
+- **Impact & Scope**: Keeps both PR diffs well below `15,000` chars with zero weakened checks and zero external dependencies beyond `pyyaml` in `ci.yml`.
+- **Removal Condition**: Optional consolidation or Vale CLI enforcement inside `docs-ci.yml` when needed.
+
 ---
 
 
