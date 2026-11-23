@@ -417,6 +417,11 @@
 - **Impact & Scope**: `diataxis_check.py docs` notes only `docs/index.md` absent until PR 4a; zero broken links exist on `main`.
 - **Removal Condition**: Removed automatically when PR 4a lands `docs/index.md`.
 
+### APP-024 — Split PR 3 Content Across Tutorials (`3a`) and STE How-To/Alerts (`3b`)
+- **Approximation**: PR 3a ships `01-tutorials/` linking `../02-how-to-guides/index.md` ahead of PR 3b's four procedural runbooks and troubleshooting matrix.
+- **Impact & Scope**: Guarantees zero broken links on `main` after PR 3a while keeping each PR diff comfortably below `15,000` chars.
+- **Removal Condition**: Completed when PR 3b lands all four STE How-To guides and `database-alert-and-error-matrix.md`.
+
 ---
 
 

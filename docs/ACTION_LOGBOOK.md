@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-028 — docs(tutorials): add MariaDB Galera and MySQL Docker lab tutorials (Issue `#56`, PR 3a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#56`
+- **Request**: Add hands-on Diataxis tutorials for MariaDB Galera and MySQL Docker CLI sandboxes (PR 3a).
+- **Changes**: Added `docs/01-tutorials/01-mariadb-galera-docker-lab.md`, `docs/01-tutorials/02-mysql-docker-cli-sandbox.md`, updated `docs/01-tutorials/index.md`, `ACTION_LOGBOOK.md`, and `RCA_REGISTER.md`.
+- **Result**: `make lint`, `make test` (49/49), and `diataxis_check.py` (0 broken links) pass; diff `< 15,000` chars.
+
 ### ACT-027 — docs(diataxis): add quadrant indexes, reference matrices, and explanations (Issue `#54`, PR 2)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#54`
 - **Request**: Add Diataxis quadrant indexes, Reference CLI/config tables, Architecture overview, and ADR-001 (PR 2).
