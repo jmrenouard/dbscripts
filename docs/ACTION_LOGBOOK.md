@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-033 — ci(docs): add documentation CI workflow and Diataxis/Docs-as-Code test suite (Issue `#66`, PR 5b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#66`
+- **Request**: Add `.github/workflows/docs-ci.yml` and `tests/test_diataxis_documentation.py` validating quadrants, links, genre guardrails, and configs (PR 5b).
+- **Changes**: Added `.github/workflows/docs-ci.yml` and `tests/test_diataxis_documentation.py` (`3` test methods); updated `ACTION_LOGBOOK.md` and `RCA_REGISTER.md`.
+- **Result**: `mkdocs build --strict`, `diataxis_check.py --strict --check-ste --lang en`, `make lint`, and `make test` (`55/55` pass) succeed; diff `< 15,000` chars.
+
 ### ACT-032 — test(docs): add ASD-STE100 Issue 9 verifier and procedural test suite (Issue `#64`, PR 5a)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#64`
 - **Request**: Add automated stdlib `unittest` verification for ASD-STE100 Issue 9 compliance across all How-To guides (PR 5a).
