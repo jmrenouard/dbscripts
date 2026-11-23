@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-040 — chore(docs): clean .agent docs and enforce repo-wide markdown link tests (Issue `#80`, PR 2c)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#80` | **Branch**: `chore/issue-80-agent-docs-link-tests`
+- **Request**: Clean stale `.agent/` refs and enforce repo-wide relative link, `file://` URI, and same-file anchor tests (PR 2c).
+- **Changes**: Cleaned `.agent/{rules/{01_project_identity,04_best_practices},skills/documentation_engine,workflows/{doc-sync,hey-agent}}.md`, added `test_all_tracked_markdown_links_and_anchors`, and logged `RCA-031`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-039 — fix(docs): harden legacy documentation shell scripts (Issue `#78`, PR 2b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#78` | **Branch**: `fix/issue-78-harden-legacy-doc-scripts`
 - **Request**: Harden `documentation/gen{ToC,AllToC,Readme,Sop}.sh` with LF line endings, `set -euo pipefail`, quoted variables, `mktemp` traps, GFM anchor punctuation stripping, Perl stdlib TOC replacement (no `File::Slurp`), `./` stripping, and English-only output (PR 2b).

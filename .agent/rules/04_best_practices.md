@@ -13,7 +13,7 @@ Governance is not static. This document captures the evolutionary patterns and b
 
 ### 🚀 Evolutionary Roadmapping
 
-- Use `ROADMAP.md` to track long-term features.
+- Use `docs/ACTION_LOGBOOK.md` to track long-term features.
 - Every new feature should be prototyped in a dedicated branch or folder before being merged into the main `scripts/` or `ansible/` structure.
 
 ### 📊 Reporting Standards
@@ -34,7 +34,7 @@ Governance is not static. This document captures the evolutionary patterns and b
 ### 🛠️ Contribution Model
 
 - **Spec-Driven**: Changes start with a specification in `documentation/specifications/`.
-- **Atomic Commits**: Follow Conventional Commits standards (see [06_version_management.md](file:///home/jmren/GIT_REPOS/dbscripts/.agent/rules/06_version_management.md)).
+- **Atomic Commits**: Follow Conventional Commits standards (see [06_version_management.md](06_version_management.md)).
 - **Verifiable Proof**: Every PR or change must include verification results (walkthroughs).
 
 ### ✅ Accountability
@@ -45,4 +45,4 @@ Governance is not static. This document captures the evolutionary patterns and b
 ## ✅ Verification
 
 - Review this document monthly to prune outdated practices.
-- Use `/ compliance-sentinel` to ensure best practices don't drift from execution rules.
+- Use `make test` and `/ponytail-review` to ensure best practices don't drift from execution rules.

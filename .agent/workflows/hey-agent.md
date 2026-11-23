@@ -47,4 +47,4 @@ category: [governance | tool | skill]
 ## ✅ Verification
 
 - Validate header frontmatter.
-- Run `/compliance-sentinel` to ensure no two rules contradict each other.
+- Run `python -m unittest tests/test_project_governance_rules.py -v` to ensure no two rules contradict each other.

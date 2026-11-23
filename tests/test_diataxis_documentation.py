@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import configparser
+import importlib.util
 import json
 from pathlib import Path
 import re
+import shutil
+import subprocess
 from typing import Any
 import unittest
 from urllib.parse import unquote
@@ -24,10 +27,11 @@ VIRTUAL_DOCS = {
 }
 
 FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
-LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
+LINK_RE = re.compile(r"!?\[(?:[^\[\]]|\[[^\[\]]*\])*\]\(((?:[^()\n]|\([^()\n]*\))+)\)")
 HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*$")
 TBL_LIST_RE = re.compile(r"^\s*(?:\|.*\||(?:[-*+]|\d+\.)\s+\S)")
 EXT_RE = re.compile(r"^(?:https?|mailto|ftp|tel|data):", re.I)
+FILE_URI_RE = re.compile(r"file://[^\s)`'\">]+", re.I)
 SHA40_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 
 HOWTO_VAL_RE = re.compile(r"\b(?:validat(?:e|es|ed|ing|ion)|verif(?:y|ies|ied|ication)|check)\b", re.I)
@@ -47,8 +51,20 @@ _MkDocsLoader.add_multi_constructor(
 )
 
 
-def _non_code_lines(text: str) -> list[tuple[int, str]]:
-    """Return 1-indexed lines outside fenced code blocks with inline code masked."""
+def _load_gfm_slugify() -> Any:
+    """Load gfm_slugify from scripts/mkdocs_hooks.py."""
+    spec = importlib.util.spec_from_file_location("mkdocs_hooks", ROOT / "scripts" / "mkdocs_hooks.py")
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.gfm_slugify
+
+
+GFM_SLUGIFY = _load_gfm_slugify()
+
+
+def _non_code_lines(text: str, mask_inline: bool = True) -> list[tuple[int, str]]:
+    """Return 1-indexed lines outside fenced code blocks, optionally masking inline code."""
     out: list[tuple[int, str]] = []
     fence_char, fence_len = None, 0
     for lineno, line in enumerate(text.splitlines(), 1):
@@ -59,24 +75,46 @@ def _non_code_lines(text: str) -> list[tuple[int, str]]:
         if match := FENCE_RE.match(line):
             fence_char, fence_len = match.group(1)[0], len(match.group(1))
             continue
-        out.append((lineno, re.sub(r"``[^`\n]+``|`[^`\n]+`", " ", line)))
+        out.append((lineno, re.sub(r"``[^`\n]+``|`[^`\n]+`", " ", line) if mask_inline else line))
+    return out
+
+
+def _heading_anchors(text: str) -> set[str]:
+    """Collect GFM heading anchors outside fenced code blocks."""
+    seen: dict[str, int] = {}
+    anchors: set[str] = set()
+    for _, line in _non_code_lines(text, mask_inline=False):
+        if match := HEADING_RE.match(line):
+            slug = GFM_SLUGIFY(re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", match.group(1)))
+            seen[slug] = seen[slug] + 1 if slug in seen else 0
+            anchors.add(f"{slug}-{seen[slug]}" if seen[slug] else slug)
+    return anchors
+
+
+def _link_targets(md_path: Path, text: str | None = None) -> list[tuple[int, str, Path | None]]:
+    """Extract non-code markdown anchors and resolved relative filesystem targets."""
+    raw_text = md_path.read_text(encoding="utf-8") if text is None else text
+    out: list[tuple[int, str, Path | None]] = []
+    for ln, line in _non_code_lines(raw_text):
+        for m in LINK_RE.finditer(line):
+            pre = line[: m.start()]
+            if (len(pre) - len(pre.rstrip("\\"))) & 1:
+                continue
+            raw = m.group(1).strip()
+            tgt = raw[1:raw.find(">")].strip() if raw.startswith("<") and ">" in raw else (raw.split()[0] if raw else "")
+            if not tgt or EXT_RE.match(tgt) or tgt.startswith("//"):
+                continue
+            if tgt.startswith("#"):
+                out.append((ln, tgt, None))
+            elif clean := unquote(tgt.split("#", 1)[0].split("?", 1)[0].strip()):
+                base = DOCS / clean.lstrip("/") if clean.startswith("/") else md_path.parent / clean
+                out.append((ln, clean, base.resolve()))
     return out
 
 
 def _relative_links(md_path: Path) -> list[tuple[int, str, Path]]:
     """Extract relative markdown link targets and resolved filesystem paths."""
-    found: list[tuple[int, str, Path]] = []
-    for lineno, line in _non_code_lines(md_path.read_text(encoding="utf-8")):
-        for match in LINK_RE.finditer(line):
-            raw = match.group(1).strip()
-            target = raw[1:raw.find(">")].strip() if raw.startswith("<") and ">" in raw else (raw.split()[0] if raw else "")
-            if not target or target.startswith("#") or EXT_RE.match(target) or target.startswith("//"):
-                continue
-            clean = unquote(target.split("#", 1)[0].split("?", 1)[0].strip())
-            if clean:
-                base = DOCS / clean.lstrip("/") if clean.startswith("/") else md_path.parent / clean
-                found.append((lineno, clean, base.resolve()))
-    return found
+    return [(ln, tgt, res) for ln, tgt, res in _link_targets(md_path) if res is not None]
 
 
 def _linked_quadrants(md_path: Path) -> set[str]:
@@ -184,6 +222,30 @@ class TestDiataxisDocumentation(unittest.TestCase):
             self.assertIn(tok, portal)
         for tok in ["docs/index.md", PORTAL_URL] + [f"docs/{q}/index.md" for q in QUADRANTS]:
             self.assertIn(tok, readme)
+
+    def test_all_tracked_markdown_links_and_anchors(self) -> None:
+        """Verify tracked Markdown files have zero file:// URIs, broken relative links, or bad anchors."""
+        if (ROOT / ".git").exists() and shutil.which("git"):
+            out = subprocess.check_output(["git", "ls-files", "--", "*.md"], cwd=ROOT, text=True)
+            files = [ROOT / rel for rel in sorted(out.splitlines()) if (ROOT / rel).is_file()]
+        else:
+            dirs = ("docs", "documentation", "docker/mariadb", "ansible", ".agent", ".agents")
+            files = sorted({*(p for d in dirs if (ROOT / d).is_dir() for p in (ROOT / d).rglob("*.md")), *(ROOT / n for n in ("README.md", "AGENTS.md") if (ROOT / n).is_file())})
+        broken: list[str] = []
+        for md in files:
+            rel = md.relative_to(ROOT).as_posix()
+            text = md.read_text(encoding="utf-8")
+            anchors = _heading_anchors(text)
+            for ln, line in _non_code_lines(text):
+                if FILE_URI_RE.search(line):
+                    broken.append(f"{rel}:{ln}: personal file:// URI")
+            for ln, tgt, res in _link_targets(md, text):
+                if res is None:
+                    if unquote(tgt[1:]) not in anchors:
+                        broken.append(f"{rel}:{ln}: broken anchor {tgt}")
+                elif not tgt.lower().startswith("file:") and not (res.is_file() or res.is_dir()):
+                    broken.append(f"{rel}:{ln}: broken link {tgt}")
+        self.assertEqual(broken, [], "\n".join(broken))
 
 
 if __name__ == "__main__":

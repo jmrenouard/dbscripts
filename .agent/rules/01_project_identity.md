@@ -45,4 +45,4 @@ Seamless collaboration between human maintenance and agent orchestration.
 ## ✅ Verification
 
 - The agent should be able to explain the project's pillars (as defined in the Mission Statement above).
-- Every new feature must be tracked in `task.md`.
+- Every new feature must be tracked in `docs/ACTION_LOGBOOK.md`.

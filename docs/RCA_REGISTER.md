@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-031 — Stale `.agent/` References, Personal `file://` URIs, and Missing Repo-Wide Link/Anchor Gate (`Issue #80` / PR 2c)
+- **Observed Symptom**: `.agent/` rules, skills, and workflows referenced deleted `task.md`, `ROADMAP.md`, `README_fr.md`, non-existent `/compliance-sentinel`, and personal `/home/jmren/...` `file://` URIs, while `tests/test_diataxis_documentation.py` checked only `docs/` relative links.
+- **5 Whys RCA**: 1. `.agent/` assets retained legacy workstation links and pre-consolidation governance paths; 2. `test_diataxis_documentation.py` only validated `docs/` without scanning `documentation/`, `docker/mariadb/`, `ansible/`, `.agent/`, `.agents/`, or `README.md` for broken relative targets, `file://` URIs, or broken `#anchor` links.
+- **Applied Fix**: Updated the 5 `.agent/` files (preserving `trigger: always_on`), upgraded `LINK_RE` for balanced parentheses, reused `scripts/mkdocs_hooks.py:gfm_slugify`, and added `test_all_tracked_markdown_links_and_anchors` in `tests/test_diataxis_documentation.py`.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass.
+
 ### RCA-030 — Legacy Documentation Shell Scripts Unsafe Error Handling, CPAN Dependency, and French Output (`Issue #78` / PR 2b)
 - **Observed Symptom**: `documentation/gen{ToC,AllToC,Readme,Sop}.sh` lacked `set -euo pipefail` and variable quoting; `genToC.sh` used hardcoded `/tmp/temp.TXT` without `trap`, required CPAN `File::Slurp`, and left `.`, `/`, `(`, `)` in `#anchor` fragments; `genReadme.sh` and `genSop.sh` generated French `README_fr.md` / `*_fr.md` files and `./` relative links.
 - **5 Whys RCA**: 1. Legacy scripts predate project Bash safety and English-only rules; 2. `File::Slurp` is absent from standard Perl installations; 3. Unstripped punctuation in `genToC.sh` generated broken GFM anchors; 4. Unquoted positional parameters failed under `set -u`.
