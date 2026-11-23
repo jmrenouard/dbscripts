@@ -33,10 +33,11 @@ class TestDocsPublishWorkflow(unittest.TestCase):
         self.assertTrue(str(wf.get("concurrency", {}).get("group", "")).startswith("docs-publish-"))
         self.assertEqual((on_p["push"]["branches"], on_p["pull_request"]["branches"]), (["main"], ["main"]))
         self.assertEqual(on_p["push"]["paths"], on_p["pull_request"]["paths"])
+        self.assertEqual(on_ci["push"]["paths"], on_ci["pull_request"]["paths"])
         self.assertEqual(on_p["release"], {"types": ["published"]})
         self.assertIs(on_p["workflow_dispatch"]["inputs"]["deploy"]["default"], True)
         self.assertTrue(set(on_ci["push"]["paths"]).issubset(set(on_p["push"]["paths"])))
-        self.assertTrue({".github/workflows/docs-publish.yml", *DOC_TESTS}.issubset(set(on_ci["push"]["paths"])))
+        self.assertTrue({".github/workflows/docs-publish.yml", "ansible/README.md", "docker/mariadb/README.md", *DOC_TESTS}.issubset(set(on_ci["push"]["paths"])))
         ci_runs = "\n".join(str(s.get("run", "")) for j in ci["jobs"].values() for s in j["steps"])
         for tf in DOC_TESTS:
             self.assertIn(tf, ci_runs)

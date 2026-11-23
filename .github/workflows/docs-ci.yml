@@ -9,6 +9,8 @@ on:
       - "mkdocs.yml"
       - "README.md"
       - "Changelog"
+      - "ansible/README.md"
+      - "docker/mariadb/README.md"
       - "requirements-docs.txt"
       - ".vale.ini"
       - ".markdownlint.json"

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from html.parser import HTMLParser
 import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -21,6 +23,41 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HOOKS_PATH = REPO_ROOT / "scripts" / "mkdocs_hooks.py"
 BUILDER_PATH = REPO_ROOT / "scripts" / "build_versioned_docs.py"
+_RAW_ALERT_RE = re.compile(r"\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]")
+
+
+class _PortalHTMLCheck(HTMLParser):
+    """Collect text outside code/pre and SVG icons inside `.grid.cards`."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.stack: list[tuple[str, bool, bool]] = []
+        self.skip, self.cards, self.svgs = 0, 0, 0
+        self.chunks: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        t, cls = tag.lower(), set((dict(attrs).get("class") or "").split())
+        self.svgs += int(t == "svg" and self.cards > 0)
+        sk, cd = t in {"code", "pre", "script", "style"}, {"grid", "cards"}.issubset(cls)
+        if sk or cd or any(pt == t for pt, _, _ in self.stack):
+            self.skip, self.cards = self.skip + sk, self.cards + cd
+            self.stack.append((t, sk, cd))
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.svgs += int(tag.lower() == "svg" and self.cards > 0)
+
+    def handle_endtag(self, tag: str) -> None:
+        t = tag.lower()
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == t:
+                while len(self.stack) > i:
+                    _, sk, cd = self.stack.pop()
+                    self.skip, self.cards = max(0, self.skip - sk), max(0, self.cards - cd)
+                break
+
+    def handle_data(self, data: str) -> None:
+        if not self.skip:
+            self.chunks.append(data)
 
 
 class _MkDocsLoader(yaml.SafeLoader):
@@ -71,7 +108,10 @@ class TestMkDocsPublishing(unittest.TestCase):
         self.assertEqual(cfg["extra"]["version"], {"provider": "mike", "default": "latest"})
         self.assertTrue("stylesheets/extra.css" in cfg["extra_css"] and "javascripts/katex.js" in cfg["extra_javascript"])
         exts = {e if isinstance(e, str) else next(iter(e)) for e in cfg["markdown_extensions"]}
-        self.assertLessEqual({"admonition", "pymdownx.arithmatex", "pymdownx.superfences"}, exts)
+        self.assertLessEqual({"admonition", "pymdownx.arithmatex", "pymdownx.emoji", "pymdownx.superfences"}, exts)
+        emoji = next(e["pymdownx.emoji"] for e in cfg["markdown_extensions"] if isinstance(e, dict) and "pymdownx.emoji" in e)
+        self.assertEqual(emoji["emoji_index"], "python/name:material.extensions.emoji.twemoji")
+        self.assertEqual(emoji["emoji_generator"], "python/name:material.extensions.emoji.to_svg")
         sf = next(e["pymdownx.superfences"] for e in cfg["markdown_extensions"] if isinstance(e, dict) and "pymdownx.superfences" in e)
         self.assertTrue(any(f.get("name") == "mermaid" and f.get("class") == "mermaid" for f in sf["custom_fences"]))
         for pat in ("*.kdbx", "*.keyx", "*.pid", ".env", "*.pem", "*.key"):
@@ -182,6 +222,14 @@ class TestMkDocsPublishing(unittest.TestCase):
                 self.assertTrue((out / rel).is_file(), f"Missing built file: {rel}")
             self.assertEqual([e["version"] for e in json.loads((out / "versions.json").read_text(encoding="utf-8"))], ["v1.0.0", "main"])
             _load("bvd_e2e", BUILDER_PATH).assert_no_private_files(out)
+            idx = _PortalHTMLCheck()
+            idx.feed((out / "main" / "index.html").read_text(encoding="utf-8"))
+            self.assertGreaterEqual(idx.svgs, 6)
+            for hp in sorted((out / "main").rglob("*.html")):
+                chk = _PortalHTMLCheck()
+                chk.feed(hp.read_text(encoding="utf-8"))
+                txt = "".join(chk.chunks)
+                self.assertTrue(":material-" not in txt and "{ .lg .middle }" not in txt and not _RAW_ALERT_RE.search(txt), str(hp.relative_to(out)))
 
 
 if __name__ == "__main__":
