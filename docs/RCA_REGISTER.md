@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-038 — French Physical Backup Overview and Tool Sections (`Issue #94` / PR 5a1)
+- **Observed Symptom**: The top half of `documentation/PostgreSQL/backup_physique.md` (introduction and `pg_basebackup`, `pgBackRest`, `WAL-G`, `pg_probackup`, `Barman` sections) remained in French with dangling numeric footnote suffixes (`1`, `2`, `3`, `4`, `6`, `10`, `11`, `19`, `21`, `22`).
+- **5 Whys RCA**: 1. Original guide was written in French before the English-only policy; 2. Translating all 8,766 cleaned bytes in one commit risked hitting the 15,000-character PR diff limit.
+- **Applied Fix**: Translated lines 1-42 into concise, structured English and removed dangling numeric footnote suffixes in PR 5a1 (`Issue #94`), leaving lines 43-87 (comparison matrix and recommendations) for PR 5a2.
+- **Non-Regression**: `unittest` (`64/64`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-037 — Inline Base64 PNG Bloat in Physical Backup Guide (`Issue #92` / PR 4c)
 - **Observed Symptom**: `documentation/PostgreSQL/backup_physique.md` embedded 4 inline `[image1..4]: <data:image/png;base64,...>` blocks (5,360 bytes) for `RPO`, `RTO`, `PITR`, and `WAL` acronym badges.
 - **5 Whys RCA**: 1. Rich-text export replaced acronym text spans with inline base64 PNGs; 2. Inline base64 payloads inflate git history and Markdown parsing; 3. Splitting from PR 4b kept every PR diff strictly `< 15,000` chars.
