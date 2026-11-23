@@ -552,6 +552,11 @@
 - **Impact & Scope**: Keeps the test image minimal (~125 MB) without Windows DPAPI (`pywin32`), CPAN Nagios modules, or live DB/cloud servers while achieving 225/225 container smoke checks (`0 failed`).
 - **Removal Condition**: Replace individual stubs only if dedicated multi-container integration jobs install full vendor SDKs.
 
+### APP-033 — `RUN_DOCKER_SCRIPT_TESTS=1` Gate Without `skipTest` in `test_all_scripts_coverage.py` (`Issue #102`, PR 6b)
+- **Approximation**: `test_docker_harness_contracts_and_optional_live_container` always validates `Dockerfile`, `run_all_script_tests.sh`, and `Makefile` contracts offline and executes the live Docker build/run only when `RUN_DOCKER_SCRIPT_TESTS=1`.
+- **Impact & Scope**: Guarantees `0` skipped tests in standard CI (`ci.yml`) where Docker builds are omitted, while enabling full end-to-end container verification locally when `RUN_DOCKER_SCRIPT_TESTS=1`.
+- **Removal Condition**: Enable `RUN_DOCKER_SCRIPT_TESTS=1` unconditionally once CI runners cache `dbscripts-script-tests:latest`.
+
 ---
 
 
