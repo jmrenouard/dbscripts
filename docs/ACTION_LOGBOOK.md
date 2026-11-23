@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-041 — docs(guides): translate SSHFS guide to English and remove stale docx (Issue `#82`, PR 3a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#82` | **Branch**: `docs/issue-82-translate-sshfs-guide`
+- **Request**: Translate `documentation/LinuxSystem/README_SSHFS.md` to English preserving all function names and command snippets, and remove stale `documentation/LinuxSystem/README_SSHFS.docx` (PR 3a).
+- **Changes**: Translated `documentation/LinuxSystem/README_SSHFS.md` into concise English, deleted `documentation/LinuxSystem/README_SSHFS.docx` via `git rm`, and logged `RCA-032`.
+- **Result**: `compileall`, `unittest` (`64/64`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-040 — chore(docs): clean .agent docs and enforce repo-wide markdown link tests (Issue `#80`, PR 2c)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#80` | **Branch**: `chore/issue-80-agent-docs-link-tests`
 - **Request**: Clean stale `.agent/` refs and enforce repo-wide relative link, `file://` URI, and same-file anchor tests (PR 2c).

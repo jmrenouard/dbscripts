@@ -1,39 +1,39 @@
-# SSHFS SCRIPTS POUR LA SAUVEGARDE BDD
+# SSHFS SCRIPTS FOR DB BACKUP
 ----------------------- 
 
-## Environnements cible serveur SSH et clients SSHFS
-- Serveur SSHFS en **Ubuntu 20**
-- Client SSHFS: **Ubuntu 18**, **Ubuntu 20** et **CentOS 7** 
+## Target Environments: SSHFS Server and Clients
+- SSHFS Server: **Ubuntu 20**
+- SSHFS Clients: **Ubuntu 18**, **Ubuntu 20**, and **CentOS 7**
 
-## Fonctions utilitaires d'installation des paquets **Ubuntu** & **CentOS**
-``setup_ubuntu_sshfs_server()``: Installation des paquets dédiés au serveur SSHFS **Ubuntu 20** 
-``setup_ubuntu_sshfs_client()``: Installation des paquets dédiés au client SSHFS  **Ubuntu 18 et 20**
-``setup_centos_sshfs_client()``: Installation des paquets dédiés au serveur SSHFS **CentOS 7**
+## Package Installation Utility Functions (**Ubuntu** & **CentOS**)
+``setup_ubuntu_sshfs_server()``: Installs packages dedicated to the SSHFS server on **Ubuntu 20**.
+``setup_ubuntu_sshfs_client()``: Installs packages dedicated to the SSHFS client on **Ubuntu 18 and 20**.
+``setup_centos_sshfs_client()``: Installs packages dedicated to the SSHFS client on **CentOS 7**.
 
-## Fonctions utilitaires serveur SSHFS de gestion des partages SSHFS **Ubuntu 20**
-``createSSHFSShare()``: Création d'un partage SSHFS  ** Ubuntu 20**
-``removeSSHFSShare()``: Suppression d'un partage SSHFS  ** Ubuntu 20**
+## SSHFS Server Share Management Utility Functions (**Ubuntu 20**)
+``createSSHFSShare()``: Creates an SSHFS share on **Ubuntu 20**.
+``removeSSHFSShare()``: Removes an SSHFS share on **Ubuntu 20**.
 
-## Fonctions utilitaires client SSHFS de gestion des partages SSHFS **Ubuntu 18/20** & **CentOS 7**
-``mountSSHFSShare()``: Installation d'un point de montage SSHFS
-``umountSSHFSShare()``: Suppression d'un point de montage SSHFS
+## SSHFS Client Mount Management Utility Functions (**Ubuntu 18/20** & **CentOS 7**)
+``mountSSHFSShare()``: Configures an SSHFS mount point.
+``umountSSHFSShare()``: Removes an SSHFS mount point.
 
-# Démonstration et validation des procédures
+# Demonstration and Validation of Procedures
 
-# Liste des machines du POC
- - U20  176.58.120.128 - Serveur SSHFS Ubuntu 20
- - U20  178.79.190.100 - Client SSHFS Ubuntu 20
- - U18  109.237.26.75  - Client SSHFS Ubuntu 18
- - C70  178.79.190.154 - Client SSHFS CentOS 7
+# POC Machine List
+ - U20  176.58.120.128 - Ubuntu 20 SSHFS Server
+ - U20  178.79.190.100 - Ubuntu 20 SSHFS Client
+ - U18  109.237.26.75  - Ubuntu 18 SSHFS Client
+ - C70  178.79.190.154 - CentOS 7 SSHFS Client
 
-## Configuration d'un serveur SSHFS **Ubuntu 20**
+## Configuring an SSHFS Server on **Ubuntu 20**
 
-### Détails 
-#### Création de 4 points de montage 
-  - Un par client SSHFS 
-  - Un partage SSHFS global à tous les serveurs
+### Details
+#### Creating 4 Mount Points
+  - One per SSHFS client
+  - One global SSHFS share for all servers
 
-### Commandes d'installation des paquets SSHFS serveur **Ubuntu 20**
+### Package Installation Commands (SSHFS Server **Ubuntu 20**)
     
 ```bash
 # ssh root@176.58.120.128
@@ -43,7 +43,7 @@
 # ...
 ```
 
-### Commandes d'installation des paquets SSHFS client  **Ubuntu 18 ou 20**
+### Package Installation Commands (SSHFS Client **Ubuntu 18 or 20**)
     
     ssh root@178.79.190.100
     # source sshfs_utils.sh
@@ -51,7 +51,7 @@
     # setup_ubuntu_sshfs_client
     ...
 
-### Commandes d'installation des paquets SSHFS client  **CentOS 7**
+### Package Installation Commands (SSHFS Client **CentOS 7**)
     
     ssh root@178.79.190.154
     # source sshfs_utils.sh
@@ -59,7 +59,7 @@
     # setup_centos_sshfs_client
     ...
 
-### Commandes de création des partages SSHFS (Serveur SSHFS)
+### SSHFS Share Creation Commands (SSHFS Server)
     ssh root@176.58.120.128
     # source sshfs_utils.sh
 
@@ -69,67 +69,66 @@
     # ls -lsh / | grep -E '(share|backups)' 
     ...
     
-### Commandes de d'envoi des clés sur les serveurs clients (Serveur SSHFS)
+### SSH Key Distribution Commands to Client Servers (SSHFS Server)
     # source sshfs_utils.sh
 
     # mount_sshfs_share_share
     # mount_sshfs_share_backup
 
-### Commandes de montage SSHFS - serveur SSHFScli1 **Ubuntu 20**  (Client SSHFS)
+### SSHFS Mount Commands - Server SSHFScli1 **Ubuntu 20** (SSHFS Client)
     ssh root@SSHFScli1
     # source sshfs_utils.sh
 
     # mount_sshfs_share_share
     # mount_sshfs_share_backup
 
-### Commandes de démontage SSHFS - serveur SSHFScli1 **Ubuntu 20**  (Client SSHFS)
+### SSHFS Unmount Commands - Server SSHFScli1 **Ubuntu 20** (SSHFS Client)
     ssh root@SSHFScli1
     # source sshfs_utils.sh
 
-    # mount_sshfs_share_share
-    # mount_sshfs_share_backup
+    # umount_sshfs_share_share
+    # umount_sshfs_share_backup
 
-### Commandes de montage SSHFS - serveur SSHFScli2 **Ubuntu 18**  (Client SSHFS)
+### SSHFS Mount Commands - Server SSHFScli2 **Ubuntu 18** (SSHFS Client)
     ssh root@SSHFScli2
     # source sshfs_utils.sh
 
     # mount_sshfs_share_share
     # mount_sshfs_share_backup
 
-### Commandes de démontage SSHFS - serveur SSHFScli2 **Ubuntu 18**  (Client SSHFS)
+### SSHFS Unmount Commands - Server SSHFScli2 **Ubuntu 18** (SSHFS Client)
     ssh root@SSHFScli2
     # source sshfs_utils.sh
 
     # umount_sshfs_share_share
     # umount_sshfs_share_backup
 
-### Commandes de montage SSHFS - serveur SSHFScli3 **CentOS 7**  (Client SSHFS)
+### SSHFS Mount Commands - Server SSHFScli3 **CentOS 7** (SSHFS Client)
+    ssh root@SSHFScli3
+    # source sshfs_utils.sh
+
+    # mount_sshfs_share_share
+    # mount_sshfs_share_backup
+
+### SSHFS Unmount Commands - Server SSHFScli3 **CentOS 7** (SSHFS Client)
     ssh root@SSHFScli3
     # source sshfs_utils.sh
 
     # umount_sshfs_share_share
     # umount_sshfs_share_backup
 
-### Commandes de démontage SSHFS - serveur SSHFScli3 **CentOS 7**  (Client SSHFS)
-    ssh root@SSHFScli3
-    # source sshfs_utils.sh
-
-    # umount_sshfs_share_share
-    # umount_sshfs_share_backup
-
-## Les tests réalisés
-    - tentative de montage simple
-                   => entrée systemctl ok
-                   => point de montage ok
-    - tentative de montage en double
-                   => point de montage ok
-    - tentative de démontage
-                   => Plus d'entrée SSHFS
-    - tentative de démontage en double
-                   => Pas de point de montage
-                   => Plus d'entrée SSHFS
-    -tentative de montage d'un point d'un autre serveur
-                   => Pas de point de montage
-                   => Plus de fichier de service mount systemctl
-    - tentative lecture et écriture entre les points de montage client OK
-                
+## Performed Tests
+    - Simple mount attempt
+                   => systemctl entry ok
+                   => mount point ok
+    - Double mount attempt
+                   => mount point ok
+    - Unmount attempt
+                   => No SSHFS entry remaining
+    - Double unmount attempt
+                   => No mount point
+                   => No SSHFS entry remaining
+    - Attempt to mount a share from another server
+                   => No mount point
+                   => No systemctl mount service file remaining
+    - Read and write test between client mount points OK
