@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-052 — docs(howto): add container testing How-To guide and sync portal test count (Issue `#104`, PR 6c)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#104` | **Branch**: `docs/issue-104-container-testing-howto`
+- **Request**: Add strict ASD-STE100 Issue 9 How-To guide `docs/02-how-to-guides/operations/test-scripts-in-containers.md`, wire `mkdocs.yml`/index/reference links, and sync the exact final `unittest` count (`68`) across `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md` (`PR 6c`).
+- **Changes**: Added `test-scripts-in-containers.md` (`build`, `test`, `test-one`, `docker/mariadb test-galera`), updated `mkdocs.yml`, `docs/02-how-to-guides/index.md`, `docs/index.md`, `scripts-and-cli-reference.md`, `README.md`, `multi-db-automation-architecture.md`, and `APP-034`.
+- **Result**: `ste_check.py --mode procedural` (`0` errors, `0` warnings), `diataxis_check.py --strict --check-ste --lang en` (`0` errors, `0` warnings across `19` files), `mkdocs build --strict`, `compileall`, `unittest` (`68/68`, `0` skipped), and `RUN_DOCKER_SCRIPT_TESTS=1` (`3/3`) pass; diff `< 15,000` chars.
+
 ### ACT-051 — test(scripts): add full script coverage and container contract suite (Issue `#102`, PR 6b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#102` | **Branch**: `feat/issue-102-script-coverage-howto`
 - **Request**: Add `tests/test_all_scripts_coverage.py` verifying discovery, LF line endings, syntax, `utils*.sh` sourcing, `docker/script_tests` contracts, and optional live Docker execution (`PR 6b`, split ahead of PR 6c docs/portal sync to stay `< 15,000` chars).

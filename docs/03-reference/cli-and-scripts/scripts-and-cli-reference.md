@@ -10,6 +10,7 @@
 | `docker/mariadb/Makefile` | `build-image`, `{up,bootstrap,down,test,check,emergency}-galera`, `test-lb-galera` | Builds `mariadb_ssh:004`, manages 3-node Galera (`NODE=1\|2\|3`). |
 | `docker/mariadb/Makefile` | `{up,setup,test,check,emergency}-repli`, `{up,down}-mariadb11-repli`, `{backup,restore}-{,phys-}{galera,repli}`, `renew-ssl-{galera,repli}` | Manages `repli-legacy`/`repli-m11`, backups (`DB=`, `FILE=`), `FLUSH SSL;`. |
 | `docker/mysql_replication/Makefile` | `up`, `down`, `logs`, `inject`, `mt`, `mts`, `mtf` | Compose `up -d --build --remove-orphans`, `down`, `logs -f`, `employees.sql` load, `mysqltuner.pl`. |
+| `docker/script_tests/Makefile` | `build`, `test`, `test-one`, `clean` | Builds `dbscripts-script-tests:latest`, runs `scripts/` tests (`SCRIPT=`), removes image. |
 
 ## 2. Python CLIs (`docker/` & `scripts/bin/`)
 
