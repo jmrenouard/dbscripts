@@ -402,6 +402,11 @@
 - **Impact & Scope**: Prevents >385K diff output, keeping PR diff strictly < 15,000 chars.
 - **Removal Condition**: Permanent git attributes configuration or removal post-cleanup.
 
+### APP-021 — Virtual Documentation Injection & Historical Tag Fallbacks in MkDocs Hooks
+- **Approximation**: `scripts/mkdocs_hooks.py` injects `README.md`, `Changelog`, `ansible/README.md`, `docker/mariadb/README.md`, and `documentation/` (`*.md`, images) virtually at MkDocs build time with `QUADRANT_HISTORICAL_FALLBACKS` for pre-Diataxis tag `v1.0.0`, while keeping `mkdocs.structure.files` lazy-imported so hook functions run without `mkdocs` installed in `ci.yml`.
+- **Impact & Scope**: Preserves root `*.md` strictly as `{"README.md", "AGENTS.md"}`, avoids duplicating `documentation/` into `docs/`, and builds immutable historical tags without rewriting Git history.
+- **Removal Condition**: Permanent MkDocs architecture until all legacy `documentation/` guides are migrated into native `docs/` Diataxis quadrants and `docs-publish.yml` installs `requirements-docs.txt`.
+
 ---
 
 
