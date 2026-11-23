@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-040 — Missing Automated CI Guard Against French Docs and Inline Base64 Images (`Issue #98` / PR 5b)
+- **Observed Symptom**: Legacy French prose (`README_SSHFS.md`, `README_STUNNEL.md`, `spec_sync_pg_databases.md`, `perfromance_wal_disk.md`, `backup_physique.md`) and inline base64 PNG payloads (`data:image/png;base64,...`) persisted in `documentation/` without failing CI.
+- **5 Whys RCA**: 1. Prior test suites checked Diataxis structure, STE, and Markdown links/anchors but did not enforce English prose or prohibit `data:image/` embeds; 2. Reintroducing French text or base64 rich-text exports could silently regress CI.
+- **Applied Fix**: Added `test_docs_and_guides_english_only_and_no_base64_images` in `tests/test_diataxis_documentation.py` scanning `docs/` (excluding `ACTION_LOGBOOK.md` and `RCA_REGISTER.md`) and `documentation/` for French prose/accents outside code blocks and `data:image/` URIs anywhere.
+- **Non-Regression**: `unittest` (`65/65`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; PR diff `< 15,000` chars.
+
 ### RCA-039 — Remaining French Matrix and Comparison Sections in Physical Backup Guide (`Issue #96` / PR 5a2)
 - **Observed Symptom**: Lines 43-87 of `documentation/PostgreSQL/backup_physique.md` (pgBackRest comparison matrix, physical vs. logical comparison, and recommendations) remained in French with dangling numeric footnote suffixes.
 - **5 Whys RCA**: 1. Pass 2a translated the upper half (`lines 1-42`) to stay strictly below 15,000 diff chars; 2. Completing the second half in PR 5a2 finishes 100% English coverage across `documentation/` before enabling the CI English-only regression check in PR 5b.

@@ -32,6 +32,13 @@ HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*$")
 TBL_LIST_RE = re.compile(r"^\s*(?:\|.*\||(?:[-*+]|\d+\.)\s+\S)")
 EXT_RE = re.compile(r"^(?:https?|mailto|ftp|tel|data):", re.I)
 FILE_URI_RE = re.compile(r"file://[^\s)`'\">]+", re.I)
+DATA_IMAGE_RE = re.compile(r"data:image/", re.I)
+FRENCH_PROSE_RE = re.compile(
+    r"(?:\b(?:dans|avec|pour|sur)\s+(?:le|la|les|un|une|des)\b"
+    r"|\b(?:cette|sauvegarde|bases?\s+de\s+donn[eé]es|utilisateurs|commandes\s+d'|configuration\s+d'un|mise\s+[àa]\s+jour)\b"
+    r"|[àâçéèêëîïôùûüœæ])",
+    re.I,
+)
 SHA40_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 
 HOWTO_VAL_RE = re.compile(r"\b(?:validat(?:e|es|ed|ing|ion)|verif(?:y|ies|ied|ication)|check)\b", re.I)
@@ -246,6 +253,26 @@ class TestDiataxisDocumentation(unittest.TestCase):
                 elif not tgt.lower().startswith("file:") and not (res.is_file() or res.is_dir()):
                     broken.append(f"{rel}:{ln}: broken link {tgt}")
         self.assertEqual(broken, [], "\n".join(broken))
+
+    def test_docs_and_guides_english_only_and_no_base64_images(self) -> None:
+        """Verify docs/ (excluding governance logs) and documentation/ contain no French prose or data:image/ dumps."""
+        excluded = {"ACTION_LOGBOOK.md", "RCA_REGISTER.md"}
+        md_files = sorted(
+            p for root_dir in (DOCS, ROOT / "documentation") if root_dir.is_dir() for p in root_dir.rglob("*.md") if p.name not in excluded
+        )
+        violations: list[str] = []
+        for md in md_files:
+            rel = md.relative_to(ROOT).as_posix()
+            text = md.read_text(encoding="utf-8")
+            for ln, line in enumerate(text.splitlines(), 1):
+                if DATA_IMAGE_RE.search(line):
+                    violations.append(f"{rel}:{ln}: inline data:image/ payload")
+            for ln, line in _non_code_lines(text):
+                if match := FRENCH_PROSE_RE.search(line):
+                    violations.append(f"{rel}:{ln}: French text/accent '{match.group(0)}'")
+        self.assertEqual(violations, [], "\n".join(violations))
+        self.assertRegex("La sauvegarde pour le cluster", FRENCH_PROSE_RE)
+        self.assertRegex("[image1]: <data:image/png;base64,AAA>", DATA_IMAGE_RE)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-049 — test(docs): enforce English-only docs and ban inline base64 images (Issue `#98`, PR 5b)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#98` | **Branch**: `test/issue-98-english-docs-guard`
+- **Request**: Add a regression test in `tests/test_diataxis_documentation.py` scanning `docs/` (excluding `ACTION_LOGBOOK.md`/`RCA_REGISTER.md`) and `documentation/` for French prose phrases and `data:image/` inline base64 dumps (PR 5b).
+- **Changes**: Added `DATA_IMAGE_RE`, `FRENCH_PROSE_RE`, and `test_docs_and_guides_english_only_and_no_base64_images` to `tests/test_diataxis_documentation.py`, and logged `RCA-040`.
+- **Result**: `compileall`, `unittest` (`65/65`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` pass; diff `< 15,000` chars.
+
 ### ACT-048 — docs(postgres): translate physical backup matrix and recommendations to English (Issue `#96`, PR 5a2)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#96` | **Branch**: `docs/issue-96-translate-backup-matrix`
 - **Request**: Complete English translation of `documentation/PostgreSQL/backup_physique.md` (comparison matrix, physical vs. logical backups, and operational recommendations) while preserving the filename (PR 5a2, Pass 2b).
