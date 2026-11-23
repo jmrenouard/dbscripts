@@ -54,6 +54,3 @@ The Replication setup in this project implements a traditional **Master/Slave** 
 - **Read-Only Slaves**: Slaves are automatically configured in read-only mode to prevent data drift.
 - **Proxy Protocol**: Prepared for HAProxy integration to handle intelligent read/write splitting.
 
----
-
-*Note: Most documents are also available in French. See [INDEX_fr.md](INDEX_fr.md).*

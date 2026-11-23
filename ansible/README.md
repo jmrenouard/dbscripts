@@ -28,7 +28,7 @@ ansible/
 | `update_apt_distribution.yaml` | `{{ target }}` (`all`) | `target`, `type` (`yes`/`dist`), `reboot` (`no`) | `ansible-playbook update_apt_distribution.yaml -e "target=servers type=dist"` |
 | `update_rh_distribution.yaml` | `{{ target }}` (`all`) | `target` (default `all`) | `ansible-playbook update_rh_distribution.yaml -e "target=servers"` |
 | `add_redis_user.yaml` | `redis` | `user`, `email`, `profile` (`READ_ONLY`, `READ_WRITE`, `ADMIN`) | `ansible-playbook add_redis_user.yaml -e "user=u email=e profile=READ_ONLY"` |
-| `change_redis_user_password.yaml` | `redis` | `user`, `password` | `ansible-playbook change_redis_user_password.yaml -e "user=u password=p"` |
+| `change_redis_user_password.yaml` | `redis` | `redis_username`, `redis_password` | `ansible-playbook change_redis_user_password.yaml -e "redis_username=u redis_password=p"` |
 | `delete_redis_user.yaml` | `redis` | `user` | `ansible-playbook delete_redis_user.yaml -e "user=u"` |
 
 ## Key Workflows
@@ -58,7 +58,7 @@ Automates database migration from AWS S3 dumps into Amazon RDS MySQL with verifi
 Manages Redis 6+ Access Control Lists across multi-node cluster instances (ports 7000–7005):
 - Profiles: `READ_ONLY` (`-@all +@read +@list +@string +@hash +@bitmap +@pubsub +PING ~*`), `READ_WRITE`, `ADMIN`.
 - Add user: `ansible-playbook add_redis_user.yaml -e "user=u email=e profile=READ_ONLY"`
-- Rotate password: `ansible-playbook change_redis_user_password.yaml -e "user=u password=secret"`
+- Rotate password: `ansible-playbook change_redis_user_password.yaml -e "redis_username=u redis_password=secret"`
 - Delete user: `ansible-playbook delete_redis_user.yaml -e "user=u"`
 
 ## Testing & Validation

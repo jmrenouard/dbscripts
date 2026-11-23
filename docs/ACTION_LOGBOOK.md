@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-038 — docs(guides): fix broken anchors, headings, READMEs, and secret placeholders (Issue `#76`, PR 2a)
+- **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#76` | **Branch**: `docs/issue-76-fix-anchors-guides`
+- **Request**: Fix Ansible Redis rotation vars, remove obsolete French links (`README_fr.md`, `INDEX_fr.md`), fix MariaDB README sub-headings and Galera CIDR, resolve 14 broken PostgreSQL anchors, replace weak Patroni example passwords with placeholders + warning, and update stale paths in `user_guide.md` and `generate_doc_description.md` (PR 2a).
+- **Changes**: Updated `ansible/README.md`, `ansible/roles/mysql_cluster/README.md`, `docker/mariadb/README.md`, `docker/mariadb/documentation/{INDEX,architecture}.md`, `documentation/PostgreSQL/{etcd_install_ssl,patroni_config_rh,patroni_ha_tests,patroni_monitoring}.md`, `documentation/{user_guide,generate_doc_description}.md`, and `RCA-029`.
+- **Result**: `compileall`, `unittest` (`63/63`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, and `mkdocs build --strict` (`0` broken anchor warnings) pass; diff `< 15,000` chars.
+
 ### ACT-037 — fix(docs): fix Redis ACL vars, Reference ports/Makefile, banner, Changelog, and test counts (Issue `#74`, PR 1b)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#74` | **Branch**: `fix/issue-74-docs-accuracy-counts`
 - **Request**: Fix Redis ACL password rotation vars, clarify HAProxy ports and `docker/mysql_replication/Makefile` targets, drop stale count from `header-banner.svg`, update `Changelog`, and sync `63` test count across portal docs (PR 1b).

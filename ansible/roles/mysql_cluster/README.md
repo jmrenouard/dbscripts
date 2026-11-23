@@ -39,5 +39,4 @@ innodb_group_cluster/
 │           └── innodb\_cluster.cnf.j2 \# Template for cluster directives.
 └── 📜 playbook.yml              \# Main Playbook: Orchestrates the execution of roles on the hosts.
 └── 📜 README.md             \# Project Documentation: Explanation and usage guide
-└── 📜 README_fr.md          \# French Project Documentation: Explanation and usage guide.
 ```

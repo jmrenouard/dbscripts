@@ -37,7 +37,7 @@ Creates a dedicated page grouping all images (PNG, JPG, JPEG, GIF) present in th
 ## Usage
 
 ```bash
-python3 script.py [options]
+python3 scripts/bin/generate_doc_description.py [options]
 ```
 
 ### Options

@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-029 — Broken GFM Anchors, Stale Paths, and Weak Example Credentials in Guides (`Issue #76` / PR 2a)
+- **Observed Symptom**: `mkdocs build --strict` reported 14 `no such anchor on this page` messages in PostgreSQL guides; `ansible/README.md` listed `user`/`password` instead of `redis_username`/`redis_password` for `change_redis_user_password.yaml`; `docker/mariadb/README.md` had misnumbered sub-headings; `architecture.md` showed `10.6.0.100/24`; `INDEX.md` and `mysql_cluster/README.md` referenced deleted French docs; `user_guide.md` and `generate_doc_description.md` cited deleted `output/` and `script.py`; `patroni_config_rh.md` contained weak literal passwords.
+- **5 Whys RCA**: 1. Legacy `genToC.sh` retained `.`, `/`, `(`, `)` in `#anchor` fragments; 2. Earlier French/output cleanup removed target files without updating cross-references; 3. Example YAML/Bash snippets copied lab credentials verbatim without explicit placeholders.
+- **Applied Fix**: Stripped GFM punctuation from all 14 PostgreSQL TOC anchors, replaced weak credentials with explicit `<REPLACE_WITH_STRONG_PASSWORD>`, `<REPLICATION_PASSWORD>`, and `<SUPERUSER_PASSWORD>` placeholders plus a `> [!WARNING]` note, and corrected Ansible/MariaDB/script path and heading references.
+- **Non-Regression**: `mkdocs build --strict` produces 0 `no such anchor on this page` warnings; `unittest` (`63/63`, `0` skipped), `compileall`, and `diataxis_check.py --strict --check-ste --lang en` pass.
+
 ### RCA-028 — Redis ACL Var Mismatch, Incomplete Port/Makefile Tables, and Stale Test Counts (`Issue #74` / PR 1b)
 - **Observed Symptom**: `harden-firewall-tls-and-redis-acl.md` passed `user=`/`password=` instead of `redis_username`/`redis_password` to `change_redis_user_password.yaml`, Reference docs omitted HAProxy host port mappings (`3406`/`3407`/`8405`) and `docker/mysql_replication/Makefile` targets (`inject`, `mt`, `mts`, `mtf`), and `header-banner.svg`, `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md` showed stale `49` test counts.
 - **5 Whys RCA**: 1. `change_redis_user_password.yaml` declares `redis_username`/`redis_password` unlike `add_redis_user.yaml`/`delete_redis_user.yaml` (`user`); 2. Reference tables summarized container ports and basic Compose targets without reading `docker-compose-repli.yml` and `docker/mysql_replication/Makefile`; 3. Test count grew from `49` to `63` across PR 5/6 without updating portal counters or making `header-banner.svg` evergreen.
