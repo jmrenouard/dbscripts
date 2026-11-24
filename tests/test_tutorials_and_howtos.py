@@ -21,6 +21,12 @@ _MAKE_DEF_RE = re.compile(r"^([A-Za-z0-9_.-]+)\s*:(?!=)", re.MULTILINE)
 _CITED_RE = re.compile(r"\b(?:scripts|docker|ansible)/[A-Za-z0-9_./-]+\.(?:sh|py|ya?ml|example)\b")
 _CODE_SEG_RE = re.compile(r"```[^\n]*\n(.*?)```|`([^`\n]+)`", re.DOTALL)
 _MAKE_CMD_RE = re.compile(r"^\s*make\b(?:[ \t]+-C[ \t]+([A-Za-z0-9_./-]+))?((?:[ \t]+[A-Za-z0-9_.=-]+)+)")
+_CLI_RUNNER = (
+    "import importlib.util,runpy,sys,types;"
+    "sys.modules.setdefault('docker',types.SimpleNamespace(from_env=lambda:None))"
+    " if importlib.util.find_spec('docker') is None else None;"
+    "sys.argv=sys.argv[1:];runpy.run_path(sys.argv[0],run_name='__main__')"
+)
 _MERMAID_REQUIRED = (
     "docs/01-tutorials/01-mariadb-galera-docker-lab.md",
     "docs/01-tutorials/02-mysql-docker-cli-sandbox.md",
@@ -86,8 +92,9 @@ class TestTutorialsAndHowTos(unittest.TestCase):
     def test_mysql_docker_cli_help_and_cited_scripts_syntax(self) -> None:
         cli = str(REPO_ROOT / "docker/mysql_docker.py")
         for sub in ([], ["start"], ["list"], ["stop"], ["rm"]):
-            proc = subprocess.run([sys.executable, cli, *sub, "--help"], cwd=REPO_ROOT, capture_output=True, text=True)
+            proc = subprocess.run([sys.executable, "-c", _CLI_RUNNER, cli, *sub, "--help"], cwd=REPO_ROOT, capture_output=True, text=True)
             self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertIn("usage:", proc.stdout.lower())
         bash_bin = _GIT_BASH if os.path.isfile(_GIT_BASH) else shutil.which("bash")
         self.assertIsNotNone(bash_bin)
         cited = sorted({r for md in _tutorial_howto_docs() for r in _CITED_RE.findall(md.read_text(encoding="utf-8"))})
