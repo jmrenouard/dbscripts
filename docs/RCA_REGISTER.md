@@ -11,6 +11,12 @@
 
 ## 1. Errors & Bugs Encountered (`RCA-XXX`)
 
+### RCA-041 — Legacy Ansible Box-Drawing Trees and Missing Tutorial Diagrams (`Issue #106`)
+- **Observed Symptom**: `ansible/README.md` (mounted at `docs/ansible-playbooks.md`) and `ansible/roles/mysql_cluster/README.md` contained Unicode/plain-text directory trees, and `docs/01-tutorials/01-mariadb-galera-docker-lab.md` and `02-mysql-docker-cli-sandbox.md` lacked Mermaid topology and lifecycle diagrams.
+- **5 Whys RCA**: 1. Earlier Diátaxis passes converted `docs/` ASCII diagrams but omitted mounted `ansible/` READMEs; 2. Neither `docs/01-tutorials/` lesson included rendered visual diagrams.
+- **Applied Fix**: Converted both Ansible README trees and added column-0 `mermaid` flowcharts to both `docs/01-tutorials/` guides (`mmdc` and Playwright verified; automated regression tests follow in Part 2).
+- **Non-Regression**: `unittest` (`68/68`, `0` skipped), `diataxis_check.py --strict --check-ste --lang en`, `mkdocs build --strict`, `mmdc`, and Playwright pass.
+
 ### RCA-040 — Missing Automated CI Guard Against French Docs and Inline Base64 Images (`Issue #98` / PR 5b)
 - **Observed Symptom**: Legacy French prose (`README_SSHFS.md`, `README_STUNNEL.md`, `spec_sync_pg_databases.md`, `perfromance_wal_disk.md`, `backup_physique.md`) and inline base64 PNG payloads (`data:image/png;base64,...`) persisted in `documentation/` without failing CI.
 - **5 Whys RCA**: 1. Prior test suites checked Diataxis structure, STE, and Markdown links/anchors but did not enforce English prose or prohibit `data:image/` embeds; 2. Reintroducing French text or base64 rich-text exports could silently regress CI.

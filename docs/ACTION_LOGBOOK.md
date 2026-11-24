@@ -29,7 +29,11 @@
 
 ## 1. Ongoing Actions (`IN PROGRESS`)
 
-*None currently in progress.*
+### ACT-053 — docs(mermaid): convert Ansible directory trees to Mermaid and add tutorial diagrams (Issue `#106`)
+- **Timestamp**: 2026-11-24
+- **Branch**: `docs/issue-106-mermaid-diagrams` (from `main`)
+- **Request**: Replace plain-text box-drawing trees in `ansible/README.md` and `ansible/roles/mysql_cluster/README.md` with column-0 `mermaid` flowcharts, and add architecture and lifecycle `mermaid` diagrams to both `docs/01-tutorials/` guides (Part 1 before executable tutorial/how-to test suite in follow-up PR).
+- **Status**: Running pre-commit verification before opening PR.
 
 ---
 
