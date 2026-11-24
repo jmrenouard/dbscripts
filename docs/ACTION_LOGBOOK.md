@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-054 — test(docs): add tutorial/how-to validation suite and sync portal test counts (Issue `#108`, PR `#109`)
+- **Date**: 2026-11-24 | **Status**: COMPLETED | **Issue**: `#108` | **Branch**: `test/issue-108-tutorial-howto-suite`
+- **Request**: Add `tests/test_tutorials_and_howtos.py` (diagram hygiene, Make targets, cited files, `mysql_docker.py --help`, `bash -n`, YAML parse), wire diagram checks into `tests/test_diataxis_documentation.py`, log `APP-035`, and sync the `72`-test count across portal docs (`PR #109`).
+- **Changes**: Added `tests/test_tutorials_and_howtos.py` (`3` test methods + `find_diagram_hygiene_violations`), wired diagram hygiene into `tests/test_diataxis_documentation.py`, updated `68` -> `72` across `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md`, and logged `APP-035`.
+- **Result**: `unittest` (`72/72`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en` (`0` errors, `0` warnings), `ste_check.py --mode procedural` (`0` errors, `0` warnings), `mkdocs build --strict`, `audit_helpers.py` (`PASS`), and Playwright (`100` pages, `10` diagrams, `0` failed) pass; diff `< 15,000` bytes.
+
 ### ACT-053 — docs(mermaid): convert Ansible directory trees to Mermaid and add tutorial diagrams (Issue `#106`, PR `#107`)
 - **Date**: 2026-11-24 | **Status**: COMPLETED | **Issue**: `#106` | **Branch**: `docs/issue-106-mermaid-diagrams`
 - **Request**: Replace plain-text box-drawing trees in `ansible/README.md` and `ansible/roles/mysql_cluster/README.md` with column-0 `mermaid` flowcharts, and add architecture and lifecycle `mermaid` diagrams to both `docs/01-tutorials/` guides (`PR #107`, Part 1 of 2 before executable validation suite).

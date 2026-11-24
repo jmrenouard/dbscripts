@@ -568,6 +568,11 @@
 - **Impact & Scope**: Eliminates stale `49`/`63` test metrics across the documentation portal while keeping PR 6c well below `15,000` diff chars.
 - **Removal Condition**: Replace static badge/table counts with generated build metadata if `mkdocs_hooks.py` computes live test discovery counts in the future.
 
+### APP-035 — Safe Offline Tutorial CLI and Shell Validation (`Issue #108`)
+- **Approximation**: `tests/test_tutorials_and_howtos.py` validates `docker/mysql_docker.py` subcommands via `--help`, cited shell scripts via `bash -n`, Make targets statically, and Ansible playbooks via `yaml.safe_load` without launching live containers.
+- **Impact & Scope**: Enforces tutorial, how-to, and Mermaid contracts across CI (`72/72`, zero skipped) and wires diagram hygiene into `tests/test_diataxis_documentation.py` without modifying workflow YAML; portal counts updated to `72`.
+- **Removal Condition**: Extend with live container runs once CI runners support rootless Docker-in-Docker tests.
+
 ---
 
 
