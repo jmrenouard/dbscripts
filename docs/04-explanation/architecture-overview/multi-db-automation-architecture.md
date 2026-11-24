@@ -26,7 +26,7 @@ flowchart TB
 | Choice | Advantage | Trade-Off |
 |---|---|---|
 | Bash + stdlib Python | Zero DB-host deps | Strict `set -euo pipefail` quoting |
-| Offline AST/`bash -n` | 68 tests, no Docker | Failover tests need `docker/mariadb/` |
+| Offline AST/`bash -n` | 72 tests, no Docker | Failover tests need `docker/mariadb/` |
 | Proxy tier | Decouples clients from failover | Extra ports (`9200`, `8404`, `6032`) |
 
 [Scripts & CLI](../../03-reference/cli-and-scripts/scripts-and-cli-reference.md) | [Parameters & Ports](../../03-reference/configuration/automation-parameters-and-ports.md)

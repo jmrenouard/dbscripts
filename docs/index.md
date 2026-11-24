@@ -15,7 +15,7 @@ Automation for **MariaDB/Galera**, **MySQL**, **PostgreSQL**, **MongoDB**, **Cas
 <div class="dbscripts-metrics">
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">6 Platforms</span><span class="dbscripts-metric-label">MariaDB · MySQL · PG · Mongo · Cassandra · Oracle</span></div>
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">15 Playbooks</span><span class="dbscripts-metric-label">InnoDB Cluster · S3-to-RDS · Redis ACLs</span></div>
-  <div class="dbscripts-metric"><span class="dbscripts-metric-value">68 Unit Tests</span><span class="dbscripts-metric-label">unittest · bash -n · YAML &amp; AST</span></div>
+  <div class="dbscripts-metric"><span class="dbscripts-metric-value">72 Unit Tests</span><span class="dbscripts-metric-label">unittest · bash -n · YAML &amp; AST</span></div>
   <div class="dbscripts-metric"><span class="dbscripts-metric-value">4 Quadrants</span><span class="dbscripts-metric-label">Diátaxis · ASD-STE100 Issue 9</span></div>
 </div>
 

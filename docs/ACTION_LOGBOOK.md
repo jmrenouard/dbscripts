@@ -29,7 +29,11 @@
 
 ## 1. Ongoing Actions (`IN PROGRESS`)
 
-*None currently in progress.*
+### ACT-054 — test(docs): add tutorial/how-to validation suite and sync portal test counts (Issue `#108`)
+- **Timestamp**: 2026-11-24
+- **Branch**: `test/issue-108-tutorial-howto-suite` (from `main`)
+- **Request**: Add `tests/test_tutorials_and_howtos.py` (diagram hygiene, Make targets, cited files, `mysql_docker.py --help`, `bash -n`, YAML parse), wire diagram checks into `tests/test_diataxis_documentation.py`, log `APP-035`, and sync the `72`-test count across portal docs.
+- **Status**: Validating full test suite and MkDocs/Playwright build before opening PR.
 
 ---
 

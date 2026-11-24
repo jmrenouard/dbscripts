@@ -274,6 +274,14 @@ class TestDiataxisDocumentation(unittest.TestCase):
         self.assertRegex("La sauvegarde pour le cluster", FRENCH_PROSE_RE)
         self.assertRegex("[image1]: <data:image/png;base64,AAA>", DATA_IMAGE_RE)
 
+    def test_tutorials_and_ansible_mermaid_and_no_ascii_diagrams(self) -> None:
+        try:
+            from tests.test_tutorials_and_howtos import find_diagram_hygiene_violations
+        except ImportError:
+            from test_tutorials_and_howtos import find_diagram_hygiene_violations
+
+        self.assertEqual(find_diagram_hygiene_violations(), [])
+
 
 if __name__ == "__main__":
     unittest.main()
