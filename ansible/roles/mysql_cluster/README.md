@@ -16,27 +16,13 @@ The structure presented below is a widely adopted convention within the Ansible 
 
 Here is a visual representation of this recommended organization, specifically adapted for our goal of deploying a MySQL InnoDB cluster:
 
-```plaintext
-innodb_group_cluster/
-├── 📁 inventory/
-│   └── hosts.ini           \# Defines the target servers (the WHAT) and their groups.
-├── 📁 group\_vars/
-│   ├── all.yml             \# Global variables (the default CONFIGURATION).
-│   └── mysql\_servers.yml   \# Specific variables (the refined CONFIGURATION).
-├── 📁 roles/                \# Contains reusable execution logic (the HOW).
-│   ├── 📁 common/           \# Role: System Preparation / Standardization.
-│   │   └── tasks/
-│   │       └── main.yml    \# List of tasks for 'common'.
-│   ├── 📁 mysql\_server/     \# Role: MySQL Installation / Basic Configuration.
-│   │   ├── tasks/
-│   │   │   └── main.yml    \# List of tasks for 'mysql\_server'.
-│   │   └── templates/
-│   │       └── mysqld.cnf.j2 \# Template for the MySQL configuration file.
-│   └── 📁 mysql\_cluster/    \# Role: Specific InnoDB Cluster Configuration.
-│       ├── tasks/
-│       │   └── main.yml    \# List of tasks for 'mysql\_cluster'.
-│       └── templates/
-│           └── innodb\_cluster.cnf.j2 \# Template for cluster directives.
-└── 📜 playbook.yml              \# Main Playbook: Orchestrates the execution of roles on the hosts.
-└── 📜 README.md             \# Project Documentation: Explanation and usage guide
+```mermaid
+flowchart LR
+    Root["innodb_group_cluster/"] --> Inv["inventory/hosts.ini"]
+    Root --> GV["group_vars/ (all.yml, mysql_servers.yml)"]
+    Root --> Roles["roles/"]
+    Root --> PB["playbook.yml & README.md"]
+    Roles --> Common["common/tasks/main.yml"]
+    Roles --> Srv["mysql_server/ (tasks/main.yml, templates/mysqld.cnf.j2)"]
+    Roles --> Clus["mysql_cluster/ (tasks/main.yml, templates/innodb_cluster.cnf.j2)"]
 ```

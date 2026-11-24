@@ -9,6 +9,19 @@
 - `mariadb` client (`make install-client` on Debian/Ubuntu)
 - Free host ports `3306`, `3511`–`3513`, `8404`, `22001`, `24002`–`24003`
 
+## Lab Architecture
+
+```mermaid
+flowchart LR
+    Client["mariadb client (:3306 / :8404)"] --> HA["HAProxy LB"]
+    HA --> N1["galera-node-1 (:3511)"]
+    HA --> N2["galera-node-2 (:3512)"]
+    HA --> N3["galera-node-3 (:3513)"]
+    N1 <--> N2
+    N2 <--> N3
+    N1 <--> N3
+```
+
 ## Step 1: Start the Galera Cluster
 
 Move to `docker/mariadb` and launch the 3-node cluster with HAProxy:

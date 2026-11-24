@@ -8,6 +8,16 @@
 - Running Docker daemon and Python `docker` SDK (`pip install docker`)
 - Free local TCP port allocated dynamically by `find_free_port()`
 
+## Lifecycle Flow
+
+```mermaid
+flowchart LR
+    S1["start (find_free_port)"] --> S2["Running Container"]
+    S2 --> S3["list --status running"]
+    S2 --> S4["stop"]
+    S4 --> S5["rm"]
+```
+
 ## Step 1: Start a MySQL Sandbox Container
 
 Launch a container named `mysql-lab` with MySQL `8.0`:

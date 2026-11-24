@@ -35,6 +35,12 @@
 
 ## 2. Completed Actions (`COMPLETED`)
 
+### ACT-053 — docs(mermaid): convert Ansible directory trees to Mermaid and add tutorial diagrams (Issue `#106`, PR `#107`)
+- **Date**: 2026-11-24 | **Status**: COMPLETED | **Issue**: `#106` | **Branch**: `docs/issue-106-mermaid-diagrams`
+- **Request**: Replace plain-text box-drawing trees in `ansible/README.md` and `ansible/roles/mysql_cluster/README.md` with column-0 `mermaid` flowcharts, and add architecture and lifecycle `mermaid` diagrams to both `docs/01-tutorials/` guides (`PR #107`, Part 1 of 2 before executable validation suite).
+- **Changes**: Converted `ansible/README.md` and `ansible/roles/mysql_cluster/README.md` directory trees to column-0 `mermaid` flowcharts, inserted topology and lifecycle `mermaid` diagrams in `docs/01-tutorials/01-mariadb-galera-docker-lab.md` and `02-mysql-docker-cli-sandbox.md`, and logged `RCA-041`.
+- **Result**: `unittest` (`68/68`, `0` skipped), `compileall`, `diataxis_check.py --strict --check-ste --lang en` (`0` errors, `0` warnings across `19` files), `mkdocs build --strict` (`1.49s`), `audit_helpers.py` (`PASS`, `11/11` `mmdc`, `0` ASCII), and Playwright (`100` pages, `10` diagrams, `0` failed) pass; diff `< 15,000` bytes.
+
 ### ACT-052 — docs(howto): add container testing How-To guide and sync portal test count (Issue `#104`, PR 6c)
 - **Date**: 2026-11-23 | **Status**: COMPLETED | **Issue**: `#104` | **Branch**: `docs/issue-104-container-testing-howto`
 - **Request**: Add strict ASD-STE100 Issue 9 How-To guide `docs/02-how-to-guides/operations/test-scripts-in-containers.md`, wire `mkdocs.yml`/index/reference links, and sync the exact final `unittest` count (`68`) across `README.md`, `docs/index.md`, and `multi-db-automation-architecture.md` (`PR 6c`).

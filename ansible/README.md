@@ -4,11 +4,11 @@ Ansible playbooks and roles for multi-node database automation, MySQL InnoDB Clu
 
 ## Directory Layout
 
-```text
-ansible/
-├── roles/                  # common, mysql-server, mysql_servers, mysql_cluster, rundeck
-├── group_vars/             # Host group variable definitions
-└── *.yaml / *.yml          # Database and cluster automation playbooks (see table below)
+```mermaid
+flowchart TD
+    Root["ansible/"] --> Roles["roles/ (common, mysql-server, mysql_servers, mysql_cluster, rundeck)"]
+    Root --> Vars["group_vars/ (host group variable definitions)"]
+    Root --> Playbooks["*.yaml / *.yml (database & cluster playbooks)"]
 ```
 
 ## Playbook Inventory Matrix
