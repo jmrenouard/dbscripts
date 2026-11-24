@@ -22,10 +22,13 @@ _CITED_RE = re.compile(r"\b(?:scripts|docker|ansible)/[A-Za-z0-9_./-]+\.(?:sh|py
 _CODE_SEG_RE = re.compile(r"```[^\n]*\n(.*?)```|`([^`\n]+)`", re.DOTALL)
 _MAKE_CMD_RE = re.compile(r"^\s*make\b(?:[ \t]+-C[ \t]+([A-Za-z0-9_./-]+))?((?:[ \t]+[A-Za-z0-9_.=-]+)+)")
 _CLI_RUNNER = (
-    "import importlib.util,runpy,sys,types;"
-    "sys.modules.setdefault('docker',types.SimpleNamespace(from_env=lambda:None))"
-    " if importlib.util.find_spec('docker') is None else None;"
-    "sys.argv=sys.argv[1:];runpy.run_path(sys.argv[0],run_name='__main__')"
+    "import runpy,sys,types\n"
+    "try:\n"
+    "    from docker import from_env\n"
+    "except ImportError:\n"
+    "    sys.modules['docker'] = types.SimpleNamespace(from_env=lambda: None)\n"
+    "sys.argv = sys.argv[1:]\n"
+    "runpy.run_path(sys.argv[0], run_name='__main__')\n"
 )
 _MERMAID_REQUIRED = (
     "docs/01-tutorials/01-mariadb-galera-docker-lab.md",
